@@ -6,6 +6,7 @@ import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
 import { Login } from './components/Login';
 import { ToastProvider } from './components/ui/Toast';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
 import { Employee, Event, Shift } from './types';
 import { auth } from './firebase';
@@ -110,6 +111,7 @@ function App() {
           <EmployeeManager
             employees={employees}
             shifts={shifts}
+            events={events}
           />
         );
       case 'payroll':
@@ -126,7 +128,7 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900">
+      <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -138,7 +140,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900">
+      <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -146,14 +148,46 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-slate-900">
-        <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
-        <main>
-          {renderContent()}
-        </main>
-      </div>
+      <AppContent
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleLogout={handleLogout}
+        renderContent={renderContent}
+      />
     </ToastProvider>
   );
 }
 
-export default App;
+// Separate component to use theme
+function AppContent({
+  activeTab,
+  setActiveTab,
+  handleLogout,
+  renderContent,
+}: {
+  activeTab: Tab;
+  setActiveTab: (tab: Tab) => void;
+  handleLogout: () => void;
+  renderContent: () => React.ReactNode;
+}) {
+  const { theme } = useTheme();
+
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
+      <main>
+        {renderContent()}
+      </main>
+    </div>
+  );
+}
+
+function AppWrapper() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export default AppWrapper;

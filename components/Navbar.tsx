@@ -1,5 +1,7 @@
-import React from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, LogOut, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { Modal } from './ui/Modal';
 
 interface NavbarProps {
   currentTab: string;
@@ -8,6 +10,9 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
+  const { theme, toggleTheme } = useTheme();
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+
   const navItems = [
     { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
     { id: 'dashboard', label: 'Lịch Tiệc', icon: CalendarRange },
@@ -15,11 +20,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     { id: 'payroll', label: 'Thanh Toán', icon: Wallet2 },
   ];
 
+  const handleLogoutClick = () => {
+    setLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setLogoutConfirm(false);
+    onLogout();
+  };
+
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col w-60 h-screen bg-slate-900 border-r border-slate-800 fixed left-0 top-0 z-30">
-        <div className="p-5 border-b border-slate-800">
+      <div className="hidden md:flex flex-col w-60 h-screen bg-slate-900 dark:bg-slate-900 light:bg-white border-r border-slate-800 dark:border-slate-800 light:border-slate-200 fixed left-0 top-0 z-30">
+        <div className="p-5 border-b border-slate-800 dark:border-slate-800 light:border-slate-200">
           <h1 className="text-xl font-bold text-emerald-500">AT ShiftPay</h1>
           <p className="text-[11px] text-slate-500 mt-0.5">Quản lý tính công</p>
         </div>
@@ -31,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
                 ? 'bg-emerald-500/10 text-emerald-500'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : 'text-slate-400 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100'
                 }`}
             >
               <item.icon size={18} strokeWidth={currentTab === item.id ? 2 : 1.5} />
@@ -40,10 +54,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           ))}
         </nav>
 
-        <div className="p-3 border-t border-slate-800">
+        <div className="p-3 border-t border-slate-800 dark:border-slate-800 light:border-slate-200 space-y-1">
+          {/* Theme Toggle */}
           <button
-            onClick={onLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+            onClick={toggleTheme}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 transition-colors"
+          >
+            {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+            <span>{theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}</span>
+          </button>
+
+          <button
+            onClick={handleLogoutClick}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-red-50 transition-colors"
           >
             <LogOut size={18} strokeWidth={1.5} />
             <span>Đăng xuất</span>
@@ -52,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex z-50">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 dark:bg-slate-900 light:bg-white border-t border-slate-800 dark:border-slate-800 light:border-slate-200 flex z-50">
         {navItems.map((item) => (
           <button
             key={item.id}
@@ -67,6 +90,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </button>
         ))}
       </div>
+
+      {/* Logout Confirm Modal */}
+      <Modal
+        title="Xác nhận đăng xuất"
+        isOpen={logoutConfirm}
+        onClose={() => setLogoutConfirm(false)}
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLogoutConfirm(false)}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={confirmLogout}
+              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+            >
+              Đăng xuất
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+      </Modal>
     </>
   );
 };

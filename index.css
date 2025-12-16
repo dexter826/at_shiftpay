@@ -6,6 +6,31 @@
     body {
         @apply bg-slate-900 text-slate-200 antialiased;
     }
+
+    .light body,
+    html.light body {
+        @apply bg-slate-50 text-slate-800;
+    }
+}
+
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #0f172a;
+    --border-color: #1e293b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+}
+
+html.light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
 }
 
 @layer utilities {

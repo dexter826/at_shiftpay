@@ -8,9 +8,10 @@ import { useToast } from './ui/Toast';
 interface EmployeeManagerProps {
   employees: Employee[];
   shifts: Shift[];
+  events?: { id: string; date: string }[];
 }
 
-export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts }) => {
+export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [] }) => {
   const { showToast } = useToast();
 
   // Tính số công của mỗi nhân viên trong tháng hiện tại
@@ -28,6 +29,25 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     });
     return counts;
   }, [shifts, currentMonth, currentYear]);
+
+  // Kiểm tra nhân viên có thể xóa được không
+  const canDeleteEmployee = (empId: string): { canDelete: boolean; reason?: string } => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Kiểm tra có công chưa thanh toán không
+    const unpaidShifts = shifts.filter(s => s.employeeId === empId && s.status === 'unpaid');
+    if (unpaidShifts.length > 0) {
+      return { canDelete: false, reason: `Nhân viên còn ${unpaidShifts.length} công chưa thanh toán` };
+    }
+
+    // Kiểm tra có nằm trong sự kiện chưa diễn ra không
+    const futureShifts = shifts.filter(s => s.employeeId === empId && s.eventDate >= today);
+    if (futureShifts.length > 0) {
+      return { canDelete: false, reason: `Nhân viên đang có ${futureShifts.length} ca làm sắp tới` };
+    }
+
+    return { canDelete: true };
+  };
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
 
@@ -88,8 +108,14 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
+    const { canDelete, reason } = canDeleteEmployee(id);
+    if (!canDelete) {
+      setDeleteError(reason || 'Không thể xóa nhân viên này');
+      return;
+    }
     setDeleteConfirm(id);
   };
 
@@ -248,6 +274,23 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         }
       >
         <p className="text-sm text-slate-300">Bạn có chắc muốn xóa nhân viên này?</p>
+      </Modal>
+
+      {/* Delete Error Modal */}
+      <Modal
+        title="Không thể xóa"
+        isOpen={!!deleteError}
+        onClose={() => setDeleteError(null)}
+        footer={
+          <button
+            onClick={() => setDeleteError(null)}
+            className="w-full py-2.5 rounded-lg text-sm font-medium bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"
+          >
+            Đã hiểu
+          </button>
+        }
+      >
+        <p className="text-sm text-slate-300">{deleteError}</p>
       </Modal>
     </div>
   );

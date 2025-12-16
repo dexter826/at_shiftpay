@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, LogOut } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { Modal } from './ui/Modal';
 
 interface DashboardProps {
     user: any;
@@ -12,6 +14,8 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, onLogout }) => {
+    const { theme, toggleTheme } = useTheme();
+    const [logoutConfirm, setLogoutConfirm] = useState(false);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
@@ -71,10 +75,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
     const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long' }).format(new Date());
 
+    const handleLogoutClick = () => {
+        setLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
+        setLogoutConfirm(false);
+        onLogout();
+    };
+
+    const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
+    const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+    const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
+    const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
+    const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+
     return (
-        <div className="pb-16 md:pb-0 md:ml-60 bg-slate-900 min-h-screen">
+        <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
             {/* Header với thông tin user */}
-            <div className="p-4 md:p-6 border-b border-slate-800">
+            <div className={`p-4 md:p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         {user?.photoURL ? (
@@ -87,49 +106,57 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                             </div>
                         )}
                         <div>
-                            <p className="text-sm text-slate-400">Xin chào,</p>
-                            <h2 className="text-lg font-semibold text-slate-100">
+                            <p className={`text-sm ${textSecondaryClass}`}>Xin chào,</p>
+                            <h2 className={`text-lg font-semibold ${textPrimaryClass}`}>
                                 {user?.displayName || user?.email?.split('@')[0] || 'Người dùng'}
                             </h2>
                         </div>
                     </div>
-                    <button
-                        onClick={onLogout}
-                        className="md:hidden p-2 text-slate-400 hover:text-red-400 transition-colors"
-                    >
-                        <LogOut size={20} />
-                    </button>
+                    <div className="flex items-center gap-2 md:hidden">
+                        <button
+                            onClick={toggleTheme}
+                            className={`p-2 ${textSecondaryClass} hover:text-emerald-500 transition-colors`}
+                        >
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
+                        <button
+                            onClick={handleLogoutClick}
+                            className={`p-2 ${textSecondaryClass} hover:text-red-400 transition-colors`}
+                        >
+                            <LogOut size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div className="p-4 md:p-6 space-y-6">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                        <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <CalendarRange size={16} />
                             <span className="text-xs">Sự kiện tháng này</span>
                         </div>
-                        <p className="text-2xl font-bold text-slate-100">{monthlyStats.totalEvents}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{monthlyStats.totalEvents}</p>
                     </div>
 
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                        <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <TrendingUp size={16} />
                             <span className="text-xs">Tổng công</span>
                         </div>
-                        <p className="text-2xl font-bold text-slate-100">{monthlyStats.totalShifts}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{monthlyStats.totalShifts}</p>
                     </div>
 
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                        <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <Users size={16} />
                             <span className="text-xs">Nhân viên</span>
                         </div>
-                        <p className="text-2xl font-bold text-slate-100">{employees.length}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{employees.length}</p>
                     </div>
 
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className="flex items-center gap-2 text-orange-400 mb-2">
                             <Wallet2 size={16} />
                             <span className="text-xs">Chưa thanh toán</span>
@@ -143,8 +170,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Bar Chart */}
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
-                        <h3 className="text-sm font-medium text-slate-200 mb-4">
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>
                             Hoạt động {monthName}
                         </h3>
                         {chartData.length > 0 ? (
@@ -153,7 +180,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                     <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                                     <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
+                                        contentStyle={{
+                                            backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+                                            border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+                                            borderRadius: 8
+                                        }}
                                         labelStyle={{ color: '#94a3b8' }}
                                     />
                                     <Bar dataKey="events" name="Sự kiện" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -161,15 +192,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="h-[200px] flex items-center justify-center text-slate-500 text-sm">
+                            <div className={`h-[200px] flex items-center justify-center ${textSecondaryClass} text-sm`}>
                                 Chưa có dữ liệu
                             </div>
                         )}
                     </div>
 
                     {/* Pie Chart */}
-                    <div className="p-4 bg-slate-800/50 border border-slate-800 rounded-lg">
-                        <h3 className="text-sm font-medium text-slate-200 mb-4">Trạng thái thanh toán</h3>
+                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán</h3>
                         {paymentData.length > 0 ? (
                             <div className="flex items-center justify-center gap-6">
                                 <ResponsiveContainer width={150} height={150}>
@@ -192,19 +223,44 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                     {paymentData.map((item, index) => (
                                         <div key={index} className="flex items-center gap-2">
                                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                                            <span className="text-xs text-slate-400">{item.name}: {item.value}</span>
+                                            <span className={`text-xs ${textSecondaryClass}`}>{item.name}: {item.value}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         ) : (
-                            <div className="h-[150px] flex items-center justify-center text-slate-500 text-sm">
+                            <div className={`h-[150px] flex items-center justify-center ${textSecondaryClass} text-sm`}>
                                 Chưa có dữ liệu
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            {/* Logout Confirm Modal */}
+            <Modal
+                title="Xác nhận đăng xuất"
+                isOpen={logoutConfirm}
+                onClose={() => setLogoutConfirm(false)}
+                footer={
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setLogoutConfirm(false)}
+                            className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+                        >
+                            Hủy
+                        </button>
+                        <button
+                            onClick={confirmLogout}
+                            className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                        >
+                            Đăng xuất
+                        </button>
+                    </div>
+                }
+            >
+                <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+            </Modal>
         </div>
     );
 };
