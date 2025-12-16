@@ -13,27 +13,27 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm p-0 md:p-4 animate-fade-in">
-      <div className="bg-slate-800 w-full md:max-w-lg md:rounded-2xl rounded-t-2xl max-h-[90vh] md:max-h-[85vh] flex flex-col shadow-2xl animate-slide-up border border-slate-700">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4">
+      <div className="bg-slate-900 w-full md:max-w-md md:rounded-xl rounded-t-xl max-h-[85vh] flex flex-col border border-slate-800">
         {/* Header */}
-        <div className="p-3 md:p-4 border-b border-slate-700 flex justify-between items-center sticky top-0 bg-slate-800 md:rounded-t-2xl z-10 flex-shrink-0">
-          <h3 className="text-lg md:text-xl font-bold text-slate-100">{title}</h3>
+        <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center flex-shrink-0">
+          <h3 className="text-base font-semibold text-slate-100">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-full transition-colors active:scale-95"
+            className="p-1.5 text-slate-400 hover:text-slate-200 rounded-md hover:bg-slate-800 transition-colors"
           >
-            <X size={18} className="md:w-5 md:h-5" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto p-3 md:p-4 flex-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        <div className="overflow-y-auto p-4 flex-1">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="p-3 md:p-4 border-t border-slate-700 bg-slate-900 md:rounded-b-2xl flex-shrink-0">
+          <div className="px-4 py-3 border-t border-slate-800 flex-shrink-0">
             {footer}
           </div>
         )}

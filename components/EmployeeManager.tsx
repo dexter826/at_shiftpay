@@ -37,11 +37,10 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, ref
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
-      setError('Vui lòng nhập đầy đủ tên và số điện thoại');
+      setError('Vui lòng nhập đầy đủ thông tin');
       return;
     }
 
-    // Simple phone regex validation
     if (!/^\d{9,11}$/.test(phone.replace(/\s/g, ''))) {
       setError('Số điện thoại không hợp lệ');
       return;
@@ -56,12 +55,12 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, ref
       setModalOpen(false);
       refreshData();
     } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
+      setError('Có lỗi xảy ra');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Xóa nhân viên sẽ không xóa lịch sử làm việc của họ. Bạn chắc chắn chứ?')) {
+    if (window.confirm('Xóa nhân viên này?')) {
       await dbService.deleteEmployee(id);
       refreshData();
     }
@@ -73,108 +72,114 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, ref
   );
 
   return (
-    <div className="p-3 pb-20 md:p-6 lg:p-8 md:pb-8 md:ml-64 bg-slate-900 min-h-screen">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-3 md:gap-4">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold text-slate-100">Nhân Sự</h2>
-          <p className="text-sm md:text-base text-slate-400 mt-1">Tổng số: <strong className="text-emerald-400">{employees.length}</strong> nhân viên</p>
+    <div className="pb-16 md:pb-0 md:ml-60 bg-slate-900 min-h-screen">
+      {/* Header */}
+      <div className="p-4 md:p-6 border-b border-slate-800">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-lg font-semibold text-slate-100">Nhân Sự</h1>
+            <p className="text-xs text-slate-500 mt-0.5">{employees.length} nhân viên</p>
+          </div>
+          <button
+            onClick={openAddModal}
+            className="bg-emerald-500 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-emerald-600 transition-colors"
+          >
+            <UserPlus size={16} />
+            <span className="hidden sm:inline">Thêm mới</span>
+          </button>
         </div>
-        <button
-          onClick={openAddModal}
-          className="bg-emerald-500 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 hover:scale-105 transition-all font-medium text-sm md:text-base w-full sm:w-auto justify-center"
-        >
-          <UserPlus size={18} />
-          <span>Thêm Nhân Viên</span>
-        </button>
+
+        {/* Search */}
+        <div className="relative mt-4">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-700"
+          />
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-4 md:mb-6">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search size={16} className="text-slate-500 md:w-[18px] md:h-[18px]" />
-        </div>
-        <input
-          type="text"
-          placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none shadow-sm text-slate-100 placeholder-slate-500 text-sm md:text-base"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-        {filteredEmployees.map((emp) => (
-          <div key={emp.id} className="bg-slate-800 p-4 md:p-5 rounded-xl md:rounded-2xl shadow-sm border border-slate-700 hover:shadow-lg hover:border-emerald-500/30 transition-all group relative">
-            <div className="flex justify-between items-start gap-2">
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-base md:text-lg text-slate-100 truncate">{emp.name}</p>
-                <a href={`tel:${emp.phone}`} className="text-slate-400 flex items-center gap-1.5 mt-2 text-xs md:text-sm font-medium hover:text-emerald-400 transition-colors bg-slate-700 w-fit px-2 py-1 rounded-lg">
-                  <Phone size={12} className="md:w-[14px] md:h-[14px]" />
-                  {emp.phone}
-                </a>
-              </div>
-              <div className="flex gap-1 flex-shrink-0">
-                <button
-                  onClick={() => openEditModal(emp)}
-                  className="p-1.5 md:p-2 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors active:scale-95"
-                >
-                  <Edit2 size={16} className="md:w-[18px] md:h-[18px]" />
-                </button>
-                <button
-                  onClick={() => handleDelete(emp.id)}
-                  className="p-1.5 md:p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors active:scale-95"
-                >
-                  <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
-                </button>
+      {/* List */}
+      <div className="p-4 md:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filteredEmployees.map((emp) => (
+            <div key={emp.id} className="p-3 bg-slate-900 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors group">
+              <div className="flex justify-between items-start">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-200 truncate">{emp.name}</p>
+                  <a href={`tel:${emp.phone}`} className="text-xs text-slate-500 flex items-center gap-1 mt-1 hover:text-emerald-500 transition-colors">
+                    <Phone size={12} />
+                    {emp.phone}
+                  </a>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => openEditModal(emp)}
+                    className="p-1.5 text-slate-500 hover:text-emerald-500 transition-colors"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(emp.id)}
+                    className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {filteredEmployees.length === 0 && (
+          <div className="text-center py-12 text-slate-500">
+            <Users size={24} className="mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Không tìm thấy</p>
           </div>
-        ))}
+        )}
       </div>
 
-      {filteredEmployees.length === 0 && (
-        <div className="text-center py-16 text-slate-500">
-          <div className="inline-block p-4 rounded-full bg-slate-800 mb-3">
-            <Users size={32} className="opacity-50" />
-          </div>
-          <p>Không tìm thấy nhân viên nào.</p>
-        </div>
-      )}
-
-      {/* Add/Edit Modal */}
+      {/* Modal */}
       <Modal
-        title={editingEmp ? "Chỉnh Sửa Nhân Viên" : "Thêm Nhân Viên Mới"}
+        title={editingEmp ? "Sửa thông tin" : "Thêm nhân viên"}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         footer={
           <button
             onClick={handleSubmit}
-            className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold text-lg shadow-md hover:bg-emerald-600 active:scale-[0.98] transition-all"
+            className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
           >
-            Lưu Thông Tin
+            Lưu
           </button>
         }
       >
-        <form className="flex flex-col gap-4">
-          {error && <div className="p-3 bg-rose-500/10 text-rose-400 text-sm rounded-lg border border-rose-500/20">{error}</div>}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-300">Họ và tên <span className="text-rose-400">*</span></label>
+        <form className="space-y-4">
+          {error && (
+            <div className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg">
+              {error}
+            </div>
+          )}
+          <div>
+            <label className="block text-xs text-slate-400 mb-1.5">Họ tên</label>
             <input
               type="text"
-              placeholder="Ví dụ: Nguyễn Văn A"
+              placeholder="Nguyễn Văn A"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-100 placeholder-slate-500"
+              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-300">Số điện thoại <span className="text-rose-400">*</span></label>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1.5">Số điện thoại</label>
             <input
               type="tel"
-              placeholder="Ví dụ: 0912345678"
+              placeholder="0912345678"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-slate-100 placeholder-slate-500"
+              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
             />
           </div>
         </form>

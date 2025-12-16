@@ -108,7 +108,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900">
-        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -120,7 +120,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900">
-        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -128,7 +128,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
-      <main className="w-full">
+      <main>
         {renderContent()}
       </main>
     </div>
