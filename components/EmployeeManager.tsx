@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
-import { Employee } from '../types';
+import React, { useState, useMemo } from 'react';
+import { Employee, Shift } from '../types';
 import { dbService } from '../services/firebase';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
 
 interface EmployeeManagerProps {
   employees: Employee[];
+  shifts: Shift[];
 }
 
-export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees }) => {
+export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts }) => {
   const { showToast } = useToast();
+
+  // Tính số công của mỗi nhân viên trong tháng hiện tại
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'numeric' }).format(new Date());
+
+  const shiftCountByEmployee = useMemo(() => {
+    const counts: Record<string, number> = {};
+    shifts.forEach(s => {
+      const d = new Date(s.eventDate);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        counts[s.employeeId] = (counts[s.employeeId] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [shifts, currentMonth, currentYear]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
 
@@ -130,8 +147,12 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees }) =
                   <p className="text-sm font-medium text-slate-200 truncate">{emp.name}</p>
                   <a href={`tel:${emp.phone}`} className="text-xs text-slate-500 flex items-center gap-1 mt-1 hover:text-emerald-500 transition-colors">
                     <Phone size={12} />
-                    {emp.phone}
+                    {emp.phone || 'Chưa có SĐT'}
                   </a>
+                  <p className="text-xs text-emerald-500 flex items-center gap-1 mt-1">
+                    <Briefcase size={12} />
+                    Tháng {monthName} đã làm {shiftCountByEmployee[emp.id] || 0} công
+                  </p>
                 </div>
                 <div className="flex gap-1">
                   <button

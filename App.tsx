@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
+import { Dashboard } from './components/Dashboard';
 import { CalendarView } from './components/CalendarView';
 import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
@@ -11,10 +12,10 @@ import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 // Simple Mock Routing
-type Tab = 'dashboard' | 'employees' | 'payroll';
+type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -85,6 +86,16 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'overview':
+        return (
+          <Dashboard
+            user={user}
+            employees={employees}
+            events={events}
+            shifts={shifts}
+            onLogout={handleLogout}
+          />
+        );
       case 'dashboard':
         return (
           <CalendarView
@@ -98,6 +109,7 @@ function App() {
         return (
           <EmployeeManager
             employees={employees}
+            shifts={shifts}
           />
         );
       case 'payroll':

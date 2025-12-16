@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarRange, Users, Wallet2, LogOut } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: string;
@@ -9,6 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
   const navItems = [
+    { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
     { id: 'dashboard', label: 'Lịch Tiệc', icon: CalendarRange },
     { id: 'employees', label: 'Nhân Sự', icon: Users },
     { id: 'payroll', label: 'Thanh Toán', icon: Wallet2 },
@@ -29,8 +30,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               key={item.id}
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
-                  ? 'bg-emerald-500/10 text-emerald-500'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-emerald-500/10 text-emerald-500'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                 }`}
             >
               <item.icon size={18} strokeWidth={currentTab === item.id ? 2 : 1.5} />
@@ -57,8 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${currentTab === item.id
-                ? 'text-emerald-500'
-                : 'text-slate-500'
+              ? 'text-emerald-500'
+              : 'text-slate-500'
               }`}
           >
             <item.icon size={20} strokeWidth={currentTab === item.id ? 2 : 1.5} />
