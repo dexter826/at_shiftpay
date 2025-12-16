@@ -6,6 +6,7 @@ import { EventModal } from './EventModal';
 import { dbService } from '../services/firebase';
 import { useToast } from './ui/Toast';
 import { Modal } from './ui/Modal';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface CalendarViewProps {
   events: Event[];
@@ -16,6 +17,15 @@ interface CalendarViewProps {
 
 export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees }) => {
   const { showToast } = useToast();
+  const { theme } = useTheme();
+
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
+  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
+  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
+  const hoverBgClass = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     const today = new Date();
@@ -112,27 +122,27 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
   }, [selectedDate, shifts]);
 
   return (
-    <div className="pb-16 md:pb-0 md:ml-60 bg-slate-900 min-h-screen">
+    <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
       <div className="p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
 
         {/* Calendar */}
         <div className="flex-1">
-          <div className="bg-slate-900 border border-slate-800 rounded-lg lg:h-full flex flex-col">
+          <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-              <button onClick={prevMonth} className="p-1.5 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800 transition-colors">
+            <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
+              <button onClick={prevMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
                 <ChevronLeft size={18} />
               </button>
-              <h3 className="text-sm font-medium text-slate-200 capitalize">{monthLabel}</h3>
-              <button onClick={nextMonth} className="p-1.5 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800 transition-colors">
+              <h3 className={`text-sm font-medium ${textPrimaryClass} capitalize`}>{monthLabel}</h3>
+              <button onClick={nextMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
                 <ChevronRight size={18} />
               </button>
             </div>
 
             {/* Days Header */}
-            <div className="grid grid-cols-7 border-b border-slate-800">
+            <div className={`grid grid-cols-7 border-b ${borderClass}`}>
               {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => (
-                <div key={d} className="py-2 text-center text-[11px] font-medium text-slate-500">{d}</div>
+                <div key={d} className={`py-2 text-center text-[11px] font-medium ${textMutedClass}`}>{d}</div>
               ))}
             </div>
 
@@ -156,8 +166,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                     className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
                       ? 'bg-emerald-500 text-white'
                       : isToday
-                        ? 'bg-slate-800 text-emerald-500 font-medium'
-                        : 'text-slate-300 hover:bg-slate-800'
+                        ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-emerald-50'} text-emerald-500 font-medium`
+                        : `${textPrimaryClass} ${hoverBgClass}`
                       }`}
                   >
                     <span>{date.getDate()}</span>
@@ -177,13 +187,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
 
         {/* Details */}
         <div className="w-full lg:w-72">
-          <div className="bg-slate-900 border border-slate-800 rounded-lg lg:h-full flex flex-col">
+          <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
             {selectedDate ? (
               <div className="flex flex-col h-full">
-                <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center">
+                <div className={`px-4 py-3 border-b ${borderClass} flex justify-between items-center`}>
                   <div>
-                    <p className="text-[11px] text-slate-500 uppercase tracking-wide">Ngày chọn</p>
-                    <h3 className="text-sm font-medium text-slate-200 mt-0.5">{formatDate(selectedDate)}</h3>
+                    <p className={`text-[11px] ${textMutedClass} uppercase tracking-wide`}>Ngày chọn</p>
+                    <h3 className={`text-sm font-medium ${textPrimaryClass} mt-0.5`}>{formatDate(selectedDate)}</h3>
                   </div>
                   <button
                     onClick={handleAddEvent}
@@ -195,7 +205,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
 
                 <div className="flex-1 p-3 space-y-2 overflow-y-auto">
                   {selectedEvents.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-slate-500 text-sm">
+                    <div className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                       <p>Chưa có sự kiện</p>
                       <button onClick={handleAddEvent} className="text-emerald-500 mt-1 hover:underline text-xs">
                         Tạo mới
@@ -206,21 +216,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                       <div
                         key={evt.id}
                         onClick={() => handleViewEvent(evt)}
-                        className="group p-3 bg-slate-800/50 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors cursor-pointer"
+                        className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors cursor-pointer`}
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-start gap-2 flex-1 min-w-0">
                             <MapPin size={14} className="text-emerald-500 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-slate-200 truncate">{evt.title}</h4>
-                              {evt.note && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{evt.note}</p>}
+                              <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
+                              {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                             </div>
                           </div>
                           <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => handleEditEvent(evt)} className="p-1 text-slate-500 hover:text-emerald-500 transition-colors">
+                            <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-emerald-500 transition-colors`}>
                               <Edit2 size={14} />
                             </button>
-                            <button onClick={() => handleDeleteEvent(evt.id)} className="p-1 text-slate-500 hover:text-red-500 transition-colors">
+                            <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
                               <Trash2 size={14} />
                             </button>
                           </div>
@@ -245,7 +255,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-slate-500 text-sm">
+              <div className={`flex flex-col items-center justify-center h-64 ${textMutedClass} text-sm`}>
                 <p>Chọn ngày để xem</p>
               </div>
             )}
@@ -274,7 +284,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
           <div className="flex gap-2">
             <button
               onClick={() => setDeleteConfirm(null)}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
             >
               Hủy
             </button>
@@ -287,7 +297,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
           </div>
         }
       >
-        <p className="text-sm text-slate-300">Bạn có chắc muốn xóa sự kiện này?</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa sự kiện này?</p>
       </Modal>
 
       {/* Event Detail Modal */}
@@ -304,7 +314,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                   setViewingEvent(null);
                 }
               }}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors flex items-center justify-center gap-2`}
             >
               <Edit2 size={14} />
               Sửa
@@ -327,24 +337,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
         {viewingEvent && (
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-slate-500 mb-1">Ngày</p>
-              <p className="text-sm text-slate-200">{formatDate(viewingEvent.date)}</p>
+              <p className={`text-xs ${textMutedClass} mb-1`}>Ngày</p>
+              <p className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</p>
             </div>
 
             {viewingEvent.note && (
               <div>
-                <p className="text-xs text-slate-500 mb-1">Ghi chú</p>
-                <p className="text-sm text-slate-300">{viewingEvent.note}</p>
+                <p className={`text-xs ${textMutedClass} mb-1`}>Ghi chú</p>
+                <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{viewingEvent.note}</p>
               </div>
             )}
 
             {viewingEventShifts.length > 0 && (
               <div>
-                <p className="text-xs text-slate-500 mb-2">Nhân viên ({viewingEventShifts.length})</p>
+                <p className={`text-xs ${textMutedClass} mb-2`}>Nhân viên ({viewingEventShifts.length})</p>
                 <div className="space-y-1.5">
                   {viewingEventShifts.map(shift => (
-                    <div key={shift.id} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
-                      <span className="text-sm text-slate-300">{shift.employeeName}</span>
+                    <div key={shift.id} className={`flex items-center justify-between p-2 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
+                      <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{shift.employeeName}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${shift.session === 'morning'
                         ? 'bg-orange-500/10 text-orange-500'
                         : 'bg-emerald-500/10 text-emerald-500'

@@ -5,6 +5,7 @@ import { dbService } from '../services/firebase';
 import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -13,6 +14,15 @@ interface PayrollViewProps {
 
 export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) => {
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
+  const { theme } = useTheme();
+
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
+  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+  const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
+  const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
+  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
 
   const summary: PayrollSummary[] = useMemo(() => {
     const map: Record<string, PayrollSummary> = {};
@@ -71,10 +81,10 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
   }, [selectedEmpId, shifts]);
 
   return (
-    <div className="pb-16 md:pb-0 md:ml-60 bg-slate-900 min-h-screen">
+    <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
       {/* Header */}
-      <div className="p-4 md:p-6 border-b border-slate-800">
-        <h1 className="text-lg font-semibold text-slate-100">Thanh Toán</h1>
+      <div className={`p-4 md:p-6 border-b ${borderClass}`}>
+        <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
         <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
           <div className="flex justify-between items-center">
             <div>
@@ -92,26 +102,26 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           <button
             key={item.employeeId}
             onClick={() => setSelectedEmpId(item.employeeId)}
-            className="w-full p-3 bg-slate-900 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors flex justify-between items-center group"
+            className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors flex justify-between items-center group`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-500'
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-emerald-500/10 text-emerald-500' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
                 }`}>
                 {item.employeeName.charAt(0)}
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-slate-200">{item.employeeName}</p>
-                <p className={`text-xs ${item.unpaidCount > 0 ? 'text-emerald-500' : 'text-slate-500'}`}>
+                <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                <p className={`text-xs ${item.unpaidCount > 0 ? 'text-emerald-500' : textMutedClass}`}>
                   {item.unpaidCount > 0 ? `${item.unpaidCount} ca chưa trả` : 'Đã thanh toán'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-slate-200' : 'text-slate-600'}`}>
+              <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? textSecondaryClass : textMutedClass}`}>
                 {formatCurrency(item.totalUnpaid)}
               </span>
-              <ChevronRight size={16} className="text-slate-600" />
+              <ChevronRight size={16} className={textMutedClass} />
             </div>
           </button>
         ))}
@@ -136,26 +146,26 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
       >
         <div className="space-y-3">
           {selectedUnpaidShifts.length === 0 ? (
-            <div className="py-8 flex flex-col items-center justify-center text-slate-500 gap-2">
+            <div className={`py-8 flex flex-col items-center justify-center ${textMutedClass} gap-2`}>
               <CheckCircle2 size={32} className="text-emerald-500" />
               <p className="text-sm">Không còn khoản nợ</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-slate-500 uppercase tracking-wide">Ca chưa trả</p>
+              <p className={`text-xs ${textMutedClass} uppercase tracking-wide`}>Ca chưa trả</p>
               {selectedUnpaidShifts.map((s) => (
-                <div key={s.id} className="flex justify-between items-center p-3 bg-slate-800/50 border border-slate-800 rounded-lg">
+                <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
                   <div className="flex items-center gap-3">
-                    <Calendar size={16} className="text-slate-500" />
+                    <Calendar size={16} className={textMutedClass} />
                     <div>
-                      <p className="text-sm text-slate-200">{formatDate(s.eventDate)}</p>
+                      <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
                       <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-emerald-500'
                         }`}>
                         {s.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm font-medium text-slate-200">{formatCurrency(s.amount)}</p>
+                  <p className={`text-sm font-medium ${textSecondaryClass}`}>{formatCurrency(s.amount)}</p>
                 </div>
               ))}
             </>
@@ -172,7 +182,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           <div className="flex gap-2">
             <button
               onClick={() => setPayConfirm(false)}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
             >
               Hủy
             </button>
@@ -185,7 +195,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           </div>
         }
       >
-        <p className="text-sm text-slate-300">
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
           Thanh toán {formatCurrency(selectedEmployeeSummary?.totalUnpaid || 0)} cho {selectedEmployeeSummary?.employeeName}?
         </p>
       </Modal>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useTheme } from '../contexts/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 interface LoginProps {
   onLogin: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -47,39 +50,58 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
+  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
+  const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const inputBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
+  const inputBorderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
+
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4`}>
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-emerald-500">AT ShiftPay</h1>
-          <p className="text-sm text-slate-500 mt-1">Quản lý tính công</p>
+        {/* Theme toggle */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg ${textMutedClass} ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-200'} transition-colors`}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-emerald-500">AT ShiftPay</h1>
+          <p className={`text-sm ${textMutedClass} mt-1`}>Quản lý tính công</p>
+        </div>
+
+        <div className={`${cardBgClass} border ${borderClass} rounded-lg p-6`}>
+          <h2 className={`text-lg font-semibold ${textPrimaryClass} mb-4`}>
             {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Email</label>
+              <label className={`block text-xs ${textMutedClass} mb-1.5`}>Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
                 placeholder="email@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Mật khẩu</label>
+              <label className={`block text-xs ${textMutedClass} mb-1.5`}>Mật khẩu</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
                 placeholder="********"
                 required
               />
@@ -101,15 +123,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
 
           <div className="my-4 flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-800"></div>
-            <span className="text-xs text-slate-500">hoặc</span>
-            <div className="flex-1 h-px bg-slate-800"></div>
+            <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
+            <span className={`text-xs ${textMutedClass}`}>hoặc</span>
+            <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
           </div>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-slate-800 border border-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className={`w-full flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-white border-slate-300 hover:bg-slate-50'} border ${textPrimaryClass} py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

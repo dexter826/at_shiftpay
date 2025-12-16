@@ -4,6 +4,7 @@ import { dbService } from '../services/firebase';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -13,6 +14,17 @@ interface EmployeeManagerProps {
 
 export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [] }) => {
   const { showToast } = useToast();
+  const { theme } = useTheme();
+
+  // Theme classes
+  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
+  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+  const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
+  const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
+  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
+  const inputBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
+  const inputBorderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
 
   // Tính số công của mỗi nhân viên trong tháng hiện tại
   const currentMonth = new Date().getMonth();
@@ -133,13 +145,13 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   );
 
   return (
-    <div className="pb-16 md:pb-0 md:ml-60 bg-slate-900 min-h-screen">
+    <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
       {/* Header */}
-      <div className="p-4 md:p-6 border-b border-slate-800">
+      <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-lg font-semibold text-slate-100">Nhân Sự</h1>
-            <p className="text-xs text-slate-500 mt-0.5">{employees.length} nhân viên</p>
+            <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Nhân Sự</h1>
+            <p className={`text-xs ${textMutedClass} mt-0.5`}>{employees.length} nhân viên</p>
           </div>
           <button
             onClick={openAddModal}
@@ -158,7 +170,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             placeholder="Tìm kiếm..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-700"
+            className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
           />
         </div>
       </div>
@@ -167,11 +179,11 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       <div className="p-4 md:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredEmployees.map((emp) => (
-            <div key={emp.id} className="p-3 bg-slate-900 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors group">
+            <div key={emp.id} className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors group`}>
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-200 truncate">{emp.name}</p>
-                  <a href={`tel:${emp.phone}`} className="text-xs text-slate-500 flex items-center gap-1 mt-1 hover:text-emerald-500 transition-colors">
+                  <p className={`text-sm font-medium ${textSecondaryClass} truncate`}>{emp.name}</p>
+                  <a href={`tel:${emp.phone}`} className={`text-xs ${textMutedClass} flex items-center gap-1 mt-1 hover:text-emerald-500 transition-colors`}>
                     <Phone size={12} />
                     {emp.phone || 'Chưa có SĐT'}
                   </a>
@@ -183,13 +195,13 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                 <div className="flex gap-1">
                   <button
                     onClick={() => openEditModal(emp)}
-                    className="p-1.5 text-slate-500 hover:text-emerald-500 transition-colors"
+                    className={`p-1.5 ${textMutedClass} hover:text-emerald-500 transition-colors`}
                   >
                     <Edit2 size={14} />
                   </button>
                   <button
                     onClick={() => handleDelete(emp.id)}
-                    className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                    className={`p-1.5 ${textMutedClass} hover:text-red-500 transition-colors`}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -200,7 +212,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         </div>
 
         {filteredEmployees.length === 0 && (
-          <div className="text-center py-12 text-slate-500">
+          <div className={`text-center py-12 ${textMutedClass}`}>
             <Users size={24} className="mx-auto mb-2 opacity-50" />
             <p className="text-sm">Không tìm thấy</p>
           </div>
@@ -228,24 +240,24 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             </div>
           )}
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Họ tên</label>
+            <label className={`block text-xs ${textMutedClass} mb-1.5`}>Họ tên</label>
             <input
               type="text"
               placeholder="Nguyễn Văn A"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Số điện thoại (không bắt buộc)</label>
+            <label className={`block text-xs ${textMutedClass} mb-1.5`}>Số điện thoại (không bắt buộc)</label>
             <input
               type="tel"
               placeholder="0912345678"
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
-              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
             />
           </div>
         </form>
@@ -260,7 +272,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           <div className="flex gap-2">
             <button
               onClick={() => setDeleteConfirm(null)}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
             >
               Hủy
             </button>
@@ -273,7 +285,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </div>
         }
       >
-        <p className="text-sm text-slate-300">Bạn có chắc muốn xóa nhân viên này?</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
 
       {/* Delete Error Modal */}
@@ -284,13 +296,13 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         footer={
           <button
             onClick={() => setDeleteError(null)}
-            className="w-full py-2.5 rounded-lg text-sm font-medium bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"
+            className={`w-full py-2.5 rounded-lg text-sm font-medium ${theme === 'dark' ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'} transition-colors`}
           >
             Đã hiểu
           </button>
         }
       >
-        <p className="text-sm text-slate-300">{deleteError}</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{deleteError}</p>
       </Modal>
     </div>
   );

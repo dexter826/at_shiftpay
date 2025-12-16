@@ -29,11 +29,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     onLogout();
   };
 
+  // Theme classes
+  const sidebarBg = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
+  const borderColor = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
+  const textMuted = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const hoverText = theme === 'dark' ? 'hover:text-slate-200' : 'hover:text-slate-700';
+  const hoverBg = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
+
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col w-60 h-screen bg-slate-900 dark:bg-slate-900 light:bg-white border-r border-slate-800 dark:border-slate-800 light:border-slate-200 fixed left-0 top-0 z-30">
-        <div className="p-5 border-b border-slate-800 dark:border-slate-800 light:border-slate-200">
+      <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
+        <div className={`p-5 border-b ${borderColor}`}>
           <h1 className="text-xl font-bold text-emerald-500">AT ShiftPay</h1>
           <p className="text-[11px] text-slate-500 mt-0.5">Quản lý tính công</p>
         </div>
@@ -45,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
                 ? 'bg-emerald-500/10 text-emerald-500'
-                : 'text-slate-400 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100'
+                : `${textMuted} ${hoverText} ${hoverBg}`
                 }`}
             >
               <item.icon size={18} strokeWidth={currentTab === item.id ? 2 : 1.5} />
@@ -54,11 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           ))}
         </nav>
 
-        <div className="p-3 border-t border-slate-800 dark:border-slate-800 light:border-slate-200 space-y-1">
+        <div className={`p-3 border-t ${borderColor} space-y-1`}>
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 dark:hover:text-slate-200 light:hover:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-slate-100 transition-colors"
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium ${textMuted} ${hoverText} ${hoverBg} transition-colors`}
           >
             {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
             <span>{theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}</span>
@@ -66,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
           <button
             onClick={handleLogoutClick}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-slate-800 dark:hover:bg-slate-800 light:hover:bg-red-50 transition-colors"
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium ${textMuted} hover:text-red-400 ${hoverBg} transition-colors`}
           >
             <LogOut size={18} strokeWidth={1.5} />
             <span>Đăng xuất</span>
@@ -75,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Mobile Bottom Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 dark:bg-slate-900 light:bg-white border-t border-slate-800 dark:border-slate-800 light:border-slate-200 flex z-50">
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
         {navItems.map((item) => (
           <button
             key={item.id}
@@ -100,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           <div className="flex gap-2">
             <button
               onClick={() => setLogoutConfirm(false)}
-              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderColor} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
             >
               Hủy
             </button>
@@ -113,7 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </div>
         }
       >
-        <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
       </Modal>
     </>
   );
