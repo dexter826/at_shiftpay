@@ -4,6 +4,7 @@ import { dbService } from '../services/firebase';
 import { SHIFT_RATE } from '../constants';
 import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { useToast } from './ui/Toast';
 
 interface EventModalProps {
   date: string;
@@ -24,13 +25,11 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
-  const [activeSessions, setActiveSessions] = useState<{ morning: boolean, afternoon: boolean }>({
-    morning: false,
-    afternoon: false
-  });
-  const [assignments, setAssignments] = useState<Record<string, Set<ShiftSession>>>({});
+  const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
+  const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -39,64 +38,41 @@ export const EventModal: React.FC<EventModalProps> = ({
         setTitle(existingEvent.title);
         setNote(existingEvent.note || '');
 
-        const newAssignments: Record<string, Set<ShiftSession>> = {};
-        let hasMorning = false;
-        let hasAfternoon = false;
+        const newAssignments: Record<string, boolean> = {};
+        let detectedSession: ShiftSession | null = null;
 
         existingShifts.forEach(s => {
-          if (!newAssignments[s.employeeId]) newAssignments[s.employeeId] = new Set();
-          newAssignments[s.employeeId].add(s.session);
-          if (s.session === 'morning') hasMorning = true;
-          if (s.session === 'afternoon') hasAfternoon = true;
+          newAssignments[s.employeeId] = true;
+          if (!detectedSession) detectedSession = s.session;
         });
 
         setAssignments(newAssignments);
-        setActiveSessions({ morning: hasMorning, afternoon: hasAfternoon });
+        setSelectedSession(detectedSession);
       } else {
         setTitle('');
         setNote('');
-        setActiveSessions({ morning: false, afternoon: false });
+        setSelectedSession(null);
         setAssignments({});
       }
       setError('');
     }
   }, [isOpen, existingEvent, existingShifts]);
 
-  const toggleSession = (session: ShiftSession) => {
-    setActiveSessions(prev => {
-      const newState = { ...prev, [session]: !prev[session] };
-      if (!newState[session]) {
-        setAssignments(prevAssign => {
-          const newAssign = { ...prevAssign };
-          Object.keys(newAssign).forEach(empId => {
-            if (newAssign[empId].has(session)) {
-              newAssign[empId].delete(session);
-              if (newAssign[empId].size === 0) delete newAssign[empId];
-            }
-          });
-          return newAssign;
-        });
-      }
-      return newState;
-    });
+  const selectSession = (session: ShiftSession) => {
+    if (selectedSession === session) {
+      setSelectedSession(null);
+      setAssignments({});
+    } else {
+      setSelectedSession(session);
+      setAssignments({});
+    }
   };
 
-  const toggleAssignment = (empId: string, session: ShiftSession) => {
-    setAssignments(prev => {
-      const newMap = { ...prev };
-      if (!newMap[empId]) newMap[empId] = new Set();
-
-      if (newMap[empId].has(session)) {
-        newMap[empId].delete(session);
-      } else {
-        newMap[empId].add(session);
-      }
-
-      if (newMap[empId].size === 0) {
-        delete newMap[empId];
-      }
-      return { ...newMap };
-    });
+  const toggleAssignment = (empId: string) => {
+    setAssignments(prev => ({
+      ...prev,
+      [empId]: !prev[empId]
+    }));
   };
 
   const handleSubmit = async () => {
@@ -104,8 +80,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       setError('Nhập tên sự kiện');
       return;
     }
-    if (!activeSessions.morning && !activeSessions.afternoon) {
-      setError('Chọn ít nhất một ca');
+    if (!selectedSession) {
+      setError('Chọn một ca làm việc');
       return;
     }
 
@@ -128,26 +104,24 @@ export const EventModal: React.FC<EventModalProps> = ({
       }
 
       const shiftsToCreate: Omit<Shift, 'id'>[] = [];
-      Object.entries(assignments).forEach(([empId, rawSessions]) => {
+      Object.entries(assignments).forEach(([empId, isAssigned]) => {
+        if (!isAssigned) return;
         const emp = employees.find(e => e.id === empId);
         if (!emp) return;
 
-        const sessions = rawSessions as Set<ShiftSession>;
-        sessions.forEach(session => {
-          const prevShift = existingShifts.find(
-            s => s.employeeId === empId && s.session === session
-          );
+        const prevShift = existingShifts.find(
+          s => s.employeeId === empId && s.session === selectedSession
+        );
 
-          shiftsToCreate.push({
-            eventId: eventId!,
-            eventDate: date,
-            employeeId: empId,
-            employeeName: emp.name,
-            session: session,
-            amount: SHIFT_RATE,
-            status: prevShift ? prevShift.status : 'unpaid',
-            paidAt: prevShift ? prevShift.paidAt : undefined
-          });
+        shiftsToCreate.push({
+          eventId: eventId!,
+          eventDate: date,
+          employeeId: empId,
+          employeeName: emp.name,
+          session: selectedSession,
+          amount: SHIFT_RATE,
+          status: prevShift ? prevShift.status : 'unpaid',
+          paidAt: prevShift ? prevShift.paidAt : undefined
         });
       });
 
@@ -155,9 +129,10 @@ export const EventModal: React.FC<EventModalProps> = ({
         await dbService.addShift(shift);
       }
 
+      showToast(existingEvent ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện mới', 'success');
       onSuccess();
     } catch (err) {
-      setError('Có lỗi xảy ra');
+      showToast('Có lỗi xảy ra', 'error');
       console.error(err);
     }
   };
@@ -207,16 +182,16 @@ export const EventModal: React.FC<EventModalProps> = ({
           />
         </div>
 
-        {/* Sessions */}
+        {/* Sessions - Radio style (chỉ chọn 1) */}
         <div>
           <label className="block text-xs text-slate-400 mb-1.5">Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => toggleSession('morning')}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeSessions.morning
-                  ? 'border-orange-500/50 bg-orange-500/10 text-orange-500'
-                  : 'border-slate-700 text-slate-500 hover:border-slate-600'
+              onClick={() => selectSession('morning')}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'morning'
+                ? 'border-orange-500/50 bg-orange-500/10 text-orange-500'
+                : 'border-slate-700 text-slate-500 hover:border-slate-600'
                 }`}
             >
               <Sun size={16} />
@@ -224,10 +199,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => toggleSession('afternoon')}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeSessions.afternoon
-                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500'
-                  : 'border-slate-700 text-slate-500 hover:border-slate-600'
+              onClick={() => selectSession('afternoon')}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'afternoon'
+                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500'
+                : 'border-slate-700 text-slate-500 hover:border-slate-600'
                 }`}
             >
               <Moon size={16} />
@@ -236,49 +211,28 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         </div>
 
-        {/* Assignments */}
-        {(activeSessions.morning || activeSessions.afternoon) && (
+        {/* Assignments - Round checkbox at end */}
+        {selectedSession && (
           <div>
             <label className="block text-xs text-slate-400 mb-1.5">Chấm công</label>
             <div className="border border-slate-700 rounded-lg divide-y divide-slate-700 max-h-48 overflow-y-auto">
               {employees.length === 0 ? (
                 <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
               ) : (
-                employees.map(emp => {
-                  const empSessions = assignments[emp.id] || new Set();
-
-                  return (
-                    <div key={emp.id} className="p-2.5 flex items-center justify-between">
-                      <span className="text-sm text-slate-300 truncate flex-1">{emp.name}</span>
-                      <div className="flex gap-1.5">
-                        {activeSessions.morning && (
-                          <button
-                            type="button"
-                            onClick={() => toggleAssignment(emp.id, 'morning')}
-                            className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${empSessions.has('morning')
-                                ? 'bg-orange-500 text-white'
-                                : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
-                              }`}
-                          >
-                            <Sun size={14} />
-                          </button>
-                        )}
-                        {activeSessions.afternoon && (
-                          <button
-                            type="button"
-                            onClick={() => toggleAssignment(emp.id, 'afternoon')}
-                            className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${empSessions.has('afternoon')
-                                ? 'bg-emerald-500 text-white'
-                                : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
-                              }`}
-                          >
-                            <Moon size={14} />
-                          </button>
-                        )}
-                      </div>
+                employees.map(emp => (
+                  <label key={emp.id} className="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/50">
+                    <span className="text-sm text-slate-300 truncate flex-1">{emp.name}</span>
+                    <div
+                      onClick={() => toggleAssignment(emp.id)}
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer ${assignments[emp.id]
+                        ? 'bg-emerald-500 border-emerald-500'
+                        : 'border-slate-600 hover:border-slate-500'
+                        }`}
+                    >
+                      {assignments[emp.id] && <Check size={12} className="text-white" />}
                     </div>
-                  );
-                })
+                  </label>
+                ))
               )}
             </div>
           </div>

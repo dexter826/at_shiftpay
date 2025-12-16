@@ -1,13 +1,25 @@
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  Unsubscribe
+} from 'firebase/firestore';
 import { Employee, Event, Shift } from '../types';
 
 export const dbService = {
-  // Employees
-  async getEmployees(): Promise<Employee[]> {
+  // Employees - Real-time listener
+  subscribeEmployees(callback: (employees: Employee[]) => void): Unsubscribe {
     const q = query(collection(db, 'employees'), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+    return onSnapshot(q, (snapshot) => {
+      const employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+      callback(employees);
+    });
   },
 
   async addEmployee(data: { name: string; phone: string }): Promise<void> {
@@ -26,11 +38,13 @@ export const dbService = {
     await deleteDoc(doc(db, 'employees', id));
   },
 
-  // Events
-  async getEvents(): Promise<Event[]> {
+  // Events - Real-time listener
+  subscribeEvents(callback: (events: Event[]) => void): Unsubscribe {
     const q = query(collection(db, 'events'), orderBy('date', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+    return onSnapshot(q, (snapshot) => {
+      const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+      callback(events);
+    });
   },
 
   async addEvent(data: Omit<Event, 'id'>): Promise<void> {
@@ -46,11 +60,13 @@ export const dbService = {
     await deleteDoc(doc(db, 'events', id));
   },
 
-  // Shifts
-  async getShifts(): Promise<Shift[]> {
+  // Shifts - Real-time listener
+  subscribeShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
     const q = query(collection(db, 'shifts'), orderBy('eventDate', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
+    return onSnapshot(q, (snapshot) => {
+      const shifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
+      callback(shifts);
+    });
   },
 
   async addShift(data: Omit<Shift, 'id'>): Promise<void> {

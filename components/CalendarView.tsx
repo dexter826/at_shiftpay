@@ -4,20 +4,28 @@ import { formatDate } from '../constants';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2 } from 'lucide-react';
 import { EventModal } from './EventModal';
 import { dbService } from '../services/firebase';
+import { useToast } from './ui/Toast';
+import { Modal } from './ui/Modal';
 
 interface CalendarViewProps {
   events: Event[];
   shifts: Shift[];
   employees: Employee[];
-  refreshData: () => void;
   totalDebt: number;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees, refreshData }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees }) => {
+  const { showToast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(() => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const localDate = new Date(today.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const daysInMonth = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -58,28 +66,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
   };
 
   const handleAddEvent = () => {
+    setShiftsForEditing([]);
     setEditingEvent(null);
     setIsModalOpen(true);
   };
 
   const handleEditEvent = (evt: Event) => {
+    const eventShifts = shifts.filter(s => s.eventId === evt.id);
+    setShiftsForEditing(eventShifts);
     setEditingEvent(evt);
     setIsModalOpen(true);
   };
 
-  const handleDeleteEvent = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa sự kiện này?")) {
-      await dbService.deleteEvent(id);
-      refreshData();
+  const handleDeleteEvent = (id: string) => {
+    setDeleteConfirm(id);
+  };
+
+  const confirmDeleteEvent = async () => {
+    if (deleteConfirm) {
+      await dbService.deleteEvent(deleteConfirm);
+      showToast('Đã xóa sự kiện', 'success');
+      setDeleteConfirm(null);
     }
   };
 
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
 
-  const shiftsForEditing = useMemo(() => {
-    if (!editingEvent) return [];
-    return shifts.filter(s => s.eventId === editingEvent.id);
-  }, [editingEvent, shifts]);
+  const [shiftsForEditing, setShiftsForEditing] = useState<Shift[]>([]);
 
   const shiftsForDisplay = useMemo(() => {
     if (!selectedDate) return [];
@@ -233,9 +246,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
         employees={employees}
         onSuccess={() => {
           setIsModalOpen(false);
-          refreshData();
         }}
       />
+
+      {/* Delete Confirm Modal */}
+      <Modal
+        title="Xác nhận xóa"
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDeleteConfirm(null)}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={confirmDeleteEvent}
+              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+            >
+              Xóa
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">Bạn có chắc muốn xóa sự kiện này?</p>
+      </Modal>
     </div>
   );
 };

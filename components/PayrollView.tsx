@@ -4,14 +4,14 @@ import { formatCurrency, formatDate } from '../constants';
 import { dbService } from '../services/firebase';
 import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2 } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { useToast } from './ui/Toast';
 
 interface PayrollViewProps {
   shifts: Shift[];
   employees: any[];
-  refreshData: () => void;
 }
 
-export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, refreshData }) => {
+export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) => {
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
 
   const summary: PayrollSummary[] = useMemo(() => {
@@ -39,20 +39,26 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
 
   const totalDebt = summary.reduce((acc, curr) => acc + curr.totalUnpaid, 0);
 
+  const [payConfirm, setPayConfirm] = useState(false);
+  const { showToast } = useToast();
+
   const handlePay = async () => {
+    setPayConfirm(true);
+  };
+
+  const confirmPay = async () => {
     if (!selectedEmpId) return;
-    if (window.confirm('Xác nhận thanh toán?')) {
-      try {
-        const unpaidShifts = shifts.filter(s => s.employeeId === selectedEmpId && s.status === 'unpaid');
-        for (const shift of unpaidShifts) {
-          await dbService.updateShift(shift.id, { status: 'paid', paidAt: Date.now() });
-        }
-        setSelectedEmpId(null);
-        refreshData();
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra');
+    try {
+      const unpaidShifts = shifts.filter(s => s.employeeId === selectedEmpId && s.status === 'unpaid');
+      for (const shift of unpaidShifts) {
+        await dbService.updateShift(shift.id, { status: 'paid', paidAt: Date.now() });
       }
+      showToast('Đã thanh toán thành công', 'success');
+      setSelectedEmpId(null);
+      setPayConfirm(false);
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Có lỗi xảy ra', 'error');
     }
   };
 
@@ -155,6 +161,33 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
             </>
           )}
         </div>
+      </Modal>
+
+      {/* Pay Confirm Modal */}
+      <Modal
+        title="Xác nhận thanh toán"
+        isOpen={payConfirm}
+        onClose={() => setPayConfirm(false)}
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPayConfirm(false)}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={confirmPay}
+              className="flex-1 bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+            >
+              Xác nhận
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">
+          Thanh toán {formatCurrency(selectedEmployeeSummary?.totalUnpaid || 0)} cho {selectedEmployeeSummary?.employeeName}?
+        </p>
       </Modal>
     </div>
   );

@@ -3,13 +3,14 @@ import { Employee } from '../types';
 import { dbService } from '../services/firebase';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { useToast } from './ui/Toast';
 
 interface EmployeeManagerProps {
   employees: Employee[];
-  refreshData: () => void;
 }
 
-export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, refreshData }) => {
+export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees }) => {
+  const { showToast } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
 
@@ -34,35 +35,48 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, ref
     setModalOpen(true);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setPhone(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      setError('Vui lòng nhập đầy đủ thông tin');
+    if (!name.trim()) {
+      setError('Vui lòng nhập họ tên');
       return;
     }
 
-    if (!/^\d{9,11}$/.test(phone.replace(/\s/g, ''))) {
-      setError('Số điện thoại không hợp lệ');
+    if (phone && !/^\d{9,11}$/.test(phone)) {
+      setError('Số điện thoại phải từ 9-11 chữ số');
       return;
     }
 
     try {
       if (editingEmp) {
         await dbService.updateEmployee(editingEmp.id, { name, phone });
+        showToast('Đã cập nhật nhân viên', 'success');
       } else {
         await dbService.addEmployee({ name, phone });
+        showToast('Đã thêm nhân viên mới', 'success');
       }
       setModalOpen(false);
-      refreshData();
     } catch (err) {
-      setError('Có lỗi xảy ra');
+      showToast('Có lỗi xảy ra', 'error');
     }
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
-    if (window.confirm('Xóa nhân viên này?')) {
-      await dbService.deleteEmployee(id);
-      refreshData();
+    setDeleteConfirm(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirm) {
+      await dbService.deleteEmployee(deleteConfirm);
+      showToast('Đã xóa nhân viên', 'success');
+      setDeleteConfirm(null);
     }
   };
 
@@ -173,16 +187,42 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, ref
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Số điện thoại</label>
+            <label className="block text-xs text-slate-400 mb-1.5">Số điện thoại (không bắt buộc)</label>
             <input
               type="tel"
               placeholder="0912345678"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
+              maxLength={11}
               className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
             />
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirm Modal */}
+      <Modal
+        title="Xác nhận xóa"
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDeleteConfirm(null)}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+            >
+              Xóa
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
     </div>
   );

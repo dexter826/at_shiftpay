@@ -4,6 +4,7 @@ import { CalendarView } from './components/CalendarView';
 import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
 import { Login } from './components/Login';
+import { ToastProvider } from './components/ui/Toast';
 import { dbService } from './services/firebase';
 import { Employee, Event, Shift } from './types';
 import { auth } from './firebase';
@@ -23,25 +24,6 @@ function App() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const [empData, evtData, shiftData] = await Promise.all([
-        dbService.getEmployees(),
-        dbService.getEvents(),
-        dbService.getShifts()
-      ]);
-      setEmployees(empData);
-      setEvents(evtData);
-      setShifts(shiftData);
-    } catch (error) {
-      console.error("Failed to load data", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -50,12 +32,40 @@ function App() {
     return unsubscribe;
   }, []);
 
+  // Real-time subscriptions
   useEffect(() => {
-    if (user) {
-      loadData();
-    } else {
+    if (!user) {
       setIsLoading(false);
+      return;
     }
+
+    setIsLoading(true);
+    let loadedCount = 0;
+    const checkLoaded = () => {
+      loadedCount++;
+      if (loadedCount >= 3) setIsLoading(false);
+    };
+
+    const unsubEmployees = dbService.subscribeEmployees((data) => {
+      setEmployees(data);
+      checkLoaded();
+    });
+
+    const unsubEvents = dbService.subscribeEvents((data) => {
+      setEvents(data);
+      checkLoaded();
+    });
+
+    const unsubShifts = dbService.subscribeShifts((data) => {
+      setShifts(data);
+      checkLoaded();
+    });
+
+    return () => {
+      unsubEmployees();
+      unsubEvents();
+      unsubShifts();
+    };
   }, [user]);
 
   const handleLogout = async () => {
@@ -81,7 +91,6 @@ function App() {
             events={events}
             shifts={shifts}
             employees={employees}
-            refreshData={loadData}
             totalDebt={totalDebt}
           />
         );
@@ -89,7 +98,6 @@ function App() {
         return (
           <EmployeeManager
             employees={employees}
-            refreshData={loadData}
           />
         );
       case 'payroll':
@@ -97,7 +105,6 @@ function App() {
           <PayrollView
             shifts={shifts}
             employees={employees}
-            refreshData={loadData}
           />
         );
       default:
@@ -126,12 +133,14 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
-      <main>
-        {renderContent()}
-      </main>
-    </div>
+    <ToastProvider>
+      <div className="min-h-screen bg-slate-900">
+        <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
+        <main>
+          {renderContent()}
+        </main>
+      </div>
+    </ToastProvider>
   );
 }
 
