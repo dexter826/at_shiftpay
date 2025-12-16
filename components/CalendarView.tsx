@@ -26,6 +26,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [viewingEvent, setViewingEvent] = useState<Event | null>(null);
 
   const daysInMonth = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -84,11 +85,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
 
   const confirmDeleteEvent = async () => {
     if (deleteConfirm) {
-      await dbService.deleteEvent(deleteConfirm);
+      // Delete event and its shifts together in one batch
+      const eventShifts = shifts.filter(s => s.eventId === deleteConfirm);
+      await dbService.deleteEventWithShifts(deleteConfirm, eventShifts.map(s => s.id));
       showToast('Đã xóa sự kiện', 'success');
       setDeleteConfirm(null);
     }
   };
+
+  const handleViewEvent = (evt: Event) => {
+    setViewingEvent(evt);
+  };
+
+  const viewingEventShifts = useMemo(() => {
+    if (!viewingEvent) return [];
+    return shifts.filter(s => s.eventId === viewingEvent.id);
+  }, [viewingEvent, shifts]);
 
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
 
@@ -150,8 +162,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                   >
                     <span>{date.getDate()}</span>
                     {dayEvents.length > 0 && (
-                      <div className="flex gap-0.5 mt-0.5">
-                        {dayEvents.slice(0, 3).map((_, i) => (
+                      <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
+                        {dayEvents.map((_, i) => (
                           <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-emerald-500'}`} />
                         ))}
                       </div>
@@ -191,7 +203,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                     </div>
                   ) : (
                     selectedEvents.map(evt => (
-                      <div key={evt.id} className="group p-3 bg-slate-800/50 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors">
+                      <div
+                        key={evt.id}
+                        onClick={() => handleViewEvent(evt)}
+                        className="group p-3 bg-slate-800/50 border border-slate-800 rounded-lg hover:border-slate-700 transition-colors cursor-pointer"
+                      >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-start gap-2 flex-1 min-w-0">
                             <MapPin size={14} className="text-emerald-500 mt-0.5 flex-shrink-0" />
@@ -200,7 +216,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                               {evt.note && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{evt.note}</p>}
                             </div>
                           </div>
-                          <div className="flex gap-1 flex-shrink-0">
+                          <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                             <button onClick={() => handleEditEvent(evt)} className="p-1 text-slate-500 hover:text-emerald-500 transition-colors">
                               <Edit2 size={14} />
                             </button>
@@ -272,6 +288,76 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
         }
       >
         <p className="text-sm text-slate-300">Bạn có chắc muốn xóa sự kiện này?</p>
+      </Modal>
+
+      {/* Event Detail Modal */}
+      <Modal
+        title={viewingEvent?.title || "Chi tiết sự kiện"}
+        isOpen={!!viewingEvent}
+        onClose={() => setViewingEvent(null)}
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                if (viewingEvent) {
+                  handleEditEvent(viewingEvent);
+                  setViewingEvent(null);
+                }
+              }}
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+            >
+              <Edit2 size={14} />
+              Sửa
+            </button>
+            <button
+              onClick={() => {
+                if (viewingEvent) {
+                  handleDeleteEvent(viewingEvent.id);
+                  setViewingEvent(null);
+                }
+              }}
+              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+            >
+              <Trash2 size={14} />
+              Xóa
+            </button>
+          </div>
+        }
+      >
+        {viewingEvent && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Ngày</p>
+              <p className="text-sm text-slate-200">{formatDate(viewingEvent.date)}</p>
+            </div>
+
+            {viewingEvent.note && (
+              <div>
+                <p className="text-xs text-slate-500 mb-1">Ghi chú</p>
+                <p className="text-sm text-slate-300">{viewingEvent.note}</p>
+              </div>
+            )}
+
+            {viewingEventShifts.length > 0 && (
+              <div>
+                <p className="text-xs text-slate-500 mb-2">Nhân viên ({viewingEventShifts.length})</p>
+                <div className="space-y-1.5">
+                  {viewingEventShifts.map(shift => (
+                    <div key={shift.id} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
+                      <span className="text-sm text-slate-300">{shift.employeeName}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${shift.session === 'morning'
+                        ? 'bg-orange-500/10 text-orange-500'
+                        : 'bg-emerald-500/10 text-emerald-500'
+                        }`}>
+                        {shift.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );

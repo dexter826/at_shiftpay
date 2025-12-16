@@ -53,9 +53,68 @@ export const dbService = {
     return docRef.id;
   },
 
+  // Create event and shifts together in one batch (atomic operation)
+  async createEventWithShifts(eventData: Omit<Event, 'id'>, shiftsData: Omit<Shift, 'id'>[]): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Create event document
+    const eventRef = doc(collection(db, 'events'));
+    batch.set(eventRef, eventData);
+
+    // Create all shifts with the event ID
+    shiftsData.forEach(shiftData => {
+      const shiftRef = doc(collection(db, 'shifts'));
+      batch.set(shiftRef, { ...shiftData, eventId: eventRef.id });
+    });
+
+    await batch.commit();
+  },
+
   async updateEvent(id: string, data: Partial<Event>): Promise<void> {
     const docRef = doc(db, 'events', id);
     await updateDoc(docRef, data);
+  },
+
+  // Update event and replace all shifts in one batch (atomic operation)
+  async updateEventWithShifts(
+    eventId: string,
+    eventData: Partial<Event>,
+    oldShiftIds: string[],
+    newShiftsData: Omit<Shift, 'id'>[]
+  ): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Update event
+    const eventRef = doc(db, 'events', eventId);
+    batch.update(eventRef, eventData);
+
+    // Delete old shifts
+    oldShiftIds.forEach(id => {
+      batch.delete(doc(db, 'shifts', id));
+    });
+
+    // Create new shifts
+    newShiftsData.forEach(shiftData => {
+      const shiftRef = doc(collection(db, 'shifts'));
+      batch.set(shiftRef, shiftData);
+    });
+
+    await batch.commit();
+  },
+
+  // Delete event and all its shifts in one batch (atomic operation)
+  async deleteEventWithShifts(eventId: string, shiftIds: string[]): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Delete event
+    batch.delete(doc(db, 'events', eventId));
+
+    // Delete all shifts
+    shiftIds.forEach(id => {
+      batch.delete(doc(db, 'shifts', id));
+    });
+
+    await batch.commit();
   },
 
   async deleteEvent(id: string): Promise<void> {

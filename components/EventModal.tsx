@@ -75,6 +75,8 @@ export const EventModal: React.FC<EventModalProps> = ({
     }));
   };
 
+  const getSelectedCount = () => Object.values(assignments).filter(Boolean).length;
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       setError('Nhập tên sự kiện');
@@ -84,60 +86,62 @@ export const EventModal: React.FC<EventModalProps> = ({
       setError('Chọn một ca làm việc');
       return;
     }
+    if (getSelectedCount() === 0) {
+      setError('Chọn ít nhất 1 nhân viên');
+      return;
+    }
+
+    // Prepare shifts data before closing modal
+    const isEditing = !!existingEvent;
+    const shiftsToCreate: Omit<Shift, 'id'>[] = [];
+
+    Object.entries(assignments).forEach(([empId, isAssigned]) => {
+      if (!isAssigned) return;
+      const emp = employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      const prevShift = existingShifts.find(
+        s => s.employeeId === empId && s.session === selectedSession
+      );
+
+      const shiftData: Omit<Shift, 'id'> = {
+        eventId: '', // Will be set after event creation
+        eventDate: date,
+        employeeId: empId,
+        employeeName: emp.name,
+        session: selectedSession!,
+        amount: SHIFT_RATE,
+        status: prevShift ? prevShift.status : 'unpaid',
+      };
+
+      if (prevShift?.paidAt) {
+        shiftData.paidAt = prevShift.paidAt;
+      }
+
+      shiftsToCreate.push(shiftData);
+    });
 
     // Close modal immediately for better UX
-    const isEditing = !!existingEvent;
     onSuccess();
 
     try {
       const eventData = { date, title, note };
-      let eventId = existingEvent?.id;
 
-      if (existingEvent) {
-        await dbService.updateEvent(existingEvent.id, eventData);
-      } else {
-        // Create new event and get its ID
-        eventId = await dbService.addEvent(eventData);
-      }
+      if (isEditing && existingEvent) {
+        // Set eventId for new shifts
+        shiftsToCreate.forEach(s => s.eventId = existingEvent.id);
 
-      if (!eventId) return;
-
-      // Delete old shifts if editing (batch delete)
-      if (existingShifts.length > 0) {
-        await dbService.deleteShiftsBatch(existingShifts.map(s => s.id));
-      }
-
-      // Create new shifts (batch add - prevents UI flickering)
-      const shiftsToCreate: Omit<Shift, 'id'>[] = [];
-      Object.entries(assignments).forEach(([empId, isAssigned]) => {
-        if (!isAssigned) return;
-        const emp = employees.find(e => e.id === empId);
-        if (!emp) return;
-
-        const prevShift = existingShifts.find(
-          s => s.employeeId === empId && s.session === selectedSession
+        // Update event and replace shifts in one batch operation
+        await dbService.updateEventWithShifts(
+          existingEvent.id,
+          eventData,
+          existingShifts.map(s => s.id),
+          shiftsToCreate
         );
-
-        const shiftData: Omit<Shift, 'id'> = {
-          eventId: eventId!,
-          eventDate: date,
-          employeeId: empId,
-          employeeName: emp.name,
-          session: selectedSession!,
-          amount: SHIFT_RATE,
-          status: prevShift ? prevShift.status : 'unpaid',
-        };
-
-        // Only add paidAt if it exists (Firebase doesn't accept undefined)
-        if (prevShift?.paidAt) {
-          shiftData.paidAt = prevShift.paidAt;
-        }
-
-        shiftsToCreate.push(shiftData);
-      });
-
-      // Batch add all shifts at once
-      await dbService.addShiftsBatch(shiftsToCreate);
+      } else {
+        // Create new event with shifts in one batch operation
+        await dbService.createEventWithShifts(eventData, shiftsToCreate);
+      }
 
       showToast(isEditing ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện mới', 'success');
     } catch (err) {
