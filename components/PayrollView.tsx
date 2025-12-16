@@ -112,7 +112,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
               <div className="text-left">
                 <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
                 <p className={`text-xs ${item.unpaidCount > 0 ? 'text-emerald-500' : textMutedClass}`}>
-                  {item.unpaidCount > 0 ? `${item.unpaidCount} ca chưa trả` : 'Đã thanh toán'}
+                  {item.unpaidCount > 0 ? `${item.unpaidCount} công chưa trả` : 'Không có công nợ'}
                 </p>
               </div>
             </div>
@@ -152,7 +152,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             </div>
           ) : (
             <>
-              <p className={`text-xs ${textMutedClass} uppercase tracking-wide`}>Ca chưa trả</p>
+              <p className={`text-xs ${textMutedClass} uppercase tracking-wide`}>Công chưa trả</p>
               {selectedUnpaidShifts.map((s) => (
                 <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
                   <div className="flex items-center gap-3">

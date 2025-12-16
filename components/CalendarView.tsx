@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Event, Shift, Employee } from '../types';
 import { formatDate } from '../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock } from 'lucide-react';
 import { EventModal } from './EventModal';
 import { dbService } from '../services/firebase';
 import { useToast } from './ui/Toast';
@@ -244,7 +244,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                             return (
                               <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-emerald-500/10 text-emerald-500'
                                 }`}>
-                                {session === 'morning' ? 'Sáng' : 'Chiều'}: {count}
+                                {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
                               </span>
                             );
                           })}
@@ -336,9 +336,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
       >
         {viewingEvent && (
           <div className="space-y-4">
-            <div>
-              <p className={`text-xs ${textMutedClass} mb-1`}>Ngày</p>
-              <p className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</p>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <p className={`text-xs ${textMutedClass} mb-1`}>Ngày</p>
+                <p className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</p>
+              </div>
+              {viewingEvent.time && (
+                <div>
+                  <p className={`text-xs ${textMutedClass} mb-1`}>Thời gian</p>
+                  <p className={`text-sm ${textPrimaryClass} flex items-center gap-1`}>
+                    <Clock size={12} className="text-emerald-500" />
+                    {viewingEvent.time}
+                  </p>
+                </div>
+              )}
             </div>
 
             {viewingEvent.note && (

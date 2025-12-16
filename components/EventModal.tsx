@@ -4,6 +4,7 @@ import { dbService } from '../services/firebase';
 import { SHIFT_RATE } from '../constants';
 import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { TimePicker } from './ui/TimePicker';
 import { useToast } from './ui/Toast';
 
 interface EventModalProps {
@@ -242,12 +243,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && (
           <div>
             <label className="block text-xs text-slate-400 mb-1.5">Thời gian bắt đầu</label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-slate-600"
-            />
+            <TimePicker value={time} onChange={setTime} />
           </div>
         )}
 
