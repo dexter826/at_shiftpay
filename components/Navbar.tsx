@@ -1,12 +1,13 @@
 import React from 'react';
-import { CalendarRange, Users, Wallet2 } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: string;
   setTab: (tab: string) => void;
+  onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
   const navItems = [
     { id: 'dashboard', label: 'Lịch Tiệc', icon: CalendarRange },
     { id: 'employees', label: 'Nhân Sự', icon: Users },
@@ -30,8 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               key={item.id}
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 p-3 rounded-xl transition-all font-medium ${
-                currentTab === item.id 
-                  ? 'bg-indigo-50 text-indigo-700 shadow-sm' 
+                currentTab === item.id
+                  ? 'bg-indigo-50 text-indigo-700 shadow-sm'
                   : 'hover:bg-slate-50 text-slate-600'
               }`}
             >
@@ -40,6 +41,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
             </button>
           ))}
         </nav>
+
+        <div className="mt-auto px-3 pb-6">
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-3 p-3 rounded-xl transition-all font-medium w-full hover:bg-red-50 text-red-600"
+          >
+            <LogOut size={20} />
+            <span>Đăng xuất</span>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Bottom Bar */}

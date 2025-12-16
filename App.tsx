@@ -3,15 +3,20 @@ import { Navbar } from './components/Navbar';
 import { CalendarView } from './components/CalendarView';
 import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
+import { Login } from './components/Login';
 import { dbService } from './services/firebase';
 import { Employee, Event, Shift } from './types';
+import { auth } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 // Simple Mock Routing
 type Tab = 'dashboard' | 'employees' | 'payroll';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-  
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   // Global State
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
@@ -19,6 +24,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = async () => {
+    if (!user) return;
     setIsLoading(true);
     try {
       const [empData, evtData, shiftData] = await Promise.all([
@@ -37,8 +43,28 @@ function App() {
   };
 
   useEffect(() => {
-    loadData();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout error", error);
+    }
+  };
 
   // Derived State
   const totalDebt = useMemo(() => {
@@ -79,6 +105,18 @@ function App() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-50">
+        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login onLogin={() => setUser(auth.currentUser)} />;
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-50">
@@ -89,7 +127,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} />
+      <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
       <main className="w-full">
         {renderContent()}
       </main>
