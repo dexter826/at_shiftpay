@@ -8,6 +8,7 @@ import {
   query,
   orderBy,
   onSnapshot,
+  writeBatch,
   Unsubscribe
 } from 'firebase/firestore';
 import { Employee, Event, Shift } from '../types';
@@ -47,8 +48,9 @@ export const dbService = {
     });
   },
 
-  async addEvent(data: Omit<Event, 'id'>): Promise<void> {
-    await addDoc(collection(db, 'events'), data);
+  async addEvent(data: Omit<Event, 'id'>): Promise<string> {
+    const docRef = await addDoc(collection(db, 'events'), data);
+    return docRef.id;
   },
 
   async updateEvent(id: string, data: Partial<Event>): Promise<void> {
@@ -71,6 +73,27 @@ export const dbService = {
 
   async addShift(data: Omit<Shift, 'id'>): Promise<void> {
     await addDoc(collection(db, 'shifts'), data);
+  },
+
+  // Batch add multiple shifts at once (prevents UI flickering)
+  async addShiftsBatch(shiftsData: Omit<Shift, 'id'>[]): Promise<void> {
+    if (shiftsData.length === 0) return;
+    const batch = writeBatch(db);
+    shiftsData.forEach(data => {
+      const newDocRef = doc(collection(db, 'shifts'));
+      batch.set(newDocRef, data);
+    });
+    await batch.commit();
+  },
+
+  // Batch delete multiple shifts at once
+  async deleteShiftsBatch(shiftIds: string[]): Promise<void> {
+    if (shiftIds.length === 0) return;
+    const batch = writeBatch(db);
+    shiftIds.forEach(id => {
+      batch.delete(doc(db, 'shifts', id));
+    });
+    await batch.commit();
   },
 
   async updateShift(id: string, data: Partial<Shift>): Promise<void> {

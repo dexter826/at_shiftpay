@@ -52,15 +52,19 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees }) =
       return;
     }
 
+    // Close modal immediately for better UX
+    const isEditing = !!editingEmp;
+    const empId = editingEmp?.id;
+    setModalOpen(false);
+
     try {
-      if (editingEmp) {
-        await dbService.updateEmployee(editingEmp.id, { name, phone });
+      if (isEditing && empId) {
+        await dbService.updateEmployee(empId, { name, phone });
         showToast('Đã cập nhật nhân viên', 'success');
       } else {
         await dbService.addEmployee({ name, phone });
         showToast('Đã thêm nhân viên mới', 'success');
       }
-      setModalOpen(false);
     } catch (err) {
       showToast('Có lỗi xảy ra', 'error');
     }

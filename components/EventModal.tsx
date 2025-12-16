@@ -85,6 +85,10 @@ export const EventModal: React.FC<EventModalProps> = ({
       return;
     }
 
+    // Close modal immediately for better UX
+    const isEditing = !!existingEvent;
+    onSuccess();
+
     try {
       const eventData = { date, title, note };
       let eventId = existingEvent?.id;
@@ -92,17 +96,18 @@ export const EventModal: React.FC<EventModalProps> = ({
       if (existingEvent) {
         await dbService.updateEvent(existingEvent.id, eventData);
       } else {
-        await dbService.addEvent(eventData);
-        onSuccess();
-        return;
+        // Create new event and get its ID
+        eventId = await dbService.addEvent(eventData);
       }
 
       if (!eventId) return;
 
-      for (const shift of existingShifts) {
-        await dbService.deleteShift(shift.id);
+      // Delete old shifts if editing (batch delete)
+      if (existingShifts.length > 0) {
+        await dbService.deleteShiftsBatch(existingShifts.map(s => s.id));
       }
 
+      // Create new shifts (batch add - prevents UI flickering)
       const shiftsToCreate: Omit<Shift, 'id'>[] = [];
       Object.entries(assignments).forEach(([empId, isAssigned]) => {
         if (!isAssigned) return;
@@ -113,24 +118,28 @@ export const EventModal: React.FC<EventModalProps> = ({
           s => s.employeeId === empId && s.session === selectedSession
         );
 
-        shiftsToCreate.push({
+        const shiftData: Omit<Shift, 'id'> = {
           eventId: eventId!,
           eventDate: date,
           employeeId: empId,
           employeeName: emp.name,
-          session: selectedSession,
+          session: selectedSession!,
           amount: SHIFT_RATE,
           status: prevShift ? prevShift.status : 'unpaid',
-          paidAt: prevShift ? prevShift.paidAt : undefined
-        });
+        };
+
+        // Only add paidAt if it exists (Firebase doesn't accept undefined)
+        if (prevShift?.paidAt) {
+          shiftData.paidAt = prevShift.paidAt;
+        }
+
+        shiftsToCreate.push(shiftData);
       });
 
-      for (const shift of shiftsToCreate) {
-        await dbService.addShift(shift);
-      }
+      // Batch add all shifts at once
+      await dbService.addShiftsBatch(shiftsToCreate);
 
-      showToast(existingEvent ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện mới', 'success');
-      onSuccess();
+      showToast(isEditing ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện mới', 'success');
     } catch (err) {
       showToast('Có lỗi xảy ra', 'error');
       console.error(err);
@@ -220,18 +229,21 @@ export const EventModal: React.FC<EventModalProps> = ({
                 <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
               ) : (
                 employees.map(emp => (
-                  <label key={emp.id} className="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/50">
+                  <div
+                    key={emp.id}
+                    onClick={() => toggleAssignment(emp.id)}
+                    className="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/50"
+                  >
                     <span className="text-sm text-slate-300 truncate flex-1">{emp.name}</span>
                     <div
-                      onClick={() => toggleAssignment(emp.id)}
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer ${assignments[emp.id]
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
                         ? 'bg-emerald-500 border-emerald-500'
-                        : 'border-slate-600 hover:border-slate-500'
+                        : 'border-slate-600'
                         }`}
                     >
                       {assignments[emp.id] && <Check size={12} className="text-white" />}
                     </div>
-                  </label>
+                  </div>
                 ))
               )}
             </div>
