@@ -2,12 +2,13 @@ export interface Employee {
   id: string;
   name: string;
   phone: string;
-  createdAt: number;
+  createdAt: string; // ISO date string
 }
 
 export interface Event {
   id: string;
   date: string; // YYYY-MM-DD
+  time?: string; // HH:mm
   title: string;
   note?: string;
 }

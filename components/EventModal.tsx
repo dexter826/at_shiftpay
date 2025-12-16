@@ -28,15 +28,20 @@ export const EventModal: React.FC<EventModalProps> = ({
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [time, setTime] = useState('');
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
+
+  const DEFAULT_MORNING_TIME = '07:30';
+  const DEFAULT_AFTERNOON_TIME = '13:30';
 
   useEffect(() => {
     if (isOpen) {
       if (existingEvent) {
         setTitle(existingEvent.title);
         setNote(existingEvent.note || '');
+        setTime(existingEvent.time || '');
 
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
@@ -48,9 +53,15 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         setAssignments(newAssignments);
         setSelectedSession(detectedSession);
+
+        // Set default time based on session if not already set
+        if (!existingEvent.time && detectedSession) {
+          setTime(detectedSession === 'morning' ? DEFAULT_MORNING_TIME : DEFAULT_AFTERNOON_TIME);
+        }
       } else {
         setTitle('');
         setNote('');
+        setTime('');
         setSelectedSession(null);
         setAssignments({});
       }
@@ -62,9 +73,12 @@ export const EventModal: React.FC<EventModalProps> = ({
     if (selectedSession === session) {
       setSelectedSession(null);
       setAssignments({});
+      setTime('');
     } else {
       setSelectedSession(session);
       setAssignments({});
+      // Set default time based on session
+      setTime(session === 'morning' ? DEFAULT_MORNING_TIME : DEFAULT_AFTERNOON_TIME);
     }
   };
 
@@ -125,7 +139,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     onSuccess();
 
     try {
-      const eventData = { date, title, note };
+      const eventData = { date, title, note, time };
 
       if (isEditing && existingEvent) {
         // Set eventId for new shifts
@@ -223,6 +237,19 @@ export const EventModal: React.FC<EventModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Time input */}
+        {selectedSession && (
+          <div>
+            <label className="block text-xs text-slate-400 mb-1.5">Thời gian bắt đầu</label>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-slate-600"
+            />
+          </div>
+        )}
 
         {/* Assignments - Round checkbox at end */}
         {selectedSession && (
