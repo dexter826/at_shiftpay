@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">
             AT ShiftPay
           </h1>
-          <p className="text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Quản lý tiệc cưới</p>
+          <p className="text-xs text-slate-500 font-medium tracking-wider uppercase mt-1">Quản lý tính công</p>
         </div>
 
         <nav className="flex flex-col px-3 gap-1">
@@ -31,8 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               key={item.id}
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 p-3 rounded-xl transition-all font-medium ${currentTab === item.id
-                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                  : 'hover:bg-slate-700 text-slate-400 hover:text-slate-200'
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                : 'hover:bg-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
             >
               <item.icon size={20} strokeWidth={currentTab === item.id ? 2.5 : 2} />
