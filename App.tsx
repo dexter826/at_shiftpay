@@ -77,7 +77,7 @@ function App() {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <CalendarView 
+          <CalendarView
             events={events}
             shifts={shifts}
             employees={employees}
@@ -87,14 +87,14 @@ function App() {
         );
       case 'employees':
         return (
-          <EmployeeManager 
+          <EmployeeManager
             employees={employees}
             refreshData={loadData}
           />
         );
       case 'payroll':
         return (
-          <PayrollView 
+          <PayrollView
             shifts={shifts}
             employees={employees}
             refreshData={loadData}
@@ -107,7 +107,7 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex items-center justify-center h-screen bg-slate-900">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -119,14 +119,14 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex items-center justify-center h-screen bg-slate-900">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-900">
       <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
       <main className="w-full">
         {renderContent()}

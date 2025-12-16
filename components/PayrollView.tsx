@@ -7,7 +7,7 @@ import { Modal } from './ui/Modal';
 
 interface PayrollViewProps {
   shifts: Shift[];
-  employees: any[]; 
+  employees: any[];
   refreshData: () => void;
 }
 
@@ -17,7 +17,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
   // Group by employee and calculate totals
   const summary: PayrollSummary[] = useMemo(() => {
     const map: Record<string, PayrollSummary> = {};
-    
+
     employees.forEach(emp => {
       map[emp.id] = {
         employeeId: emp.id,
@@ -43,9 +43,21 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
   const handlePay = async () => {
     if (!selectedEmpId) return;
     if (window.confirm('Xác nhận thanh toán toàn bộ lương cho nhân viên này?')) {
-      await dbService.payEmployee(selectedEmpId);
-      setSelectedEmpId(null);
-      refreshData();
+      try {
+        // Update all unpaid shifts for this employee
+        const unpaidShifts = shifts.filter(s => s.employeeId === selectedEmpId && s.status === 'unpaid');
+        for (const shift of unpaidShifts) {
+          await dbService.updateShift(shift.id, {
+            status: 'paid',
+            paidAt: Date.now()
+          });
+        }
+        setSelectedEmpId(null);
+        refreshData();
+      } catch (error) {
+        console.error('Error paying employee:', error);
+        alert('Có lỗi xảy ra khi thanh toán');
+      }
     }
   };
 
@@ -58,19 +70,19 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
   }, [selectedEmpId, shifts]);
 
   return (
-    <div className="pb-24 md:ml-64 bg-slate-50 min-h-screen">
-      <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-20">
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+    <div className="pb-20 md:pb-0 md:ml-64 bg-slate-900 min-h-screen">
+      <div className="bg-slate-800 p-4 md:p-6 border-b border-slate-700 sticky top-0 z-20">
+        <h1 className="text-xl md:text-2xl font-bold text-slate-100 flex items-center gap-2">
           Thanh Toán Lương
         </h1>
-        <div className="flex justify-between items-end mt-4 p-4 bg-slate-900 rounded-2xl text-white shadow-lg">
-           <div>
-             <p className="text-slate-400 text-xs uppercase font-bold tracking-wider">Tổng quỹ lương nợ</p>
-             <p className="text-3xl font-bold mt-1 text-emerald-400">{formatCurrency(totalDebt)}</p>
-           </div>
-           <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center">
-             <Wallet2 className="text-emerald-400" size={20} />
-           </div>
+        <div className="flex justify-between items-end mt-3 md:mt-4 p-3 md:p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl md:rounded-2xl text-white shadow-lg shadow-emerald-500/30">
+          <div>
+            <p className="text-emerald-100 text-[10px] md:text-xs uppercase font-bold tracking-wider">Tổng quỹ lương nợ</p>
+            <p className="text-2xl md:text-3xl font-bold mt-1">{formatCurrency(totalDebt)}</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+            <Wallet2 size={18} className="md:w-5 md:h-5" />
+          </div>
         </div>
       </div>
 
@@ -79,29 +91,28 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
           <button
             key={item.employeeId}
             onClick={() => setSelectedEmpId(item.employeeId)}
-            className="w-full bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-100 transition-all flex justify-between items-center group"
+            className="w-full bg-slate-800 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-sm border border-slate-700 hover:shadow-lg hover:border-emerald-500/30 transition-all flex justify-between items-center group active:scale-[0.98]"
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                item.totalUnpaid > 0 ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-400'
-              }`}>
+            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-base md:text-lg flex-shrink-0 ${item.totalUnpaid > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-500'
+                }`}>
                 {item.employeeName.charAt(0)}
               </div>
-              <div className="text-left">
-                <p className="font-bold text-slate-800 text-lg group-hover:text-indigo-700 transition-colors">
+              <div className="text-left flex-1 min-w-0">
+                <p className="font-bold text-slate-100 text-base md:text-lg group-hover:text-emerald-400 transition-colors truncate">
                   {item.employeeName}
                 </p>
-                <p className={`text-sm ${item.unpaidCount > 0 ? 'text-indigo-500 font-medium' : 'text-slate-400'}`}>
+                <p className={`text-xs md:text-sm ${item.unpaidCount > 0 ? 'text-emerald-400 font-medium' : 'text-slate-500'}`}>
                   {item.unpaidCount > 0 ? `${item.unpaidCount} ca chưa thanh toán` : 'Đã thanh toán hết'}
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              <span className={`font-bold text-lg ${item.totalUnpaid > 0 ? 'text-slate-900' : 'text-slate-300'}`}>
+
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <span className={`font-bold text-sm md:text-lg ${item.totalUnpaid > 0 ? 'text-slate-100' : 'text-slate-600'}`}>
                 {formatCurrency(item.totalUnpaid)}
               </span>
-              <ChevronRight size={20} className="text-slate-300 group-hover:text-indigo-500" />
+              <ChevronRight size={18} className="text-slate-600 group-hover:text-emerald-400 md:w-5 md:h-5" />
             </div>
           </button>
         ))}
@@ -116,7 +127,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
           selectedEmployeeSummary && selectedEmployeeSummary.totalUnpaid > 0 ? (
             <button
               onClick={handlePay}
-              className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-lg shadow-md hover:bg-emerald-700 active:scale-[0.98] transition-all flex justify-center items-center gap-2"
+              className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold text-lg shadow-md hover:bg-emerald-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2"
             >
               <Banknote size={20} />
               Xác Nhận Đã Trả {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
@@ -126,31 +137,30 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, ref
       >
         <div className="space-y-4">
           {selectedUnpaidShifts.length === 0 ? (
-            <div className="py-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+            <div className="py-12 flex flex-col items-center justify-center text-slate-500 gap-3">
               <CheckCircle2 size={48} className="text-emerald-500" />
-              <p className="text-lg font-medium text-slate-600">Tuyệt vời! Không còn khoản nợ nào.</p>
+              <p className="text-lg font-medium text-slate-300">Tuyệt vời! Không còn khoản nợ nào.</p>
             </div>
           ) : (
             <div className="space-y-3">
-               <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Danh sách ca chưa trả</p>
-               {selectedUnpaidShifts.map((s) => (
-                 <div key={s.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-slate-400 shadow-sm">
-                        <Calendar size={18} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-700">{formatDate(s.eventDate)}</p>
-                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${
-                          s.session === 'morning' ? 'bg-orange-100 text-orange-700' : 'bg-indigo-100 text-indigo-700'
-                        }`}>
-                          {s.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
-                        </span>
-                      </div>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Danh sách ca chưa trả</p>
+              {selectedUnpaidShifts.map((s) => (
+                <div key={s.id} className="flex justify-between items-center p-3 bg-slate-700 rounded-xl border border-slate-600">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 shadow-sm">
+                      <Calendar size={18} />
                     </div>
-                    <p className="font-bold text-slate-900">{formatCurrency(s.amount)}</p>
-                 </div>
-               ))}
+                    <div>
+                      <p className="font-bold text-slate-200">{formatDate(s.eventDate)}</p>
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${s.session === 'morning' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'
+                        }`}>
+                        {s.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="font-bold text-slate-100">{formatCurrency(s.amount)}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
