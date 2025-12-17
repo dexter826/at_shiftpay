@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './src'),
       }
     },
     build: {
@@ -26,11 +26,14 @@ export default defineConfig(({ mode }) => {
             'react-vendor': ['react', 'react-dom'],
             'firebase-vendor': ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
             'charts-vendor': ['recharts'],
-            'icons-vendor': ['lucide-react']
+            'icons-vendor': ['lucide-react'],
+            'lottie-vendor': ['lottie-react']
           }
         }
       },
-      chunkSizeWarningLimit: 600
+      chunkSizeWarningLimit: 600,
+      assetsInlineLimit: 0,
+      assetsInclude: ['**/*.json']
     }
   };
 });

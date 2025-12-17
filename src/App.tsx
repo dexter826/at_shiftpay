@@ -6,6 +6,7 @@ import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
 import { Login } from './components/Login';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { Splashscreen } from './components/Splashscreen';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
@@ -20,6 +21,10 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  // Kiểm tra sessionStorage ngay từ đầu để tránh render không cần thiết
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('splashscreen_shown');
+  });
 
   // Global State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -140,6 +145,11 @@ function App() {
         return null;
     }
   };
+
+  // Hiển thị splashscreen nếu cần
+  if (showSplash) {
+    return <Splashscreen onComplete={() => setShowSplash(false)} />;
+  }
 
   if (authLoading) {
     return (
