@@ -5,6 +5,7 @@ import { CalendarView } from './components/CalendarView';
 import { EmployeeManager } from './components/EmployeeManager';
 import { PayrollView } from './components/PayrollView';
 import { Login } from './components/Login';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
@@ -162,6 +163,7 @@ function App() {
 
   return (
     <ToastProvider>
+      <OfflineIndicator />
       <AppContent
         activeTab={activeTab}
         setActiveTab={setActiveTab}

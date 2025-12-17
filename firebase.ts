@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
@@ -15,7 +15,12 @@ const firebaseConfig = {
 // Khởi tạo Firebase app
 const app = initializeApp(firebaseConfig);
 
-// Xuất các dịch vụ
-export const db = getFirestore(app);
+// Khởi tạo Firestore với offline persistence
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
 export const auth = getAuth(app);
 export const storage = getStorage(app);

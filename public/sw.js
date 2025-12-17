@@ -1,11 +1,13 @@
-const CACHE_NAME = 'at-shiftpay-v1';
+const CACHE_NAME = 'at-shiftpay-v2';
 const urlsToCache = [
     '/',
     '/index.html',
     '/index.css',
-    '/index.tsx',
     '/favicon.ico',
-    '/apple-touch-icon.png'
+    '/apple-touch-icon.png',
+    '/logo_text.png',
+    '/avatar.png',
+    '/background.png'
 ];
 
 // Install event - cache resources
@@ -13,18 +15,34 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                return cache.addAll(urlsToCache);
+                return cache.addAll(urlsToCache).catch(err => {
+                    console.log('Cache addAll error:', err);
+                });
             })
     );
+    self.skipWaiting();
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - Network first, fallback to cache
 self.addEventListener('fetch', (event) => {
+    // Skip cross-origin requests
+    if (!event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request)
+        fetch(event.request)
             .then((response) => {
-                // Return cached version or fetch from network
-                return response || fetch(event.request);
+                // Clone response to cache it
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseToCache);
+                });
+                return response;
+            })
+            .catch(() => {
+                // Network failed, try cache
+                return caches.match(event.request);
             })
     );
 });
@@ -42,4 +60,5 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+    self.clients.claim();
 });
