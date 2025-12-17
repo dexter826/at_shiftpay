@@ -21,6 +21,7 @@
 - **Vite** - Build tool
 - **Recharts** - Biểu đồ thống kê
 - **Lucide React** - Icon
+- **Lottie React** - SplashScreen
 
 ## Cài đặt
 

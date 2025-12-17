@@ -4,7 +4,7 @@ import Lottie from 'lottie-react';
 const SPLASHSCREEN_URL = '/splashscreen.json';
 
 const SPLASHSCREEN_KEY = 'splashscreen_shown';
-const SPLASHSCREEN_DURATION = 3000; // 3 giây
+const SPLASHSCREEN_DURATION = 2000; // 2 giây
 
 interface SplashscreenProps {
     onComplete: () => void;
