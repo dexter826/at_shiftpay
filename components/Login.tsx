@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
 import { useTheme } from '../contexts/ThemeContext';
-import { Eye, EyeOff, Heart } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
 
 interface LoginProps {
   onLogin: () => void;
@@ -11,7 +11,7 @@ interface LoginProps {
 const CORRECT_CODE = '2738';
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -109,15 +109,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   const handleCodeChange = (index: number, value: string) => {
-    // Only allow digits
     if (value && !/^\d$/.test(value)) return;
-
     const newDigits = [...codeDigits];
     newDigits[index] = value;
     setCodeDigits(newDigits);
     setCodeError('');
-
-    // Auto focus next input
     if (value && index < 3) {
       inputRefs[index + 1].current?.focus();
     }
@@ -139,7 +135,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       }
       setCodeDigits(newDigits);
       setCodeError('');
-      // Focus last filled input or next empty
       const focusIndex = Math.min(pastedData.length, 3);
       inputRefs[focusIndex].current?.focus();
     }
@@ -149,7 +144,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Validate all fields
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
 
@@ -157,7 +151,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const isFullNameValid = validateFullName(fullName);
       const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
       const isCodeValid = validateCode();
-
       if (!isEmailValid || !isPasswordValid || !isFullNameValid || !isConfirmPasswordValid || !isCodeValid) {
         return;
       }
@@ -171,28 +164,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     try {
       if (isSignUp) {
-        // Đăng ký tài khoản mới
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-        // Cập nhật display name
-        await updateProfile(userCredential.user, {
-          displayName: fullName.trim()
-        });
-
-        // Gửi email xác thực
+        await updateProfile(userCredential.user, { displayName: fullName.trim() });
         await sendEmailVerification(userCredential.user);
-
-        // Lưu email để hiển thị trong thông báo
         setVerificationEmail(email);
-
-        // Đăng xuất ngay sau khi đăng ký để bắt buộc verify
         await auth.signOut();
-
-        // Hiển thị thông báo thành công
         setVerificationSent(true);
         setError('');
-
-        // Reset form
         setEmail('');
         setPassword('');
         setConfirmPassword('');
@@ -203,24 +181,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         setConfirmPasswordError('');
         setFullNameError('');
         setCodeError('');
-
         setIsSignUp(false);
-
         return;
       } else {
-        // Đăng nhập
         await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-        // Kiểm tra email đã được xác thực chưa
         if (!userCredential.user.emailVerified) {
           await auth.signOut();
-          setError('Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư của bạn.');
+          setError('Vui lòng xác thực email trước khi đăng nhập.');
           setLoading(false);
           return;
         }
-
-        // Chỉ gọi onLogin khi đăng nhập thành công VÀ đã verify email
         onLogin();
       }
     } catch (error: any) {
@@ -245,7 +216,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
-  // Reset form when switching modes (chỉ khi user click chuyển mode)
   const handleSwitchMode = () => {
     setIsSignUp(!isSignUp);
     setError('');
@@ -255,92 +225,126 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setFullNameError('');
     setCodeError('');
     setCodeDigits(['', '', '', '']);
-    setVerificationSent(false); // Xóa thông báo khi user chủ động chuyển mode
+    setVerificationSent(false);
   };
 
-  // Xóa thông báo verification khi user bắt đầu nhập email
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (emailError) validateEmail(value);
-    if (verificationSent) setVerificationSent(false); // Ẩn thông báo khi user bắt đầu nhập
+    if (verificationSent) setVerificationSent(false);
   };
 
   // Theme classes
-  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
-  const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
-  const inputBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-  const inputBorderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
+  const isDark = theme === 'dark';
+  const bgClass = isDark ? 'bg-slate-900' : 'bg-gray-50';
+  const cardBgClass = isDark ? 'bg-slate-800' : 'bg-white';
+  const textPrimaryClass = isDark ? 'text-slate-200' : 'text-gray-800';
+  const textMutedClass = isDark ? 'text-slate-400' : 'text-gray-500';
+  const inputBorderClass = isDark ? 'border-slate-600' : 'border-gray-300';
+  const illustrationBg = isDark ? 'bg-slate-800' : 'bg-gray-100';
+
+  // Input style để fix autofill background
+  const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} placeholder-gray-400 focus:outline-none text-sm [&:-webkit-autofill]:bg-transparent [&:-webkit-autofill]:shadow-[0_0_0_1000px_transparent_inset] [&:-webkit-autofill]:[transition:background-color_5000s_ease-in-out_0s]`;
+  const codeInputStyle = `w-12 h-12 text-center text-lg font-semibold bg-transparent border-2 rounded-lg ${textPrimaryClass} focus:outline-none focus:border-[#ecb52d] [&:-webkit-autofill]:shadow-[0_0_0_1000px_transparent_inset]`;
 
   return (
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4`}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <img src="/logo_text.png" alt="AT ShiftPay" className="h-10 mx-auto object-contain" />
-          <p className={`text-sm ${textMutedClass} mt-2`}>Ứng dụng quản lý tính công</p>
-          <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1`}>
-            Made with <Heart size={12} className="text-red-500 fill-red-500" /> by{' '}
-            <a
-              href="https://github.com/dexter826/dexter826"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#ecb52d] hover:underline"
+      <div className={`w-full max-w-4xl ${cardBgClass} rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row`}>
+        {/* Left side - Illustration */}
+        <div className={`hidden md:flex md:w-1/2 ${illustrationBg} items-center justify-center p-8`}>
+          <div className="text-center">
+            <img
+              src="/background.png"
+              alt="Illustration"
+              className="max-w-xs mx-auto mb-6"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div className="mt-4">
+              <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
+              <p className={`text-sm ${textMutedClass} mt-2`}>Ứng dụng quản lý tính công</p>
+              <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1`}>
+                Made with <Heart size={12} className="text-red-500 fill-red-500" /> by{' '}
+                <a
+                  href="https://github.com/dexter826/dexter826"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#ecb52d] hover:underline"
+                >
+                  MOB
+                </a>
+              </p>
+            </div>
+            <button
+              onClick={handleSwitchMode}
+              className="mt-6 text-[#ecb52d] hover:text-[#f0c654] text-sm font-medium underline transition-colors"
             >
-              MOB
-            </a>
-          </p>
+              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
+            </button>
+          </div>
         </div>
 
-        <div className={`${cardBgClass} border ${borderClass} rounded-lg p-6`}>
-          <h2 className={`text-lg font-semibold ${textPrimaryClass} mb-4`}>
+        {/* Right side - Form */}
+        <div className="w-full md:w-1/2 p-8 md:p-12">
+          {/* Mobile logo */}
+          <div className="md:hidden text-center mb-6">
+            <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
+          </div>
+
+          <h2 className={`text-2xl font-bold ${textPrimaryClass} mb-8`}>
             {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
           </h2>
 
           {verificationSent && (
-            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-xs rounded-lg">
+            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-500 text-xs rounded-lg">
               <p className="font-medium mb-1">✓ Đăng ký thành công!</p>
               <p>Email xác thực đã được gửi đến <strong>{verificationEmail}</strong></p>
-              <p className="mt-1">Vui lòng kiểm tra hộp thư và xác thực email trước khi đăng nhập.</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email field */}
             <div>
-              <label className={`block text-xs ${textMutedClass} mb-1.5`}>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => handleEmailChange(e.target.value)}
-                onBlur={() => validateEmail(email)}
-                className={`w-full p-2.5 ${inputBgClass} border ${emailError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
-                placeholder="email@example.com"
-              />
+              <div className={`flex items-center border-b-2 ${emailError ? 'border-red-500' : inputBorderClass} pb-2`}>
+                <User size={20} className={textMutedClass} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  onBlur={() => validateEmail(email)}
+                  className={inputStyle}
+                  placeholder="Email"
+                />
+              </div>
               {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
             </div>
 
+            {/* Full name field (signup only) */}
             {isSignUp && (
               <div>
-                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Họ tên</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => {
-                    setFullName(e.target.value);
-                    if (fullNameError) validateFullName(e.target.value);
-                  }}
-                  onBlur={() => validateFullName(fullName)}
-                  className={`w-full p-2.5 ${inputBgClass} border ${fullNameError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
-                  placeholder="Nguyễn Văn A"
-                />
+                <div className={`flex items-center border-b-2 ${fullNameError ? 'border-red-500' : inputBorderClass} pb-2`}>
+                  <User size={20} className={textMutedClass} />
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (fullNameError) validateFullName(e.target.value);
+                    }}
+                    onBlur={() => validateFullName(fullName)}
+                    className={inputStyle}
+                    placeholder="Họ tên"
+                  />
+                </div>
                 {fullNameError && <p className="text-red-400 text-xs mt-1">{fullNameError}</p>}
               </div>
             )}
 
+            {/* Password field */}
             <div>
-              <label className={`block text-xs ${textMutedClass} mb-1.5`}>Mật khẩu</label>
-              <div className="relative">
+              <div className={`flex items-center border-b-2 ${passwordError ? 'border-red-500' : inputBorderClass} pb-2`}>
+                <Lock size={20} className={textMutedClass} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -352,13 +356,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     }
                   }}
                   onBlur={() => validatePassword(password)}
-                  className={`w-full p-2.5 pr-10 ${inputBgClass} border ${passwordError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
-                  placeholder="••••••••"
+                  className={inputStyle}
+                  placeholder="Mật khẩu"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
+                  className={`${textMutedClass} hover:text-[#ecb52d] transition-colors`}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -366,10 +370,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               {passwordError && <p className="text-red-400 text-xs mt-1">{passwordError}</p>}
             </div>
 
+            {/* Confirm password (signup only) */}
             {isSignUp && (
               <div>
-                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Xác nhận mật khẩu</label>
-                <div className="relative">
+                <div className={`flex items-center border-b-2 ${confirmPasswordError ? 'border-red-500' : inputBorderClass} pb-2`}>
+                  <Lock size={20} className={textMutedClass} />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
@@ -378,13 +383,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       if (confirmPasswordError) validateConfirmPassword(e.target.value);
                     }}
                     onBlur={() => validateConfirmPassword(confirmPassword)}
-                    className={`w-full p-2.5 pr-10 ${inputBgClass} border ${confirmPasswordError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
-                    placeholder="••••••••"
+                    className={inputStyle}
+                    placeholder="Xác nhận mật khẩu"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
+                    className={`${textMutedClass} hover:text-[#ecb52d] transition-colors`}
                   >
                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -393,6 +398,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
             )}
 
+            {/* Code input (signup only) */}
             {isSignUp && (
               <div>
                 <label className={`block text-xs ${textMutedClass} mb-2`}>Nhập 4 số là địa chỉ Bếp</label>
@@ -407,7 +413,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       value={digit}
                       onChange={(e) => handleCodeChange(index, e.target.value)}
                       onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                      className={`w-12 h-12 text-center text-lg font-semibold ${inputBgClass} border ${codeError ? 'border-red-500' : inputBorderClass} rounded-lg ${textPrimaryClass} focus:outline-none focus:border-[#ecb52d]`}
+                      className={`${codeInputStyle} ${codeError ? 'border-red-500' : inputBorderClass}`}
                     />
                   ))}
                 </div>
@@ -415,6 +421,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
             )}
 
+            {/* Remember me (login only) */}
             {!isSignUp && (
               <div className="flex items-center gap-2">
                 <input
@@ -422,8 +429,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   id="rememberMe"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 cursor-pointer accent-[#ecb52d]"
-                  style={{ accentColor: '#ecb52d' }}
+                  className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-[#ecb52d]"
                 />
                 <label htmlFor="rememberMe" className={`text-sm ${textMutedClass} cursor-pointer`}>
                   Ghi nhớ đăng nhập
@@ -440,18 +446,19 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-[#ecb52d] hover:bg-[#d4a128] text-white py-3 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
             </button>
           </form>
 
-          <div className="mt-4 text-center">
+          {/* Mobile switch mode */}
+          <div className="md:hidden mt-6 text-center">
             <button
               onClick={handleSwitchMode}
-              className="text-[#ecb52d] hover:text-[#f0c654] text-xs transition-colors"
+              className="text-[#ecb52d] hover:text-[#f0c654] text-sm underline transition-colors"
             >
-              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký'}
+              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
             </button>
           </div>
         </div>
