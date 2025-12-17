@@ -73,7 +73,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-emerald-500">AT ShiftPay</h1>
+          <h1 className="text-2xl font-bold text-[#ecb52d]">AT ShiftPay</h1>
           <p className={`text-sm ${textMutedClass} mt-1`}>Quản lý tính công</p>
         </div>
 
@@ -89,7 +89,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
+                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
                 placeholder="email@example.com"
                 required
               />
@@ -101,7 +101,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
+                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
                 placeholder="********"
                 required
               />
@@ -116,7 +116,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
             </button>
@@ -145,7 +145,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className="mt-4 text-center">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-emerald-500 hover:text-emerald-400 text-xs transition-colors"
+              className="text-[#ecb52d] hover:text-[#f0c654] text-xs transition-colors"
             >
               {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký'}
             </button>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Employee, Shift, ShiftSession, Event } from '../types';
+import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../types';
 import { dbService } from '../services/firebase';
-import { SHIFT_RATE } from '../constants';
 import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { TimePicker } from './ui/TimePicker';
@@ -12,6 +11,7 @@ interface EventModalProps {
   existingEvent: Event | null;
   existingShifts: Shift[];
   employees: Employee[];
+  settings: UserSettings;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
@@ -22,6 +22,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   existingEvent,
   existingShifts,
   employees,
+  settings,
   isOpen,
   onClose,
   onSuccess
@@ -33,9 +34,6 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
-
-  const DEFAULT_MORNING_TIME = '07:30';
-  const DEFAULT_AFTERNOON_TIME = '13:30';
 
   useEffect(() => {
     if (isOpen) {
@@ -57,7 +55,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         // Set default time based on session if not already set
         if (!existingEvent.time && detectedSession) {
-          setTime(detectedSession === 'morning' ? DEFAULT_MORNING_TIME : DEFAULT_AFTERNOON_TIME);
+          setTime(detectedSession === 'morning' ? settings.morningTime : settings.afternoonTime);
         }
       } else {
         setTitle('');
@@ -78,8 +76,8 @@ export const EventModal: React.FC<EventModalProps> = ({
     } else {
       setSelectedSession(session);
       setAssignments({});
-      // Set default time based on session
-      setTime(session === 'morning' ? DEFAULT_MORNING_TIME : DEFAULT_AFTERNOON_TIME);
+      // Set default time based on session from settings
+      setTime(session === 'morning' ? settings.morningTime : settings.afternoonTime);
     }
   };
 
@@ -125,7 +123,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         employeeId: empId,
         employeeName: emp.name,
         session: selectedSession!,
-        amount: SHIFT_RATE,
+        amount: settings.shiftRate,
         status: prevShift ? prevShift.status : 'unpaid',
       };
 
@@ -173,7 +171,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       footer={
         <button
           onClick={handleSubmit}
-          className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2"
+          className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors flex justify-center items-center gap-2"
         >
           <Check size={16} />
           {existingEvent ? "Cập nhật" : "Lưu"}
@@ -229,7 +227,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               type="button"
               onClick={() => selectSession('afternoon')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'afternoon'
-                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500'
+                ? 'border-[#ecb52d]/50 bg-[#ecb52d]/10 text-[#ecb52d]'
                 : 'border-slate-700 text-slate-500 hover:border-slate-600'
                 }`}
             >
@@ -264,7 +262,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <span className="text-sm text-slate-300 truncate flex-1">{emp.name}</span>
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
-                        ? 'bg-emerald-500 border-emerald-500'
+                        ? 'bg-[#ecb52d] border-[#ecb52d]'
                         : 'border-slate-600'
                         }`}
                     >

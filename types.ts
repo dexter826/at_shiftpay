@@ -35,3 +35,15 @@ export interface PayrollSummary {
   unpaidCount: number;
   totalUnpaid: number;
 }
+
+export interface UserSettings {
+  shiftRate: number;
+  morningTime: string;
+  afternoonTime: string;
+}
+
+export const DEFAULT_SETTINGS: UserSettings = {
+  shiftRate: 250000,
+  morningTime: '07:30',
+  afternoonTime: '13:30',
+};

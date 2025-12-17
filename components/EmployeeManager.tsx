@@ -155,7 +155,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </div>
           <button
             onClick={openAddModal}
-            className="bg-emerald-500 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-emerald-600 transition-colors"
+            className="bg-[#ecb52d] text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-[#d4a128] transition-colors"
           >
             <UserPlus size={16} />
             <span className="hidden sm:inline">Thêm mới</span>
@@ -170,7 +170,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             placeholder="Tìm kiếm..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
+            className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
           />
         </div>
       </div>
@@ -179,15 +179,15 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       <div className="p-4 md:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredEmployees.map((emp) => (
-            <div key={emp.id} className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors group`}>
+            <div key={emp.id} className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors group`}>
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium ${textSecondaryClass} truncate`}>{emp.name}</p>
-                  <a href={`tel:${emp.phone}`} className={`text-xs ${textMutedClass} flex items-center gap-1 mt-1 hover:text-emerald-500 transition-colors`}>
+                  <a href={`tel:${emp.phone}`} className={`text-xs ${textMutedClass} flex items-center gap-1 mt-1 hover:text-[#ecb52d] transition-colors`}>
                     <Phone size={12} />
                     {emp.phone || 'Chưa có SĐT'}
                   </a>
-                  <p className="text-xs text-emerald-500 flex items-center gap-1 mt-1">
+                  <p className="text-xs text-[#ecb52d] flex items-center gap-1 mt-1">
                     <Briefcase size={12} />
                     Tháng {monthName} đã làm {shiftCountByEmployee[emp.id] || 0} công
                   </p>
@@ -195,7 +195,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                 <div className="flex gap-1">
                   <button
                     onClick={() => openEditModal(emp)}
-                    className={`p-1.5 ${textMutedClass} hover:text-emerald-500 transition-colors`}
+                    className={`p-1.5 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
                   >
                     <Edit2 size={14} />
                   </button>
@@ -227,7 +227,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         footer={
           <button
             onClick={handleSubmit}
-            className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+            className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors"
           >
             Lưu
           </button>
@@ -246,7 +246,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               placeholder="Nguyễn Văn A"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
             />
           </div>
           <div>
@@ -257,7 +257,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-emerald-500`}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
             />
           </div>
         </form>

@@ -28,13 +28,13 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
     }, [toast.id, onRemove]);
 
     const icons = {
-        success: <CheckCircle size={18} className="text-emerald-500" />,
+        success: <CheckCircle size={18} className="text-[#ecb52d]" />,
         error: <XCircle size={18} className="text-red-500" />,
         warning: <AlertCircle size={18} className="text-amber-500" />
     };
 
     const bgColors = {
-        success: 'bg-emerald-500/10 border-emerald-500/30',
+        success: 'bg-[#ecb52d]/10 border-[#ecb52d]/30',
         error: 'bg-red-500/10 border-red-500/30',
         warning: 'bg-amber-500/10 border-amber-500/30'
     };

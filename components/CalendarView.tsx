@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Event, Shift, Employee } from '../types';
+import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../types';
 import { formatDate } from '../constants';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock } from 'lucide-react';
 import { EventModal } from './EventModal';
@@ -13,9 +13,10 @@ interface CalendarViewProps {
   shifts: Shift[];
   employees: Employee[];
   totalDebt: number;
+  settings: UserSettings;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees, settings }) => {
   const { showToast } = useToast();
   const { theme } = useTheme();
 
@@ -164,9 +165,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                     key={dateStr}
                     onClick={() => handleDateClick(date)}
                     className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
-                      ? 'bg-emerald-500 text-white'
+                      ? 'bg-[#ecb52d] text-white'
                       : isToday
-                        ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-emerald-50'} text-emerald-500 font-medium`
+                        ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-[#ecb52d] font-medium`
                         : `${textPrimaryClass} ${hoverBgClass}`
                       }`}
                   >
@@ -174,7 +175,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                     {dayEvents.length > 0 && (
                       <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
                         {dayEvents.map((_, i) => (
-                          <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-emerald-500'}`} />
+                          <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-[#ecb52d]'}`} />
                         ))}
                       </div>
                     )}
@@ -197,7 +198,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                   </div>
                   <button
                     onClick={handleAddEvent}
-                    className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                    className="p-2 bg-[#ecb52d] text-white rounded-lg hover:bg-[#d4a128] transition-colors"
                   >
                     <Plus size={16} />
                   </button>
@@ -207,7 +208,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                   {selectedEvents.length === 0 ? (
                     <div className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                       <p>Chưa có sự kiện</p>
-                      <button onClick={handleAddEvent} className="text-emerald-500 mt-1 hover:underline text-xs">
+                      <button onClick={handleAddEvent} className="text-[#ecb52d] mt-1 hover:underline text-xs">
                         Tạo mới
                       </button>
                     </div>
@@ -216,18 +217,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                       <div
                         key={evt.id}
                         onClick={() => handleViewEvent(evt)}
-                        className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors cursor-pointer`}
+                        className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors cursor-pointer`}
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <MapPin size={14} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                            <MapPin size={14} className="text-[#ecb52d] mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
                               {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                             </div>
                           </div>
                           <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-emerald-500 transition-colors`}>
+                            <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}>
                               <Edit2 size={14} />
                             </button>
                             <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
@@ -242,7 +243,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                             const count = shiftsForDisplay.filter(s => s.eventId === evt.id && s.session === session).length;
                             if (count === 0) return null;
                             return (
-                              <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-emerald-500/10 text-emerald-500'
+                              <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-[#ecb52d]/10 text-[#ecb52d]'
                                 }`}>
                                 {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
                               </span>
@@ -270,6 +271,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
         existingEvent={editingEvent}
         existingShifts={shiftsForEditing}
         employees={employees}
+        settings={settings}
         onSuccess={() => {
           setIsModalOpen(false);
         }}
@@ -345,7 +347,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                 <div>
                   <p className={`text-xs ${textMutedClass} mb-1`}>Thời gian</p>
                   <p className={`text-sm ${textPrimaryClass} flex items-center gap-1`}>
-                    <Clock size={12} className="text-emerald-500" />
+                    <Clock size={12} className="text-[#ecb52d]" />
                     {viewingEvent.time}
                   </p>
                 </div>
@@ -368,7 +370,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                       <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{shift.employeeName}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${shift.session === 'morning'
                         ? 'bg-orange-500/10 text-orange-500'
-                        : 'bg-emerald-500/10 text-emerald-500'
+                        : 'bg-[#ecb52d]/10 text-[#ecb52d]'
                         }`}>
                         {shift.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
                       </span>

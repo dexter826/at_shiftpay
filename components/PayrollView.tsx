@@ -85,13 +85,13 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
       {/* Header */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
-        <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+        <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-xs text-emerald-500/70 uppercase tracking-wide">Tổng nợ lương</p>
-              <p className="text-2xl font-bold text-emerald-500 mt-1">{formatCurrency(totalDebt)}</p>
+              <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng nợ lương</p>
+              <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
             </div>
-            <Wallet2 size={24} className="text-emerald-500/50" />
+            <Wallet2 size={24} className="text-[#ecb52d]/50" />
           </div>
         </div>
       </div>
@@ -102,16 +102,16 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           <button
             key={item.employeeId}
             onClick={() => setSelectedEmpId(item.employeeId)}
-            className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-emerald-500/50 transition-colors flex justify-between items-center group`}
+            className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors flex justify-between items-center group`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-emerald-500/10 text-emerald-500' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-[#ecb52d]/10 text-[#ecb52d]' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
                 }`}>
                 {item.employeeName.charAt(0)}
               </div>
               <div className="text-left">
                 <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                <p className={`text-xs ${item.unpaidCount > 0 ? 'text-emerald-500' : textMutedClass}`}>
+                <p className={`text-xs ${item.unpaidCount > 0 ? 'text-[#ecb52d]' : textMutedClass}`}>
                   {item.unpaidCount > 0 ? `${item.unpaidCount} công chưa trả` : 'Không có công nợ'}
                 </p>
               </div>
@@ -136,7 +136,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           selectedEmployeeSummary && selectedEmployeeSummary.totalUnpaid > 0 ? (
             <button
               onClick={handlePay}
-              className="w-full bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2"
+              className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors flex justify-center items-center gap-2"
             >
               <Banknote size={16} />
               Thanh toán {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
@@ -147,7 +147,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         <div className="space-y-3">
           {selectedUnpaidShifts.length === 0 ? (
             <div className={`py-8 flex flex-col items-center justify-center ${textMutedClass} gap-2`}>
-              <CheckCircle2 size={32} className="text-emerald-500" />
+              <CheckCircle2 size={32} className="text-[#ecb52d]" />
               <p className="text-sm">Không còn khoản nợ</p>
             </div>
           ) : (
@@ -159,7 +159,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                     <Calendar size={16} className={textMutedClass} />
                     <div>
                       <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
-                      <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-emerald-500'
+                      <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-[#ecb52d]'
                         }`}>
                         {s.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
                       </span>
@@ -188,7 +188,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             </button>
             <button
               onClick={confirmPay}
-              className="flex-1 bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
+              className="flex-1 bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors"
             >
               Xác nhận
             </button>

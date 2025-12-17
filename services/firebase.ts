@@ -9,9 +9,11 @@ import {
   orderBy,
   onSnapshot,
   writeBatch,
-  Unsubscribe
+  Unsubscribe,
+  getDoc,
+  setDoc
 } from 'firebase/firestore';
-import { Employee, Event, Shift } from '../types';
+import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from '../types';
 
 export const dbService = {
   // Employees - Real-time listener
@@ -162,5 +164,31 @@ export const dbService = {
 
   async deleteShift(id: string): Promise<void> {
     await deleteDoc(doc(db, 'shifts', id));
+  },
+
+  // User Settings
+  subscribeSettings(callback: (settings: UserSettings) => void): Unsubscribe {
+    const docRef = doc(db, 'settings', 'user');
+    return onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data() as UserSettings);
+      } else {
+        callback(DEFAULT_SETTINGS);
+      }
+    });
+  },
+
+  async getSettings(): Promise<UserSettings> {
+    const docRef = doc(db, 'settings', 'user');
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      return snapshot.data() as UserSettings;
+    }
+    return DEFAULT_SETTINGS;
+  },
+
+  async updateSettings(data: Partial<UserSettings>): Promise<void> {
+    const docRef = doc(db, 'settings', 'user');
+    await setDoc(docRef, data, { merge: true });
   },
 };

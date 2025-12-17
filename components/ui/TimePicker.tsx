@@ -66,7 +66,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                             <button
                                 type="button"
                                 onClick={incrementHours}
-                                className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"
+                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
                             >
                                 <ChevronUp size={18} />
                             </button>
@@ -76,7 +76,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                             <button
                                 type="button"
                                 onClick={decrementHours}
-                                className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"
+                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
                             >
                                 <ChevronDown size={18} />
                             </button>
@@ -90,7 +90,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                             <button
                                 type="button"
                                 onClick={incrementMinutes}
-                                className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"
+                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
                             >
                                 <ChevronUp size={18} />
                             </button>
@@ -100,7 +100,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                             <button
                                 type="button"
                                 onClick={decrementMinutes}
-                                className="p-1 text-slate-400 hover:text-emerald-500 transition-colors"
+                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
                             >
                                 <ChevronDown size={18} />
                             </button>
@@ -120,7 +120,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                         <button
                             type="button"
                             onClick={() => { onChange('13:30'); setIsOpen(false); }}
-                            className="flex-1 py-1.5 text-xs bg-emerald-500/10 text-emerald-500 rounded hover:bg-emerald-500/20 transition-colors"
+                            className="flex-1 py-1.5 text-xs bg-[#ecb52d]/10 text-[#ecb52d] rounded hover:bg-[#ecb52d]/20 transition-colors"
                         >
                             13:30
                         </button>

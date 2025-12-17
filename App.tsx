@@ -8,7 +8,7 @@ import { Login } from './components/Login';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
-import { Employee, Event, Shift } from './types';
+import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from './types';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
@@ -24,6 +24,7 @@ function App() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
+  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ function App() {
     let loadedCount = 0;
     const checkLoaded = () => {
       loadedCount++;
-      if (loadedCount >= 3) setIsLoading(false);
+      if (loadedCount >= 4) setIsLoading(false);
     };
 
     const unsubEmployees = dbService.subscribeEmployees((data) => {
@@ -63,10 +64,16 @@ function App() {
       checkLoaded();
     });
 
+    const unsubSettings = dbService.subscribeSettings((data) => {
+      setSettings(data);
+      checkLoaded();
+    });
+
     return () => {
       unsubEmployees();
       unsubEvents();
       unsubShifts();
+      unsubSettings();
     };
   }, [user]);
 
@@ -94,6 +101,7 @@ function App() {
             employees={employees}
             events={events}
             shifts={shifts}
+            settings={settings}
             onLogout={handleLogout}
           />
         );
@@ -104,6 +112,7 @@ function App() {
             shifts={shifts}
             employees={employees}
             totalDebt={totalDebt}
+            settings={settings}
           />
         );
       case 'employees':
@@ -129,7 +138,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-[#ecb52d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -141,7 +150,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-[#ecb52d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }

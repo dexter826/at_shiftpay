@@ -41,12 +41,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       {/* Desktop Sidebar */}
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
         <div className={`p-5 border-b ${borderColor}`}>
-          <h1 className="text-xl font-bold text-emerald-500">AT ShiftPay</h1>
+          <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
           <a
             href="https://github.com/dexter826/dexter826"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-slate-500 mt-0.5 hover:text-emerald-500 transition-colors block"
+            className="text-[11px] text-slate-500 mt-0.5 hover:text-[#ecb52d] transition-colors block"
           >
             Made by MOB
           </a>
@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               key={item.id}
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
-                ? 'bg-emerald-500/10 text-emerald-500'
+                ? 'bg-[#ecb52d]/10 text-[#ecb52d]'
                 : `${textMuted} ${hoverText} ${hoverBg}`
                 }`}
             >
@@ -95,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${currentTab === item.id
-              ? 'text-emerald-500'
+              ? 'text-[#ecb52d]'
               : 'text-slate-500'
               }`}
           >
