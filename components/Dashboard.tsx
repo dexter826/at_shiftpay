@@ -121,15 +121,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             <div className={`p-4 md:p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        {user?.photoURL ? (
-                            <img src={user.photoURL} alt="Avatar" className="w-10 h-10 rounded-full" />
-                        ) : (
-                            <div className="w-10 h-10 rounded-full bg-[#ecb52d]/20 flex items-center justify-center">
-                                <span className="text-[#ecb52d] font-medium">
-                                    {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                                </span>
-                            </div>
-                        )}
+                        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
                         <div>
                             <p className={`text-sm ${textSecondaryClass}`}>Xin chào,</p>
                             <h2 className={`text-lg font-semibold ${textPrimaryClass}`}>

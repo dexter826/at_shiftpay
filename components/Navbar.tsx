@@ -42,14 +42,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
         <div className={`p-5 border-b ${borderColor}`}>
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
-          <a
-            href="https://github.com/dexter826/dexter826"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] text-slate-500 mt-0.5 hover:text-[#ecb52d] transition-colors block"
-          >
-            Made by MOB
-          </a>
+          <span className="text-[11px] text-slate-500 mt-0.5 block">
+            Made by{' '}
+            <a
+              href="https://github.com/dexter826/dexter826"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#ecb52d] transition-colors"
+            >
+              MOB
+            </a>
+          </span>
         </div>
 
         <nav className="flex-1 p-3 space-y-1">

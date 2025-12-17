@@ -1,53 +1,268 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
 import { useTheme } from '../contexts/ThemeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Eye, EyeOff, Heart } from 'lucide-react';
 
 interface LoginProps {
   onLogin: () => void;
 }
 
+const CORRECT_CODE = '2738';
+
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState('');
+
+  // OTP-style code input
+  const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
+  const inputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
+
+  // Validation errors
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [fullNameError, setFullNameError] = useState('');
+  const [codeError, setCodeError] = useState('');
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      setEmailError('Email không được để trống');
+      return false;
+    }
+    if (!emailRegex.test(value)) {
+      setEmailError('Email không hợp lệ');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value) {
+      setPasswordError('Mật khẩu không được để trống');
+      return false;
+    }
+    if (value.length < 6) {
+      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
+
+  const validateFullName = (value: string) => {
+    if (!value.trim()) {
+      setFullNameError('Họ tên không được để trống');
+      return false;
+    }
+    if (value.trim().length < 2) {
+      setFullNameError('Họ tên phải có ít nhất 2 ký tự');
+      return false;
+    }
+    setFullNameError('');
+    return true;
+  };
+
+  const validateConfirmPassword = (value: string) => {
+    if (!value) {
+      setConfirmPasswordError('Vui lòng xác nhận mật khẩu');
+      return false;
+    }
+    if (value !== password) {
+      setConfirmPasswordError('Mật khẩu không khớp');
+      return false;
+    }
+    setConfirmPasswordError('');
+    return true;
+  };
+
+  const validateCode = () => {
+    const code = codeDigits.join('');
+    if (code.length !== 4) {
+      setCodeError('Vui lòng nhập đủ 4 số');
+      return false;
+    }
+    if (code !== CORRECT_CODE) {
+      setCodeError('Mã số không đúng');
+      return false;
+    }
+    setCodeError('');
+    return true;
+  };
+
+  const handleCodeChange = (index: number, value: string) => {
+    // Only allow digits
+    if (value && !/^\d$/.test(value)) return;
+
+    const newDigits = [...codeDigits];
+    newDigits[index] = value;
+    setCodeDigits(newDigits);
+    setCodeError('');
+
+    // Auto focus next input
+    if (value && index < 3) {
+      inputRefs[index + 1].current?.focus();
+    }
+  };
+
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !codeDigits[index] && index > 0) {
+      inputRefs[index - 1].current?.focus();
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 4);
+    if (/^\d+$/.test(pastedData)) {
+      const newDigits = [...codeDigits];
+      for (let i = 0; i < pastedData.length && i < 4; i++) {
+        newDigits[i] = pastedData[i];
+      }
+      setCodeDigits(newDigits);
+      setCodeError('');
+      // Focus last filled input or next empty
+      const focusIndex = Math.min(pastedData.length, 3);
+      inputRefs[focusIndex].current?.focus();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate all fields
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+
+    if (isSignUp) {
+      const isFullNameValid = validateFullName(fullName);
+      const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
+      const isCodeValid = validateCode();
+
+      if (!isEmailValid || !isPasswordValid || !isFullNameValid || !isConfirmPasswordValid || !isCodeValid) {
+        return;
+      }
+    } else {
+      if (!isEmailValid || !isPasswordValid) {
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        // Đăng ký tài khoản mới
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        // Cập nhật display name
+        await updateProfile(userCredential.user, {
+          displayName: fullName.trim()
+        });
+
+        // Gửi email xác thực
+        await sendEmailVerification(userCredential.user);
+
+        // Lưu email để hiển thị trong thông báo
+        setVerificationEmail(email);
+
+        // Đăng xuất ngay sau khi đăng ký để bắt buộc verify
+        await auth.signOut();
+
+        // Hiển thị thông báo thành công
+        setVerificationSent(true);
+        setError('');
+
+        // Reset form
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setFullName('');
+        setCodeDigits(['', '', '', '']);
+        setEmailError('');
+        setPasswordError('');
+        setConfirmPasswordError('');
+        setFullNameError('');
+        setCodeError('');
+
+        setIsSignUp(false);
+
+        return;
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        // Đăng nhập
+        await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+        // Kiểm tra email đã được xác thực chưa
+        if (!userCredential.user.emailVerified) {
+          await auth.signOut();
+          setError('Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư của bạn.');
+          setLoading(false);
+          return;
+        }
+
+        // Chỉ gọi onLogin khi đăng nhập thành công VÀ đã verify email
+        onLogin();
       }
-      onLogin();
     } catch (error: any) {
-      setError(error.message);
-    } finally {
+      let errorMessage = 'Đã xảy ra lỗi';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email đã được sử dụng';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Email không hợp lệ';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Mật khẩu quá yếu';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Tài khoản không tồn tại';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Mật khẩu không đúng';
+      } else if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Email hoặc mật khẩu không đúng';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Quá nhiều lần thử. Vui lòng thử lại sau';
+      }
+      setError(errorMessage);
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  // Reset form when switching modes (chỉ khi user click chuyển mode)
+  const handleSwitchMode = () => {
+    setIsSignUp(!isSignUp);
     setError('');
-    setLoading(true);
+    setEmailError('');
+    setPasswordError('');
+    setConfirmPasswordError('');
+    setFullNameError('');
+    setCodeError('');
+    setCodeDigits(['', '', '', '']);
+    setVerificationSent(false); // Xóa thông báo khi user chủ động chuyển mode
+  };
 
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      onLogin();
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+  // Xóa thông báo verification khi user bắt đầu nhập email
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (emailError) validateEmail(value);
+    if (verificationSent) setVerificationSent(false); // Ẩn thông báo khi user bắt đầu nhập
   };
 
   // Theme classes
@@ -62,19 +277,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4`}>
       <div className="w-full max-w-sm">
-        {/* Theme toggle */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg ${textMutedClass} ${theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-200'} transition-colors`}
-          >
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-        </div>
-
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-[#ecb52d]">AT ShiftPay</h1>
-          <p className={`text-sm ${textMutedClass} mt-1`}>Quản lý tính công</p>
+          <img src="/logo_text.png" alt="AT ShiftPay" className="h-10 mx-auto object-contain" />
+          <p className={`text-sm ${textMutedClass} mt-2`}>Ứng dụng quản lý tính công</p>
+          <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1`}>
+            Made with <Heart size={12} className="text-red-500 fill-red-500" /> by{' '}
+            <a
+              href="https://github.com/dexter826/dexter826"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#ecb52d] hover:underline"
+            >
+              MOB
+            </a>
+          </p>
         </div>
 
         <div className={`${cardBgClass} border ${borderClass} rounded-lg p-6`}>
@@ -82,30 +298,138 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
           </h2>
 
+          {verificationSent && (
+            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-xs rounded-lg">
+              <p className="font-medium mb-1">✓ Đăng ký thành công!</p>
+              <p>Email xác thực đã được gửi đến <strong>{verificationEmail}</strong></p>
+              <p className="mt-1">Vui lòng kiểm tra hộp thư và xác thực email trước khi đăng nhập.</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className={`block text-xs ${textMutedClass} mb-1.5`}>Email</label>
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                onBlur={() => validateEmail(email)}
+                className={`w-full p-2.5 ${inputBgClass} border ${emailError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
                 placeholder="email@example.com"
-                required
               />
+              {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
             </div>
+
+            {isSignUp && (
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Họ tên</label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    if (fullNameError) validateFullName(e.target.value);
+                  }}
+                  onBlur={() => validateFullName(fullName)}
+                  className={`w-full p-2.5 ${inputBgClass} border ${fullNameError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+                  placeholder="Nguyễn Văn A"
+                />
+                {fullNameError && <p className="text-red-400 text-xs mt-1">{fullNameError}</p>}
+              </div>
+            )}
 
             <div>
               <label className={`block text-xs ${textMutedClass} mb-1.5`}>Mật khẩu</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
-                placeholder="********"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (passwordError) validatePassword(e.target.value);
+                    if (isSignUp && confirmPassword && confirmPasswordError) {
+                      validateConfirmPassword(confirmPassword);
+                    }
+                  }}
+                  onBlur={() => validatePassword(password)}
+                  className={`w-full p-2.5 pr-10 ${inputBgClass} border ${passwordError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {passwordError && <p className="text-red-400 text-xs mt-1">{passwordError}</p>}
             </div>
+
+            {isSignUp && (
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Xác nhận mật khẩu</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (confirmPasswordError) validateConfirmPassword(e.target.value);
+                    }}
+                    onBlur={() => validateConfirmPassword(confirmPassword)}
+                    className={`w-full p-2.5 pr-10 ${inputBgClass} border ${confirmPasswordError ? 'border-red-500' : inputBorderClass} rounded-lg text-sm ${textPrimaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className={`absolute right-2.5 top-1/2 -translate-y-1/2 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {confirmPasswordError && <p className="text-red-400 text-xs mt-1">{confirmPasswordError}</p>}
+              </div>
+            )}
+
+            {isSignUp && (
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-2`}>Nhập 4 số là địa chỉ Bếp</label>
+                <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
+                  {codeDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={inputRefs[index]}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleCodeChange(index, e.target.value)}
+                      onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                      className={`w-12 h-12 text-center text-lg font-semibold ${inputBgClass} border ${codeError ? 'border-red-500' : inputBorderClass} rounded-lg ${textPrimaryClass} focus:outline-none focus:border-[#ecb52d]`}
+                    />
+                  ))}
+                </div>
+                {codeError && <p className="text-red-400 text-xs mt-2 text-center">{codeError}</p>}
+              </div>
+            )}
+
+            {!isSignUp && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 cursor-pointer accent-[#ecb52d]"
+                  style={{ accentColor: '#ecb52d' }}
+                />
+                <label htmlFor="rememberMe" className={`text-sm ${textMutedClass} cursor-pointer`}>
+                  Ghi nhớ đăng nhập
+                </label>
+              </div>
+            )}
 
             {error && (
               <div className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg">
@@ -122,29 +446,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </button>
           </form>
 
-          <div className="my-4 flex items-center gap-3">
-            <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-            <span className={`text-xs ${textMutedClass}`}>hoặc</span>
-            <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-          </div>
-
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className={`w-full flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-white border-slate-300 hover:bg-slate-50'} border ${textPrimaryClass} py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Google
-          </button>
-
           <div className="mt-4 text-center">
             <button
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={handleSwitchMode}
               className="text-[#ecb52d] hover:text-[#f0c654] text-xs transition-colors"
             >
               {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký'}
