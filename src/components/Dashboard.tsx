@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
+import { Skeleton } from './ui/Skeleton';
 
 interface DashboardProps {
     user: any;
@@ -12,17 +13,18 @@ interface DashboardProps {
     shifts: Shift[];
     settings: UserSettings;
 
+    loading?: boolean;
     onLogout: () => void;
     onNavigateToSettings: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, onLogout, onNavigateToSettings }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings }) => {
     const { theme, toggleTheme } = useTheme();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    // Thống kê tháng hiện tại
+    // ... (logic calculations remain same) ...
     const monthlyStats = useMemo(() => {
         const monthEvents = events.filter(e => {
             const d = new Date(e.date);
@@ -45,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         };
     }, [events, shifts, currentMonth, currentYear]);
 
-    // Dữ liệu biểu đồ - số sự kiện theo ngày trong tháng
+    // ... (chartData logic remains same) ...
     const chartData = useMemo(() => {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const data = [];
@@ -66,7 +68,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         return data;
     }, [events, shifts, currentMonth, currentYear]);
 
-    // Dữ liệu pie chart - trạng thái thanh toán
+    // ... (paymentData logic remains same) ...
     const paymentData = useMemo(() => {
         const unpaid = shifts.filter(s => s.status === 'unpaid').length;
         const paid = shifts.filter(s => s.status === 'paid').length;
@@ -92,6 +94,47 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
     const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
     const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
     const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+
+    if (loading) {
+        return (
+            <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
+                <div className={`p-4 md:p-6 border-b ${borderClass}`}>
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <Skeleton variant="circular" width={40} height={40} />
+                            <div>
+                                <Skeleton variant="text" width={60} height={16} className="mb-1" />
+                                <Skeleton variant="text" width={120} height={20} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-4 md:p-6 space-y-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg h-24`}>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Skeleton variant="circular" width={16} height={16} />
+                                    <Skeleton variant="text" width={80} height={12} />
+                                </div>
+                                <Skeleton variant="text" width={60} height={32} />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg h-[280px]`}>
+                            <Skeleton variant="text" width={150} height={20} className="mb-4" />
+                            <Skeleton variant="rectangular" width="100%" height={200} />
+                        </div>
+                        <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg h-[280px]`}>
+                            <Skeleton variant="text" width={150} height={20} className="mb-4" />
+                            <Skeleton variant="rectangular" width="100%" height={200} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>

@@ -107,7 +107,7 @@ function App() {
       .reduce((sum, s) => sum + s.amount, 0);
   }, [shifts]);
 
-  const renderContent = () => {
+  const renderContent = (loading: boolean) => {
     switch (activeTab) {
       case 'overview':
         return (
@@ -117,6 +117,7 @@ function App() {
             events={events}
             shifts={shifts}
             settings={settings}
+            loading={loading}
             onLogout={handleLogout}
             onNavigateToSettings={() => setActiveTab('settings')}
           />
@@ -137,6 +138,7 @@ function App() {
             employees={employees}
             shifts={shifts}
             events={events}
+            loading={loading}
           />
         );
       case 'payroll':
@@ -164,35 +166,23 @@ function App() {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;
   }
 
-  if (authLoading) {
-    return (
-      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Login onLogin={() => setUser(auth.currentUser)} />;
-  }
-
-  if (isLoading) {
-    return (
-      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <ToastProvider>
       <OfflineIndicator />
-      <AppContent
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        handleLogout={handleLogout}
-        renderContent={renderContent}
-      />
+      {authLoading ? (
+        <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+          <Loader />
+        </div>
+      ) : !user ? (
+        <Login onLogin={() => setUser(auth.currentUser)} />
+      ) : (
+        <AppContent
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          handleLogout={handleLogout}
+          renderContent={() => renderContent(isLoading)}
+        />
+      )}
     </ToastProvider>
   );
 }

@@ -4,6 +4,8 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfi
 import { useTheme } from '../contexts/ThemeContext';
 import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
 
+import { ForgotPasswordModal } from './ForgotPasswordModal';
+
 interface LoginProps {
   onLogin: () => void;
 }
@@ -24,6 +26,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState('');
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   // OTP-style code input
   const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
@@ -421,19 +424,28 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
             )}
 
-            {/* Remember me (login only) */}
+            {/* Remember me and Forgot Password */}
             {!isSignUp && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-[#ecb52d]"
-                />
-                <label htmlFor="rememberMe" className={`text-sm ${textMutedClass} cursor-pointer`}>
-                  Ghi nhớ đăng nhập
-                </label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-[#ecb52d]"
+                  />
+                  <label htmlFor="rememberMe" className={`text-sm ${textMutedClass} cursor-pointer`}>
+                    Ghi nhớ
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForgotPasswordOpen(true)}
+                  className="text-xs text-[#ecb52d] hover:text-[#f0c654] font-medium transition-colors"
+                >
+                  Quên mật khẩu?
+                </button>
               </div>
             )}
 
@@ -463,6 +475,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
         </div>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
     </div>
   );
 };
