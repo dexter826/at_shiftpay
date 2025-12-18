@@ -470,11 +470,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <input
                           key={index}
                           ref={inputRefs[index]}
-                          type="text"
-                          inputMode="numeric"
+                          type="tel"
                           maxLength={1}
                           value={digit}
-                          onChange={(e) => handleCodeChange(index, e)}
+                          onChange={(e) => handleCodeChange(index, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(index, e)}
                           className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
                           ${codeError
