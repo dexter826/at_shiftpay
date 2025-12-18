@@ -177,7 +177,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
-            placeholder="Tìm kiếm..."
+            placeholder="Nhập từ khóa tìm kiếm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             disabled={loading}
@@ -294,7 +294,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             <label className={`block text-xs ${textMutedClass} mb-1.5`}>Họ tên</label>
             <input
               type="text"
-              placeholder="Nguyễn Văn A"
+              placeholder="Nhập họ tên"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
@@ -304,7 +304,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             <label className={`block text-xs ${textMutedClass} mb-1.5`}>Số điện thoại (không bắt buộc)</label>
             <input
               type="tel"
-              placeholder="0912345678"
+              placeholder="Nhập số điện thoại"
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
@@ -315,7 +315,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             <label className={`block text-xs ${textMutedClass} mb-1.5`}>URL Hình ảnh (tùy chọn)</label>
             <input
               type="text"
-              placeholder="https://example.com/avatar.jpg"
+              placeholder="Nhập link ảnh (nếu có)"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}

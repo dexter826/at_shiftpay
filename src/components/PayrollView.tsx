@@ -186,7 +186,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             <Search size={16} className={textMutedClass} />
             <input
               type="text"
-              placeholder="Tìm nhân viên..."
+              placeholder="Nhập tên nhân viên"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`ml-2 w-full bg-transparent outline-none text-sm ${textPrimaryClass} placeholder:text-slate-500`}

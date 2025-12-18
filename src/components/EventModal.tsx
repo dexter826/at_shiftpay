@@ -195,7 +195,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
           <input
             type="text"
-            placeholder="Đám cưới Nhà A"
+            placeholder="Nhập tên sự kiện"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
@@ -208,7 +208,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         <div>
           <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ghi chú</label>
           <textarea
-            placeholder="Ghi chú..."
+            placeholder="Nhập ghi chú"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${theme === 'dark'
