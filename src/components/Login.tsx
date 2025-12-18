@@ -240,243 +240,317 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   // Theme classes
   const isDark = theme === 'dark';
-  const bgClass = isDark ? 'bg-slate-900' : 'bg-gray-50';
-  const cardBgClass = isDark ? 'bg-slate-800' : 'bg-white';
-  const textPrimaryClass = isDark ? 'text-slate-200' : 'text-gray-800';
-  const textMutedClass = isDark ? 'text-slate-400' : 'text-gray-500';
-  const inputBorderClass = isDark ? 'border-slate-600' : 'border-gray-300';
-  const illustrationBg = isDark ? 'bg-slate-800' : 'bg-gray-100';
-
-  // Input style để fix autofill background
-  const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} placeholder-gray-400 focus:outline-none text-sm [&:-webkit-autofill]:bg-transparent [&:-webkit-autofill]:shadow-[0_0_0_1000px_transparent_inset] [&:-webkit-autofill]:[transition:background-color_5000s_ease-in-out_0s]`;
-  const codeInputStyle = `w-12 h-12 text-center text-lg font-semibold bg-transparent border-2 rounded-lg ${textPrimaryClass} focus:outline-none focus:border-[#ecb52d] [&:-webkit-autofill]:shadow-[0_0_0_1000px_transparent_inset]`;
+  const bgClass = isDark
+    ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
+    : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
+  const cardBgClass = isDark ? 'bg-slate-900/50 backdrop-blur-sm border border-slate-800' : 'bg-white shadow-2xl shadow-slate-200/50';
+  const textPrimaryClass = isDark ? 'text-slate-200' : 'text-slate-800';
+  const textMutedClass = isDark ? 'text-slate-400' : 'text-slate-500';
+  const inputBorderClass = isDark ? 'border-slate-700' : 'border-slate-200';
+  const illustrationBg = isDark ? 'bg-slate-900' : 'bg-slate-50';
 
   return (
-    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4`}>
-      <div className={`w-full max-w-4xl ${cardBgClass} rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row`}>
+    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 transition-colors duration-300`}>
+      <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px] transition-all duration-300`}>
         {/* Left side - Illustration */}
-        <div className={`hidden md:flex md:w-1/2 ${illustrationBg} items-center justify-center p-8`}>
-          <div className="text-center">
+        <div className={`hidden md:flex md:w-1/2 flex-col items-center justify-between p-12 relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-slate-50 to-slate-100'}`}>
+          {/* Decorative shapes */}
+          <div className="absolute top-0 left-0 w-64 h-64 bg-[#ecb52d]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+
+          <div className="w-full relative z-10 text-center flex-1 flex flex-col items-center justify-center">
+            <img src="/logo_text.png" alt="AT ShiftPay" className="h-10 mx-auto object-contain mb-6" />
+
             <img
               src="/background.png"
               alt="Illustration"
-              className="max-w-xs mx-auto mb-6"
+              className="max-w-xs mx-auto mb-8 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <div className="mt-4">
-              <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
-              <p className={`text-sm ${textMutedClass} mt-2`}>Ứng dụng quản lý tính công</p>
-              <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1`}>
-                Made with <Heart size={12} className="text-red-500 fill-red-500" /> by{' '}
+
+            <div className="space-y-2">
+              <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Quản lý chấm công hiệu quả</h3>
+              <p className={`text-sm ${textMutedClass} max-w-xs mx-auto`}>
+                Hệ thống tính công, quản lý sự kiện và thanh toán minh bạch cho đội ngũ nhân sự.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative z-10 w-full pt-8 border-t border-slate-200/10 dark:border-slate-700/50">
+            <div className="flex flex-col items-center">
+              <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1.5`}>
+                Được phát triển với <Heart size={12} className="text-red-500 fill-red-500 animate-pulse" /> bởi
                 <a
                   href="https://github.com/dexter826/dexter826"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#ecb52d] hover:underline"
+                  className="font-semibold text-[#ecb52d] hover:text-[#f0c654] transition-colors"
                 >
-                  MOB
+                  MOB Team
                 </a>
               </p>
+              <button
+                onClick={handleSwitchMode}
+                className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300
+                    ${isDark
+                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200 shadow-sm'
+                  }`}
+              >
+                {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
+              </button>
             </div>
-            <button
-              onClick={handleSwitchMode}
-              className="mt-6 text-[#ecb52d] hover:text-[#f0c654] text-sm font-medium underline transition-colors"
-            >
-              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
-            </button>
           </div>
         </div>
 
-        {/* Separator Line */}
-        <div className={`hidden md:block w-[0.5px] my-12 ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
-
         {/* Right side - Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-          {/* Mobile logo */}
-          <div className="md:hidden text-center mb-6">
-            <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
-          </div>
-
-          <h2 className="text-5xl font-retro text-[#ecb52d] mb-8 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide">
-            {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
-          </h2>
-
-          {verificationSent && (
-            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-500 text-xs rounded-lg">
-              <p className="font-medium mb-1">✓ Đăng ký thành công!</p>
-              <p>Email xác thực đã được gửi đến <strong>{verificationEmail}</strong></p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email field */}
-            <div>
-              <div className={`flex items-center border-b-2 ${emailError ? 'border-red-500' : inputBorderClass} pb-2`}>
-                <User size={20} className={textMutedClass} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(e.target.value)}
-                  onBlur={() => validateEmail(email)}
-                  className={inputStyle}
-                  placeholder="Email"
-                />
-              </div>
-              {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
+        <div className="w-full md:w-1/2 p-6 md:p-8 border-l border-slate-200 dark:border-slate-800 md:border-l-0 flex flex-col justify-center">
+          <div className="max-w-md mx-auto w-full">
+            {/* Mobile logo */}
+            <div className="md:hidden text-center mb-4">
+              <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
             </div>
 
-            {/* Full name field (signup only) */}
-            {isSignUp && (
-              <div>
-                <div className={`flex items-center border-b-2 ${fullNameError ? 'border-red-500' : inputBorderClass} pb-2`}>
-                  <User size={20} className={textMutedClass} />
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => {
-                      setFullName(e.target.value);
-                      if (fullNameError) validateFullName(e.target.value);
-                    }}
-                    onBlur={() => validateFullName(fullName)}
-                    className={inputStyle}
-                    placeholder="Họ tên"
-                  />
+            <h2 className="text-4xl font-retro text-[#ecb52d] mb-4 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide">
+              {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
+            </h2>
+
+            {verificationSent && (
+              <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-start gap-3">
+                <div className="mt-0.5">✓</div>
+                <div>
+                  <p className="font-semibold text-sm">Đăng ký thành công!</p>
+                  <p className="text-sm mt-1 opacity-90">Email xác thực đã được gửi đến <span className="font-bold">{verificationEmail}</span></p>
                 </div>
-                {fullNameError && <p className="text-red-400 text-xs mt-1">{fullNameError}</p>}
               </div>
             )}
 
-            {/* Password field */}
-            <div>
-              <div className={`flex items-center border-b-2 ${passwordError ? 'border-red-500' : inputBorderClass} pb-2`}>
-                <Lock size={20} className={textMutedClass} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passwordError) validatePassword(e.target.value);
-                    if (isSignUp && confirmPassword && confirmPasswordError) {
-                      validateConfirmPassword(confirmPassword);
-                    }
-                  }}
-                  onBlur={() => validatePassword(password)}
-                  className={inputStyle}
-                  placeholder="Mật khẩu"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={`${textMutedClass} hover:text-[#ecb52d] transition-colors`}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {passwordError && <p className="text-red-400 text-xs mt-1">{passwordError}</p>}
-            </div>
-
-            {/* Confirm password (signup only) */}
-            {isSignUp && (
-              <div>
-                <div className={`flex items-center border-b-2 ${confirmPasswordError ? 'border-red-500' : inputBorderClass} pb-2`}>
-                  <Lock size={20} className={textMutedClass} />
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Email field */}
+              <div className="space-y-1">
+                <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                  Email
+                </label>
+                <div className="relative group">
+                  <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                    <User size={18} />
+                  </div>
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    onBlur={() => validateEmail(email)}
+                    className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
+                      ? 'border-red-500 focus:ring-red-500/20'
+                      : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
+                      placeholder:text-slate-400`}
+                    placeholder="name@example.com"
+                  />
+                </div>
+                {emailError && <p className="text-red-500 text-xs ml-1 font-medium">{emailError}</p>}
+              </div>
+
+              {/* Full name field (signup only) */}
+              {isSignUp && (
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                    Họ và tên
+                  </label>
+                  <div className="relative group">
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                      <User size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        if (fullNameError) validateFullName(e.target.value);
+                      }}
+                      onBlur={() => validateFullName(fullName)}
+                      className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
+                        ? 'border-red-500 focus:ring-red-500/20'
+                        : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
+                        placeholder:text-slate-400`}
+                      placeholder="Nguyễn Văn A"
+                    />
+                  </div>
+                  {fullNameError && <p className="text-red-500 text-xs ml-1 font-medium">{fullNameError}</p>}
+                </div>
+              )}
+
+              {/* Password field */}
+              <div className="space-y-1">
+                <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                  Mật khẩu
+                </label>
+                <div className="relative group">
+                  <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                    <Lock size={18} />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
                     onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      if (confirmPasswordError) validateConfirmPassword(e.target.value);
+                      setPassword(e.target.value);
+                      if (passwordError) validatePassword(e.target.value);
+                      if (isSignUp && confirmPassword && confirmPasswordError) {
+                        validateConfirmPassword(confirmPassword);
+                      }
                     }}
-                    onBlur={() => validateConfirmPassword(confirmPassword)}
-                    className={inputStyle}
-                    placeholder="Xác nhận mật khẩu"
+                    onBlur={() => validatePassword(password)}
+                    className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
+                      ? 'border-red-500 focus:ring-red-500/20'
+                      : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
+                      placeholder:text-slate-400`}
+                    placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className={`${textMutedClass} hover:text-[#ecb52d] transition-colors`}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 ${textMutedClass} transition-colors`}
                   >
-                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                {confirmPasswordError && <p className="text-red-400 text-xs mt-1">{confirmPasswordError}</p>}
+                {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
               </div>
-            )}
 
-            {/* Code input (signup only) */}
-            {isSignUp && (
-              <div>
-                <label className={`block text-xs ${textMutedClass} mb-2`}>Nhập 4 số là địa chỉ "Bếp"</label>
-                <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
-                  {codeDigits.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={inputRefs[index]}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleCodeChange(index, e.target.value)}
-                      onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                      className={`${codeInputStyle} ${codeError ? 'border-red-500' : inputBorderClass}`}
-                    />
-                  ))}
-                </div>
-                {codeError && <p className="text-red-400 text-xs mt-2 text-center">{codeError}</p>}
-              </div>
-            )}
-
-            {/* Remember me and Forgot Password */}
-            {!isSignUp && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-[#ecb52d]"
-                  />
-                  <label htmlFor="rememberMe" className={`text-sm ${textMutedClass} cursor-pointer`}>
-                    Ghi nhớ
+              {/* Confirm password (signup only) */}
+              {isSignUp && (
+                <div className="space-y-1">
+                  <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                    Xác nhận mật khẩu
                   </label>
+                  <div className="relative group">
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                      <Lock size={18} />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        if (confirmPasswordError) validateConfirmPassword(e.target.value);
+                      }}
+                      onBlur={() => validateConfirmPassword(confirmPassword)}
+                      className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
+                        ? 'border-red-500 focus:ring-red-500/20'
+                        : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
+                        placeholder:text-slate-400`}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 ${textMutedClass} transition-colors`}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  {confirmPasswordError && <p className="text-red-500 text-xs ml-1 font-medium">{confirmPasswordError}</p>}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setForgotPasswordOpen(true)}
-                  className="text-xs text-[#ecb52d] hover:text-[#f0c654] font-medium transition-colors"
-                >
-                  Quên mật khẩu?
-                </button>
-              </div>
-            )}
+              )}
 
-            {error && (
-              <div className="p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg">
-                {error}
-              </div>
-            )}
+              {/* Code input (signup only) */}
+              {isSignUp && (
+                <div className="space-y-1.5">
+                  <label className={`block text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>Mã xác thực "Bếp"</label>
+                  <div className="flex gap-3 justify-start" onPaste={handleCodePaste}>
+                    {codeDigits.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={inputRefs[index]}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleCodeChange(index, e.target.value)}
+                        onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                        className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
+                          ${codeError
+                            ? 'border-red-500 focus:ring-red-500/20'
+                            : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                          focus:ring-2 focus:outline-none transition-all duration-200 ${textPrimaryClass}`}
+                      />
+                    ))}
+                  </div>
+                  {codeError ? (
+                    <p className="text-red-500 text-xs ml-1 font-medium">{codeError}</p>
+                  ) : (
+                    <p className={`text-xs ${textMutedClass} ml-1`}>Nhập 4 số được cung cấp bởi quản lý</p>
+                  )}
+                </div>
+              )}
 
-            <Button
-              type="submit"
-              disabled={loading}
-              fullWidth
-              className="mt-4"
-            >
-              {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
-            </Button>
-          </form>
+              {/* Remember me and Forgot Password */}
+              {!isSignUp && (
+                <div className="flex items-center justify-between pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-600 checked:border-[#ecb52d] checked:bg-[#ecb52d] transition-all"
+                      />
+                      <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <span className={`text-sm ${textMutedClass} group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors`}>
+                      Ghi nhớ đăng nhập
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setForgotPasswordOpen(true)}
+                    className="text-sm text-[#ecb52d] hover:text-[#f0c654] font-medium transition-colors hover:underline"
+                  >
+                    Quên mật khẩu?
+                  </button>
+                </div>
+              )}
 
-          {/* Mobile switch mode */}
-          <div className="md:hidden mt-6 text-center">
-            <button
-              onClick={handleSwitchMode}
-              className="text-[#ecb52d] hover:text-[#f0c654] text-sm underline transition-colors"
-            >
-              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
-            </button>
+              {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  {error}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                fullWidth
+                className="mt-4"
+              >
+                {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
+              </Button>
+            </form>
+
+            {/* Mobile switch mode */}
+            <div className="md:hidden mt-8 text-center border-t border-slate-200 dark:border-slate-700 pt-6">
+              <p className={`text-sm ${textMutedClass} mb-3`}>
+                {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
+              </p>
+              <button
+                onClick={handleSwitchMode}
+                className="text-[#ecb52d] hover:text-[#f0c654] text-sm font-semibold transition-colors"
+              >
+                {isSignUp ? 'Đăng nhập ngay' : 'Tạo tài khoản mới'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
