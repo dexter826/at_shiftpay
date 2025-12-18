@@ -13,7 +13,7 @@ import {
   getDoc,
   setDoc
 } from 'firebase/firestore';
-import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from '../types';
+import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction } from '../types';
 
 export const dbService = {
   // Employees - Real-time listener
@@ -164,6 +164,38 @@ export const dbService = {
 
   async deleteShift(id: string): Promise<void> {
     await deleteDoc(doc(db, 'shifts', id));
+  },
+
+  // Payments
+  subscribePayments(callback: (payments: PaymentTransaction[]) => void): Unsubscribe {
+    const q = query(collection(db, 'payments'), orderBy('date', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      const payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PaymentTransaction));
+      callback(payments);
+    });
+  },
+
+  async createPaymentTransaction(
+    paymentData: Omit<PaymentTransaction, 'id'>,
+    shiftIds: string[]
+  ): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Create payment document
+    const paymentRef = doc(collection(db, 'payments'));
+    batch.set(paymentRef, paymentData);
+
+    // Update all shifts to paid
+    shiftIds.forEach(shiftId => {
+      const shiftRef = doc(db, 'shifts', shiftId);
+      batch.update(shiftRef, {
+        status: 'paid',
+        paidAt: paymentData.date,
+        paymentId: paymentRef.id
+      });
+    });
+
+    await batch.commit();
   },
 
   // User Settings

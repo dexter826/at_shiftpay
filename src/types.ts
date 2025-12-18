@@ -26,6 +26,17 @@ export interface Shift {
   amount: number;
   status: ShiftStatus;
   paidAt?: number | null;
+  paymentId?: string; // Reference to the payment transaction
+}
+
+export interface PaymentTransaction {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  amount: number;
+  date: number; // timestamp
+  shiftIds: string[];
+  note?: string;
 }
 
 export interface PayrollSummary {
