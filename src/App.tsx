@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Loader from './components/ui/Loading';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { CalendarView } from './components/CalendarView';
@@ -33,6 +34,8 @@ function App() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
+
+  const { theme } = useTheme();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -163,8 +166,8 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
-        <div className="w-8 h-8 border-2 border-[#ecb52d] border-t-transparent rounded-full animate-spin"></div>
+      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <Loader />
       </div>
     );
   }
@@ -175,8 +178,8 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 dark:bg-slate-900">
-        <div className="w-8 h-8 border-2 border-[#ecb52d] border-t-transparent rounded-full animate-spin"></div>
+      <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <Loader />
       </div>
     );
   }
