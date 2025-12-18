@@ -65,6 +65,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
 
@@ -72,6 +73,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setEditingEmp(null);
     setName('');
     setPhone('');
+    setImageUrl('');
     setError('');
     setModalOpen(true);
   };
@@ -80,6 +82,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setEditingEmp(emp);
     setName(emp.name);
     setPhone(emp.phone);
+    setImageUrl(emp.imageUrl || '');
     setError('');
     setModalOpen(true);
   };
@@ -108,10 +111,10 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
 
     try {
       if (isEditing && empId) {
-        await dbService.updateEmployee(empId, { name, phone });
+        await dbService.updateEmployee(empId, { name, phone, imageUrl });
         showToast('Đã cập nhật nhân viên', 'success');
       } else {
-        await dbService.addEmployee({ name, phone });
+        await dbService.addEmployee({ name, phone, imageUrl });
         showToast('Đã thêm nhân viên mới', 'success');
       }
     } catch (err) {
@@ -177,34 +180,60 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
 
       {/* List */}
       <div className="p-4 md:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {filteredEmployees.map((emp) => (
-            <div key={emp.id} className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors group`}>
-              <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${textSecondaryClass} truncate`}>{emp.name}</p>
-                  <a href={`tel:${emp.phone}`} className={`text-xs ${textMutedClass} flex items-center gap-1 mt-1 hover:text-[#ecb52d] transition-colors`}>
-                    <Phone size={12} />
-                    {emp.phone || 'Chưa có SĐT'}
-                  </a>
-                  <p className="text-xs text-[#ecb52d] flex items-center gap-1 mt-1">
-                    <Briefcase size={12} />
-                    Tháng {monthName} đã làm {shiftCountByEmployee[emp.id] || 0} công
-                  </p>
+            <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-[#ecb52d]/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
+              {/* Image Container - Full height */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800">
+                {emp.imageUrl ? (
+                  <img
+                    src={emp.imageUrl}
+                    alt={emp.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=random&color=fff&size=256`;
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800">
+                    {emp.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+
+                {/* Gradient Overlay for text readability */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
+
+                {/* Actions overlay - always visible on mobile, hover on desktop */}
+                <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
+                    className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-[#ecb52d] hover:text-white transition-all duration-200"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(emp.id); }}
+                    className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-red-500 hover:text-white transition-all duration-200"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => openEditModal(emp)}
-                    className={`p-1.5 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(emp.id)}
-                    className={`p-1.5 ${textMutedClass} hover:text-red-500 transition-colors`}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+              </div>
+
+              {/* Content Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 z-10 text-white">
+                <h3 className="text-sm font-bold truncate leading-tight mb-1 shadow-black/50 drop-shadow-sm">{emp.name}</h3>
+
+                <div className="flex flex-col gap-0.5 text-[11px] text-slate-200">
+                  <div className="flex items-center gap-1.5 opacity-90">
+                    <Phone size={10} className="shrink-0" />
+                    <span className="truncate">{emp.phone || '---'}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 font-medium text-[#ecb52d]">
+                    <Briefcase size={10} className="shrink-0" />
+                    <span>{shiftCountByEmployee[emp.id] || 0} công</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,6 +286,16 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+            />
+          </div>
+          <div>
+            <label className={`block text-xs ${textMutedClass} mb-1.5`}>URL Hình ảnh (tùy chọn)</label>
+            <input
+              type="text"
+              placeholder="https://example.com/avatar.jpg"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
             />
           </div>

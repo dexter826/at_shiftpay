@@ -25,7 +25,7 @@ export const dbService = {
     });
   },
 
-  async addEmployee(data: { name: string; phone: string }): Promise<void> {
+  async addEmployee(data: { name: string; phone: string; imageUrl?: string }): Promise<void> {
     await addDoc(collection(db, 'employees'), {
       ...data,
       createdAt: new Date().toISOString(),

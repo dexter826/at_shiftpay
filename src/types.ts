@@ -2,6 +2,7 @@ export interface Employee {
   id: string;
   name: string;
   phone: string;
+  imageUrl?: string;
   createdAt: string; // ISO date string
 }
 
