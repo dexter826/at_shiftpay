@@ -1,12 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from '../types';
+import { Employee, Event, Shift, UserSettings } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, Save } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
-import { TimePicker } from './ui/TimePicker';
-import { dbService } from '../services/firebase';
-import { useToast } from './ui/Toast';
 
 interface DashboardProps {
     user: any;
@@ -14,35 +11,16 @@ interface DashboardProps {
     events: Event[];
     shifts: Shift[];
     settings: UserSettings;
+
     onLogout: () => void;
+    onNavigateToSettings: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, onLogout }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, onLogout, onNavigateToSettings }) => {
     const { theme, toggleTheme } = useTheme();
-    const { showToast } = useToast();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [editSettings, setEditSettings] = useState<UserSettings>(settings);
-    const [saving, setSaving] = useState(false);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-
-    const openSettings = () => {
-        setEditSettings(settings);
-        setSettingsOpen(true);
-    };
-
-    const handleSaveSettings = async () => {
-        setSaving(true);
-        try {
-            await dbService.updateSettings(editSettings);
-            showToast('Đã lưu cài đặt', 'success');
-            setSettingsOpen(false);
-        } catch (err) {
-            showToast('Có lỗi xảy ra', 'error');
-        }
-        setSaving(false);
-    };
 
     // Thống kê tháng hiện tại
     const monthlyStats = useMemo(() => {
@@ -131,10 +109,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
                     <div className="flex items-center gap-2 md:hidden">
                         <button
-                            onClick={toggleTheme}
+                            onClick={onNavigateToSettings}
                             className={`p-2 ${textSecondaryClass} hover:text-[#ecb52d] transition-colors`}
                         >
-                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                            <Settings size={20} />
                         </button>
                         <button
                             onClick={handleLogoutClick}
@@ -252,22 +230,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* Settings Card for Desktop */}
-            <div className="p-4 md:p-6">
+                {/* Settings Card for Desktop (Read Only Info) */}
                 <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-2`}>
-                            <Settings size={16} />
-                            Cài đặt
-                        </h3>
-                        <button
-                            onClick={openSettings}
-                            className="text-xs text-[#ecb52d] hover:text-[#f0c654]"
+                        <h3
+                            className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-2 cursor-pointer hover:text-[#ecb52d] transition-colors`}
+                            onClick={onNavigateToSettings}
                         >
-                            Chỉnh sửa
-                        </button>
+                            <Settings size={16} />
+                            Thông tin cấu hình
+                        </h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -287,49 +260,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
                 </div>
             </div>
-
-            {/* Settings Modal */}
-            <Modal
-                title="Cài đặt"
-                isOpen={settingsOpen}
-                onClose={() => setSettingsOpen(false)}
-                footer={
-                    <button
-                        onClick={handleSaveSettings}
-                        disabled={saving}
-                        className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
-                    >
-                        <Save size={16} />
-                        {saving ? 'Đang lưu...' : 'Lưu cài đặt'}
-                    </button>
-                }
-            >
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs text-slate-400 mb-1.5">Mức lương mỗi ca (VNĐ)</label>
-                        <input
-                            type="number"
-                            value={editSettings.shiftRate}
-                            onChange={(e) => setEditSettings({ ...editSettings, shiftRate: Number(e.target.value) })}
-                            className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-slate-600"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs text-slate-400 mb-1.5">Giờ bắt đầu ca sáng</label>
-                        <TimePicker
-                            value={editSettings.morningTime}
-                            onChange={(v) => setEditSettings({ ...editSettings, morningTime: v })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs text-slate-400 mb-1.5">Giờ bắt đầu ca chiều</label>
-                        <TimePicker
-                            value={editSettings.afternoonTime}
-                            onChange={(v) => setEditSettings({ ...editSettings, afternoonTime: v })}
-                        />
-                    </div>
-                </div>
-            </Modal>
 
             {/* Logout Confirm Modal */}
             <Modal
@@ -355,6 +285,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             >
                 <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
             </Modal>
-        </div>
+        </div >
     );
 };

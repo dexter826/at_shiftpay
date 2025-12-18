@@ -1,8 +1,7 @@
 <div align="center">
   <img src="/public/logo_text.png" alt="Logo dự án">
+  <h5>Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc.</h5>
 </div>
-
-Ứng dụng quản lý nhân sự và thanh toán lương theo ca làm việc.
 
 ## Tính năng chính
 
@@ -26,17 +25,20 @@
 ## Cài đặt
 
 1. Clone repository:
+
 ```bash
 git clone https://github.com/dexter826/at_shiftpay
 cd at_shiftpay
 ```
 
 2. Cài đặt dependencies:
+
 ```bash
 npm install
 ```
 
 3. Tạo file `.env` và cấu hình Firebase:
+
 ```env
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -47,6 +49,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 ```
 
 4. Chạy ứng dụng:
+
 ```bash
 npm run dev
 ```
@@ -86,4 +89,3 @@ npm run build
 ---
 
 <div align="center">Made with ❤️ by <a href="https://github.com/dexter826">MOB</a></div>
-

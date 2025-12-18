@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, LogOut, Sun, Moon } from 'lucide-react';
+import React from 'react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Modal } from './ui/Modal';
 
 interface NavbarProps {
   currentTab: string;
@@ -11,23 +10,14 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
   const { theme, toggleTheme } = useTheme();
-  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   const navItems = [
     { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
     { id: 'dashboard', label: 'Lịch Tiệc', icon: CalendarRange },
     { id: 'employees', label: 'Nhân Sự', icon: Users },
     { id: 'payroll', label: 'Thanh Toán', icon: Wallet2 },
+    { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
-
-  const handleLogoutClick = () => {
-    setLogoutConfirm(true);
-  };
-
-  const confirmLogout = () => {
-    setLogoutConfirm(false);
-    onLogout();
-  };
 
   // Theme classes
   const sidebarBg = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
@@ -71,21 +61,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           ))}
         </nav>
 
-        <div className={`p-3 border-t ${borderColor} space-y-1`}>
-          {/* Theme Toggle */}
+        {/* Desktop Footer */}
+        <div className={`p-4 border-t ${borderColor}`}>
           <button
             onClick={toggleTheme}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium ${textMuted} ${hoverText} ${hoverBg} transition-colors`}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${textMuted} ${hoverText} ${hoverBg} mb-1`}
           >
-            {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             <span>{theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}</span>
           </button>
-
           <button
-            onClick={handleLogoutClick}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium ${textMuted} hover:text-red-400 ${hoverBg} transition-colors`}
+            onClick={onLogout}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10`}
           >
-            <LogOut size={18} strokeWidth={1.5} />
+            <LogOut size={18} />
             <span>Đăng xuất</span>
           </button>
         </div>
@@ -93,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
       {/* Mobile Bottom Bar */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
-        {navItems.map((item) => (
+        {navItems.filter(item => item.id !== 'settings').map((item) => (
           <button
             key={item.id}
             onClick={() => setTab(item.id)}
@@ -107,31 +96,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </button>
         ))}
       </div>
-
-      {/* Logout Confirm Modal */}
-      <Modal
-        title="Xác nhận đăng xuất"
-        isOpen={logoutConfirm}
-        onClose={() => setLogoutConfirm(false)}
-        footer={
-          <div className="flex gap-2">
-            <button
-              onClick={() => setLogoutConfirm(false)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderColor} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
-            >
-              Hủy
-            </button>
-            <button
-              onClick={confirmLogout}
-              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
-            >
-              Đăng xuất
-            </button>
-          </div>
-        }
-      >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
-      </Modal>
     </>
   );
 };

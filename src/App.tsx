@@ -7,6 +7,7 @@ import { PayrollView } from './components/PayrollView';
 import { Login } from './components/Login';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Splashscreen } from './components/Splashscreen';
+import { SettingsView } from './components/SettingsView';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
@@ -14,8 +15,8 @@ import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from './types'
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
-// Simple Mock Routing
-type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll';
+// Simple Mock Routing - Updated for HMR
+type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -114,6 +115,7 @@ function App() {
             shifts={shifts}
             settings={settings}
             onLogout={handleLogout}
+            onNavigateToSettings={() => setActiveTab('settings')}
           />
         );
       case 'dashboard':
@@ -139,6 +141,14 @@ function App() {
           <PayrollView
             shifts={shifts}
             employees={employees}
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsView
+            user={user}
+            settings={settings}
+            onLogout={handleLogout}
           />
         );
       default:
