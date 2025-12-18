@@ -231,7 +231,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 }`}
             >
               <Sun size={16} />
-              Ca Sáng
+              Tiệc Sáng
             </button>
             <button
               type="button"
@@ -244,7 +244,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 }`}
             >
               <Moon size={16} />
-              Ca Chiều
+              Tiệc Chiều
             </button>
           </div>
         </div>
@@ -260,7 +260,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Assignments - Round checkbox at end */}
         {selectedSession && (
           <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chấm công</label>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm</label>
             <div className={`border rounded-lg divide-y max-h-48 overflow-y-auto ${theme === 'dark'
               ? 'border-slate-700 divide-slate-700'
               : 'border-slate-200 divide-slate-100'

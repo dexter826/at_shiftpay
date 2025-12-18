@@ -372,7 +372,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
                         ? 'bg-orange-500/10 text-orange-500'
                         : 'bg-[#ecb52d]/10 text-[#ecb52d]'
                         }`}>
-                        {shift.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
+                        {shift.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
                       </span>
                     </div>
                   ))}

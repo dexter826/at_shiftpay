@@ -161,7 +161,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                       <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
                       <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-[#ecb52d]'
                         }`}>
-                        {s.session === 'morning' ? 'Ca Sáng' : 'Ca Chiều'}
+                        {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
                       </span>
                     </div>
                   </div>
