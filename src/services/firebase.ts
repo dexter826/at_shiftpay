@@ -5,13 +5,15 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  where,
+  writeBatch,
+  Timestamp,
   query,
   orderBy,
   onSnapshot,
-  writeBatch,
-  Unsubscribe,
   getDoc,
-  setDoc
+  setDoc,
+  Unsubscribe
 } from 'firebase/firestore';
 import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction } from '../types';
 
@@ -19,10 +21,16 @@ export const dbService = {
   // Employees - Real-time listener
   subscribeEmployees(callback: (employees: Employee[]) => void): Unsubscribe {
     const q = query(collection(db, 'employees'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-      const employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
-      callback(employees);
-    });
+    return onSnapshot(q,
+      (snapshot) => {
+        const employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+        callback(employees);
+      },
+      (error) => {
+        console.error("Error subscribing employees:", error);
+        callback([]);
+      }
+    );
   },
 
   async addEmployee(data: { name: string; phone: string; imageUrl?: string }): Promise<void> {
@@ -41,13 +49,27 @@ export const dbService = {
     await deleteDoc(doc(db, 'employees', id));
   },
 
-  // Events - Real-time listener
-  subscribeEvents(callback: (events: Event[]) => void): Unsubscribe {
-    const q = query(collection(db, 'events'), orderBy('date', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-      const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-      callback(events);
-    });
+  // Events - Real-time listener by Month
+  subscribeEventsByMonth(month: number, year: number, callback: (events: Event[]) => void): Unsubscribe {
+    const startDate = new Date(year, month, 1).toISOString();
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+
+    const q = query(
+      collection(db, 'events'),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate),
+      orderBy('date', 'desc')
+    );
+    return onSnapshot(q,
+      (snapshot) => {
+        const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        callback(events);
+      },
+      (error) => {
+        console.error("Error subscribing events:", error);
+        callback([]);
+      }
+    );
   },
 
   async addEvent(data: Omit<Event, 'id'>): Promise<string> {
@@ -123,13 +145,46 @@ export const dbService = {
     await deleteDoc(doc(db, 'events', id));
   },
 
-  // Shifts - Real-time listener
-  subscribeShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
-    const q = query(collection(db, 'shifts'), orderBy('eventDate', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-      const shifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
-      callback(shifts);
-    });
+  // Shifts - Real-time listener by Month
+  subscribeShiftsByMonth(month: number, year: number, callback: (shifts: Shift[]) => void): Unsubscribe {
+    const startDate = new Date(year, month, 1).toISOString();
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+
+    const q = query(
+      collection(db, 'shifts'),
+      where('eventDate', '>=', startDate),
+      where('eventDate', '<=', endDate),
+      orderBy('eventDate', 'desc')
+    );
+    return onSnapshot(q,
+      (snapshot) => {
+        const shifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
+        callback(shifts);
+      },
+      (error) => {
+        console.error("Error subscribing shifts:", error);
+        callback([]);
+      }
+    );
+  },
+
+  // Subscribe to ALL unpaid shifts (for debt calculation)
+  subscribeUnpaidShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
+    const q = query(
+      collection(db, 'shifts'),
+      where('status', '==', 'unpaid'),
+      orderBy('eventDate', 'asc') // Oldest debt first
+    );
+    return onSnapshot(q,
+      (snapshot) => {
+        const shifts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
+        callback(shifts);
+      },
+      (error) => {
+        console.error("Error subscribing unpaid shifts (Likely missing Index):", error);
+        callback([]);
+      }
+    );
   },
 
   async addShift(data: Omit<Shift, 'id'>): Promise<void> {

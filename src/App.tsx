@@ -34,20 +34,17 @@ function App() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewDate, setViewDate] = useState(new Date());
 
   const { theme } = useTheme();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // Chỉ set user nếu email đã được xác thực
-      if (currentUser && currentUser.emailVerified) {
-        setUser(currentUser);
-      } else {
-        setUser(null);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setAuthLoading(false);
     });
-    return unsubscribe;
+
+    return () => unsubscribe();
   }, []);
 
   // Real-time subscriptions
@@ -61,7 +58,7 @@ function App() {
     let loadedCount = 0;
     const checkLoaded = () => {
       loadedCount++;
-      if (loadedCount >= 4) setIsLoading(false);
+      if (loadedCount >= 5) setIsLoading(false); // Increased count for unpaid shifts
     };
 
     const unsubEmployees = dbService.subscribeEmployees((data) => {
@@ -69,13 +66,34 @@ function App() {
       checkLoaded();
     });
 
-    const unsubEvents = dbService.subscribeEvents((data) => {
+    const currentMonth = viewDate.getMonth();
+    const currentYear = viewDate.getFullYear();
+
+    const unsubEvents = dbService.subscribeEventsByMonth(currentMonth, currentYear, (data) => {
       setEvents(data);
       checkLoaded();
     });
 
-    const unsubShifts = dbService.subscribeShifts((data) => {
-      setShifts(data);
+    // Load current month shifts
+    let currentMonthShifts: Shift[] = [];
+    let unpaidShifts: Shift[] = [];
+
+    // Helper to merge shifts without duplicates
+    const mergeShifts = (monthShifts: Shift[], unpaid: Shift[]) => {
+      const uniqueShifts = new Map<string, Shift>();
+      [...monthShifts, ...unpaid].forEach(s => uniqueShifts.set(s.id, s));
+      return Array.from(uniqueShifts.values());
+    };
+
+    const unsubShifts = dbService.subscribeShiftsByMonth(currentMonth, currentYear, (data) => {
+      currentMonthShifts = data;
+      setShifts(mergeShifts(currentMonthShifts, unpaidShifts));
+      checkLoaded();
+    });
+
+    const unsubUnpaid = dbService.subscribeUnpaidShifts((data) => {
+      unpaidShifts = data;
+      setShifts(mergeShifts(currentMonthShifts, unpaidShifts));
       checkLoaded();
     });
 
@@ -88,9 +106,10 @@ function App() {
       unsubEmployees();
       unsubEvents();
       unsubShifts();
+      unsubUnpaid();
       unsubSettings();
     };
-  }, [user]);
+  }, [user, viewDate]);
 
   const handleLogout = async () => {
     try {
@@ -120,6 +139,7 @@ function App() {
             loading={loading}
             onLogout={handleLogout}
             onNavigateToSettings={() => setActiveTab('settings')}
+            currentDate={viewDate}
           />
         );
       case 'dashboard':
@@ -130,6 +150,8 @@ function App() {
             employees={employees}
             totalDebt={totalDebt}
             settings={settings}
+            currentDate={viewDate}
+            onDateChange={setViewDate}
           />
         );
       case 'employees':
@@ -140,7 +162,7 @@ function App() {
             events={events}
             loading={loading}
           />
-        );
+        ); // Payroll and Settings cases are unchanged
       case 'payroll':
         return (
           <PayrollView

@@ -14,9 +14,19 @@ interface CalendarViewProps {
   employees: Employee[];
   totalDebt: number;
   settings: UserSettings;
+  currentDate?: Date;
+  onDateChange?: (date: Date) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, employees, settings }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({
+  events,
+  shifts,
+  employees,
+  totalDebt,
+  settings,
+  currentDate: propDate,
+  onDateChange
+}) => {
   const { showToast } = useToast();
   const { theme } = useTheme();
 
@@ -27,7 +37,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
   const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
   const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
   const hoverBgClass = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
-  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const [localDate, setLocalDate] = useState(new Date());
+  const displayDate = propDate || localDate;
+
+  const handleMonthChange = (newDate: Date) => {
+    if (onDateChange) {
+      onDateChange(newDate);
+    } else {
+      setLocalDate(newDate);
+    }
+  };
+
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     const today = new Date();
     const offset = today.getTimezoneOffset();
@@ -40,8 +61,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
   const [viewingEvent, setViewingEvent] = useState<Event | null>(null);
 
   const daysInMonth = useMemo(() => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const year = displayDate.getFullYear();
+    const month = displayDate.getMonth();
     const date = new Date(year, month, 1);
     const days = [];
 
@@ -54,12 +75,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, shifts, empl
       date.setDate(date.getDate() + 1);
     }
     return days;
-  }, [currentDate]);
+  }, [displayDate]);
 
-  const monthLabel = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(currentDate);
+  const monthLabel = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(displayDate);
 
-  const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const prevMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() - 1, 1));
+  const nextMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1));
 
   const eventsByDate = useMemo(() => {
     const map: Record<string, Event[]> = {};

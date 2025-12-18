@@ -288,8 +288,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
         </div>
 
+        {/* Separator Line */}
+        <div className={`hidden md:block w-[0.5px] my-12 ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`} />
+
         {/* Right side - Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-12">
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           {/* Mobile logo */}
           <div className="md:hidden text-center mb-6">
             <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
