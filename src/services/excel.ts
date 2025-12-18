@@ -1,98 +1,142 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { PayrollSummary, Shift } from '../types';
+import { PayrollSummary, Shift, Event, Employee, UserSettings } from '../types';
+
+// Helper to format currency
+const formatMoney = (amount: number) => {
+    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+};
 
 export const exportPayrollToExcel = async (summary: PayrollSummary[], shifts: Shift[], title: string = 'Bảng Công Nợ') => {
+    // Keep existing function for backward compatibility if needed, or redirect to new one
+    // For now, let's keep it but ideally we upgrade to the detailed one.
+    // However, the user request specifically asked for "Detail Report"
+    // Let's implement the new detailed export function independently.
+};
+
+export const exportDetailedReport = async (
+    month: number,
+    year: number,
+    events: Event[],
+    shifts: Shift[],
+    employees: Employee[],
+    settings: UserSettings
+) => {
     const workbook = new ExcelJS.Workbook();
+    const monthStr = `${month.toString().padStart(2, '0')}/${year}`;
 
-    // --- SHEET 1: TỔNG HỢP ---
-    const summarySheet = workbook.addWorksheet('Tổng Hợp');
+    // Filter Data for the selected Month
+    const filteredEvents = events.filter(e => {
+        const d = new Date(e.date);
+        return d.getMonth() + 1 === month && d.getFullYear() === year;
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Define columns
+    const filteredShifts = shifts.filter(s => {
+        const d = new Date(s.eventDate);
+        return d.getMonth() + 1 === month && d.getFullYear() === year;
+    }).sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+
+    // --- SHEET 1: LỊCH TIỆC (EVENT SCHEDULE) ---
+    const eventSheet = workbook.addWorksheet('Lịch Tiệc');
+
+    eventSheet.columns = [
+        { header: 'Ngày', key: 'date', width: 15 },
+        { header: 'Giờ', key: 'time', width: 10 },
+        { header: 'Tiệc', key: 'title', width: 40 },
+        { header: 'Lương/Ca', key: 'rate', width: 15 },
+        { header: 'SL Nhân sự', key: 'count', width: 15 },
+        { header: 'Ghi chú', key: 'note', width: 30 },
+    ];
+
+    // Style Header
+    const eventHeader = eventSheet.getRow(1);
+    eventHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    eventHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }; // Blue
+    eventHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    filteredEvents.forEach(evt => {
+        const shiftCount = filteredShifts.filter(s => s.eventId === evt.id).length;
+        const row = eventSheet.addRow({
+            date: evt.date,
+            time: evt.time || '',
+            title: evt.title,
+            rate: evt.amount || settings.shiftRate,
+            count: shiftCount,
+            note: evt.note || ''
+        });
+        row.getCell('rate').numFmt = '#,##0 "₫"';
+    });
+
+
+    // --- SHEET 2: CHI TIẾT CÔNG (DETAILED SHIFTS) ---
+    const shiftSheet = workbook.addWorksheet('Chi Tiết Công');
+
+    shiftSheet.columns = [
+        { header: 'Ngày', key: 'date', width: 15 },
+        { header: 'Nhân viên', key: 'name', width: 25 },
+        { header: 'Sự kiện', key: 'event', width: 30 },
+        { header: 'Ca', key: 'session', width: 15 },
+        { header: 'Lương', key: 'amount', width: 15 },
+        { header: 'Trạng thái', key: 'status', width: 15 },
+    ];
+
+    const shiftHeader = shiftSheet.getRow(1);
+    shiftHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    shiftHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } }; // Emerald
+    shiftHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    filteredShifts.forEach(s => {
+        const evt = events.find(e => e.id === s.eventId);
+        const row = shiftSheet.addRow({
+            date: s.eventDate,
+            name: s.employeeName,
+            event: evt ? evt.title : 'Không xác định',
+            session: s.session === 'morning' ? 'Sáng' : 'Chiều',
+            amount: s.amount,
+            status: s.status === 'paid' ? 'Đã TT' : 'Chưa TT'
+        });
+        row.getCell('amount').numFmt = '#,##0 "₫"';
+    });
+
+
+    // --- SHEET 3: TỔNG HỢP LƯƠNG THÁNG (PAYROLL SUMMARY) ---
+    const summarySheet = workbook.addWorksheet('Tổng Hợp Lương');
+
     summarySheet.columns = [
         { header: 'STT', key: 'stt', width: 5 },
-        { header: 'Tên nhân viên', key: 'name', width: 25 },
-        { header: 'Số điện thoại', key: 'phone', width: 15 },
-        { header: 'Số công chưa thanh toán', key: 'count', width: 20 },
-        { header: 'Tổng tiền nợ', key: 'amount', width: 20 },
+        { header: 'Nhân viên', key: 'name', width: 25 },
+        { header: 'Số ca làm', key: 'count', width: 15 },
+        { header: 'Tổng lương tháng', key: 'total', width: 20 },
+        { header: 'Đã thanh toán', key: 'paid', width: 20 },
+        { header: 'Còn lại', key: 'remain', width: 20 },
     ];
 
-    // Style header row
-    const headerRow = summarySheet.getRow(1);
-    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    headerRow.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFECB52D' } // Gold
-    };
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    const summaryHeader = summarySheet.getRow(1);
+    summaryHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    summaryHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECB52D' } }; // Gold
+    summaryHeader.alignment = { vertical: 'middle', horizontal: 'center' };
 
-    // Add data
-    summary.forEach((item, index) => {
+    let rowIndex = 1;
+    employees.forEach(emp => {
+        const empShifts = filteredShifts.filter(s => s.employeeId === emp.id);
+        if (empShifts.length === 0) return; // Skip employees with no shifts
+
+        const totalAmount = empShifts.reduce((sum, s) => sum + s.amount, 0);
+        const paidAmount = empShifts.filter(s => s.status === 'paid').reduce((sum, s) => sum + s.amount, 0);
+        const remainAmount = totalAmount - paidAmount;
+
         const row = summarySheet.addRow({
-            stt: index + 1,
-            name: item.employeeName,
-            phone: item.phone,
-            count: item.unpaidCount,
-            amount: item.totalUnpaid
+            stt: rowIndex++,
+            name: emp.name,
+            count: empShifts.length,
+            total: totalAmount,
+            paid: paidAmount,
+            remain: remainAmount
         });
 
-        if (typeof item.totalUnpaid === 'number') {
-            row.getCell('amount').numFmt = '#,##0 "₫"';
-        }
-    });
-
-    // Add Total Row
-    const totalAmount = summary.reduce((sum, item) => sum + item.totalUnpaid, 0);
-    const totalCount = summary.reduce((sum, item) => sum + item.unpaidCount, 0);
-
-    summarySheet.addRow({});
-    const totalRow = summarySheet.addRow({
-        name: 'TỔNG CỘNG',
-        count: totalCount,
-        amount: totalAmount
-    });
-
-    totalRow.font = { bold: true };
-    totalRow.getCell('amount').numFmt = '#,##0 "₫"';
-
-
-    // --- SHEET 2: CHI TIẾT ---
-    const detailSheet = workbook.addWorksheet('Chi Tiết');
-
-    detailSheet.columns = [
-        { header: 'STT', key: 'stt', width: 5 },
-        { header: 'Ngày', key: 'date', width: 15 },
-        { header: 'Tên nhân viên', key: 'name', width: 25 },
-        { header: 'Ca làm việc', key: 'session', width: 15 },
-        { header: 'Số tiền', key: 'amount', width: 15 },
-    ];
-
-    // Style detail header
-    const detailHeader = detailSheet.getRow(1);
-    detailHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    detailHeader.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E293B' } // Dark Slate
-    };
-    detailHeader.alignment = { vertical: 'middle', horizontal: 'center' };
-
-    // Filter only unpaid shifts and sort by date
-    const unpaidShifts = shifts
-        .filter(s => s.status === 'unpaid')
-        .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
-
-    unpaidShifts.forEach((shift, index) => {
-        const row = detailSheet.addRow({
-            stt: index + 1,
-            date: shift.eventDate, // Keeping YYYY-MM-DD format
-            name: shift.employeeName,
-            session: shift.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều',
-            amount: shift.amount
-        });
-
-        row.getCell('amount').numFmt = '#,##0 "₫"';
+        row.getCell('total').numFmt = '#,##0 "₫"';
+        row.getCell('paid').numFmt = '#,##0 "₫"';
+        row.getCell('remain').numFmt = '#,##0 "₫"';
     });
 
     // Generate buffer
@@ -100,6 +144,6 @@ export const exportPayrollToExcel = async (summary: PayrollSummary[], shifts: Sh
 
     // Save file
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const filename = `Bang_Cong_No_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const filename = `Bao_Cao_Thang_${month}_${year}.xlsx`;
     saveAs(blob, filename);
 };

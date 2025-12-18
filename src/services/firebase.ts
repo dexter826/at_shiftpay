@@ -12,6 +12,7 @@ import {
   orderBy,
   onSnapshot,
   getDoc,
+  getDocs,
   setDoc,
   Unsubscribe
 } from 'firebase/firestore';
@@ -70,6 +71,21 @@ export const dbService = {
         callback([]);
       }
     );
+  },
+
+  async getEventsByMonth(month: number, year: number): Promise<Event[]> {
+    const startDate = new Date(year, month - 1, 1).toISOString();
+    const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+
+    const q = query(
+      collection(db, 'events'),
+      where('date', '>=', startDate),
+      where('date', '<=', endDate),
+      orderBy('date', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
   },
 
   async addEvent(data: Omit<Event, 'id'>): Promise<string> {
@@ -202,6 +218,21 @@ export const dbService = {
         callback([]);
       }
     );
+  },
+
+  async getShiftsByMonth(month: number, year: number): Promise<Shift[]> {
+    const startDate = new Date(year, month - 1, 1).toISOString();
+    const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
+
+    const q = query(
+      collection(db, 'shifts'),
+      where('eventDate', '>=', startDate),
+      where('eventDate', '<=', endDate),
+      orderBy('eventDate', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
   },
 
   // Subscribe to ALL unpaid shifts (for debt calculation)

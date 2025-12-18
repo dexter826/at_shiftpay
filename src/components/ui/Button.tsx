@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline';
+type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline' | 'success';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
@@ -23,6 +23,11 @@ const variants = {
     secondary: {
         back: "from-slate-700 via-slate-600 to-slate-700",
         front: "from-slate-600 via-slate-500 to-slate-400",
+        text: "text-white"
+    },
+    success: {
+        back: "from-green-700 via-green-600 to-green-700",
+        front: "from-green-600 via-green-500 to-green-400",
         text: "text-white"
     },
     outline: {

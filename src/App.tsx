@@ -9,9 +9,14 @@ import { Login } from './components/Login';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Splashscreen } from './components/Splashscreen';
 import { SettingsView } from './components/SettingsView';
+import { TopBar } from './components/TopBar';
+import { ExportModal } from './components/ExportModal';
+import { Modal } from './components/ui/Modal';
+import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
+import { exportDetailedReport } from './services/excel';
 import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from './types';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -36,7 +41,33 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
 
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   const { theme } = useTheme();
+
+  const handleOpenExport = () => {
+    setIsExportModalOpen(true);
+  };
+
+
+
+  const handleExportReport = async (month: number, year: number) => {
+    try {
+      setIsLoading(true);
+      const [fetchedEvents, fetchedShifts] = await Promise.all([
+        dbService.getEventsByMonth(month, year),
+        dbService.getShiftsByMonth(month, year)
+      ]);
+      await exportDetailedReport(month, year, fetchedEvents, fetchedShifts, employees, settings);
+      setIsExportModalOpen(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+      // Ideally show a toast here
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -119,6 +150,16 @@ function App() {
     }
   };
 
+
+  const requestLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    handleLogout();
+  };
+
   // Derived State
   const totalDebt = useMemo(() => {
     return shifts
@@ -137,7 +178,8 @@ function App() {
             shifts={shifts}
             settings={settings}
             loading={loading}
-            onLogout={handleLogout}
+
+            onLogout={requestLogout}
             onNavigateToSettings={() => setActiveTab('settings')}
             currentDate={viewDate}
           />
@@ -175,7 +217,8 @@ function App() {
           <SettingsView
             user={user}
             settings={settings}
-            onLogout={handleLogout}
+
+            onLogout={requestLogout}
           />
         );
       default:
@@ -201,8 +244,16 @@ function App() {
         <AppContent
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          handleLogout={handleLogout}
+          onLogout={requestLogout}
           renderContent={() => renderContent(isLoading)}
+          user={user}
+          onOpenExport={handleOpenExport}
+          isExportModalOpen={isExportModalOpen}
+          setIsExportModalOpen={setIsExportModalOpen}
+          onExportReport={handleExportReport}
+          showLogoutConfirm={showLogoutConfirm}
+          onCloseLogoutConfirm={() => setShowLogoutConfirm(false)}
+          onConfirmLogout={confirmLogout}
         />
       )}
     </ToastProvider>
@@ -213,22 +264,82 @@ function App() {
 function AppContent({
   activeTab,
   setActiveTab,
-  handleLogout,
+  onLogout,
   renderContent,
+  user,
+  onOpenExport,
+  isExportModalOpen,
+  setIsExportModalOpen,
+  onExportReport,
+  showLogoutConfirm,
+  onCloseLogoutConfirm,
+  onConfirmLogout
 }: {
   activeTab: Tab;
   setActiveTab: (tab: Tab) => void;
-  handleLogout: () => void;
+  onLogout: () => void;
   renderContent: () => React.ReactNode;
+  user: any;
+  onOpenExport: () => void;
+  isExportModalOpen: boolean;
+  setIsExportModalOpen: (open: boolean) => void;
+  onExportReport: (month: number, year: number) => void;
+  showLogoutConfirm: boolean;
+  onCloseLogoutConfirm: () => void;
+  onConfirmLogout: () => void;
 }) {
   const { theme } = useTheme();
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <Navbar currentTab={activeTab} setTab={(t) => setActiveTab(t as Tab)} onLogout={handleLogout} />
+      <TopBar
+        user={user}
+        onOpenExport={onOpenExport}
+        onNavigateToSettings={() => setActiveTab('settings')}
+        onLogout={onLogout}
+      />
+      <Navbar
+        currentTab={activeTab}
+        setTab={(t) => setActiveTab(t as Tab)}
+        onLogout={onLogout}
+        onOpenExport={onOpenExport}
+      />
       <main>
         {renderContent()}
       </main>
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={onExportReport}
+      />
+
+      <Modal
+        title="Xác nhận đăng xuất"
+        isOpen={showLogoutConfirm}
+        onClose={onCloseLogoutConfirm}
+        footer={
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={onCloseLogoutConfirm}
+              className="flex-1"
+              hideIcon
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="danger"
+              onClick={onConfirmLogout}
+              className="flex-1"
+            >
+              Đăng xuất
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+      </Modal>
     </div>
   );
 }

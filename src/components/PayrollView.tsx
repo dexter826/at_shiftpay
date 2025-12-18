@@ -142,14 +142,8 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         <div className="flex justify-between items-center">
           <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
           {activeTab === 'payroll' && summary.length > 0 && (
-            <Button
-              onClick={() => exportPayrollToExcel(summary, shifts)}
-              className="font-medium"
-              variant="secondary"
-            >
-              <FileDown size={16} className="text-white" />
-              <span className="hidden sm:inline text-white">Xuất Excel</span>
-            </Button>
+            // Button previously here was removed for global placement
+            null
           )}
         </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">

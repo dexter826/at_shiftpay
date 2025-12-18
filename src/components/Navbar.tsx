@@ -1,14 +1,15 @@
 import React from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon, FileDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface NavbarProps {
   currentTab: string;
   setTab: (tab: string) => void;
   onLogout: () => void;
+  onOpenExport: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout, onOpenExport }) => {
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
@@ -64,6 +65,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         {/* Desktop Footer */}
         <div className={`p-4 border-t ${borderColor}`}>
           <button
+            onClick={onOpenExport}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${textMuted} ${hoverText} ${hoverBg} mb-1`}
+          >
+            <FileDown size={18} />
+            <span>Xuất Báo Cáo</span>
+          </button>
+
+          <button
             onClick={toggleTheme}
             className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${textMuted} ${hoverText} ${hoverBg} mb-1`}
           >
@@ -72,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </button>
           <button
             onClick={onLogout}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10`}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10`}
           >
             <LogOut size={18} />
             <span>Đăng xuất</span>

@@ -81,15 +81,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
     const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long' }).format(new Date());
 
-    const handleLogoutClick = () => {
-        setLogoutConfirm(true);
-    };
-
-    const confirmLogout = () => {
-        setLogoutConfirm(false);
-        onLogout();
-    };
-
     const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
     const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
     const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
@@ -139,8 +130,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
     return (
         <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
-            {/* Header với thông tin user */}
-            <div className={`p-4 md:p-6 border-b ${borderClass}`}>
+            {/* Header section removed - moved to global TopBar */}
+            {/* Desktop Only Header for Greeting */}
+            <div className={`hidden md:block p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-[#ecb52d]" />
@@ -150,20 +142,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                 {user?.displayName || user?.email?.split('@')[0] || 'Người dùng'}
                             </h2>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-2 md:hidden">
-                        <button
-                            onClick={onNavigateToSettings}
-                            className={`p-2 ${textSecondaryClass} hover:text-[#ecb52d] transition-colors`}
-                        >
-                            <Settings size={20} />
-                        </button>
-                        <button
-                            onClick={handleLogoutClick}
-                            className={`p-2 ${textSecondaryClass} hover:text-red-400 transition-colors`}
-                        >
-                            <LogOut size={20} />
-                        </button>
                     </div>
                 </div>
             </div>
@@ -304,34 +282,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
                 </div>
             </div>
-
-            {/* Logout Confirm Modal */}
-            <Modal
-                title="Xác nhận đăng xuất"
-                isOpen={logoutConfirm}
-                onClose={() => setLogoutConfirm(false)}
-                footer={
-                    <div className="flex gap-2">
-                        <Button
-                            variant="secondary"
-                            onClick={() => setLogoutConfirm(false)}
-                            className="flex-1"
-                            hideIcon
-                        >
-                            Hủy
-                        </Button>
-                        <Button
-                            variant="danger"
-                            onClick={confirmLogout}
-                            className="flex-1"
-                        >
-                            Đăng xuất
-                        </Button>
-                    </div>
-                }
-            >
-                <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
-            </Modal>
         </div >
     );
 };
