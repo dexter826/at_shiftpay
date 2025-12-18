@@ -244,8 +244,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
     : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
   const cardBgClass = isDark
-    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-800'
-    : 'bg-white shadow-2xl shadow-slate-200/50';
+    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700'
+    : 'bg-white border border-slate-200 shadow-2xl shadow-slate-200/50';
   const textPrimaryClass = isDark ? 'text-slate-200' : 'text-slate-800';
   const textMutedClass = isDark ? 'text-slate-400' : 'text-slate-500';
   const inputBorderClass = isDark ? 'border-slate-700' : 'border-slate-200';

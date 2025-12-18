@@ -126,6 +126,42 @@ export const dbService = {
     await batch.commit();
   },
 
+  // Smart update event and shifts (create, update, delete)
+  async batchUpdateEvent(
+    eventId: string,
+    eventData: Partial<Event>,
+    shifts: {
+      create: Omit<Shift, 'id'>[],
+      update: { id: string, data: Partial<Shift> }[],
+      delete: string[]
+    }
+  ): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Update event
+    const eventRef = doc(db, 'events', eventId);
+    batch.update(eventRef, eventData);
+
+    // Create new shifts
+    shifts.create.forEach(shiftData => {
+      const shiftRef = doc(collection(db, 'shifts'));
+      batch.set(shiftRef, { ...shiftData, eventId });
+    });
+
+    // Update existing shifts
+    shifts.update.forEach(({ id, data }) => {
+      const shiftRef = doc(db, 'shifts', id);
+      batch.update(shiftRef, data);
+    });
+
+    // Delete removed shifts
+    shifts.delete.forEach(id => {
+      batch.delete(doc(db, 'shifts', id));
+    });
+
+    await batch.commit();
+  },
+
   // Delete event and all its shifts in one batch (atomic operation)
   async deleteEventWithShifts(eventId: string, shiftIds: string[]): Promise<void> {
     const batch = writeBatch(db);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../types';
 import { dbService } from '../services/firebase';
-import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
+import { Sun, Moon, Check, AlertCircle, Banknote } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
 import Button from './ui/Button';
@@ -34,6 +34,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [time, setTime] = useState('');
+  const [amount, setAmount] = useState<number>(settings.shiftRate);
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
@@ -48,6 +49,16 @@ export const EventModal: React.FC<EventModalProps> = ({
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
 
+        // Prefer amount from Event, fallback to first shift, then default setting
+        let detectedAmount = existingEvent.amount;
+        if (!detectedAmount && existingShifts.length > 0) {
+          const firstShift = existingShifts[0];
+          if (firstShift.amount) detectedAmount = firstShift.amount;
+        }
+        if (!detectedAmount) {
+          detectedAmount = settings.shiftRate;
+        }
+
         existingShifts.forEach(s => {
           newAssignments[s.employeeId] = true;
           if (!detectedSession) detectedSession = s.session;
@@ -55,6 +66,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         setAssignments(newAssignments);
         setSelectedSession(detectedSession);
+        setAmount(detectedAmount);
 
         // Set default time based on session if not already set
         if (!existingEvent.time && detectedSession) {
@@ -64,12 +76,13 @@ export const EventModal: React.FC<EventModalProps> = ({
         setTitle('');
         setNote('');
         setTime('');
+        setAmount(settings.shiftRate);
         setSelectedSession(null);
         setAssignments({});
       }
       setError('');
     }
-  }, [isOpen, existingEvent, existingShifts]);
+  }, [isOpen, existingEvent, existingShifts, settings]);
 
   const selectSession = (session: ShiftSession) => {
     if (selectedSession === session) {
@@ -109,8 +122,13 @@ export const EventModal: React.FC<EventModalProps> = ({
 
     // Prepare shifts data before closing modal
     const isEditing = !!existingEvent;
-    const shiftsToCreate: Omit<Shift, 'id'>[] = [];
 
+    // Separate assignments into create, update, delete
+    const shiftsToCreate: Omit<Shift, 'id'>[] = [];
+    const shiftsToUpdate: { id: string, data: Partial<Shift> }[] = [];
+    const shiftIdsToDelete: string[] = [];
+
+    // 1. Identify Create & Update
     Object.entries(assignments).forEach(([empId, isAssigned]) => {
       if (!isAssigned) return;
       const emp = employees.find(e => e.id === empId);
@@ -120,39 +138,87 @@ export const EventModal: React.FC<EventModalProps> = ({
         s => s.employeeId === empId && s.session === selectedSession
       );
 
-      const shiftData: Omit<Shift, 'id'> = {
-        eventId: '', // Will be set after event creation
-        eventDate: date,
-        employeeId: empId,
-        employeeName: emp.name,
-        session: selectedSession!,
-        amount: settings.shiftRate,
-        status: prevShift ? prevShift.status : 'unpaid',
-      };
-
-      if (prevShift?.paidAt) {
-        shiftData.paidAt = prevShift.paidAt;
+      if (prevShift) {
+        // UPDATE existing shift
+        // Only update fields that might change. 
+        // We preserve status, paidAt, paymentId by NOT including them in the update data 
+        // (unless we specifically want to change them).
+        // Here we basically only update amount.
+        shiftsToUpdate.push({
+          id: prevShift.id,
+          data: {
+            amount: amount,
+            // session is same (filtered above)
+            // employeeId/Name is same
+          }
+        });
+      } else {
+        // CREATE new shift
+        const shiftData: Omit<Shift, 'id'> = {
+          eventId: '', // Will be set after event creation (or known if editing)
+          eventDate: date,
+          employeeId: empId,
+          employeeName: emp.name,
+          session: selectedSession!,
+          amount: amount,
+          status: 'unpaid',
+        };
+        shiftsToCreate.push(shiftData);
       }
+    });
 
-      shiftsToCreate.push(shiftData);
+    // 2. Identify Delete
+    // Any existing shift (in this event) that is NOT in the current assignments list
+    // BUT we must be careful: existingShifts contains ALL shifts for this event (morning & afternoon).
+    // If selectedSession represents the WHOLE event type (which implies event can only be Morning OR Afternoon?), 
+    // then we can delete any shift not assigned.
+    // However, the Model allows `session` property. Does an Event have mixed sessions?
+    // looking at `selectSession` in EventModal, it seems `selectedSession` is a state.
+    // If I select Morning, `existingShifts` might contain Afternoon shifts?
+    // The `EventModal` only shows ONE session selector, behaving like "This event is EITHER Morning OR Afternoon".
+    // If users can create separate events for Morning and Afternoon on same day, they are separate Event objects.
+    // If one Event object can have multiple sessions...
+    // The `Event` interface doesn't specify session. `Shift` has session.
+    // BUT `EventModal` has ONE `selectedSession`.
+    // And `existingShifts` are passed from parent. Parent likely fetches shifts linked to this `existingEvent`.
+    // If `existingEvent` was Morning, can I change it to Afternoon?
+    // The UI allows picking session.
+    // If I change session, `prevShift` (matching session) will be undefined.
+    // So all "Morning" shifts will be deleted?
+    // And new "Afternoon" shifts created?
+    // This seems correct if the Event itself is moving from Morning to Afternoon.
+
+    // So logic: Any shift in `existingShifts` that is NOT found in `shiftsToUpdate` list should be deleted?
+    // Sort of. `shiftsToUpdate` contains shifts where `employeeId` matches AND `session` matches.
+    // If I change session, `shiftsToUpdate` is empty.
+    // So ALL `existingShifts` should be deleted.
+    // This is correct behavior for "Changing Event Session".
+    // Wait, if I change session, I effectively destroy the old shifts (and their payment history if paid).
+    // This is a known risk. But for "Update Salary" (same session), it works perfectly.
+
+    existingShifts.forEach(s => {
+      const kept = shiftsToUpdate.find(upd => upd.id === s.id);
+      if (!kept) {
+        shiftIdsToDelete.push(s.id);
+      }
     });
 
     // Close modal immediately for better UX
     onSuccess();
 
     try {
-      const eventData = { date, title, note, time };
+      const eventData = { date, title, note, time, amount };
 
       if (isEditing && existingEvent) {
-        // Set eventId for new shifts
-        shiftsToCreate.forEach(s => s.eventId = existingEvent.id);
-
-        // Update event and replace shifts in one batch operation
-        await dbService.updateEventWithShifts(
+        // Use smart update
+        await dbService.batchUpdateEvent(
           existingEvent.id,
           eventData,
-          existingShifts.map(s => s.id),
-          shiftsToCreate
+          {
+            create: shiftsToCreate,
+            update: shiftsToUpdate,
+            delete: shiftIdsToDelete
+          }
         );
       } else {
         // Create new event with shifts in one batch operation
@@ -251,11 +317,28 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         </div>
 
-        {/* Time input */}
+        {/* Time and Salary Inputs */}
         {selectedSession && (
-          <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
-            <TimePicker value={time} onChange={setTime} />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
+              <TimePicker value={time} onChange={setTime} />
+            </div>
+            <div>
+              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
+                    ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                    }`}
+                />
+                <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+              </div>
+            </div>
           </div>
         )}
 

@@ -12,6 +12,7 @@ export interface Event {
   time?: string; // HH:mm
   title: string;
   note?: string;
+  amount?: number; // Salary rate for this event
 }
 
 export type ShiftSession = 'morning' | 'afternoon';

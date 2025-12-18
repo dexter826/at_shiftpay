@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../types';
-import { formatDate } from '../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock } from 'lucide-react';
+import { formatDate, formatCurrency } from '../constants';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote } from 'lucide-react';
 import { EventModal } from './EventModal';
 import { dbService } from '../services/firebase';
 import { useToast } from './ui/Toast';
@@ -310,7 +310,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               variant="secondary"
               onClick={() => setDeleteConfirm(null)}
               className="flex-1"
-              hideIcon
             >
               Hủy
             </Button>
@@ -342,8 +341,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   setViewingEvent(null);
                 }
               }}
-              className="flex-1 flex items-center justify-center gap-2"
-              hideIcon
+              className="flex-1"
             >
               <Edit2 size={14} />
               Sửa
@@ -356,7 +354,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   setViewingEvent(null);
                 }
               }}
-              className="flex-1 flex items-center justify-center gap-2"
+              className="flex-1"
             >
               <Trash2 size={14} />
               Xóa
@@ -380,6 +378,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Salary Field */}
+            <div>
+              <p className={`text-xs ${textMutedClass} mb-1`}>Lương / 1 ca</p>
+              <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
+                <Banknote size={14} className="text-green-500" />
+                {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
+              </p>
             </div>
 
             {viewingEvent.note && (
