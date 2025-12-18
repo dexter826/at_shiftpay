@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface TimePickerProps {
     value: string; // HH:mm format
@@ -8,6 +9,7 @@ interface TimePickerProps {
 }
 
 export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = '' }) => {
+    const { theme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,82 +47,95 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
     return (
         <div ref={containerRef} className={`relative ${className}`}>
             {/* Display button */}
+            {/* Display button */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-slate-600 flex items-center justify-between"
+                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none flex items-center justify-between ${theme === 'dark'
+                    ? 'bg-slate-800 border-slate-700 text-slate-200 focus:border-slate-600'
+                    : 'bg-white border-slate-300 text-slate-700 focus:border-slate-400'
+                    }`}
             >
                 <span className="flex items-center gap-2">
-                    <Clock size={14} className="text-slate-500" />
+                    <Clock size={14} className={theme === 'dark' ? 'text-slate-500' : 'text-slate-400'} />
                     {formatNumber(hours)}:{formatNumber(minutes)}
                 </span>
-                <ChevronDown size={14} className={`text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
             </button>
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 z-50 shadow-lg">
+                <div className={`absolute top-full left-0 right-0 mt-1 border rounded-lg p-3 z-50 shadow-lg ${theme === 'dark'
+                    ? 'bg-slate-800 border-slate-700'
+                    : 'bg-white border-slate-200 shadow-xl'
+                    }`}>
                     <div className="flex items-center justify-center gap-4">
                         {/* Hours */}
                         <div className="flex flex-col items-center">
                             <button
                                 type="button"
                                 onClick={incrementHours}
-                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
+                                className={`p-1 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-[#ecb52d]' : 'text-slate-500 hover:text-[#ecb52d]'}`}
                             >
                                 <ChevronUp size={18} />
                             </button>
-                            <div className="w-12 h-10 flex items-center justify-center bg-slate-700 rounded-lg text-lg font-medium text-slate-200">
+                            <div className={`w-12 h-10 flex items-center justify-center rounded-lg text-lg font-medium ${theme === 'dark'
+                                ? 'bg-slate-700 text-slate-200'
+                                : 'bg-slate-100 text-slate-800'
+                                }`}>
                                 {formatNumber(hours)}
                             </div>
                             <button
                                 type="button"
                                 onClick={decrementHours}
-                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
+                                className={`p-1 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-[#ecb52d]' : 'text-slate-500 hover:text-[#ecb52d]'}`}
                             >
                                 <ChevronDown size={18} />
                             </button>
-                            <span className="text-[10px] text-slate-500 mt-1">Giờ</span>
+                            <span className={`text-[10px] mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Giờ</span>
                         </div>
 
-                        <span className="text-xl text-slate-500 font-medium">:</span>
+                        <span className={`text-xl font-medium ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>:</span>
 
                         {/* Minutes */}
                         <div className="flex flex-col items-center">
                             <button
                                 type="button"
                                 onClick={incrementMinutes}
-                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
+                                className={`p-1 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-[#ecb52d]' : 'text-slate-500 hover:text-[#ecb52d]'}`}
                             >
                                 <ChevronUp size={18} />
                             </button>
-                            <div className="w-12 h-10 flex items-center justify-center bg-slate-700 rounded-lg text-lg font-medium text-slate-200">
+                            <div className={`w-12 h-10 flex items-center justify-center rounded-lg text-lg font-medium ${theme === 'dark'
+                                ? 'bg-slate-700 text-slate-200'
+                                : 'bg-slate-100 text-slate-800'
+                                }`}>
                                 {formatNumber(minutes)}
                             </div>
                             <button
                                 type="button"
                                 onClick={decrementMinutes}
-                                className="p-1 text-slate-400 hover:text-[#ecb52d] transition-colors"
+                                className={`p-1 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-[#ecb52d]' : 'text-slate-500 hover:text-[#ecb52d]'}`}
                             >
                                 <ChevronDown size={18} />
                             </button>
-                            <span className="text-[10px] text-slate-500 mt-1">Phút</span>
+                            <span className={`text-[10px] mt-1 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Phút</span>
                         </div>
                     </div>
 
                     {/* Quick select */}
-                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
+                    <div className={`flex gap-2 mt-3 pt-3 border-t ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'}`}>
                         <button
                             type="button"
                             onClick={() => { onChange('07:30'); setIsOpen(false); }}
-                            className="flex-1 py-1.5 text-xs bg-orange-500/10 text-orange-500 rounded hover:bg-orange-500/20 transition-colors"
+                            className="flex-1 py-1.5 text-xs bg-orange-500/10 text-orange-500 rounded hover:bg-orange-500/20 transition-colors border border-transparent"
                         >
                             7:30
                         </button>
                         <button
                             type="button"
                             onClick={() => { onChange('13:30'); setIsOpen(false); }}
-                            className="flex-1 py-1.5 text-xs bg-[#ecb52d]/10 text-[#ecb52d] rounded hover:bg-[#ecb52d]/20 transition-colors"
+                            className="flex-1 py-1.5 text-xs bg-[#ecb52d]/10 text-[#ecb52d] rounded hover:bg-[#ecb52d]/20 transition-colors border border-transparent"
                         >
                             13:30
                         </button>

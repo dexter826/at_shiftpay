@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../types';
 import { dbService } from '../services/firebase';
 import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
 import { TimePicker } from './ui/TimePicker';
 import { useToast } from './ui/Toast';
@@ -27,6 +28,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { theme } = useTheme();
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
@@ -188,36 +190,44 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         {/* Event Info */}
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Tên sự kiện</label>
+          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
           <input
             type="text"
             placeholder="Đám cưới Nhà A"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600"
+            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
+              ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+              }`}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Ghi chú</label>
+          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ghi chú</label>
           <textarea
             placeholder="Ghi chú..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="w-full p-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-600 h-16 resize-none"
+            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${theme === 'dark'
+              ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+              }`}
           />
         </div>
 
         {/* Sessions - Radio style (chỉ chọn 1) */}
         <div>
-          <label className="block text-xs text-slate-400 mb-1.5">Ca làm việc</label>
+          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => selectSession('morning')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'morning'
                 ? 'border-orange-500/50 bg-orange-500/10 text-orange-500'
-                : 'border-slate-700 text-slate-500 hover:border-slate-600'
+                : theme === 'dark'
+                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                 }`}
             >
               <Sun size={16} />
@@ -228,7 +238,9 @@ export const EventModal: React.FC<EventModalProps> = ({
               onClick={() => selectSession('afternoon')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'afternoon'
                 ? 'border-[#ecb52d]/50 bg-[#ecb52d]/10 text-[#ecb52d]'
-                : 'border-slate-700 text-slate-500 hover:border-slate-600'
+                : theme === 'dark'
+                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                 }`}
             >
               <Moon size={16} />
@@ -240,7 +252,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Time input */}
         {selectedSession && (
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Thời gian bắt đầu</label>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
             <TimePicker value={time} onChange={setTime} />
           </div>
         )}
@@ -248,8 +260,11 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Assignments - Round checkbox at end */}
         {selectedSession && (
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Chấm công</label>
-            <div className="border border-slate-700 rounded-lg divide-y divide-slate-700 max-h-48 overflow-y-auto">
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chấm công</label>
+            <div className={`border rounded-lg divide-y max-h-48 overflow-y-auto ${theme === 'dark'
+              ? 'border-slate-700 divide-slate-700'
+              : 'border-slate-200 divide-slate-100'
+              }`}>
               {employees.length === 0 ? (
                 <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
               ) : (
@@ -257,13 +272,16 @@ export const EventModal: React.FC<EventModalProps> = ({
                   <div
                     key={emp.id}
                     onClick={() => toggleAssignment(emp.id)}
-                    className="p-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/50"
+                    className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
+                      ? 'hover:bg-slate-800/50'
+                      : 'hover:bg-slate-50'
+                      }`}
                   >
-                    <span className="text-sm text-slate-300 truncate flex-1">{emp.name}</span>
+                    <span className={`text-sm truncate flex-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{emp.name}</span>
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
                         ? 'bg-[#ecb52d] border-[#ecb52d]'
-                        : 'border-slate-600'
+                        : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
                         }`}
                     >
                       {assignments[emp.id] && <Check size={12} className="text-white" />}

@@ -126,7 +126,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                         <div className={`p-4 border-b ${border}`}>
                             <div className="flex items-center justify-between mb-2">
                                 <label className={`font-medium ${textMain}`}>Mức lương / ca</label>
-                                <span className={`text-xs ${textSub} bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded`}>VNĐ</span>
+                                <span className={`text-xs ${textSub} px-2 py-1 rounded ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-100'}`}>VNĐ</span>
                             </div>
                             <input
                                 type="number"

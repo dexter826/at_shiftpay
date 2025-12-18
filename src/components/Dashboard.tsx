@@ -99,7 +99,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             <div className={`p-4 md:p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+                        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-[#ecb52d]" />
                         <div>
                             <p className={`text-sm ${textSecondaryClass}`}>Xin chào,</p>
                             <h2 className={`text-lg font-semibold ${textPrimaryClass}`}>
