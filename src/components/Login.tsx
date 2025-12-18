@@ -298,7 +298,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
           </div>
 
-          <h2 className={`text-2xl font-bold ${textPrimaryClass} mb-8`}>
+          <h2 className="text-5xl font-retro text-[#ecb52d] mb-8 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide">
             {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
           </h2>
 
@@ -407,7 +407,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {/* Code input (signup only) */}
             {isSignUp && (
               <div>
-                <label className={`block text-xs ${textMutedClass} mb-2`}>Nhập 4 số là địa chỉ Bếp</label>
+                <label className={`block text-xs ${textMutedClass} mb-2`}>Nhập 4 số là địa chỉ "Bếp"</label>
                 <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
                   {codeDigits.map((digit, index) => (
                     <input
