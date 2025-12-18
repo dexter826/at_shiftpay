@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Shift, PayrollSummary, PaymentTransaction } from '../types';
 import { formatCurrency, formatDate } from '../constants';
 import { dbService } from '../services/firebase';
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays } from 'lucide-react';
+import { exportPayrollToExcel } from '../services/excel';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
 import { useTheme } from '../contexts/ThemeContext';
@@ -137,7 +138,18 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
     <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
       {/* Header */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
-        <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
+        <div className="flex justify-between items-center">
+          <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
+          {activeTab === 'payroll' && summary.length > 0 && (
+            <button
+              onClick={() => exportPayrollToExcel(summary, shifts)}
+              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors shadow-sm"
+            >
+              <FileDown size={16} />
+              <span className="hidden sm:inline">Xuất Excel</span>
+            </button>
+          )}
+        </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
           <div className="flex justify-between items-center">
             <div>

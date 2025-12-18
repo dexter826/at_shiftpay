@@ -70,6 +70,7 @@ npm run build
 │   ├── CalendarView.tsx # Lịch và sự kiện
 │   ├── EmployeeManager.tsx # Quản lý nhân viên
 │   ├── PayrollView.tsx  # Thanh toán lương
+│   ├── SettingView.tsx  # Cài đặt
 │   └── ui/             # Component UI tái sử dụng
 ├── contexts/           # React Context (Theme)
 ├── services/           # Firebase services
