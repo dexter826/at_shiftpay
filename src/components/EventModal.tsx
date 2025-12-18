@@ -4,6 +4,7 @@ import { dbService } from '../services/firebase';
 import { Sun, Moon, Check, AlertCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
+import Button from './ui/Button';
 import { TimePicker } from './ui/TimePicker';
 import { useToast } from './ui/Toast';
 
@@ -171,13 +172,14 @@ export const EventModal: React.FC<EventModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       footer={
-        <button
+        <Button
           onClick={handleSubmit}
-          className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors flex justify-center items-center gap-2"
+          className=""
+          fullWidth
         >
-          <Check size={16} />
+          <Check size={16} className="text-white" />
           {existingEvent ? "Cập nhật" : "Lưu"}
-        </button>
+        </Button>
       }
     >
       <div className="space-y-4">

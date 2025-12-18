@@ -6,6 +6,7 @@ import { EventModal } from './EventModal';
 import { dbService } from '../services/firebase';
 import { useToast } from './ui/Toast';
 import { Modal } from './ui/Modal';
+import Button from './ui/Button';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface CalendarViewProps {
@@ -305,18 +306,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         onClose={() => setDeleteConfirm(null)}
         footer={
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setDeleteConfirm(null)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
+              className="flex-1"
+              hideIcon
             >
               Hủy
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
               onClick={confirmDeleteEvent}
-              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+              className="flex-1"
             >
               Xóa
-            </button>
+            </Button>
           </div>
         }
       >
@@ -330,30 +334,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         onClose={() => setViewingEvent(null)}
         footer={
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => {
                 if (viewingEvent) {
                   handleEditEvent(viewingEvent);
                   setViewingEvent(null);
                 }
               }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors flex items-center justify-center gap-2`}
+              className="flex-1 flex items-center justify-center gap-2"
+              hideIcon
             >
               <Edit2 size={14} />
               Sửa
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
               onClick={() => {
                 if (viewingEvent) {
                   handleDeleteEvent(viewingEvent.id);
                   setViewingEvent(null);
                 }
               }}
-              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 flex items-center justify-center gap-2"
             >
               <Trash2 size={14} />
               Xóa
-            </button>
+            </Button>
           </div>
         }
       >

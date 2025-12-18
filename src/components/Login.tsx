@@ -5,6 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
 
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import Button from './ui/Button';
 
 interface LoginProps {
   onLogin: () => void;
@@ -458,13 +459,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#ecb52d] hover:bg-[#d4a128] text-white py-3 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              fullWidth
+              className="mt-4"
             >
               {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
-            </button>
+            </Button>
           </form>
 
           {/* Mobile switch mode */}

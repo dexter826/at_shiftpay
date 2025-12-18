@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from './ui/Modal';
+import Button from './ui/Button';
 import { useTheme } from '../contexts/ThemeContext';
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { auth } from '../firebase';
@@ -12,11 +13,11 @@ interface ChangePasswordModalProps {
 
 export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClose }) => {
   const { theme } = useTheme();
-  
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -29,7 +30,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
   const inputBorderClass = theme === 'dark' ? 'border-slate-600' : 'border-gray-300';
   const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-gray-500';
   const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-gray-800';
-  
+
   const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} placeholder-gray-400 focus:outline-none text-sm`;
 
   const resetForm = () => {
@@ -106,7 +107,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
       }
     } finally {
       if (!success) { // logic check to avoid overwriting success loading state if needed, but simple setLoading(false) is fine here usually unless dealing with async success close
-         setLoading(false);
+        setLoading(false);
       }
     }
   };
@@ -118,20 +119,22 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
       onClose={handleClose}
       footer={
         <div className="flex gap-2 w-full">
-          <button
+          <Button
+            variant="secondary"
             onClick={handleClose}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${theme === 'dark' ? 'border-slate-600 hover:bg-slate-700 text-slate-300' : 'border-gray-300 hover:bg-gray-100 text-gray-700'} transition-colors`}
+            className="flex-1"
             disabled={loading}
+            hideIcon
           >
             Hủy
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            className="flex-1 bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1"
             disabled={loading}
           >
             {loading ? 'Đang xử lý...' : 'Cập nhật'}
-          </button>
+          </Button>
         </div>
       }
     >
@@ -142,7 +145,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             <p>{error}</p>
           </div>
         )}
-        
+
         {success && (
           <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 text-green-500 text-sm rounded-lg">
             <AlertCircle size={16} />

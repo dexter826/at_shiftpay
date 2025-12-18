@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { Modal } from './ui/Modal';
+import Button from './ui/Button';
 import { useToast } from './ui/Toast';
 
 interface ForgotPasswordModalProps {
@@ -47,14 +48,15 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
             isOpen={isOpen}
             onClose={onClose}
             footer={
-                <button
+                <Button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    fullWidth
+                    className=""
                 >
                     {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
                     Gửi yêu cầu
-                </button>
+                </Button>
             }
         >
             <div className="space-y-4">

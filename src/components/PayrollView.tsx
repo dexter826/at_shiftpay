@@ -5,6 +5,7 @@ import { dbService } from '../services/firebase';
 import { exportPayrollToExcel } from '../services/excel';
 import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import Button from './ui/Button';
 import { useToast } from './ui/Toast';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -141,13 +142,14 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         <div className="flex justify-between items-center">
           <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
           {activeTab === 'payroll' && summary.length > 0 && (
-            <button
+            <Button
               onClick={() => exportPayrollToExcel(summary, shifts)}
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors shadow-sm"
+              className="font-medium"
+              variant="secondary"
             >
-              <FileDown size={16} />
-              <span className="hidden sm:inline">Xuất Excel</span>
-            </button>
+              <FileDown size={16} className="text-white" />
+              <span className="hidden sm:inline text-white">Xuất Excel</span>
+            </Button>
           )}
         </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
@@ -289,13 +291,13 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         onClose={() => setSelectedEmpId(null)}
         footer={
           selectedEmployeeSummary && selectedEmployeeSummary.totalUnpaid > 0 ? (
-            <button
+            <Button
               onClick={handlePay}
-              className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors flex justify-center items-center gap-2"
+              fullWidth
             >
-              <Banknote size={16} />
+              <Banknote size={16} className="text-white" />
               Thanh toán {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
-            </button>
+            </Button>
           ) : null
         }
       >
@@ -381,18 +383,20 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         onClose={() => setPayConfirm(false)}
         footer={
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setPayConfirm(false)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
+              className="flex-1"
+              hideIcon
             >
               Hủy
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={confirmPay}
-              className="flex-1 bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors"
+              className="flex-1"
             >
               Xác nhận
-            </button>
+            </Button>
           </div>
         }
       >

@@ -5,6 +5,7 @@ import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings 
 import { useTheme } from '../contexts/ThemeContext';
 import { Modal } from './ui/Modal';
 import { Skeleton } from './ui/Skeleton';
+import Button from './ui/Button';
 
 interface DashboardProps {
     user: any;
@@ -311,18 +312,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                 onClose={() => setLogoutConfirm(false)}
                 footer={
                     <div className="flex gap-2">
-                        <button
+                        <Button
+                            variant="secondary"
                             onClick={() => setLogoutConfirm(false)}
-                            className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+                            className="flex-1"
+                            hideIcon
                         >
                             Hủy
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            variant="danger"
                             onClick={confirmLogout}
-                            className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                            className="flex-1"
                         >
                             Đăng xuất
-                        </button>
+                        </Button>
                     </div>
                 }
             >

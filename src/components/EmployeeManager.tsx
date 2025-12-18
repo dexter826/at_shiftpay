@@ -5,6 +5,7 @@ import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase } from 'lucide
 import { Skeleton } from './ui/Skeleton';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
+import Button from './ui/Button';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface EmployeeManagerProps {
@@ -161,14 +162,14 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               {loading ? <Skeleton width={100} height={14} /> : `${employees.length} nhân viên`}
             </p>
           </div>
-          <button
+          <Button
             onClick={openAddModal}
             disabled={loading}
-            className="bg-[#ecb52d] text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-[#d4a128] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2"
           >
-            <UserPlus size={16} />
+            <UserPlus size={16} className="inline mr-2" />
             <span className="hidden sm:inline">Thêm mới</span>
-          </button>
+          </Button>
         </div>
 
         {/* Search */}
@@ -275,12 +276,12 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         footer={
-          <button
+          <Button
             onClick={handleSubmit}
-            className="w-full bg-[#ecb52d] text-white py-2.5 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors"
+            fullWidth
           >
             Lưu
-          </button>
+          </Button>
         }
       >
         <form className="space-y-4">
@@ -330,18 +331,21 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         onClose={() => setDeleteConfirm(null)}
         footer={
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setDeleteConfirm(null)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
+              className="flex-1"
+              hideIcon
             >
               Hủy
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
               onClick={confirmDelete}
-              className="flex-1 bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+              className="flex-1"
             >
               Xóa
-            </button>
+            </Button>
           </div>
         }
       >
@@ -354,12 +358,14 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         isOpen={!!deleteError}
         onClose={() => setDeleteError(null)}
         footer={
-          <button
+          <Button
+            variant="secondary"
             onClick={() => setDeleteError(null)}
-            className={`w-full py-2.5 rounded-lg text-sm font-medium ${theme === 'dark' ? 'bg-slate-700 text-slate-200 hover:bg-slate-600' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'} transition-colors`}
+            fullWidth
+            hideIcon
           >
             Đã hiểu
-          </button>
+          </Button>
         }
       >
         <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{deleteError}</p>

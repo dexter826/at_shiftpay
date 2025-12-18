@@ -3,6 +3,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { UserSettings } from '../types';
 import { dbService } from '../services/firebase';
 import { useToast } from './ui/Toast';
+import Button from './ui/Button';
 import { TimePicker } from './ui/TimePicker';
 import { ChangePasswordModal } from './ChangePasswordModal';
 import {
@@ -75,14 +76,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                 <div className="flex items-center justify-between">
                     <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
                     {hasChanges && (
-                        <button
+                        <Button
                             onClick={handleSaveSettings}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-[#ecb52d] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#d4a128] transition-colors shadow-lg shadow-orange-500/20"
+                            className=""
                         >
-                            <Save size={18} />
-                            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-                        </button>
+                            <Save size={18} className="text-white" />
+                            <span className="text-white">{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
+                        </Button>
                     )}
                 </div>
 
