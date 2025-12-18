@@ -3,7 +3,7 @@ import { Shift, PayrollSummary, PaymentTransaction } from '../types';
 import { formatCurrency, formatDate } from '../constants';
 import { dbService } from '../services/firebase';
 import { exportPayrollToExcel } from '../services/excel';
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import Button from './ui/Button';
 import { useToast } from './ui/Toast';
@@ -389,6 +389,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
               onClick={confirmPay}
               className="flex-1"
             >
+              <Check size={16} />
               Xác nhận
             </Button>
           </div>

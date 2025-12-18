@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from './ui/Modal';
 import Button from './ui/Button';
 import { useTheme } from '../contexts/ThemeContext';
-import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
 import { auth } from '../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
@@ -133,6 +133,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             className="flex-1"
             disabled={loading}
           >
+            {!loading && <Check size={16} />}
             {loading ? 'Đang xử lý...' : 'Cập nhật'}
           </Button>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Employee, Shift } from '../types';
 import { dbService } from '../services/firebase';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check } from 'lucide-react';
 import { Skeleton } from './ui/Skeleton';
 import { Modal } from './ui/Modal';
 import { useToast } from './ui/Toast';
@@ -165,9 +165,9 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           <Button
             onClick={openAddModal}
             disabled={loading}
-            className="flex items-center gap-2"
+            className=""
           >
-            <UserPlus size={16} className="inline mr-2" />
+            <UserPlus size={16} />
             <span className="hidden sm:inline">Thêm mới</span>
           </Button>
         </div>
@@ -280,6 +280,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             onClick={handleSubmit}
             fullWidth
           >
+            <Check size={16} />
             Lưu
           </Button>
         }
