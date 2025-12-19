@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     <>
       {/* Sidebar Desktop */}
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
-        <div className={`p-5 border-b ${borderColor}`}>
+        <div className={`p-5 border-b ${borderColor} flex flex-col items-center`}>
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
           <span className="text-[11px] text-slate-500 mt-0.5 block">
             Made by{' '}

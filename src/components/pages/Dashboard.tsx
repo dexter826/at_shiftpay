@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import { Skeleton } from '../ui/Skeleton';
@@ -22,19 +22,32 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
     const { theme, toggleTheme } = useThemeStyles();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const currentMonth = selectedDate.getMonth();
+    const currentYear = selectedDate.getFullYear();
+
+    const handlePrevMonth = () => {
+        setSelectedDate(new Date(currentYear, currentMonth - 1, 1));
+    };
+
+    const handleNextMonth = () => {
+        setSelectedDate(new Date(currentYear, currentMonth + 1, 1));
+    };
 
     // ... (logic calculations remain same) ...
     const monthlyStats = useMemo(() => {
+        const now = new Date();
+        const statsMonth = now.getMonth();
+        const statsYear = now.getFullYear();
+
         const monthEvents = events.filter(e => {
             const d = new Date(e.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
 
         const monthShifts = shifts.filter(s => {
             const d = new Date(s.eventDate);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
 
         const unpaidShifts = monthShifts.filter(s => s.status === 'unpaid');
@@ -52,7 +65,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             totalEarned: unpaidAmount + advancedAmount, // Tổng tiền đã làm
             paidAmount: paidShifts.reduce((sum, s) => sum + s.amount, 0),
         };
-    }, [events, shifts, currentMonth, currentYear]);
+    }, [events, shifts]); // Removing currentMonth/currentYear dependency as they are for chart now
 
     // ... (chartData logic remains same) ...
     const chartData = useMemo(() => {
@@ -86,7 +99,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         ].filter(d => d.value > 0);
     }, [shifts]);
 
-    const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long' }).format(new Date());
+    const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(selectedDate);
 
     const {
         bgClass,
@@ -234,9 +247,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Biểu đồ cột */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>
-                            Hoạt động {monthName}
-                        </h3>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className={`text-sm font-medium ${textPrimaryClass}`}>
+                                Hoạt động
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handlePrevMonth}
+                                    className={`p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ${textSecondaryClass}`}
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className={`text-sm font-medium ${textPrimaryClass} min-w-[120px] text-center capitalize`}>
+                                    {monthName}
+                                </span>
+                                <button
+                                    onClick={handleNextMonth}
+                                    className={`p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ${textSecondaryClass}`}
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
                         {chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={200}>
                                 <BarChart data={chartData}>

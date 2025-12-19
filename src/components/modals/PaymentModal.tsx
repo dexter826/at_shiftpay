@@ -6,7 +6,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { Shift, PayrollSummary } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services/firebase';
-import { Banknote, AlertTriangle, Info } from 'lucide-react';
+import { Banknote, AlertTriangle, Info, Check } from 'lucide-react';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -177,16 +177,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                     <div className={`max-h-40 overflow-y-auto border ${border} rounded-lg`}>
                         {unpaidShifts.map(shift => (
-                            <label
+                            <div
                                 key={shift.id}
+                                onClick={() => onShiftSelect(shift.id)}
                                 className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50`}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedShiftIds.includes(shift.id)}
-                                    onChange={() => onShiftSelect(shift.id)}
-                                    className="rounded"
-                                />
+                                <div
+                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedShiftIds.includes(shift.id)
+                                        ? 'bg-green-500 border-green-500'
+                                        : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                                        }`}
+                                >
+                                    {selectedShiftIds.includes(shift.id) && <Check size={12} className="text-white" />}
+                                </div>
                                 <div className="flex-1">
                                     <p className={`text-sm ${textPrimary}`}>
                                         {shift.eventDate} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
@@ -195,7 +198,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                         {formatCurrency(shift.amount)}
                                     </p>
                                 </div>
-                            </label>
+                            </div>
                         ))}
                     </div>
                 </div>
