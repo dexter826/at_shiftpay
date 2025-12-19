@@ -1,6 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon, FileDown } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface NavbarProps {
   currentTab: string;

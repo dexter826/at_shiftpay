@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Employee, Shift } from '../types';
-import { dbService } from '../services/firebase';
+import { Employee, Shift } from '../../types';
+import { dbService } from '../../services/firebase';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check } from 'lucide-react';
-import { Skeleton } from './ui/Skeleton';
-import { Modal } from './ui/Modal';
-import { useToast } from './ui/Toast';
-import Button from './ui/Button';
-import { useTheme } from '../contexts/ThemeContext';
+import { Skeleton } from '../ui/Skeleton';
+import { Modal } from '../ui/Modal';
+import { useToast } from '../ui/Toast';
+import Button from '../ui/Button';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface EmployeeManagerProps {
   employees: Employee[];

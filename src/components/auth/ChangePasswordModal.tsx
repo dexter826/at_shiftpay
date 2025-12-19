@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Modal } from './ui/Modal';
-import Button from './ui/Button';
-import { useTheme } from '../contexts/ThemeContext';
+import { Modal } from '../ui/Modal';
+import Button from '../ui/Button';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 interface ChangePasswordModalProps {

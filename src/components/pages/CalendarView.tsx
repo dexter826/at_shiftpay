@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../types';
-import { formatDate, formatCurrency } from '../constants';
+import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
+import { formatDate, formatCurrency } from '../../constants';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote } from 'lucide-react';
-import { EventModal } from './EventModal';
-import { dbService } from '../services/firebase';
-import { useToast } from './ui/Toast';
-import { Modal } from './ui/Modal';
-import Button from './ui/Button';
-import { useTheme } from '../contexts/ThemeContext';
+import { EventModal } from '../modals/EventModal';
+import { dbService } from '../../services/firebase';
+import { useToast } from '../ui/Toast';
+import { Modal } from '../ui/Modal';
+import Button from '../ui/Button';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface CalendarViewProps {
   events: Event[];

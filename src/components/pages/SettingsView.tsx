@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import { UserSettings } from '../types';
-import { dbService } from '../services/firebase';
-import { useToast } from './ui/Toast';
-import Button from './ui/Button';
-import { TimePicker } from './ui/TimePicker';
-import { ChangePasswordModal } from './ChangePasswordModal';
+import { useTheme } from '../../contexts/ThemeContext';
+import { UserSettings } from '../../types';
+import { dbService } from '../../services/firebase';
+import { useToast } from '../ui/Toast';
+import Button from '../ui/Button';
+import { TimePicker } from '../ui/TimePicker';
+import { ChangePasswordModal } from '../auth/ChangePasswordModal';
 import {
     User,
     Settings as SettingsIcon,

@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
 
 import { ForgotPasswordModal } from './ForgotPasswordModal';
-import Button from './ui/Button';
+import Button from '../ui/Button';
 
 interface LoginProps {
   onLogin: () => void;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../types';
-import { dbService } from '../services/firebase';
+import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
+import { dbService } from '../../services/firebase';
 import { Sun, Moon, Check, AlertCircle, Banknote } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { Modal } from './ui/Modal';
-import Button from './ui/Button';
-import { TimePicker } from './ui/TimePicker';
-import { useToast } from './ui/Toast';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Modal } from '../ui/Modal';
+import Button from '../ui/Button';
+import { TimePicker } from '../ui/TimePicker';
+import { useToast } from '../ui/Toast';
 
 interface EventModalProps {
   date: string;

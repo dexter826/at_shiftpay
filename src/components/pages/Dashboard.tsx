@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Employee, Event, Shift, UserSettings } from '../types';
+import { Employee, Event, Shift, UserSettings } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { Modal } from './ui/Modal';
-import { Skeleton } from './ui/Skeleton';
-import Button from './ui/Button';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Modal } from '../ui/Modal';
+import { Skeleton } from '../ui/Skeleton';
+import Button from '../ui/Button';
 
 interface DashboardProps {
     user: any;

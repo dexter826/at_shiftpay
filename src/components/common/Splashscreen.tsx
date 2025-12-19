@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Lottie from 'lottie-react';
-import splashScreenAnimation from '../assets/splashscreen.json';
+import splashScreenAnimation from '../../assets/splashscreen.json';
 
 const SPLASHSCREEN_KEY = 'splashscreen_shown';
 const SPLASHSCREEN_DURATION = 2000; // 2 giây
