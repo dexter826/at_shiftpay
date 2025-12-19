@@ -259,7 +259,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 transition-colors duration-300`}>
       <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px] transition-all duration-300 relative`}>
         {/* Họa tiết trang trí */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#ecb52d]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         {/* Logo tiêu đề */}
@@ -293,7 +293,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     href="https://github.com/dexter826/dexter826"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-[#ecb52d] hover:text-[#f0c654] transition-colors"
+                    className="font-semibold text-primary hover:text-[#f0c654] transition-colors"
                   >
                     MOB
                   </a>
@@ -323,7 +323,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
               </div>
 
-              <h2 className="text-4xl font-retro text-[#ecb52d] mb-4 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide">
+              <h2 className="text-4xl font-retro text-primary mb-4 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide">
                 {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
               </h2>
 
@@ -354,7 +354,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       onBlur={() => validateEmail(email)}
                       className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
                         ? 'border-red-500 focus:ring-red-500/20'
-                        : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                        : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                       focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
                       placeholder:text-slate-400`}
                       placeholder="Nhập email của bạn"
@@ -383,7 +383,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         onBlur={() => validateFullName(fullName)}
                         className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
                           ? 'border-red-500 focus:ring-red-500/20'
-                          : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                          : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                         focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
                         placeholder:text-slate-400`}
                         placeholder="Nhập họ tên của bạn"
@@ -415,7 +415,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       onBlur={() => validatePassword(password)}
                       className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
                         ? 'border-red-500 focus:ring-red-500/20'
-                        : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                        : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                       focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
                       placeholder:text-slate-400`}
                       placeholder="Nhập mật khẩu"
@@ -451,7 +451,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         onBlur={() => validateConfirmPassword(confirmPassword)}
                         className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
                           ? 'border-red-500 focus:ring-red-500/20'
-                          : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                          : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                         focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
                         placeholder:text-slate-400`}
                         placeholder="Nhập lại mật khẩu"
@@ -485,7 +485,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                           className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
                           ${codeError
                               ? 'border-red-500 focus:ring-red-500/20'
-                              : `${inputBorderClass} focus:border-[#ecb52d] focus:ring-[#ecb52d]/20`}
+                              : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                           focus:ring-2 focus:outline-none transition-all duration-200 ${textPrimaryClass}`}
                         />
                       ))}
@@ -503,7 +503,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                           type="checkbox"
                           checked={rememberMe}
                           onChange={(e) => setRememberMe(e.target.checked)}
-                          className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-600 checked:border-[#ecb52d] checked:bg-[#ecb52d] transition-all"
+                          className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-600 checked:border-primary checked:bg-primary transition-all"
                         />
                         <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
                           <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -516,7 +516,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <button
                       type="button"
                       onClick={() => setForgotPasswordOpen(true)}
-                      className="text-sm text-[#ecb52d] hover:text-[#f0c654] font-medium transition-colors hover:underline"
+                      className="text-sm text-primary hover:text-[#f0c654] font-medium transition-colors hover:underline"
                     >
                       Quên mật khẩu?
                     </button>
@@ -551,7 +551,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 </p>
                 <button
                   onClick={handleSwitchMode}
-                  className="text-[#ecb52d] hover:text-[#f0c654] text-sm font-semibold transition-colors"
+                  className="text-primary hover:text-[#f0c654] text-sm font-semibold transition-colors"
                 >
                   {isSignUp ? 'Đăng nhập ngay' : 'Tạo tài khoản mới'}
                 </button>

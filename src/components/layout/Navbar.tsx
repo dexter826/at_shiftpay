@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               href="https://github.com/dexter826/dexter826"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#ecb52d] transition-colors"
+              className="hover:text-primary transition-colors"
             >
               MOB
             </a>
@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               key={item.id}
               onClick={() => setTab(item.id)}
               className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
-                ? 'bg-[#ecb52d]/10 text-[#ecb52d]'
+                ? 'bg-primary/10 text-primary'
                 : `${textMuted} ${hoverText} ${hoverBg}`
                 }`}
             >
@@ -83,7 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
             key={item.id}
             onClick={() => setTab(item.id)}
             className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${currentTab === item.id
-              ? 'text-[#ecb52d]'
+              ? 'text-primary'
               : 'text-slate-500'
               }`}
           >

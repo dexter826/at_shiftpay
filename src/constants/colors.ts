@@ -24,19 +24,19 @@ export const PAYMENT_COLORS = {
 
 export const PAYMENT_COLOR_CLASSES = {
     // Text colors
-    UNPAID_TEXT: 'text-[#ecb52d]',
+    UNPAID_TEXT: 'text-primary',
     PAID_TEXT: 'text-emerald-500',
     ADVANCED_TEXT: 'text-orange-500',
     TOTAL_EARNED_TEXT: 'text-blue-500',
 
     // Background colors
-    UNPAID_BG: 'bg-[#ecb52d]/10',
+    UNPAID_BG: 'bg-primary/10',
     PAID_BG: 'bg-emerald-50 dark:bg-emerald-900/20',
     ADVANCED_BG: 'bg-orange-50 dark:bg-orange-900/20',
     TOTAL_EARNED_BG: 'bg-blue-50 dark:bg-blue-900/20',
 
     // Border colors
-    UNPAID_BORDER: 'border-[#ecb52d]/20',
+    UNPAID_BORDER: 'border-primary/20',
     PAID_BORDER: 'border-emerald-200 dark:border-emerald-800',
     ADVANCED_BORDER: 'border-orange-200 dark:border-orange-800',
     TOTAL_EARNED_BORDER: 'border-blue-200 dark:border-blue-800',

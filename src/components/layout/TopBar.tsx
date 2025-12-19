@@ -23,7 +23,7 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
                 <img
                     src="/avatar.png"
                     alt="Avatar"
-                    className="w-10 h-10 rounded-full object-cover border-2 border-[#ecb52d]"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-primary"
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=User&background=ecb52d&color=fff';
                     }}
@@ -39,7 +39,7 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
             <div className="flex items-center gap-1">
                 <button
                     onClick={onNavigateToSettings}
-                    className={`p-2 ${textSecondaryClass} hover:text-[#ecb52d] transition-colors`}
+                    className={`p-2 ${textSecondaryClass} hover:text-primary transition-colors`}
                 >
                     <Settings size={20} />
                 </button>

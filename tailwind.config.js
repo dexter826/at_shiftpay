@@ -6,6 +6,9 @@ export default {
     ],
     theme: {
         extend: {
+            colors: {
+                primary: '#ecb52d',
+            },
             fontFamily: {
                 retro: ['Coiny', 'cursive'],
             },

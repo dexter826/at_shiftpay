@@ -85,7 +85,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={disabled}
-                className={`flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-[#ecb52d]/50 focus:outline-none focus:border-[#ecb52d] disabled:opacity-50 transition-colors ${minWidth}`}
+                className={`flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
             >
                 {icon && <span className="text-slate-500">{icon}</span>}
                 <span className="flex-1 text-left">
@@ -103,13 +103,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
                         <button
                             key={option.value}
                             onClick={() => handleSelect(option.value)}
-                            className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#ecb52d]/10 ${value === option.value ? `bg-[#ecb52d]/10 text-[#ecb52d] font-medium` : textSecondaryClass
+                            className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/10 ${value === option.value ? `bg-primary/10 text-primary font-medium` : textSecondaryClass
                                 }`}
                         >
                             <div className="flex items-center gap-2">
                                 {option.icon && <span className="text-current">{option.icon}</span>}
                                 <span className="flex-1">{option.label}</span>
-                                {value === option.value && <Check size={14} className="text-[#ecb52d]" />}
+                                {value === option.value && <Check size={14} className="text-primary" />}
                             </div>
                         </button>
                     ))}

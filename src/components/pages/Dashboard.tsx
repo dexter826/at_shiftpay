@@ -157,7 +157,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             <div className={`hidden md:block p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-[#ecb52d]" />
+                        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-primary" />
                         <div>
                             <p className={`text-sm ${textSecondaryClass}`}>Xin chào,</p>
                             <h2 className={`text-lg font-semibold ${textPrimaryClass}`}>
@@ -217,11 +217,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
 
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                        <div className="flex items-center gap-2 text-[#ecb52d] mb-2">
+                        <div className="flex items-center gap-2 text-primary mb-2">
                             <Wallet2 size={16} />
                             <span className="text-xs">Còn cần trả</span>
                         </div>
-                        <p className="text-2xl font-bold text-[#ecb52d]">
+                        <p className="text-2xl font-bold text-primary">
                             {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
                         </p>
                         {monthlyStats.advancedAmount > 0 && (
@@ -335,7 +335,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                 <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                     <div className="flex items-center justify-between mb-4">
                         <h3
-                            className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-2 cursor-pointer hover:text-[#ecb52d] transition-colors`}
+                            className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-2 cursor-pointer hover:text-primary transition-colors`}
                             onClick={onNavigateToSettings}
                         >
                             <Settings size={16} />

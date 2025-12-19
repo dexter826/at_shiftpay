@@ -11,8 +11,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
     primary: {
-        back: "from-[#8e6d1b] via-[#ecb52d] to-[#8e6d1b]",
-        front: "from-[#d9a016] via-[#ecb52d] to-[#f5d173]",
+        back: "from-[#8e6d1b] via-primary to-[#8e6d1b]",
+        front: "from-[#d9a016] via-primary to-[#f5d173]",
         text: "text-white"
     },
     danger: {

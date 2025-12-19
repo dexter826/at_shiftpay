@@ -237,27 +237,27 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
             null
           )}
         </div>
-        <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
+        <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
           {/* Giao diện Mobile */}
           <div className="block md:hidden">
             {/* Thống kê chính */}
             <div className="text-center mb-4">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Wallet2 size={20} className="text-[#ecb52d]/70" />
-                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide font-medium">Tình hình lương</p>
+                <Wallet2 size={20} className="text-primary/70" />
+                <p className="text-xs text-primary/70 uppercase tracking-wide font-medium">Tình hình lương</p>
               </div>
               {loading ? (
                 <Skeleton width={120} height={36} className="mx-auto" />
               ) : (
-                <p className="text-3xl font-bold text-[#ecb52d]">{formatCurrency(totalDebt)}</p>
+                <p className="text-3xl font-bold text-primary">{formatCurrency(totalDebt)}</p>
               )}
-              <p className="text-sm text-[#ecb52d]/70 mt-1">Còn cần trả</p>
+              <p className="text-sm text-primary/70 mt-1">Còn cần trả</p>
             </div>
 
             {/* Thống kê phụ (2 cột) */}
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#ecb52d]/20">
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-primary/20">
               <div className="text-center flex flex-col items-center">
-                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
+                <p className="text-xs text-primary/70 uppercase tracking-wide">Tổng đã làm</p>
                 {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
                   <p className="text-lg font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
                 )}
@@ -265,7 +265,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               </div>
 
               <div className="text-center flex flex-col items-center">
-                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
+                <p className="text-xs text-primary/70 uppercase tracking-wide">Đã ứng</p>
                 {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
                   <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                     {formatCurrency(totalAdvanced)}
@@ -284,16 +284,16 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               <div className="grid grid-cols-3 gap-6">
                 {/* Tình hình lương */}
                 <div>
-                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tình hình lương</p>
+                  <p className="text-xs text-primary/70 uppercase tracking-wide">Tình hình lương</p>
                   {loading ? <Skeleton width={100} height={32} className="mt-1" /> : (
-                    <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{formatCurrency(totalDebt)}</p>
                   )}
-                  <p className="text-xs text-[#ecb52d]/70 mt-1">Còn cần trả</p>
+                  <p className="text-xs text-primary/70 mt-1">Còn cần trả</p>
                 </div>
 
                 {/* Tổng đã làm */}
                 <div>
-                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
+                  <p className="text-xs text-primary/70 uppercase tracking-wide">Tổng đã làm</p>
                   {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
                     <p className="text-xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
                   )}
@@ -302,7 +302,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
 
                 {/* Đã ứng */}
                 <div className={totalAdvanced > 0 ? '' : 'opacity-50'}>
-                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
+                  <p className="text-xs text-primary/70 uppercase tracking-wide">Đã ứng</p>
                   {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
                     <p className={`text-xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                       {formatCurrency(totalAdvanced)}
@@ -314,7 +314,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                 </div>
               </div>
             </div>
-            <Wallet2 size={24} className="text-[#ecb52d]/50" />
+            <Wallet2 size={24} className="text-primary/50" />
           </div>
         </div>
       </div>
@@ -323,13 +323,13 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
       <div className="flex px-4 md:px-6 pt-4 md:pt-6 pb-2 gap-4">
         <button
           onClick={() => setActiveTab('payroll')}
-          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-[#ecb52d] text-[#ecb52d]' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
+          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
         >
           Chưa thanh toán
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-[#ecb52d] text-[#ecb52d]' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
+          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
         >
           Lịch sử
         </button>
@@ -378,8 +378,8 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
             }}
             className={`flex items-center gap-2 px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass} text-sm ${textPrimaryClass}`}
           >
-            <CalendarDays size={16} className={filterDate ? 'text-[#ecb52d]' : textMutedClass} />
-            <span className={filterDate ? 'text-[#ecb52d] font-medium' : textMutedClass}>
+            <CalendarDays size={16} className={filterDate ? 'text-primary' : textMutedClass} />
+            <span className={filterDate ? 'text-primary font-medium' : textMutedClass}>
               {filterDate ? `Tháng ${filterDate.split('-')[1]}/${filterDate.split('-')[0]}` : 'Tất cả thời gian'}
             </span>
           </button>
@@ -420,10 +420,10 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                   // Nếu chỉ có tiền ứng (không có công chưa trả), không mở modal nào
                   // Modal chi tiết sẽ tự động mở khi selectedEmpId được set
                 }}
-                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors flex justify-between items-center group`}
+                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-[#ecb52d]/10 text-[#ecb52d]' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
                     }`}>
                     {item.employeeName.charAt(0)}
                   </div>
@@ -431,7 +431,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                     <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
                     <div className="flex items-center gap-2 text-xs">
                       {item.unpaidCount > 0 && (
-                        <span className="text-[#ecb52d]">
+                        <span className="text-primary">
                           {item.unpaidCount} công chưa trả
                         </span>
                       )}
@@ -449,7 +449,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
 
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-[#ecb52d]' : textMutedClass
+                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass
                       }`}>
                       {formatCurrency(item.totalUnpaid)}
                     </span>
@@ -475,7 +475,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               <button
                 key={item.id}
                 onClick={() => setSelectedTransactionId(item.id)}
-                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors flex justify-between items-center group`}
+                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`}>
@@ -540,7 +540,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className={textMutedClass}>Chưa thanh toán:</span>
-                  <p className={`font-medium text-[#ecb52d]`}>
+                  <p className={`font-medium text-primary`}>
                     {formatCurrency(selectedEmployeeSummary.totalUnpaid)} ({selectedEmployeeSummary.unpaidCount} ca)
                   </p>
                 </div>
@@ -564,7 +564,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                     </div>
                     <div className="flex justify-between font-medium">
                       <span className={textMutedClass}>Còn lại cần trả:</span>
-                      <span className="text-[#ecb52d]">
+                      <span className="text-primary">
                         {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
                       </span>
                     </div>
@@ -589,7 +589,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
 
           {selectedUnpaidShifts.length === 0 ? (
             <div className={`py-8 flex flex-col items-center justify-center ${textMutedClass} gap-2`}>
-              <CheckCircle2 size={32} className="text-[#ecb52d]" />
+              <CheckCircle2 size={32} className="text-primary" />
               <p className="text-sm">Không còn ca chưa thanh toán</p>
               {selectedEmployeeSummary && selectedEmployeeSummary.advancedCount > 0 && (
                 <p className="text-xs text-orange-500 mt-2">
@@ -604,7 +604,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                 <button
                   onClick={handleSelectAll}
                   className={`text-xs font-medium px-2 py-1 rounded ${selectedShiftIds.length === selectedUnpaidShifts.length
-                    ? 'text-[#ecb52d] bg-[#ecb52d]/10'
+                    ? 'text-primary bg-primary/10'
                     : `${textMutedClass} hover:${textSecondaryClass}`
                     } transition-colors`}
                 >
@@ -615,14 +615,14 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                 <div
                   key={s.id}
                   className={`flex justify-between items-center p-3 border rounded-lg cursor-pointer transition-all ${selectedShiftIds.includes(s.id)
-                    ? 'bg-[#ecb52d]/10 border-[#ecb52d]/30'
-                    : `${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} ${borderClass} hover:border-[#ecb52d]/20`
+                    ? 'bg-primary/10 border-primary/30'
+                    : `${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} ${borderClass} hover:border-primary/20`
                     }`}
                   onClick={() => handleSelectShift(s.id)}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${selectedShiftIds.includes(s.id)
-                      ? 'bg-[#ecb52d] border-[#ecb52d]'
+                      ? 'bg-primary border-primary'
                       : `border-slate-400 ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`
                       }`}>
                       {selectedShiftIds.includes(s.id) && (
@@ -632,7 +632,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                     <Calendar size={16} className={textMutedClass} />
                     <div>
                       <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
-                      <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-[#ecb52d]'
+                      <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
                         }`}>
                         {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
                       </span>
@@ -644,12 +644,12 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
 
               {/* Tổng tiền đã chọn */}
               {selectedShiftIds.length > 0 && (
-                <div className={`mt-3 p-3 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg`}>
+                <div className={`mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg`}>
                   <div className="flex justify-between items-center">
-                    <span className={`text-sm font-medium text-[#ecb52d]`}>
+                    <span className={`text-sm font-medium text-primary`}>
                       Đã chọn {selectedShiftIds.length} ca
                     </span>
-                    <span className={`text-sm font-bold text-[#ecb52d]`}>
+                    <span className={`text-sm font-bold text-primary`}>
                       {formatCurrency(selectedShiftsTotal)}
                     </span>
                   </div>
@@ -722,7 +722,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                   <Calendar size={16} className={textMutedClass} />
                   <div>
                     <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
-                    <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-[#ecb52d]'
+                    <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
                       }`}>
                       {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
                     </span>

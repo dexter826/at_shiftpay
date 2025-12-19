@@ -83,11 +83,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                                 className={`
                            py-3 rounded-lg text-sm font-medium transition-colors border
                            ${isSelected
-                                        ? 'bg-[#ecb52d] text-white border-[#ecb52d]'
+                                        ? 'bg-primary text-white border-primary'
                                         : `
                                  ${theme === 'dark' ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-slate-50 hover:bg-slate-100'}
                                  ${borderClass} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}
-                                 ${isCurrentMonth ? 'border-[#ecb52d]/50 text-[#ecb52d]' : ''}
+                                 ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}
                               `
                                     }
                         `}

@@ -274,7 +274,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               type="button"
               onClick={() => selectSession('afternoon')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'afternoon'
-                ? 'border-[#ecb52d]/50 bg-[#ecb52d]/10 text-[#ecb52d]'
+                ? 'border-primary/50 bg-primary/10 text-primary'
                 : theme === 'dark'
                   ? 'border-slate-700 text-slate-500 hover:border-slate-600'
                   : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -334,7 +334,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <span className={`text-sm truncate flex-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{emp.name}</span>
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
-                        ? 'bg-[#ecb52d] border-[#ecb52d]'
+                        ? 'bg-primary border-primary'
                         : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
                         }`}
                     >

@@ -210,7 +210,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               disabled={loading}
-              className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d] disabled:opacity-50`}
+              className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary disabled:opacity-50`}
             />
           </div>
 
@@ -241,7 +241,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredAndSortedEmployees.map((emp) => (
-              <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-[#ecb52d]/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
+              <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
                 {/* Ảnh cover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
                   {emp.imageUrl ? (
@@ -266,7 +266,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                   <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
                     <button
                       onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
-                      className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-[#ecb52d] hover:text-white transition-all duration-200"
+                      className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-primary hover:text-white transition-all duration-200"
                     >
                       <Edit2 size={16} />
                     </button>
@@ -289,7 +289,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                       <span className="truncate">{emp.phone || '---'}</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 font-medium text-[#ecb52d]">
+                    <div className="flex items-center gap-1.5 font-medium text-primary">
                       <Briefcase size={10} className="shrink-0" />
                       <span>{shiftCountByEmployee[emp.id] || 0} công</span>
                     </div>
@@ -338,7 +338,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               placeholder="Nhập họ tên"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>
           <div>
@@ -349,7 +349,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>
           <div>
@@ -359,7 +359,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               placeholder="Nhập link ảnh (nếu có)"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d]`}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>
         </form>

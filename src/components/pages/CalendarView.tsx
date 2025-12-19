@@ -196,9 +196,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       key={dateStr}
                       onClick={() => handleDateClick(date)}
                       className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
-                        ? 'bg-[#ecb52d] text-white'
+                        ? 'bg-primary text-white'
                         : isToday
-                          ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-[#ecb52d] font-medium`
+                          ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-primary font-medium`
                           : `${textPrimaryClass} ${hoverBgClass}`
                         }`}
                     >
@@ -206,7 +206,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       {dayEvents.length > 0 && (
                         <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
                           {dayEvents.map((_, i) => (
-                            <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-[#ecb52d]'}`} />
+                            <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
                           ))}
                         </div>
                       )}
@@ -230,7 +230,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   </div>
                   <button
                     onClick={handleAddEvent}
-                    className="p-2 bg-[#ecb52d] text-white rounded-lg hover:bg-[#d4a128] transition-colors"
+                    className="p-2 bg-primary text-white rounded-lg hover:bg-yellow-600 transition-colors"
                   >
                     <Plus size={16} />
                   </button>
@@ -253,7 +253,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   ) : selectedEvents.length === 0 ? (
                     <div className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                       <p>Chưa có sự kiện</p>
-                      <button onClick={handleAddEvent} className="text-[#ecb52d] mt-1 hover:underline text-xs">
+                      <button onClick={handleAddEvent} className="text-primary mt-1 hover:underline text-xs">
                         Tạo mới
                       </button>
                     </div>
@@ -262,18 +262,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       <div
                         key={evt.id}
                         onClick={() => handleViewEvent(evt)}
-                        className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors cursor-pointer`}
+                        className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <MapPin size={14} className="text-[#ecb52d] mt-0.5 flex-shrink-0" />
+                            <MapPin size={14} className="text-primary mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
                               {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                             </div>
                           </div>
                           <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-[#ecb52d] transition-colors`}>
+                            <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-primary transition-colors`}>
                               <Edit2 size={14} />
                             </button>
                             <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
@@ -288,7 +288,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             const count = shiftsForDisplay.filter(s => s.eventId === evt.id && s.session === session).length;
                             if (count === 0) return null;
                             return (
-                              <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-[#ecb52d]/10 text-[#ecb52d]'
+                              <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'
                                 }`}>
                                 {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
                               </span>
@@ -396,7 +396,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <div>
                   <p className={`text-xs ${textMutedClass} mb-1`}>Thời gian</p>
                   <p className={`text-sm ${textPrimaryClass} flex items-center gap-1`}>
-                    <Clock size={12} className="text-[#ecb52d]" />
+                    <Clock size={12} className="text-primary" />
                     {viewingEvent.time}
                   </p>
                 </div>
@@ -428,7 +428,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{shift.employeeName}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${shift.session === 'morning'
                         ? 'bg-orange-500/10 text-orange-500'
-                        : 'bg-[#ecb52d]/10 text-[#ecb52d]'
+                        : 'bg-primary/10 text-primary'
                         }`}>
                         {shift.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
                       </span>

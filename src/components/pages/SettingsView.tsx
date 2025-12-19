@@ -98,7 +98,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                         <SectionTitle icon={User} title="Tài khoản" />
                         <div className={`${cardBg} rounded-xl border ${border} overflow-hidden`}>
                             <div className={`p-4 flex items-center gap-4 border-b ${border}`}>
-                                <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-[#ecb52d]" />
+                                <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-primary" />
                                 <div>
                                     <h3 className={`font-semibold ${textMain}`}>
                                         {user?.displayName || 'Người dùng'}
@@ -139,7 +139,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                                     type="number"
                                     value={editSettings.shiftRate}
                                     onChange={(e) => handleChange('shiftRate', Number(e.target.value))}
-                                    className={`w-full p-3 rounded-lg border ${border} bg-transparent ${textMain} focus:outline-none focus:border-[#ecb52d] transition-colors`}
+                                    className={`w-full p-3 rounded-lg border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary transition-colors`}
                                 />
                                 <p className={`text-xs ${textSub} mt-2`}>Áp dụng cho các ca làm việc mới</p>
                             </div>
