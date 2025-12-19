@@ -307,13 +307,72 @@ export const dbService = {
     const paymentRef = doc(collection(db, 'payments'));
     batch.set(paymentRef, paymentData);
 
-    // Update all shifts to paid
+    // Determine shift status based on payment type
+    const shiftStatus = paymentData.type === 'advance' ? 'advanced' : 'paid';
+
+    // Update all shifts
+    shiftIds.forEach(shiftId => {
+      const shiftRef = doc(db, 'shifts', shiftId);
+      batch.update(shiftRef, {
+        status: shiftStatus,
+        paidAt: paymentData.date,
+        paymentId: paymentRef.id
+      });
+    });
+
+    await batch.commit();
+  },
+
+  // Tạo thanh toán ứng
+  async createAdvancePayment(
+    paymentData: Omit<PaymentTransaction, 'id' | 'type'>,
+    shiftIds: string[]
+  ): Promise<void> {
+    await this.createPaymentTransaction(
+      { ...paymentData, type: 'advance' },
+      shiftIds
+    );
+  },
+
+  // Quyết toán tiền ứng
+  async settleAdvancePayment(
+    employeeId: string,
+    employeeName: string,
+    advancePaymentIds: string[],
+    shiftIds: string[],
+    totalAmount: number
+  ): Promise<void> {
+    const batch = writeBatch(db);
+    const now = Date.now();
+
+    // Tạo transaction quyết toán
+    const settlementRef = doc(collection(db, 'payments'));
+    batch.set(settlementRef, {
+      employeeId,
+      employeeName,
+      amount: totalAmount,
+      date: now,
+      shiftIds,
+      type: 'settlement',
+      note: 'Quyết toán tiền ứng'
+    });
+
+    // Cập nhật các advance payments
+    advancePaymentIds.forEach(paymentId => {
+      const paymentRef = doc(db, 'payments', paymentId);
+      batch.update(paymentRef, {
+        settledAt: now,
+        settledBy: settlementRef.id
+      });
+    });
+
+    // Cập nhật shifts từ advanced thành paid
     shiftIds.forEach(shiftId => {
       const shiftRef = doc(db, 'shifts', shiftId);
       batch.update(shiftRef, {
         status: 'paid',
-        paidAt: paymentData.date,
-        paymentId: paymentRef.id
+        paidAt: now,
+        paymentId: settlementRef.id
       });
     });
 

@@ -39,11 +39,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
         const unpaidShifts = monthShifts.filter(s => s.status === 'unpaid');
         const paidShifts = monthShifts.filter(s => s.status === 'paid');
+        const advancedShifts = monthShifts.filter(s => s.status === 'advanced');
+
+        const unpaidAmount = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
+        const advancedAmount = advancedShifts.reduce((sum, s) => sum + s.amount, 0);
 
         return {
             totalEvents: monthEvents.length,
             totalShifts: monthShifts.length,
-            unpaidAmount: unpaidShifts.reduce((sum, s) => sum + s.amount, 0),
+            unpaidAmount,
+            advancedAmount,
+            netAmount: unpaidAmount - advancedAmount, // Số tiền thực tế cần trả
             paidAmount: paidShifts.reduce((sum, s) => sum + s.amount, 0),
         };
     }, [events, shifts, currentMonth, currentYear]);
@@ -69,13 +75,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         return data;
     }, [events, shifts, currentMonth, currentYear]);
 
-    // ... (paymentData logic remains same) ...
     const paymentData = useMemo(() => {
         const unpaid = shifts.filter(s => s.status === 'unpaid').length;
         const paid = shifts.filter(s => s.status === 'paid').length;
+        const advanced = shifts.filter(s => s.status === 'advanced').length;
         return [
             { name: 'Đã thanh toán', value: paid, color: '#10b981' },
             { name: 'Chưa thanh toán', value: unpaid, color: '#f59e0b' },
+            { name: 'Đã ứng tiền', value: advanced, color: '#f97316' },
         ].filter(d => d.value > 0);
     }, [shifts]);
 
@@ -181,6 +188,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                         <p className="text-2xl font-bold text-orange-400">
                             {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
                         </p>
+                        {monthlyStats.advancedAmount > 0 && (
+                            <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-orange-600">Đã ứng:</span>
+                                    <span className="font-medium text-orange-600">
+                                        {monthlyStats.advancedAmount.toLocaleString('vi-VN')}đ
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs mt-1">
+                                    <span className={`${monthlyStats.netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        Thực tế cần trả:
+                                    </span>
+                                    <span className={`font-bold ${monthlyStats.netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        {Math.abs(monthlyStats.netAmount).toLocaleString('vi-VN')}đ
+                                        {monthlyStats.netAmount < 0 && ' (thừa)'}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

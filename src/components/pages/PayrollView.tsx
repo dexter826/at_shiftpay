@@ -3,11 +3,13 @@ import { Shift, PayrollSummary, PaymentTransaction } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services/firebase';
 import { exportPayrollToExcel } from '../../services/excel';
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useTheme } from '../../contexts/ThemeContext';
+import { PaymentModal } from '../modals/PaymentModal';
+import { SettlementModal } from '../modals/SettlementModal';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -24,6 +26,8 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSettlementModal, setShowSettlementModal] = useState(false);
   const { theme } = useTheme();
 
   React.useEffect(() => {
@@ -50,21 +54,37 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         employeeName: emp.name,
         phone: emp.phone,
         unpaidCount: 0,
-        totalUnpaid: 0
+        totalUnpaid: 0,
+        advancedCount: 0,
+        totalAdvanced: 0,
+        netAmount: 0
       };
     });
 
     shifts.forEach(s => {
-      if (s.status === 'unpaid' && map[s.employeeId]) {
-        map[s.employeeId].unpaidCount += 1;
-        map[s.employeeId].totalUnpaid += s.amount;
+      if (map[s.employeeId]) {
+        if (s.status === 'unpaid') {
+          map[s.employeeId].unpaidCount += 1;
+          map[s.employeeId].totalUnpaid += s.amount;
+        } else if (s.status === 'advanced') {
+          map[s.employeeId].advancedCount += 1;
+          map[s.employeeId].totalAdvanced += s.amount;
+        }
       }
     });
 
-    return Object.values(map).sort((a, b) => b.totalUnpaid - a.totalUnpaid);
+    // Tính netAmount (số tiền thực tế cần trả)
+    // netAmount = tổng tiền chưa trả (chỉ tính unpaid, không trừ advanced)
+    Object.values(map).forEach(emp => {
+      emp.netAmount = emp.totalUnpaid; // Chỉ hiển thị số tiền chưa trả thực tế
+    });
+
+    return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
   }, [shifts, employees]);
 
   const totalDebt = summary.reduce((acc, curr) => acc + curr.totalUnpaid, 0);
+  const totalAdvanced = summary.reduce((acc, curr) => acc + curr.totalAdvanced, 0);
+  const totalEarned = totalDebt + totalAdvanced;
 
   const [payConfirm, setPayConfirm] = useState(false);
   const { showToast } = useToast();
@@ -110,6 +130,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         amount: totalAmount,
         date: Date.now(),
         shiftIds: selectedShiftIds,
+        type: 'regular' as const,
         note: `Thanh toán ${selectedShiftIds.length} ca làm việc`
       };
 
@@ -187,10 +208,26 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           )}
         </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng nợ lương</p>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tình hình lương</p>
               <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
+              <p className="text-xs text-[#ecb52d]/70 mt-1">Còn cần trả</p>
+
+              {totalAdvanced > 0 && (
+                <div className="mt-3 pt-3 border-t border-[#ecb52d]/20">
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <p className="text-[#ecb52d]/70">Tổng đã làm:</p>
+                      <p className="font-bold text-blue-600">{formatCurrency(totalEarned)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[#ecb52d]/70">Đã ứng:</p>
+                      <p className="font-bold text-orange-500">{formatCurrency(totalAdvanced)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <Wallet2 size={24} className="text-[#ecb52d]/50" />
           </div>
@@ -253,7 +290,15 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             summary.map((item) => (
               <button
                 key={item.employeeId}
-                onClick={() => setSelectedEmpId(item.employeeId)}
+                onClick={() => {
+                  setSelectedEmpId(item.employeeId);
+                  // Nếu có công chưa trả, mở modal thanh toán
+                  if (item.totalUnpaid > 0) {
+                    setShowPaymentModal(true);
+                  }
+                  // Nếu chỉ có tiền ứng (không có công chưa trả), không mở modal nào
+                  // Modal chi tiết sẽ tự động mở khi selectedEmpId được set
+                }}
                 className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-[#ecb52d]/50 transition-colors flex justify-between items-center group`}
               >
                 <div className="flex items-center gap-3">
@@ -263,16 +308,36 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                   </div>
                   <div className="text-left">
                     <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                    <p className={`text-xs ${item.unpaidCount > 0 ? 'text-[#ecb52d]' : textMutedClass}`}>
-                      {item.unpaidCount > 0 ? `${item.unpaidCount} công chưa trả` : 'Không có công nợ'}
-                    </p>
+                    <div className="flex items-center gap-2 text-xs">
+                      {item.unpaidCount > 0 && (
+                        <span className="text-[#ecb52d]">
+                          {item.unpaidCount} công chưa trả
+                        </span>
+                      )}
+                      {item.advancedCount > 0 && (
+                        <span className="text-orange-500">
+                          {item.advancedCount} công đã ứng
+                        </span>
+                      )}
+                      {item.unpaidCount === 0 && item.advancedCount === 0 && (
+                        <span className={textMutedClass}>Không có công nợ</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? textSecondaryClass : textMutedClass}`}>
-                    {formatCurrency(item.totalUnpaid)}
-                  </span>
+                  <div className="text-right">
+                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-green-500' : textMutedClass
+                      }`}>
+                      {formatCurrency(item.totalUnpaid)}
+                    </span>
+                    {item.totalAdvanced > 0 && (
+                      <p className="text-xs text-blue-500">
+                        Đã ứng: {formatCurrency(item.totalAdvanced)}
+                      </p>
+                    )}
+                  </div>
                   <ChevronRight size={16} className={textMutedClass} />
                 </div>
               </button>
@@ -296,7 +361,19 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                     <History size={16} />
                   </div>
                   <div className="text-left">
-                    <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                      {item.type === 'advance' && (
+                        <span className="px-2 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                          Ứng tiền
+                        </span>
+                      )}
+                      {item.type === 'settlement' && (
+                        <span className="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                          Quyết toán
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1">
                       <Clock size={12} className={textMutedClass} />
                       <p className={`text-xs ${textMutedClass}`}>
@@ -324,23 +401,80 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         isOpen={!!selectedEmpId}
         onClose={() => setSelectedEmpId(null)}
         footer={
-          selectedEmployeeSummary && selectedEmployeeSummary.totalUnpaid > 0 ? (
+          selectedEmployeeSummary && selectedEmployeeSummary.advancedCount > 0 ? (
             <Button
-              onClick={handlePay}
+              onClick={() => setShowSettlementModal(true)}
               fullWidth
-              disabled={selectedShiftIds.length === 0}
             >
-              <Banknote size={16} className="text-white" />
-              Thanh toán {formatCurrency(selectedShiftsTotal)} ({selectedShiftIds.length} ca)
+              <Calculator size={16} className="text-white" />
+              Quyết toán tiền ứng
             </Button>
           ) : null
         }
       >
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {/* Thông tin tổng quan */}
+          {selectedEmployeeSummary && (
+            <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className={textMutedClass}>Chưa thanh toán:</span>
+                  <p className={`font-medium text-[#ecb52d]`}>
+                    {formatCurrency(selectedEmployeeSummary.totalUnpaid)} ({selectedEmployeeSummary.unpaidCount} ca)
+                  </p>
+                </div>
+                <div>
+                  <span className={textMutedClass}>Đã ứng:</span>
+                  <p className={`font-medium text-orange-500`}>
+                    {formatCurrency(selectedEmployeeSummary.totalAdvanced)} ({selectedEmployeeSummary.advancedCount} ca)
+                  </p>
+                </div>
+                <div className="col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <span className={textMutedClass}>Tổng tiền đã làm:</span>
+                  <p className={`font-bold text-lg text-blue-600`}>
+                    {formatCurrency(selectedEmployeeSummary.totalUnpaid + selectedEmployeeSummary.totalAdvanced)}
+                  </p>
+                  <div className="mt-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className={textMutedClass}>Đã nhận (ứng):</span>
+                      <span className="text-orange-500">
+                        {formatCurrency(selectedEmployeeSummary.totalAdvanced)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between font-medium">
+                      <span className={textMutedClass}>Còn lại cần trả:</span>
+                      <span className="text-green-600">
+                        {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Thông tin về tiền ứng */}
+          {selectedEmployeeSummary && selectedEmployeeSummary.advancedCount > 0 && (
+            <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <AlertTriangle size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className={`font-medium ${textPrimaryClass} mb-1`}>Có tiền ứng cần quyết toán</p>
+                <p className={textSecondaryClass}>
+                  Nhân viên đã nhận {formatCurrency(selectedEmployeeSummary.totalAdvanced)} tiền ứng từ Manager.
+                </p>
+              </div>
+            </div>
+          )}
+
           {selectedUnpaidShifts.length === 0 ? (
             <div className={`py-8 flex flex-col items-center justify-center ${textMutedClass} gap-2`}>
               <CheckCircle2 size={32} className="text-[#ecb52d]" />
-              <p className="text-sm">Không còn khoản nợ</p>
+              <p className="text-sm">Không còn ca chưa thanh toán</p>
+              {selectedEmployeeSummary && selectedEmployeeSummary.advancedCount > 0 && (
+                <p className="text-xs text-orange-500 mt-2">
+                  Có {selectedEmployeeSummary.advancedCount} ca đã ứng tiền cần quyết toán
+                </p>
+              )}
             </div>
           ) : (
             <>
@@ -413,17 +547,46 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         footer={null}
       >
         <div className="space-y-3">
-          <div className="flex justify-between items-center pb-3 border-b border-slate-700/50">
-            <div className="flex flex-col">
-              <span className={`text-xs ${textMutedClass}`}>Tổng tiền</span>
-              <span className={`text-xl font-bold ${textSecondaryClass}`}>{formatCurrency(selectedTransaction?.amount || 0)}</span>
+          {/* Thông tin giao dịch */}
+          <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs ${textMutedClass}`}>Loại giao dịch</span>
+                  {selectedTransaction?.type === 'advance' && (
+                    <span className="px-2 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                      Ứng tiền
+                    </span>
+                  )}
+                  {selectedTransaction?.type === 'settlement' && (
+                    <span className="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                      Quyết toán
+                    </span>
+                  )}
+                  {(!selectedTransaction?.type || selectedTransaction?.type === 'regular') && (
+                    <span className="px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
+                      Thanh toán thường
+                    </span>
+                  )}
+                </div>
+                <span className={`text-xl font-bold ${textSecondaryClass}`}>
+                  {formatCurrency(selectedTransaction?.amount || 0)}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className={`text-xs ${textMutedClass}`}>Thời gian</span>
+                <p className={`text-sm font-medium ${textSecondaryClass}`}>
+                  {selectedTransaction ? new Date(selectedTransaction.date).toLocaleString('vi-VN') : ''}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col items-end">
-              <span className={`text-xs ${textMutedClass}`}>Thời gian</span>
-              <span className={`text-sm font-medium ${textSecondaryClass}`}>
-                {selectedTransaction ? new Date(selectedTransaction.date).toLocaleString('vi-VN') : ''}
-              </span>
-            </div>
+
+            {selectedTransaction?.note && (
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span className={`text-xs ${textMutedClass}`}>Ghi chú:</span>
+                <p className={`text-sm ${textSecondaryClass}`}>{selectedTransaction.note}</p>
+              </div>
+            )}
           </div>
 
           <p className={`text-xs ${textMutedClass} uppercase tracking-wide pt-2`}>Các ca làm việc</p>
@@ -556,6 +719,33 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           </div>
         </div>
       </Modal>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setSelectedEmpId(null);
+          setSelectedShiftIds([]);
+        }}
+        employeeSummary={selectedEmployeeSummary}
+        shifts={shifts}
+        selectedShiftIds={selectedShiftIds}
+        onShiftSelect={handleSelectShift}
+        onSelectAll={handleSelectAll}
+      />
+
+      {/* Settlement Modal */}
+      {selectedEmpId && (
+        <SettlementModal
+          isOpen={showSettlementModal}
+          onClose={() => setShowSettlementModal(false)}
+          employeeId={selectedEmpId}
+          employeeName={selectedEmployeeSummary?.employeeName || ''}
+          shifts={shifts}
+          paymentHistory={paymentHistory}
+        />
+      )}
 
     </div>
   );
