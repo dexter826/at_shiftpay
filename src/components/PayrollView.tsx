@@ -23,6 +23,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
   const [filterDate, setFilterDate] = useState(''); // YYYY-MM
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
+  const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
   const { theme } = useTheme();
 
   React.useEffect(() => {
@@ -69,15 +70,36 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
   const { showToast } = useToast();
 
   const handlePay = async () => {
+    if (selectedShiftIds.length === 0) {
+      showToast('Vui lòng chọn ít nhất một ca để thanh toán', 'error');
+      return;
+    }
     setPayConfirm(true);
   };
 
+  // Xử lý chọn/bỏ chọn tất cả
+  const handleSelectAll = () => {
+    if (selectedShiftIds.length === selectedUnpaidShifts.length) {
+      setSelectedShiftIds([]);
+    } else {
+      setSelectedShiftIds(selectedUnpaidShifts.map(shift => shift.id));
+    }
+  };
+
+  // Xử lý chọn/bỏ chọn từng ca
+  const handleSelectShift = (shiftId: string) => {
+    setSelectedShiftIds(prev =>
+      prev.includes(shiftId)
+        ? prev.filter(id => id !== shiftId)
+        : [...prev, shiftId]
+    );
+  };
+
   const confirmPay = async () => {
-    if (!selectedEmpId) return;
+    if (!selectedEmpId || selectedShiftIds.length === 0) return;
     try {
-      const unpaidShifts = shifts.filter(s => s.employeeId === selectedEmpId && s.status === 'unpaid');
-      const shiftIds = unpaidShifts.map(s => s.id);
-      const totalAmount = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
+      const selectedShifts = shifts.filter(s => selectedShiftIds.includes(s.id));
+      const totalAmount = selectedShifts.reduce((sum, s) => sum + s.amount, 0);
       const employee = employees.find(e => e.id === selectedEmpId);
 
       if (!employee) return;
@@ -87,15 +109,16 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         employeeName: employee.name,
         amount: totalAmount,
         date: Date.now(),
-        shiftIds: shiftIds,
-        note: `Thanh toán ${unpaidShifts.length} ca làm việc`
+        shiftIds: selectedShiftIds,
+        note: `Thanh toán ${selectedShiftIds.length} ca làm việc`
       };
 
-      await dbService.createPaymentTransaction(paymentData, shiftIds);
+      await dbService.createPaymentTransaction(paymentData, selectedShiftIds);
 
       showToast('Đã thanh toán thành công', 'success');
       setSelectedEmpId(null);
       setPayConfirm(false);
+      setSelectedShiftIds([]);
     } catch (error) {
       console.error('Error:', error);
       showToast('Có lỗi xảy ra', 'error');
@@ -114,6 +137,23 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
     if (!selectedTransactionId) return null;
     return paymentHistory.find(p => p.id === selectedTransactionId);
   }, [selectedTransactionId, paymentHistory]);
+
+  // Tính tổng tiền của các ca được chọn
+  const selectedShiftsTotal = useMemo(() => {
+    return selectedUnpaidShifts
+      .filter(shift => selectedShiftIds.includes(shift.id))
+      .reduce((sum, shift) => sum + shift.amount, 0);
+  }, [selectedUnpaidShifts, selectedShiftIds]);
+
+  // Reset selection khi đổi nhân viên
+  React.useEffect(() => {
+    if (selectedEmpId && selectedUnpaidShifts.length > 0) {
+      // Mặc định chọn tất cả khi mở modal
+      setSelectedShiftIds(selectedUnpaidShifts.map(shift => shift.id));
+    } else {
+      setSelectedShiftIds([]);
+    }
+  }, [selectedEmpId, selectedUnpaidShifts]);
 
   const transactionShifts = useMemo(() => {
     if (!selectedTransaction) return [];
@@ -288,9 +328,10 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             <Button
               onClick={handlePay}
               fullWidth
+              disabled={selectedShiftIds.length === 0}
             >
               <Banknote size={16} className="text-white" />
-              Thanh toán {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
+              Thanh toán {formatCurrency(selectedShiftsTotal)} ({selectedShiftIds.length} ca)
             </Button>
           ) : null
         }
@@ -303,10 +344,36 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
             </div>
           ) : (
             <>
-              <p className={`text-xs ${textMutedClass} uppercase tracking-wide`}>Công chưa trả</p>
+              <div className="flex justify-between items-center">
+                <p className={`text-xs ${textMutedClass} uppercase tracking-wide`}>Công chưa trả</p>
+                <button
+                  onClick={handleSelectAll}
+                  className={`text-xs font-medium px-2 py-1 rounded ${selectedShiftIds.length === selectedUnpaidShifts.length
+                    ? 'text-[#ecb52d] bg-[#ecb52d]/10'
+                    : `${textMutedClass} hover:${textSecondaryClass}`
+                    } transition-colors`}
+                >
+                  {selectedShiftIds.length === selectedUnpaidShifts.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                </button>
+              </div>
               {selectedUnpaidShifts.map((s) => (
-                <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
+                <div
+                  key={s.id}
+                  className={`flex justify-between items-center p-3 border rounded-lg cursor-pointer transition-all ${selectedShiftIds.includes(s.id)
+                    ? 'bg-[#ecb52d]/10 border-[#ecb52d]/30'
+                    : `${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} ${borderClass} hover:border-[#ecb52d]/20`
+                    }`}
+                  onClick={() => handleSelectShift(s.id)}
+                >
                   <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${selectedShiftIds.includes(s.id)
+                      ? 'bg-[#ecb52d] border-[#ecb52d]'
+                      : `border-slate-400 ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`
+                      }`}>
+                      {selectedShiftIds.includes(s.id) && (
+                        <Check size={10} className="text-white" />
+                      )}
+                    </div>
                     <Calendar size={16} className={textMutedClass} />
                     <div>
                       <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
@@ -319,6 +386,20 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                   <p className={`text-sm font-medium ${textSecondaryClass}`}>{formatCurrency(s.amount)}</p>
                 </div>
               ))}
+
+              {/* Hiển thị tổng tiền được chọn */}
+              {selectedShiftIds.length > 0 && (
+                <div className={`mt-3 p-3 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg`}>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm font-medium text-[#ecb52d]`}>
+                      Đã chọn {selectedShiftIds.length} ca
+                    </span>
+                    <span className={`text-sm font-bold text-[#ecb52d]`}>
+                      {formatCurrency(selectedShiftsTotal)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -395,9 +476,17 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           </div>
         }
       >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-          Thanh toán {formatCurrency(selectedEmployeeSummary?.totalUnpaid || 0)} cho {selectedEmployeeSummary?.employeeName}?
-        </p>
+        <div className="space-y-3">
+          <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+            Thanh toán {formatCurrency(selectedShiftsTotal)} cho {selectedEmployeeSummary?.employeeName}?
+          </p>
+          <div className={`p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
+            <p className={`text-xs ${textMutedClass} mb-1`}>Chi tiết:</p>
+            <p className={`text-sm ${textSecondaryClass}`}>
+              {selectedShiftIds.length} ca làm việc được chọn
+            </p>
+          </div>
+        </div>
       </Modal>
 
       {/* Month Filter Modal */}
