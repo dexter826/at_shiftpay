@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Modal } from '../ui/Modal';
 import { Skeleton } from '../ui/Skeleton';
@@ -13,13 +13,13 @@ interface DashboardProps {
     events: Event[];
     shifts: Shift[];
     settings: UserSettings;
-
     loading?: boolean;
     onLogout: () => void;
     onNavigateToSettings: () => void;
+    onOpenExport: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
     const { theme, toggleTheme } = useTheme();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const currentMonth = new Date().getMonth();
@@ -150,10 +150,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                             </h2>
                         </div>
                     </div>
+                    <Button
+                        onClick={onOpenExport}
+                        variant="success"
+                        className="flex items-center gap-2"
+                    >
+                        <FileDown size={18} />
+                        <span>Xuất báo cáo</span>
+                    </Button>
                 </div>
             </div>
 
             <div className="p-4 md:p-6 space-y-6">
+                {/* Mobile Export Button */}
+                <div className="md:hidden">
+                    <Button
+                        onClick={onOpenExport}
+                        variant="success"
+                        fullWidth={true}
+                        className="flex items-center justify-center gap-2"
+                    >
+                        <FileDown size={18} />
+                        <span>Xuất báo cáo</span>
+                    </Button>
+                </div>
+
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>

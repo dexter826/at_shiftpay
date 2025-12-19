@@ -168,10 +168,9 @@ function App() {
             shifts={shifts}
             settings={settings}
             loading={loading}
-
             onLogout={requestLogout}
             onNavigateToSettings={() => setActiveTab('settings')}
-            currentDate={viewDate}
+            onOpenExport={handleOpenExport}
           />
         );
       case 'dashboard':
@@ -279,7 +278,6 @@ function AppContent({
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <TopBar
         user={user}
-        onOpenExport={onOpenExport}
         onNavigateToSettings={() => setActiveTab('settings')}
         onLogout={onLogout}
       />
@@ -287,7 +285,6 @@ function AppContent({
         currentTab={activeTab}
         setTab={(t) => setActiveTab(t as Tab)}
         onLogout={onLogout}
-        onOpenExport={onOpenExport}
       />
       <main>
         {renderContent()}

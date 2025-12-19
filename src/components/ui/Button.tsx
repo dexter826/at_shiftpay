@@ -54,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
         >
             <span className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-25 rounded-lg transform translate-y-0.5 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] group-hover:translate-y-1 group-hover:duration-[250ms] group-active:translate-y-px" />
             <span className={`absolute top-0 left-0 w-full h-full rounded-lg bg-gradient-to-r ${variantStyles.back}`} />
-            <div className={`relative flex items-center justify-center py-2.5 px-4 text-sm ${variantStyles.text} rounded-lg transform -translate-y-1 bg-gradient-to-r ${variantStyles.front} gap-2 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] group-hover:-translate-y-1.5 group-hover:duration-[250ms] group-active:-translate-y-0.5 brightness-100 group-hover:brightness-110`}>
+            <div className={`relative flex items-center justify-center py-2.5 px-4 text-sm ${variantStyles.text} rounded-lg transform -translate-y-1 bg-gradient-to-r ${variantStyles.front} gap-2 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] group-hover:-translate-y-1.5 group-hover:duration-[250ms] group-active:-translate-y-0.5 brightness-100 group-hover:brightness-110 ${fullWidth ? 'w-full' : ''}`}>
                 {children}
             </div>
         </button>

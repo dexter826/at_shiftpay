@@ -1,16 +1,15 @@
 import React from 'react';
-import { Settings, LogOut, FileDown } from 'lucide-react';
+import { Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface TopBarProps {
     user: any;
-    onOpenExport: () => void;
     onNavigateToSettings: () => void;
     onLogout: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ user, onOpenExport, onNavigateToSettings, onLogout }) => {
-    const { theme } = useTheme();
+export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLogout }) => {
+    const { theme, toggleTheme } = useTheme();
 
     const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
     const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
@@ -38,10 +37,10 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onOpenExport, onNavigateTo
 
             <div className="flex items-center gap-1">
                 <button
-                    onClick={onOpenExport}
-                    className={`p-2 rounded-full ${theme === 'dark' ? 'bg-slate-800 text-green-400' : 'bg-white text-green-600'} shadow-sm border ${borderClass}`}
+                    onClick={toggleTheme}
+                    className={`p-2 rounded-full ${theme === 'dark' ? 'bg-slate-800 text-[#ecb52d]' : 'bg-white text-[#ecb52d]'} shadow-sm border ${borderClass}`}
                 >
-                    <FileDown size={18} />
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
                 <button
                     onClick={onNavigateToSettings}
