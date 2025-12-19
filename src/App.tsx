@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, TopBar, OfflineIndicator } from './components/layout';
 import { Dashboard, CalendarView, EmployeeManager, PayrollView, SettingsView } from './components/pages';
@@ -11,28 +11,39 @@ import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services/firebase';
 import { exportDetailedReport } from './services/excel';
-import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from './types';
+import { useAppData } from './hooks/useAppData';
 import { auth } from './firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 
 // Simple Mock Routing - Updated for HMR
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
-  const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    return (localStorage.getItem('activeTab') as Tab) || 'overview';
+  });
 
-  // Global State
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [shifts, setShifts] = useState<Shift[]>([]);
-  const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
-  const [isLoading, setIsLoading] = useState(true);
-  const [viewDate, setViewDate] = useState(new Date());
+  React.useEffect(() => {
+    localStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
+
+  // Sử dụng custom hook để quản lý dữ liệu
+  const {
+    user,
+    authLoading,
+    employees,
+    events,
+    shifts,
+    settings,
+    isLoading,
+    viewDate,
+    setViewDate,
+    totalDebt
+  } = useAppData();
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { theme } = useTheme();
 
@@ -40,11 +51,9 @@ function App() {
     setIsExportModalOpen(true);
   };
 
-
-
   const handleExportReport = async (month: number, year: number) => {
     try {
-      setIsLoading(true);
+      setIsExporting(true);
       const [fetchedEvents, fetchedShifts] = await Promise.all([
         dbService.getEventsByMonth(month, year),
         dbService.getShiftsByMonth(month, year)
@@ -55,82 +64,9 @@ function App() {
       console.error("Export failed:", error);
       // Ideally show a toast here
     } finally {
-      setIsLoading(false);
+      setIsExporting(false);
     }
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setAuthLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time subscriptions
-  useEffect(() => {
-    if (!user) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    let loadedCount = 0;
-    const checkLoaded = () => {
-      loadedCount++;
-      if (loadedCount >= 5) setIsLoading(false); // Increased count for unpaid shifts
-    };
-
-    const unsubEmployees = dbService.subscribeEmployees((data) => {
-      setEmployees(data);
-      checkLoaded();
-    });
-
-    const currentMonth = viewDate.getMonth();
-    const currentYear = viewDate.getFullYear();
-
-    const unsubEvents = dbService.subscribeEventsByMonth(currentMonth, currentYear, (data) => {
-      setEvents(data);
-      checkLoaded();
-    });
-
-    // Load current month shifts
-    let currentMonthShifts: Shift[] = [];
-    let unpaidShifts: Shift[] = [];
-
-    // Helper to merge shifts without duplicates
-    const mergeShifts = (monthShifts: Shift[], unpaid: Shift[]) => {
-      const uniqueShifts = new Map<string, Shift>();
-      [...monthShifts, ...unpaid].forEach(s => uniqueShifts.set(s.id, s));
-      return Array.from(uniqueShifts.values());
-    };
-
-    const unsubShifts = dbService.subscribeShiftsByMonth(currentMonth, currentYear, (data) => {
-      currentMonthShifts = data;
-      setShifts(mergeShifts(currentMonthShifts, unpaidShifts));
-      checkLoaded();
-    });
-
-    const unsubUnpaid = dbService.subscribeUnpaidShifts((data) => {
-      unpaidShifts = data;
-      setShifts(mergeShifts(currentMonthShifts, unpaidShifts));
-      checkLoaded();
-    });
-
-    const unsubSettings = dbService.subscribeSettings((data) => {
-      setSettings(data);
-      checkLoaded();
-    });
-
-    return () => {
-      unsubEmployees();
-      unsubEvents();
-      unsubShifts();
-      unsubUnpaid();
-      unsubSettings();
-    };
-  }, [user, viewDate]);
 
   const handleLogout = async () => {
     try {
@@ -140,7 +76,6 @@ function App() {
     }
   };
 
-
   const requestLogout = () => {
     setShowLogoutConfirm(true);
   };
@@ -149,13 +84,6 @@ function App() {
     setShowLogoutConfirm(false);
     handleLogout();
   };
-
-  // Derived State
-  const totalDebt = useMemo(() => {
-    return shifts
-      .filter(s => s.status === 'unpaid')
-      .reduce((sum, s) => sum + s.amount, 0);
-  }, [shifts]);
 
   const renderContent = (loading: boolean) => {
     switch (activeTab) {
@@ -183,6 +111,7 @@ function App() {
             settings={settings}
             currentDate={viewDate}
             onDateChange={setViewDate}
+            loading={loading}
           />
         );
       case 'employees':
@@ -193,12 +122,13 @@ function App() {
             events={events}
             loading={loading}
           />
-        ); // Payroll and Settings cases are unchanged
+        );
       case 'payroll':
         return (
           <PayrollView
             shifts={shifts}
             employees={employees}
+            loading={loading}
           />
         );
       case 'settings':
@@ -206,7 +136,6 @@ function App() {
           <SettingsView
             user={user}
             settings={settings}
-
             onLogout={requestLogout}
           />
         );
@@ -223,7 +152,7 @@ function App() {
           <Loader />
         </div>
       ) : !user ? (
-        <Login onLogin={() => setUser(auth.currentUser)} />
+        <Login onLogin={() => { }} />
       ) : (
         <AppContent
           activeTab={activeTab}

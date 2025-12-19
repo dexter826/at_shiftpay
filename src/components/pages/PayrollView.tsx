@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Skeleton } from '../ui/Skeleton';
 import { Shift, PayrollSummary, PaymentTransaction } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services/firebase';
@@ -15,9 +16,10 @@ import { Dropdown, DropdownOption } from '../ui/Dropdown';
 interface PayrollViewProps {
   shifts: Shift[];
   employees: any[];
+  loading?: boolean;
 }
 
-export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) => {
+export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
@@ -248,23 +250,31 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                 <Wallet2 size={20} className="text-[#ecb52d]/70" />
                 <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide font-medium">Tình hình lương</p>
               </div>
-              <p className="text-3xl font-bold text-[#ecb52d]">{formatCurrency(totalDebt)}</p>
+              {loading ? (
+                <Skeleton width={120} height={36} className="mx-auto" />
+              ) : (
+                <p className="text-3xl font-bold text-[#ecb52d]">{formatCurrency(totalDebt)}</p>
+              )}
               <p className="text-sm text-[#ecb52d]/70 mt-1">Còn cần trả</p>
             </div>
 
             {/* Secondary stats in 2-column grid */}
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#ecb52d]/20">
-              <div className="text-center">
+              <div className="text-center flex flex-col items-center">
                 <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
-                <p className="text-lg font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
+                  <p className="text-lg font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                )}
                 <p className="text-xs text-blue-500/70">Tổng cộng</p>
               </div>
 
-              <div className="text-center">
+              <div className="text-center flex flex-col items-center">
                 <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
-                <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                  {formatCurrency(totalAdvanced)}
-                </p>
+                {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
+                  <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                    {formatCurrency(totalAdvanced)}
+                  </p>
+                )}
                 <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
                   Tiền ứng
                 </p>
@@ -279,23 +289,29 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                 {/* Tình hình lương */}
                 <div>
                   <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tình hình lương</p>
-                  <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
+                  {loading ? <Skeleton width={100} height={32} className="mt-1" /> : (
+                    <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
+                  )}
                   <p className="text-xs text-[#ecb52d]/70 mt-1">Còn cần trả</p>
                 </div>
 
                 {/* Tổng đã làm */}
                 <div>
                   <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
-                  <p className="text-xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
+                    <p className="text-xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                  )}
                   <p className="text-xs text-blue-500/70 mt-1">Tổng cộng</p>
                 </div>
 
                 {/* Đã ứng */}
                 <div className={totalAdvanced > 0 ? '' : 'opacity-50'}>
                   <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
-                  <p className={`text-xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                    {formatCurrency(totalAdvanced)}
-                  </p>
+                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
+                    <p className={`text-xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                      {formatCurrency(totalAdvanced)}
+                    </p>
+                  )}
                   <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
                     Tiền ứng
                   </p>
@@ -376,7 +392,20 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
 
       {/* List */}
       <div className="px-4 md:px-6 pt-2 pb-4 md:pb-6 space-y-2">
-        {activeTab === 'payroll' ? (
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg flex justify-between items-center`}>
+              <div className="flex items-center gap-3 w-full">
+                <Skeleton variant="circular" width={36} height={36} />
+                <div className="flex-1 space-y-2">
+                  <Skeleton width="40%" height={16} />
+                  <Skeleton width="30%" height={12} />
+                </div>
+                <Skeleton width={80} height={20} />
+              </div>
+            </div>
+          ))
+        ) : activeTab === 'payroll' ? (
           filteredAndSortedSummary.length === 0 ? (
             <div className="text-center py-10 text-slate-500">
               <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />

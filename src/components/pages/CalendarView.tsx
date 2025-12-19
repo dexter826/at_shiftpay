@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { formatDate, formatCurrency } from '../../constants';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote } from 'lucide-react';
@@ -17,6 +18,7 @@ interface CalendarViewProps {
   settings: UserSettings;
   currentDate?: Date;
   onDateChange?: (date: Date) => void;
+  loading?: boolean;
 }
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
@@ -26,7 +28,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   totalDebt,
   settings,
   currentDate: propDate,
-  onDateChange
+  onDateChange,
+  loading = false
 }) => {
   const { showToast } = useToast();
   const { theme } = useTheme();
@@ -171,39 +174,45 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
             {/* Days Grid */}
             <div className="grid grid-cols-7 p-2 gap-1 lg:flex-1 lg:auto-rows-fr">
-              {daysInMonth.map((date, idx) => {
-                if (!date) return <div key={`empty-${idx}`} className="aspect-square lg:aspect-auto" />;
+              {loading ? (
+                Array.from({ length: 35 }).map((_, i) => (
+                  <Skeleton key={i} className="aspect-square lg:aspect-auto rounded" height="100%" />
+                ))
+              ) : (
+                daysInMonth.map((date, idx) => {
+                  if (!date) return <div key={`empty-${idx}`} className="aspect-square lg:aspect-auto" />;
 
-                const offset = date.getTimezoneOffset();
-                const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-                const dateStr = localDate.toISOString().split('T')[0];
+                  const offset = date.getTimezoneOffset();
+                  const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+                  const dateStr = localDate.toISOString().split('T')[0];
 
-                const dayEvents = eventsByDate[dateStr] || [];
-                const isSelected = selectedDate === dateStr;
-                const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                  const dayEvents = eventsByDate[dateStr] || [];
+                  const isSelected = selectedDate === dateStr;
+                  const isToday = new Date().toISOString().split('T')[0] === dateStr;
 
-                return (
-                  <button
-                    key={dateStr}
-                    onClick={() => handleDateClick(date)}
-                    className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
-                      ? 'bg-[#ecb52d] text-white'
-                      : isToday
-                        ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-[#ecb52d] font-medium`
-                        : `${textPrimaryClass} ${hoverBgClass}`
-                      }`}
-                  >
-                    <span>{date.getDate()}</span>
-                    {dayEvents.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
-                        {dayEvents.map((_, i) => (
-                          <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-[#ecb52d]'}`} />
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={dateStr}
+                      onClick={() => handleDateClick(date)}
+                      className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
+                        ? 'bg-[#ecb52d] text-white'
+                        : isToday
+                          ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-[#ecb52d] font-medium`
+                          : `${textPrimaryClass} ${hoverBgClass}`
+                        }`}
+                    >
+                      <span>{date.getDate()}</span>
+                      {dayEvents.length > 0 && (
+                        <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
+                          {dayEvents.map((_, i) => (
+                            <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-[#ecb52d]'}`} />
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -227,7 +236,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 </div>
 
                 <div className="flex-1 p-3 space-y-2 overflow-y-auto">
-                  {selectedEvents.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className={`p-3 border ${borderClass} rounded-lg ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                        <div className="flex justify-between items-start gap-2 mb-2">
+                          <Skeleton variant="circular" width={14} height={14} />
+                          <div className="flex-1">
+                            <Skeleton width="60%" height={16} className="mb-2" />
+                            <Skeleton width="90%" height={12} />
+                          </div>
+                        </div>
+                        <Skeleton width="30%" height={20} className="ml-5" />
+                      </div>
+                    ))
+                  ) : selectedEvents.length === 0 ? (
                     <div className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                       <p>Chưa có sự kiện</p>
                       <button onClick={handleAddEvent} className="text-[#ecb52d] mt-1 hover:underline text-xs">

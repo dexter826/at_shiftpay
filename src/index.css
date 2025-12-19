@@ -63,4 +63,17 @@ html.light {
             transform: translateY(0);
         }
     }
+
+    .animate-shimmer {
+        animation: shimmer 1.5s infinite linear;
+    }
+
+    @keyframes shimmer {
+        from {
+            transform: translateX(-100%);
+        }
+        to {
+            transform: translateX(100%);
+        }
+    }
 }
