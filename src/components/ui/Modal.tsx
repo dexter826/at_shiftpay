@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
@@ -10,8 +10,32 @@ interface ModalProps {
   footer?: React.ReactNode;
 }
 
+// Global counter để theo dõi số lượng modals đang mở
+let openModalCount = 0;
+
 export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, footer }) => {
   const { theme } = useThemeStyles();
+
+  useEffect(() => {
+    if (isOpen) {
+      openModalCount++;
+      document.body.style.overflow = 'hidden';
+    } else {
+      openModalCount--;
+      if (openModalCount === 0) {
+        document.body.style.overflow = 'unset';
+      }
+    }
+
+    return () => {
+      if (isOpen) {
+        openModalCount--;
+        if (openModalCount === 0) {
+          document.body.style.overflow = 'unset';
+        }
+      }
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
