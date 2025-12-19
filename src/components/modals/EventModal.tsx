@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { dbService } from '../../services/firebase';
-import { Sun, Moon, Check, AlertCircle, Banknote } from 'lucide-react';
+import { Sun, Moon, Check, AlertCircle, Banknote, Loader2 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -38,6 +38,8 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [titleError, setTitleError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -106,8 +108,17 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   const getSelectedCount = () => Object.values(assignments).filter(Boolean).length;
 
+  const validateTitle = (value: string) => {
+    if (!value.trim()) {
+      setTitleError('Tên sự kiện là bắt buộc');
+      return false;
+    }
+    setTitleError('');
+    return true;
+  };
+
   const handleSubmit = async () => {
-    if (!title.trim()) {
+    if (!validateTitle(title)) {
       setError('Nhập tên sự kiện');
       return;
     }
@@ -119,6 +130,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       setError('Chọn ít nhất 1 nhân viên');
       return;
     }
+
+    setIsSubmitting(true);
 
     // Chuẩn bị dữ liệu
     const isEditing = !!existingEvent;
@@ -196,8 +209,10 @@ export const EventModal: React.FC<EventModalProps> = ({
 
       showToast(isEditing ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện mới', 'success');
     } catch (err) {
-      showToast('Có lỗi xảy ra', 'error');
+      showToast('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -211,9 +226,10 @@ export const EventModal: React.FC<EventModalProps> = ({
           onClick={handleSubmit}
           className=""
           fullWidth
+          disabled={isSubmitting}
         >
-          <Check size={16} className="text-white" />
-          {existingEvent ? "Cập nhật" : "Lưu"}
+          {isSubmitting ? <Loader2 size={16} className="text-white animate-spin" /> : <Check size={16} className="text-white" />}
+          {isSubmitting ? "Đang lưu..." : (existingEvent ? "Cập nhật" : "Lưu")}
         </Button>
       }
     >
@@ -232,12 +248,19 @@ export const EventModal: React.FC<EventModalProps> = ({
             type="text"
             placeholder="Nhập tên sự kiện"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
-              ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-              }`}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              if (titleError) validateTitle(e.target.value);
+            }}
+            onBlur={() => validateTitle(title)}
+            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${titleError
+              ? 'border-red-500 focus:border-red-500'
+              : theme === 'dark'
+                ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+              } ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
           />
+          {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
         </div>
 
         <div>

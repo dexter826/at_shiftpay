@@ -48,8 +48,8 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
   } = useThemeStyles();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4">
-      <div className={`${bgClass} w-full md:max-w-md md:rounded-xl rounded-t-xl max-h-[85vh] flex flex-col border ${borderClass}`}>
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4 animate-in fade-in duration-200">
+      <div className={`${bgClass} w-full md:max-w-md md:rounded-xl rounded-t-xl max-h-[85vh] flex flex-col border ${borderClass} animate-in slide-in-from-bottom-4 duration-300`}>
         {/* Tiêu đề */}
         <div className={`px-4 py-3 border-b ${borderClass} flex justify-between items-center flex-shrink-0`}>
           <h3 className={`text-base font-semibold ${textClass}`}>{title}</h3>
