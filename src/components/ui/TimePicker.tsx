@@ -3,7 +3,7 @@ import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface TimePickerProps {
-    value: string; // HH:mm format
+    value: string; // Định dạng HH:mm
     onChange: (value: string) => void;
     className?: string;
 }
@@ -13,13 +13,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Parse value
+    // Phân tích giá trị
     const [hours, minutes] = value ? value.split(':').map(Number) : [7, 30];
 
     const formatNumber = (n: number) => n.toString().padStart(2, '0');
 
     const updateTime = (newHours: number, newMinutes: number) => {
-        // Clamp values
+        // Giới hạn giá trị
         if (newHours < 0) newHours = 23;
         if (newHours > 23) newHours = 0;
         if (newMinutes < 0) newMinutes = 55;
@@ -33,7 +33,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
     const incrementMinutes = () => updateTime(hours, minutes + 5);
     const decrementMinutes = () => updateTime(hours, minutes - 5);
 
-    // Close on click outside
+    // Đóng khi click ngoài
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -46,8 +46,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
-            {/* Display button */}
-            {/* Display button */}
+            {/* Nút hiển thị */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -63,14 +62,14 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                 <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
             </button>
 
-            {/* Dropdown */}
+            {/* Menu thả xuống */}
             {isOpen && (
                 <div className={`absolute top-full left-0 right-0 mt-1 border rounded-lg p-3 z-50 shadow-lg ${theme === 'dark'
                     ? 'bg-slate-800 border-slate-700'
                     : 'bg-white border-slate-200 shadow-xl'
                     }`}>
                     <div className="flex items-center justify-center gap-4">
-                        {/* Hours */}
+                        {/* Giờ */}
                         <div className="flex flex-col items-center">
                             <button
                                 type="button"
@@ -97,7 +96,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
 
                         <span className={`text-xl font-medium ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>:</span>
 
-                        {/* Minutes */}
+                        {/* Phút */}
                         <div className="flex flex-col items-center">
                             <button
                                 type="button"
@@ -123,7 +122,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, classNa
                         </div>
                     </div>
 
-                    {/* Quick select */}
+                    {/* Chọn nhanh */}
                     <div className={`flex gap-2 mt-3 pt-3 border-t ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'}`}>
                         <button
                             type="button"

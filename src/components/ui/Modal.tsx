@@ -24,7 +24,7 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4">
       <div className={`${bgClass} w-full md:max-w-md md:rounded-xl rounded-t-xl max-h-[85vh] flex flex-col border ${borderClass}`}>
-        {/* Header */}
+        {/* Tiêu đề */}
         <div className={`px-4 py-3 border-b ${borderClass} flex justify-between items-center flex-shrink-0`}>
           <h3 className={`text-base font-semibold ${textClass}`}>{title}</h3>
           <button
@@ -35,12 +35,12 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
           </button>
         </div>
 
-        {/* Content */}
+        {/* Nội dung */}
         <div className="overflow-y-auto p-4 flex-1">
           {children}
         </div>
 
-        {/* Footer */}
+        {/* Chân trang */}
         {footer && (
           <div className={`px-4 py-3 border-t ${borderClass} flex-shrink-0`}>
             {footer}

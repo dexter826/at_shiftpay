@@ -210,7 +210,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 </div>
 
-                {/* Buttons */}
+                {/* Thao tác */}
                 <div className="flex gap-3">
                     <Button
                         variant="secondary"

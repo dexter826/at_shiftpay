@@ -8,7 +8,7 @@ export function useAppData() {
     const [user, setUser] = useState<any>(null);
     const [authLoading, setAuthLoading] = useState(true);
 
-    // States
+    // Khởi tạo state
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [shifts, setShifts] = useState<Shift[]>([]);
@@ -16,7 +16,7 @@ export function useAppData() {
     const [isLoading, setIsLoading] = useState(true);
     const [viewDate, setViewDate] = useState(new Date());
 
-    // Lắng nghe trạng thái đăng nhập
+    // Theo dõi đăng nhập
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (u) => {
             setUser(u);
@@ -25,7 +25,7 @@ export function useAppData() {
         return () => unsubscribe();
     }, []);
 
-    // Fetch dữ liệu khi user thay đổi
+    // Tải data khi có user
     useEffect(() => {
         if (!user) {
             setIsLoading(false);
@@ -35,7 +35,7 @@ export function useAppData() {
         setIsLoading(true);
         let loadedCount = 0;
 
-        // Đếm số lượng subscription hoàn tất
+        // Kiểm tra tiến độ tải
         const checkLoaded = () => {
             loadedCount++;
             if (loadedCount >= 5) setIsLoading(false);
@@ -54,12 +54,12 @@ export function useAppData() {
             checkLoaded();
         });
 
-        // Gom nhóm shifts: current month + unpaid
+        // Gộp ca làm việc
         let currentShifts: Shift[] = [];
         let unpaidShifts: Shift[] = [];
 
         const updateShifts = () => {
-            // Loại bỏ trùng lặp ID
+            // Loại bỏ ID trùng
             const map = new Map();
             [...currentShifts, ...unpaidShifts].forEach(s => map.set(s.id, s));
             setShifts(Array.from(map.values()));

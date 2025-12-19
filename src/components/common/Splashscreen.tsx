@@ -14,10 +14,10 @@ export const Splashscreen: React.FC<SplashscreenProps> = ({ onComplete }) => {
     const { theme } = useTheme();
 
     useEffect(() => {
-        // Đánh dấu đã hiển thị splashscreen trong phiên này
+        // Đánh dấu đã hiển thị
         sessionStorage.setItem(SPLASHSCREEN_KEY, 'true');
 
-        // Tự động ẩn sau một khoảng thời gian
+        // Tự động ẩn
         const timer = setTimeout(() => {
             onComplete();
         }, SPLASHSCREEN_DURATION);
@@ -26,7 +26,7 @@ export const Splashscreen: React.FC<SplashscreenProps> = ({ onComplete }) => {
             clearTimeout(timer);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Chỉ chạy 1 lần khi mount
+    }, []); // Chạy 1 lần
 
     return (
         <div className={`fixed inset-0 z-50 flex items-center justify-center ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>

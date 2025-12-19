@@ -49,7 +49,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
 
-        // Prefer amount from Event, fallback to first shift, then default setting
+        // Ưu tiên: Event > Shift cũ > Mặc định
         let detectedAmount = existingEvent.amount;
         if (!detectedAmount && existingShifts.length > 0) {
           const firstShift = existingShifts[0];
@@ -68,7 +68,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         setSelectedSession(detectedSession);
         setAmount(detectedAmount);
 
-        // Set default time based on session if not already set
+        // Đặt giờ mặc định theo ca
         if (!existingEvent.time && detectedSession) {
           setTime(detectedSession === 'morning' ? settings.morningTime : settings.afternoonTime);
         }
@@ -92,7 +92,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     } else {
       setSelectedSession(session);
       setAssignments({});
-      // Set default time based on session from settings
+      // Đặt giờ mặc định theo cài đặt
       setTime(session === 'morning' ? settings.morningTime : settings.afternoonTime);
     }
   };
@@ -120,15 +120,15 @@ export const EventModal: React.FC<EventModalProps> = ({
       return;
     }
 
-    // Prepare shifts data before closing modal
+    // Chuẩn bị dữ liệu
     const isEditing = !!existingEvent;
 
-    // Separate assignments into create, update, delete
+    // Phân loại: Thêm, Sửa, Xóa
     const shiftsToCreate: Omit<Shift, 'id'>[] = [];
     const shiftsToUpdate: { id: string, data: Partial<Shift> }[] = [];
     const shiftIdsToDelete: string[] = [];
 
-    // 1. Identify Create & Update
+    // 1. Xác định Thêm & Sửa
     Object.entries(assignments).forEach(([empId, isAssigned]) => {
       if (!isAssigned) return;
       const emp = employees.find(e => e.id === empId);
@@ -139,11 +139,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       );
 
       if (prevShift) {
-        // UPDATE existing shift
-        // Only update fields that might change. 
-        // We preserve status, paidAt, paymentId by NOT including them in the update data 
-        // (unless we specifically want to change them).
-        // Here we basically only update amount.
+        // Chỉ cập nhật số tiền
         shiftsToUpdate.push({
           id: prevShift.id,
           data: {
@@ -153,7 +149,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           }
         });
       } else {
-        // CREATE new shift
+        // Tạo ca mới
         const shiftData: Omit<Shift, 'id'> = {
           eventId: '', // Will be set after event creation (or known if editing)
           eventDate: date,
@@ -167,34 +163,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       }
     });
 
-    // 2. Identify Delete
-    // Any existing shift (in this event) that is NOT in the current assignments list
-    // BUT we must be careful: existingShifts contains ALL shifts for this event (morning & afternoon).
-    // If selectedSession represents the WHOLE event type (which implies event can only be Morning OR Afternoon?), 
-    // then we can delete any shift not assigned.
-    // However, the Model allows `session` property. Does an Event have mixed sessions?
-    // looking at `selectSession` in EventModal, it seems `selectedSession` is a state.
-    // If I select Morning, `existingShifts` might contain Afternoon shifts?
-    // The `EventModal` only shows ONE session selector, behaving like "This event is EITHER Morning OR Afternoon".
-    // If users can create separate events for Morning and Afternoon on same day, they are separate Event objects.
-    // If one Event object can have multiple sessions...
-    // The `Event` interface doesn't specify session. `Shift` has session.
-    // BUT `EventModal` has ONE `selectedSession`.
-    // And `existingShifts` are passed from parent. Parent likely fetches shifts linked to this `existingEvent`.
-    // If `existingEvent` was Morning, can I change it to Afternoon?
-    // The UI allows picking session.
-    // If I change session, `prevShift` (matching session) will be undefined.
-    // So all "Morning" shifts will be deleted?
-    // And new "Afternoon" shifts created?
-    // This seems correct if the Event itself is moving from Morning to Afternoon.
-
-    // So logic: Any shift in `existingShifts` that is NOT found in `shiftsToUpdate` list should be deleted?
-    // Sort of. `shiftsToUpdate` contains shifts where `employeeId` matches AND `session` matches.
-    // If I change session, `shiftsToUpdate` is empty.
-    // So ALL `existingShifts` should be deleted.
-    // This is correct behavior for "Changing Event Session".
-    // Wait, if I change session, I effectively destroy the old shifts (and their payment history if paid).
-    // This is a known risk. But for "Update Salary" (same session), it works perfectly.
+    // 2. Xác định Xóa (ca không còn được chọn)
 
     existingShifts.forEach(s => {
       const kept = shiftsToUpdate.find(upd => upd.id === s.id);
@@ -203,14 +172,14 @@ export const EventModal: React.FC<EventModalProps> = ({
       }
     });
 
-    // Close modal immediately for better UX
+    // Đóng nhanh để UX mượt
     onSuccess();
 
     try {
       const eventData = { date, title, note, time, amount };
 
       if (isEditing && existingEvent) {
-        // Use smart update
+        // Cập nhật thông minh
         await dbService.batchUpdateEvent(
           existingEvent.id,
           eventData,
@@ -221,7 +190,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           }
         );
       } else {
-        // Create new event with shifts in one batch operation
+        // Tạo mới (Atomic)
         await dbService.createEventWithShifts(eventData, shiftsToCreate);
       }
 
@@ -256,7 +225,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         )}
 
-        {/* Event Info */}
+        {/* Thông tin sự kiện */}
         <div>
           <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
           <input
@@ -284,7 +253,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           />
         </div>
 
-        {/* Sessions - Radio style (chỉ chọn 1) */}
+        {/* Chọn ca (Radio) */}
         <div>
           <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
@@ -317,7 +286,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         </div>
 
-        {/* Time and Salary Inputs */}
+        {/* Thời gian & Lương */}
         {selectedSession && (
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -342,7 +311,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         )}
 
-        {/* Assignments - Round checkbox at end */}
+        {/* Danh sách nhân viên */}
         {selectedSession && (
           <div>
             <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm</label>

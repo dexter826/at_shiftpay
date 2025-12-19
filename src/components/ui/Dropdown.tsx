@@ -33,12 +33,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
     const { theme } = useTheme();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Theme classes
+    // Style theo theme
     const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
     const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
     const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
 
-    // Close dropdown when clicking outside
+    // Đóng khi click ra ngoài
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -55,7 +55,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         };
     }, [isOpen]);
 
-    // Close dropdown on escape key
+    // Đóng khi nhấn Esc
     useEffect(() => {
         const handleEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {

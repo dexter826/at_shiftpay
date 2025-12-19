@@ -29,7 +29,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
     const { theme } = useTheme();
     const { showToast } = useToast();
 
-    // Tính toán số dư tiền ứng
+    // Tính số dư nợ
     const advanceBalance = useMemo((): AdvanceBalance => {
         const employeeShifts = shifts.filter(s => s.employeeId === employeeId);
         const employeePayments = paymentHistory.filter(p => p.employeeId === employeeId);
@@ -53,7 +53,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         };
     }, [employeeId, employeeName, shifts, paymentHistory]);
 
-    // Lấy các advance payments chưa quyết toán
+    // Lấy khoản ứng chưa chốt
     const unsettledAdvances = useMemo(() => {
         return paymentHistory.filter(p =>
             p.employeeId === employeeId &&
@@ -62,7 +62,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         );
     }, [paymentHistory, employeeId]);
 
-    // Lấy các shifts đã được ứng tiền
+    // Lấy ca đã ứng
     const advancedShifts = useMemo(() => {
         return shifts.filter(s =>
             s.employeeId === employeeId &&
@@ -171,7 +171,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                     </div>
                 </div>
 
-                {/* Danh sách advance payments */}
+                {/* Lịch sử ứng tiền */}
                 {unsettledAdvances.length > 0 && (
                     <div className="space-y-3">
                         <h4 className={`font-medium ${textPrimary}`}>
@@ -202,7 +202,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                     </div>
                 )}
 
-                {/* Danh sách ca đã ứng */}
+                {/* Các ca đã ứng */}
                 {advancedShifts.length > 0 && (
                     <div className="space-y-3">
                         <h4 className={`font-medium ${textPrimary}`}>
@@ -233,7 +233,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                     </div>
                 )}
 
-                {/* Buttons */}
+                {/* Thao tác */}
                 <div className="flex gap-3">
                     <Button
                         variant="secondary"

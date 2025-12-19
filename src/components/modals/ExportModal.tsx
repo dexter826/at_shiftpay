@@ -53,7 +53,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
             <div className="space-y-4">
                 <p className={`text-sm ${textSecondaryClass}`}>Chọn thời gian để xuất báo cáo lương và lịch tiệc.</p>
 
-                {/* Year Selector */}
+                {/* Chọn năm */}
                 <div className="flex justify-between items-center px-2 py-2">
                     <button
                         onClick={() => setSelectedYear(prev => prev - 1)}
@@ -70,7 +70,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                     </button>
                 </div>
 
-                {/* Month Selector Grid */}
+                {/* Lưới chọn tháng */}
                 <div className="grid grid-cols-3 gap-3">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(month => {
                         const isSelected = selectedMonth === month;

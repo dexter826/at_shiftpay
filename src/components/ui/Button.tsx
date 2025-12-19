@@ -31,7 +31,7 @@ const variants = {
         text: "text-white"
     },
     outline: {
-        // For outline, we might want a different approach, but for now let's make it a subtle gray 3D button
+        // Style 3D xám tạm thời
         back: "from-slate-300 via-slate-200 to-slate-300",
         front: "from-slate-100 via-white to-slate-50",
         text: "text-slate-700"

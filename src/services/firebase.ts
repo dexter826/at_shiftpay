@@ -19,7 +19,7 @@ import {
 import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction } from '../types';
 
 export const dbService = {
-  // Employees - Real-time listener
+  // Realtime nhân viên
   subscribeEmployees(callback: (employees: Employee[]) => void): Unsubscribe {
     const q = query(collection(db, 'employees'), orderBy('createdAt', 'desc'));
     return onSnapshot(q,
@@ -50,7 +50,7 @@ export const dbService = {
     await deleteDoc(doc(db, 'employees', id));
   },
 
-  // Events - Real-time listener by Month
+  // Lấy sự kiện theo tháng
   subscribeEventsByMonth(month: number, year: number, callback: (events: Event[]) => void): Unsubscribe {
     const startDate = new Date(year, month, 1).toISOString();
     const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
@@ -93,15 +93,15 @@ export const dbService = {
     return docRef.id;
   },
 
-  // Create event and shifts together in one batch (atomic operation)
+  // Tạo event và shift (atomic)
   async createEventWithShifts(eventData: Omit<Event, 'id'>, shiftsData: Omit<Shift, 'id'>[]): Promise<void> {
     const batch = writeBatch(db);
 
-    // Create event document
+    // Tạo doc event mới
     const eventRef = doc(collection(db, 'events'));
     batch.set(eventRef, eventData);
 
-    // Create all shifts with the event ID
+    // Tạo doc shift
     shiftsData.forEach(shiftData => {
       const shiftRef = doc(collection(db, 'shifts'));
       batch.set(shiftRef, { ...shiftData, eventId: eventRef.id });
@@ -115,7 +115,7 @@ export const dbService = {
     await updateDoc(docRef, data);
   },
 
-  // Update event and replace all shifts in one batch (atomic operation)
+  // Cập nhật sự kiện (reset ca)
   async updateEventWithShifts(
     eventId: string,
     eventData: Partial<Event>,
@@ -124,16 +124,16 @@ export const dbService = {
   ): Promise<void> {
     const batch = writeBatch(db);
 
-    // Update event
+    // Cập nhật thông tin event
     const eventRef = doc(db, 'events', eventId);
     batch.update(eventRef, eventData);
 
-    // Delete old shifts
+    // Xóa shift cũ
     oldShiftIds.forEach(id => {
       batch.delete(doc(db, 'shifts', id));
     });
 
-    // Create new shifts
+    // Tạo shift mới
     newShiftsData.forEach(shiftData => {
       const shiftRef = doc(collection(db, 'shifts'));
       batch.set(shiftRef, shiftData);
@@ -142,7 +142,7 @@ export const dbService = {
     await batch.commit();
   },
 
-  // Smart update event and shifts (create, update, delete)
+  // Cập nhật hàng loạt
   async batchUpdateEvent(
     eventId: string,
     eventData: Partial<Event>,
@@ -154,23 +154,23 @@ export const dbService = {
   ): Promise<void> {
     const batch = writeBatch(db);
 
-    // Update event
+    // Cập nhật thông tin event
     const eventRef = doc(db, 'events', eventId);
     batch.update(eventRef, eventData);
 
-    // Create new shifts
+    // Tạo shift mới
     shifts.create.forEach(shiftData => {
       const shiftRef = doc(collection(db, 'shifts'));
       batch.set(shiftRef, { ...shiftData, eventId });
     });
 
-    // Update existing shifts
+    // Cập nhật ca đã có
     shifts.update.forEach(({ id, data }) => {
       const shiftRef = doc(db, 'shifts', id);
       batch.update(shiftRef, data);
     });
 
-    // Delete removed shifts
+    // Xóa ca bị gỡ
     shifts.delete.forEach(id => {
       batch.delete(doc(db, 'shifts', id));
     });
@@ -178,14 +178,14 @@ export const dbService = {
     await batch.commit();
   },
 
-  // Delete event and all its shifts in one batch (atomic operation)
+  // Xóa sự kiện & ca liên quan
   async deleteEventWithShifts(eventId: string, shiftIds: string[]): Promise<void> {
     const batch = writeBatch(db);
 
-    // Delete event
+    // Xóa doc event
     batch.delete(doc(db, 'events', eventId));
 
-    // Delete all shifts
+    // Xóa toàn bộ shift
     shiftIds.forEach(id => {
       batch.delete(doc(db, 'shifts', id));
     });
@@ -197,7 +197,7 @@ export const dbService = {
     await deleteDoc(doc(db, 'events', id));
   },
 
-  // Shifts - Real-time listener by Month
+  // Lấy shift theo tháng
   subscribeShiftsByMonth(month: number, year: number, callback: (shifts: Shift[]) => void): Unsubscribe {
     const startDate = new Date(year, month, 1).toISOString();
     const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
@@ -235,12 +235,12 @@ export const dbService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shift));
   },
 
-  // Subscribe to ALL unpaid shifts (for debt calculation)
+  // Lấy shift chưa trả
   subscribeUnpaidShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
     const q = query(
       collection(db, 'shifts'),
       where('status', '==', 'unpaid'),
-      orderBy('eventDate', 'asc') // Oldest debt first
+      orderBy('eventDate', 'asc') // Nợ cũ trước
     );
     return onSnapshot(q,
       (snapshot) => {
@@ -258,7 +258,7 @@ export const dbService = {
     await addDoc(collection(db, 'shifts'), data);
   },
 
-  // Batch add multiple shifts at once (prevents UI flickering)
+  // Thêm nhiều ca
   async addShiftsBatch(shiftsData: Omit<Shift, 'id'>[]): Promise<void> {
     if (shiftsData.length === 0) return;
     const batch = writeBatch(db);
@@ -269,7 +269,7 @@ export const dbService = {
     await batch.commit();
   },
 
-  // Batch delete multiple shifts at once
+  // Xóa nhiều ca
   async deleteShiftsBatch(shiftIds: string[]): Promise<void> {
     if (shiftIds.length === 0) return;
     const batch = writeBatch(db);
@@ -288,7 +288,7 @@ export const dbService = {
     await deleteDoc(doc(db, 'shifts', id));
   },
 
-  // Payments
+  // Theo dõi thanh toán
   subscribePayments(callback: (payments: PaymentTransaction[]) => void): Unsubscribe {
     const q = query(collection(db, 'payments'), orderBy('date', 'desc'));
     return onSnapshot(q, (snapshot) => {
@@ -303,14 +303,14 @@ export const dbService = {
   ): Promise<void> {
     const batch = writeBatch(db);
 
-    // Create payment document
+    // Tạo giao dịch
     const paymentRef = doc(collection(db, 'payments'));
     batch.set(paymentRef, paymentData);
 
-    // Determine shift status based on payment type
+    // Xác định status mới
     const shiftStatus = paymentData.type === 'advance' ? 'advanced' : 'paid';
 
-    // Update all shifts
+    // Update status shift
     shiftIds.forEach(shiftId => {
       const shiftRef = doc(db, 'shifts', shiftId);
       batch.update(shiftRef, {
@@ -323,7 +323,7 @@ export const dbService = {
     await batch.commit();
   },
 
-  // Tạo thanh toán ứng
+  // Tạo advance payment
   async createAdvancePayment(
     paymentData: Omit<PaymentTransaction, 'id' | 'type'>,
     shiftIds: string[]
@@ -345,7 +345,7 @@ export const dbService = {
     const batch = writeBatch(db);
     const now = Date.now();
 
-    // Tạo transaction quyết toán
+    // Tạo đơn quyết toán
     const settlementRef = doc(collection(db, 'payments'));
     batch.set(settlementRef, {
       employeeId,
@@ -357,7 +357,7 @@ export const dbService = {
       note: 'Quyết toán tiền ứng'
     });
 
-    // Cập nhật các advance payments
+    // Cập nhật đơn ứng
     advancePaymentIds.forEach(paymentId => {
       const paymentRef = doc(db, 'payments', paymentId);
       batch.update(paymentRef, {
@@ -366,7 +366,7 @@ export const dbService = {
       });
     });
 
-    // Cập nhật shifts từ advanced thành paid
+    // Đổi status sang paid
     shiftIds.forEach(shiftId => {
       const shiftRef = doc(db, 'shifts', shiftId);
       batch.update(shiftRef, {
@@ -379,7 +379,7 @@ export const dbService = {
     await batch.commit();
   },
 
-  // User Settings
+  // Theo dõi cài đặt
   subscribeSettings(callback: (settings: UserSettings) => void): Unsubscribe {
     const docRef = doc(db, 'settings', 'user');
     return onSnapshot(docRef, (snapshot) => {

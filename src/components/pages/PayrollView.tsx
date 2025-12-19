@@ -42,7 +42,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     return unsubscribe;
   }, []);
 
-  // Theme classes
+  // Style theo theme
   const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
   const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
   const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
@@ -78,8 +78,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
       }
     });
 
-    // Tính netAmount (số tiền thực tế cần trả)
-    // netAmount = tổng tiền chưa trả (chỉ tính unpaid, không trừ advanced)
+    // Net amount = chưa trả (không trừ tạm ứng)
     Object.values(map).forEach(emp => {
       emp.netAmount = emp.totalUnpaid; // Chỉ hiển thị số tiền chưa trả thực tế
     });
@@ -87,7 +86,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
   }, [shifts, employees]);
 
-  // Filtered and sorted summary for payroll tab
+  // Lọc và sắp xếp bảng lương
   const filteredAndSortedSummary = useMemo(() => {
     const filtered = summary.filter(item => {
       const matchesSearch = item.employeeName.toLowerCase().includes(payrollSearchTerm.toLowerCase()) ||
@@ -109,7 +108,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     });
   }, [summary, payrollSearchTerm, payrollSortBy]);
 
-  // Sort options for payroll dropdown
+  // Tùy chọn sắp xếp
   const payrollSortOptions: DropdownOption[] = [
     { value: 'amount', label: 'Số tiền cao' },
     { value: 'shifts', label: 'Nhiều công' },
@@ -131,7 +130,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     setPayConfirm(true);
   };
 
-  // Xử lý chọn/bỏ chọn tất cả
+  // Chọn/Bỏ chọn tất cả
   const handleSelectAll = () => {
     if (selectedShiftIds.length === selectedUnpaidShifts.length) {
       setSelectedShiftIds([]);
@@ -140,7 +139,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     }
   };
 
-  // Xử lý chọn/bỏ chọn từng ca
+  // Chọn/Bỏ chọn từng ca
   const handleSelectShift = (shiftId: string) => {
     setSelectedShiftIds(prev =>
       prev.includes(shiftId)
@@ -193,14 +192,14 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     return paymentHistory.find(p => p.id === selectedTransactionId);
   }, [selectedTransactionId, paymentHistory]);
 
-  // Tính tổng tiền của các ca được chọn
+  // Tổng tiền các ca đã chọn
   const selectedShiftsTotal = useMemo(() => {
     return selectedUnpaidShifts
       .filter(shift => selectedShiftIds.includes(shift.id))
       .reduce((sum, shift) => sum + shift.amount, 0);
   }, [selectedUnpaidShifts, selectedShiftIds]);
 
-  // Reset selection khi đổi nhân viên
+  // Reset khi đổi nhân viên
   React.useEffect(() => {
     if (selectedEmpId && selectedUnpaidShifts.length > 0) {
       // Mặc định chọn tất cả khi mở modal
@@ -216,35 +215,29 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
     return shifts.filter(s => s.paymentId === selectedTransaction.id);
   }, [selectedTransaction, shifts]);
 
-  // Filtered History
+  // Lịch sử giao dịch
   const filteredHistory = useMemo(() => {
     return paymentHistory.filter(payment => {
       const matchesSearch = payment.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesDate = filterDate ? payment.date >= new Date(filterDate).getTime() && payment.date < new Date(filterDate).setMonth(new Date(filterDate).getMonth() + 1) : true;
-      // Simple string match for YYYY-MM if we want to be exact without timezone issues:
-      // const paymentDate = new Date(payment.date);
-      // const paymentMonth = `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`;
-      // const matchesDate = filterDate ? paymentMonth === filterDate : true;
-
       return matchesSearch && matchesDate;
     });
   }, [paymentHistory, searchTerm, filterDate]);
 
   return (
     <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
-      {/* Header */}
+      {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
           {activeTab === 'payroll' && summary.length > 0 && (
-            // Button previously here was removed for global placement
             null
           )}
         </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
-          {/* Mobile Layout */}
+          {/* Giao diện Mobile */}
           <div className="block md:hidden">
-            {/* Main stat - prominent display */}
+            {/* Thống kê chính */}
             <div className="text-center mb-4">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Wallet2 size={20} className="text-[#ecb52d]/70" />
@@ -258,7 +251,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               <p className="text-sm text-[#ecb52d]/70 mt-1">Còn cần trả</p>
             </div>
 
-            {/* Secondary stats in 2-column grid */}
+            {/* Thống kê phụ (2 cột) */}
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#ecb52d]/20">
               <div className="text-center flex flex-col items-center">
                 <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
@@ -282,7 +275,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
             </div>
           </div>
 
-          {/* Desktop Layout */}
+          {/* Giao diện Desktop */}
           <div className="hidden md:flex justify-between items-start">
             <div className="flex-1">
               <div className="grid grid-cols-3 gap-6">
@@ -323,7 +316,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs chuyển đổi */}
       <div className="flex px-4 md:px-6 pt-4 md:pt-6 pb-2 gap-4">
         <button
           onClick={() => setActiveTab('payroll')}
@@ -339,7 +332,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </button>
       </div>
 
-      {/* Filters for Payroll */}
+      {/* Bộ lọc lương */}
       {activeTab === 'payroll' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
           <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
@@ -362,7 +355,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       )}
 
-      {/* Filters (Only for History) */}
+      {/* Bộ lọc lịch sử */}
       {activeTab === 'history' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
           <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
@@ -390,7 +383,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       )}
 
-      {/* List */}
+      {/* Danh sách */}
       <div className="px-4 md:px-6 pt-2 pb-4 md:pb-6 space-y-2">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
@@ -520,7 +513,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         )}
       </div>
 
-      {/* Employee Detail Modal */}
+      {/* Modal chi tiết nhân viên */}
       <Modal
         title={selectedEmployeeSummary?.employeeName || "Chi tiết"}
         isOpen={!!selectedEmpId}
@@ -538,7 +531,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         }
       >
         <div className="space-y-4">
-          {/* Thông tin tổng quan */}
+          {/* Tổng quan */}
           {selectedEmployeeSummary && (
             <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -578,7 +571,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
             </div>
           )}
 
-          {/* Thông tin về tiền ứng */}
+          {/* Thông tin tạm ứng */}
           {selectedEmployeeSummary && selectedEmployeeSummary.advancedCount > 0 && (
             <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <AlertTriangle size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
@@ -646,7 +639,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
                 </div>
               ))}
 
-              {/* Hiển thị tổng tiền được chọn */}
+              {/* Tổng tiền đã chọn */}
               {selectedShiftIds.length > 0 && (
                 <div className={`mt-3 p-3 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg`}>
                   <div className="flex justify-between items-center">
@@ -664,7 +657,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       </Modal>
 
-      {/* Transaction Detail Modal */}
+      {/* Chi tiết giao dịch */}
       <Modal
         title="Chi tiết thanh toán"
         isOpen={!!selectedTransactionId}
@@ -672,7 +665,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         footer={null}
       >
         <div className="space-y-3">
-          {/* Thông tin giao dịch */}
+          {/* Thông tin chung */}
           <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
             <div className="flex justify-between items-start mb-3">
               <div>
@@ -739,7 +732,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       </Modal>
 
-      {/* Pay Confirm Modal */}
+      {/* Xác nhận thanh toán */}
       <Modal
         title="Xác nhận thanh toán"
         isOpen={payConfirm}
@@ -777,7 +770,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       </Modal>
 
-      {/* Month Filter Modal */}
+      {/* Chọn tháng */}
       <Modal
         title="Chọn thời gian"
         isOpen={isFilterModalOpen}
@@ -845,7 +838,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         </div>
       </Modal>
 
-      {/* Payment Modal */}
+      {/* Modal thanh toán */}
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => {
@@ -860,7 +853,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         onSelectAll={handleSelectAll}
       />
 
-      {/* Settlement Modal */}
+      {/* Modal quyết toán */}
       {selectedEmpId && (
         <SettlementModal
           isOpen={showSettlementModal}

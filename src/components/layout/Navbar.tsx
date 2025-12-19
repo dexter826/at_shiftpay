@@ -19,7 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
 
-  // Theme classes
+  // Style theo theme
   const sidebarBg = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
   const borderColor = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
   const textMuted = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
@@ -28,7 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Sidebar Desktop */}
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
         <div className={`p-5 border-b ${borderColor}`}>
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           ))}
         </nav>
 
-        {/* Desktop Footer */}
+        {/* Footer Desktop */}
         <div className={`p-4 border-t ${borderColor}`}>
           <button
             onClick={onLogout}
@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         </div>
       </div>
 
-      {/* Mobile Bottom Bar */}
+      {/* Mobile Menu */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
         {navItems.filter(item => item.id !== 'settings').map((item) => (
           <button

@@ -29,7 +29,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  // OTP-style code input
+  // Nhập mã OTP
   const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -38,7 +38,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     useRef<HTMLInputElement>(null),
   ];
 
-  // Validation errors
+  // Lỗi xác thực
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -238,7 +238,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     if (verificationSent) setVerificationSent(false);
   };
 
-  // Theme classes
+  // Style theo theme
   const isDark = theme === 'dark';
   const bgClass = isDark
     ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
@@ -254,17 +254,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 transition-colors duration-300`}>
       <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px] transition-all duration-300 relative`}>
-        {/* Decorative shapes */}
+        {/* Họa tiết trang trí */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-[#ecb52d]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-        {/* Header - Logo */}
+        {/* Logo tiêu đề */}
         <div className="w-full pt-8 pb-2 flex justify-center z-10 relative">
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-12 object-contain" />
         </div>
 
         <div className="flex flex-col md:flex-row flex-1">
-          {/* Left side - Illustration */}
+          {/* Cột trái: Minh họa */}
           <div className={`hidden md:flex md:w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden`}>
 
             <div className="w-full relative z-10 text-center flex flex-col items-center justify-center">
@@ -308,10 +308,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
           </div>
 
-          {/* Right side - Form */}
+          {/* Cột phải: Form */}
           <div className="w-full md:w-1/2 p-6 md:p-8 md:border-l border-slate-200 dark:border-slate-800 flex flex-col justify-center">
             <div className="max-w-md mx-auto w-full">
-              {/* Mobile logo - HIDDEN now as we have main logo */}
+              {/* Logo mobile (đã ẩn) */}
               <div className="md:hidden text-center mb-4 hidden">
                 <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
               </div>
@@ -331,7 +331,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Email field */}
+                {/* Email */}
                 <div className="space-y-1.5">
                   <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
                     Email
@@ -356,7 +356,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   {emailError && <p className="text-red-500 text-xs ml-1 font-medium">{emailError}</p>}
                 </div>
 
-                {/* Full name field (signup only) */}
+                {/* Họ tên */}
                 {isSignUp && (
                   <div className="space-y-1.5">
                     <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
@@ -386,7 +386,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   </div>
                 )}
 
-                {/* Password field */}
+                {/* Mật khẩu */}
                 <div className="space-y-1.5">
                   <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
                     Mật khẩu
@@ -424,7 +424,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
                 </div>
 
-                {/* Confirm password (signup only) */}
+                {/* Xác nhận mật khẩu */}
                 {isSignUp && (
                   <div className="space-y-1.5">
                     <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
@@ -461,7 +461,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   </div>
                 )}
 
-                {/* Code input (signup only) */}
+                {/* Mã bếp */}
                 {isSignUp && (
                   <div className="space-y-2">
                     <label className={`block text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
@@ -487,7 +487,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   </div>
                 )}
 
-                {/* Remember me and Forgot Password */}
+                {/* Ghi nhớ & Quên mật khẩu */}
                 {!isSignUp && (
                   <div className="flex items-center justify-between pt-1">
                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -537,7 +537,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 </Button>
               </form>
 
-              {/* Mobile switch mode */}
+              {/* Đổi chế độ mobile */}
               <div className="md:hidden mt-8 text-center border-t border-slate-200 dark:border-slate-700 pt-6">
                 <p className={`text-sm ${textMutedClass} mb-3`}>
                   {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}

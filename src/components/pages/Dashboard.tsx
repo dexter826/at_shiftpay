@@ -138,7 +138,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
     return (
         <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
             {/* Header section removed - moved to global TopBar */}
-            {/* Desktop Only Header for Greeting */}
+            {/* Greeting Header (Desktop) */}
             <div className={`hidden md:block p-6 border-b ${borderClass}`}>
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
             </div>
 
             <div className="p-4 md:p-6 space-y-6">
-                {/* Mobile Export Button */}
+                {/* Nút xuất báo cáo (Mobile) */}
                 <div className="md:hidden">
                     <Button
                         onClick={onOpenExport}
@@ -175,7 +175,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </Button>
                 </div>
 
-                {/* Stats Cards */}
+                {/* Thẻ thống kê */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
@@ -228,9 +228,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
                 </div>
 
-                {/* Charts */}
+                {/* Biểu đồ */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Bar Chart */}
+                    {/* Biểu đồ cột */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>
                             Hoạt động {monthName}
@@ -259,7 +259,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                         )}
                     </div>
 
-                    {/* Pie Chart */}
+                    {/* Biểu đồ tròn */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán</h3>
                         {paymentData.length > 0 ? (
@@ -297,7 +297,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
                 </div>
 
-                {/* Settings Card for Desktop (Read Only Info) */}
+                {/* Thẻ cài đặt (Desktop) */}
                 <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                     <div className="flex items-center justify-between mb-4">
                         <h3

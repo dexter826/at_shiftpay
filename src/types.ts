@@ -3,7 +3,7 @@ export interface Employee {
   name: string;
   phone: string;
   imageUrl?: string;
-  createdAt: string; // ISO date string
+  createdAt: string; // Chuỗi ISO 8601
 }
 
 export interface Event {
@@ -12,7 +12,7 @@ export interface Event {
   time?: string; // HH:mm
   title: string;
   note?: string;
-  amount?: number; // Salary rate for this event
+  amount?: number; // Mức lương sự kiện
 }
 
 export type ShiftSession = 'morning' | 'afternoon';
@@ -28,7 +28,7 @@ export interface Shift {
   amount: number;
   status: ShiftStatus;
   paidAt?: number | null;
-  paymentId?: string; // Reference to the payment transaction
+  paymentId?: string; // ID giao dịch thanh toán
 }
 
 export type PaymentType = 'regular' | 'advance' | 'settlement';
@@ -42,9 +42,9 @@ export interface PaymentTransaction {
   shiftIds: string[];
   note?: string;
   type: PaymentType; // Loại thanh toán
-  isAdvance?: boolean; // Có phải tiền ứng không (deprecated, dùng type)
-  settledAt?: number; // Thời điểm quyết toán (nếu là advance)
-  settledBy?: string; // ID của transaction quyết toán
+  isAdvance?: boolean;
+  settledAt?: number; // Thời điểm hoàn ứng
+  settledBy?: string; // ID giao dịch hoàn ứng
 }
 
 export interface PayrollSummary {
@@ -55,15 +55,15 @@ export interface PayrollSummary {
   totalUnpaid: number;
   advancedCount: number; // Số ca đã ứng
   totalAdvanced: number; // Tổng tiền đã ứng
-  netAmount: number; // Số tiền thực tế cần trả (unpaid - advanced)
+  netAmount: number; // Thực nhận (unpaid - advanced)
 }
 
 export interface AdvanceBalance {
   employeeId: string;
   employeeName: string;
   totalAdvanced: number; // Tổng tiền đã ứng
-  totalEarned: number; // Tổng tiền đã làm (bao gồm cả unpaid)
-  balance: number; // Số dư (âm = còn nợ manager, dương = manager nợ nhân viên)
+  totalEarned: number; // Tổng thu nhập (gồm chưa thanh toán)
+  balance: number; // Âm: nợ quản lý, Dương: quản lý nợ
 }
 
 export interface UserSettings {

@@ -15,7 +15,7 @@ import { useAppData } from './hooks/useAppData';
 import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
 
-// Simple Mock Routing - Updated for HMR
+// Điều hướng đơn giản (HMR)
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings';
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
     localStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
 
-  // Sử dụng custom hook để quản lý dữ liệu
+  // Custom hook quản lý dữ liệu
   const {
     user,
     authLoading,
@@ -173,7 +173,7 @@ function App() {
   );
 }
 
-// Separate component to use theme
+// Tách component để dùng theme
 function AppContent({
   activeTab,
   setActiveTab,
@@ -264,12 +264,12 @@ function AppWrapper() {
 }
 
 function AppWithSplash() {
-  // Kiểm tra sessionStorage ngay từ đầu để tránh render không cần thiết
+  // Check sessionStorage tránh render thừa
   const [showSplash, setShowSplash] = useState(() => {
     return !sessionStorage.getItem('splashscreen_shown');
   });
 
-  // Hiển thị splashscreen nếu cần
+  // Hiển thị splashscreen
   if (showSplash) {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;
   }

@@ -26,7 +26,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Theme classes
+  // Style theo theme
   const inputBorderClass = theme === 'dark' ? 'border-slate-600' : 'border-gray-300';
   const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-gray-500';
   const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-gray-800';
@@ -83,11 +83,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
     }
 
     try {
-      // 1. Re-authenticate
+      // 1. Xác thực lại
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // 2. Update password
+      // 2. Cập nhật mật khẩu
       await updatePassword(user, newPassword);
 
       setSuccess('Đổi mật khẩu thành công!');
@@ -106,7 +106,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
         setError('Đã xảy ra lỗi: ' + (err.message || 'Vui lòng thử lại sau'));
       }
     } finally {
-      if (!success) { // logic check to avoid overwriting success loading state if needed, but simple setLoading(false) is fine here usually unless dealing with async success close
+      if (!success) { // Tránh ghi đè nếu đã thành công
         setLoading(false);
       }
     }
@@ -154,7 +154,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
           </div>
         )}
 
-        {/* Current Password */}
+        {/* Mật khẩu hiện tại */}
         <div>
           <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Mật khẩu hiện tại</label>
           <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-[#ecb52d]`}>
@@ -176,7 +176,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
           </div>
         </div>
 
-        {/* New Password */}
+        {/* Mật khẩu mới */}
         <div>
           <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Mật khẩu mới</label>
           <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-[#ecb52d]`}>
@@ -198,7 +198,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
           </div>
         </div>
 
-        {/* Confirm New Password */}
+        {/* Xác nhận mật khẩu mới */}
         <div>
           <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Xác nhận mật khẩu mới</label>
           <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-[#ecb52d]`}>

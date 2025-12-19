@@ -39,13 +39,11 @@ const Switch = () => {
 const StyledWrapper = styled.div`
   .theme-switch {
     --toggle-size: 13px;
-    /* the size is adjusted using font-size,
-       this is not transform scale,
-       so you can choose any size */
+    /* Chỉnh kích thước bằng font-size */
     --container-width: 5.625em;
     --container-height: 2.5em;
     --container-radius: 6.25em;
-    /* radius 0 - minecraft mode :) */
+    /* Chế độ Minecraft */
     --container-light-bg: #3D7EAE;
     --container-night-bg: #1D1F2C;
     --circle-container-diameter: 3.375em;
@@ -205,7 +203,7 @@ const StyledWrapper = styled.div`
     transition: var(--transition);
   }
 
-  /* actions */
+  /* Tương tác */
 
   .theme-switch__checkbox:checked + .theme-switch__container {
     background-color: var(--container-night-bg);

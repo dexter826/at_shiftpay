@@ -34,7 +34,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const { showToast } = useToast();
   const { theme } = useTheme();
 
-  // Theme classes
+  // Style theo theme
   const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
   const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
   const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
@@ -154,7 +154,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         {/* Calendar */}
         <div className="flex-1">
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
-            {/* Header */}
+            {/* Tiêu đề lịch */}
             <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
               <button onClick={prevMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
                 <ChevronLeft size={18} />
@@ -165,14 +165,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </button>
             </div>
 
-            {/* Days Header */}
+            {/* Tiêu đề ngày tháng */}
             <div className={`grid grid-cols-7 border-b ${borderClass}`}>
               {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => (
                 <div key={d} className={`py-2 text-center text-[11px] font-medium ${textMutedClass}`}>{d}</div>
               ))}
             </div>
 
-            {/* Days Grid */}
+            {/* Lưới lịch */}
             <div className="grid grid-cols-7 p-2 gap-1 lg:flex-1 lg:auto-rows-fr">
               {loading ? (
                 Array.from({ length: 35 }).map((_, i) => (
@@ -217,7 +217,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
         </div>
 
-        {/* Details */}
+        {/* Chi tiết bên phải */}
         <div className="w-full lg:w-72">
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
             {selectedDate ? (
@@ -281,7 +281,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                           </div>
                         </div>
 
-                        {/* Shifts */}
+                        {/* Thông tin ca */}
                         <div className="flex gap-2 mt-2 ml-5">
                           {['morning', 'afternoon'].map(session => {
                             const count = shiftsForDisplay.filter(s => s.eventId === evt.id && s.session === session).length;
@@ -321,7 +321,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         }}
       />
 
-      {/* Delete Confirm Modal */}
+      {/* Modal xác nhận xóa */}
       <Modal
         title="Xác nhận xóa"
         isOpen={!!deleteConfirm}
@@ -348,7 +348,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa sự kiện này?</p>
       </Modal>
 
-      {/* Event Detail Modal */}
+      {/* Modal chi tiết sự kiện */}
       <Modal
         title={viewingEvent?.title || "Chi tiết sự kiện"}
         isOpen={!!viewingEvent}
@@ -402,7 +402,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               )}
             </div>
 
-            {/* Salary Field */}
+            {/* Thông tin lương */}
             <div>
               <p className={`text-xs ${textMutedClass} mb-1`}>Lương / 1 ca</p>
               <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>

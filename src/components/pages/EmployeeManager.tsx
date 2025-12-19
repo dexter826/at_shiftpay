@@ -20,7 +20,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const { showToast } = useToast();
   const { theme } = useTheme();
 
-  // Theme classes
+  // Style theo theme
   const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
   const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
   const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
@@ -30,7 +30,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const inputBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
   const inputBorderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
 
-  // Tính số công của mỗi nhân viên trong tháng hiện tại
+  // Tính số công trong tháng
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
@@ -45,17 +45,17 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     return counts;
   }, [shifts, currentMonth, currentYear]);
 
-  // Kiểm tra nhân viên có thể xóa được không
+  // Check điều kiện xóa nhân viên
   const canDeleteEmployee = (empId: string): { canDelete: boolean; reason?: string } => {
     const today = new Date().toISOString().split('T')[0];
 
-    // Kiểm tra có công chưa thanh toán không
+    // Check công chưa thanh toán
     const unpaidShifts = shifts.filter(s => s.employeeId === empId && s.status === 'unpaid');
     if (unpaidShifts.length > 0) {
       return { canDelete: false, reason: `Nhân viên còn ${unpaidShifts.length} công chưa thanh toán` };
     }
 
-    // Kiểm tra có nằm trong sự kiện chưa diễn ra không
+    // Check lịch làm sắp tới
     const futureShifts = shifts.filter(s => s.employeeId === empId && s.eventDate >= today);
     if (futureShifts.length > 0) {
       return { canDelete: false, reason: `Nhân viên đang có ${futureShifts.length} ca làm sắp tới` };
@@ -109,7 +109,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       return;
     }
 
-    // Close modal immediately for better UX
+    // Đóng modal ngay để UX mượt
     const isEditing = !!editingEmp;
     const empId = editingEmp?.id;
     setModalOpen(false);
@@ -124,7 +124,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       }
     } catch (err) {
       showToast('Có lỗi xảy ra', 'error');
-      // Re-open modal if error (optional, but for now we just show toast)
+      // Mở lại modal nếu lỗi (tùy chọn)
     }
   };
 
@@ -163,7 +163,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           const bShifts = shiftCountByEmployee[b.id] || 0;
           return bShifts - aShifts; // Nhiều công nhất lên đầu
         case 'recent':
-          // Sắp xếp theo nhân viên được thêm gần đây nhất
+          // Mới nhất lên đầu
           return (b.createdAt || 0) - (a.createdAt || 0);
         default:
           return 0;
@@ -171,7 +171,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     });
   }, [employees, searchTerm, sortBy, shiftCountByEmployee]);
 
-  // Sort options for dropdown
+  // Tùy chọn sắp xếp
   const sortOptions: DropdownOption[] = [
     { value: 'name', label: 'Tên A-Z' },
     { value: 'shifts', label: 'Nhiều công' },
@@ -180,7 +180,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
 
   return (
     <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
-      {/* Header */}
+      {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           <div>
@@ -199,7 +199,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </Button>
         </div>
 
-        {/* Search & Sort */}
+        {/* Tìm kiếm & Sắp xếp */}
         <div className="mt-4 flex gap-2">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -223,7 +223,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         </div>
       </div>
 
-      {/* List */}
+      {/* Danh sách nhân viên */}
       <div className="p-4 md:p-6">
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -241,7 +241,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredAndSortedEmployees.map((emp) => (
               <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-[#ecb52d]/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
-                {/* Image Container - Full height */}
+                {/* Ảnh cover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
                   {emp.imageUrl ? (
                     <img
@@ -258,10 +258,10 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                     </div>
                   )}
 
-                  {/* Gradient Overlay for text readability */}
+                  {/* Gradient làm nền cho chữ */}
                   <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
 
-                  {/* Actions overlay - always visible on mobile, hover on desktop */}
+                  {/* Nút thao tác (Hover/Touch) */}
                   <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
                     <button
                       onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
@@ -278,7 +278,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                   </div>
                 </div>
 
-                {/* Content Overlay */}
+                {/* Thông tin hiển thị */}
                 <div className="absolute bottom-0 left-0 right-0 p-3 z-10 text-white">
                   <h3 className="text-sm font-bold truncate leading-tight mb-1 shadow-black/50 drop-shadow-sm">{emp.name}</h3>
 
@@ -309,7 +309,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal Thêm/Sửa */}
       <Modal
         title={editingEmp ? "Sửa thông tin" : "Thêm nhân viên"}
         isOpen={modalOpen}
@@ -364,7 +364,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         </form>
       </Modal>
 
-      {/* Delete Confirm Modal */}
+      {/* Xác nhận xóa */}
       <Modal
         title="Xác nhận xóa"
         isOpen={!!deleteConfirm}
@@ -392,7 +392,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
 
-      {/* Delete Error Modal */}
+      {/* Thông báo lỗi xóa */}
       <Modal
         title="Không thể xóa"
         isOpen={!!deleteError}

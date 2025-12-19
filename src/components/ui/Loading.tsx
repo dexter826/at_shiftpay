@@ -214,14 +214,14 @@ const StyledWrapper = styled.div`
     justify-content: flex-end;
     overflow-x: hidden;
   }
-  /* truck upper body */
+  /* Thân xe */
   .truckBody {
     width: 130px;
     height: fit-content;
     margin-bottom: 6px;
     animation: motion 1s linear infinite;
   }
-  /* truck suspension animation*/
+  /* Hiệu ứng nhún */
   @keyframes motion {
     0% {
       transform: translateY(0px);
@@ -233,7 +233,7 @@ const StyledWrapper = styled.div`
       transform: translateY(0px);
     }
   }
-  /* truck's tires */
+  /* Bánh xe */
   .truckTires {
     width: 130px;
     height: fit-content;

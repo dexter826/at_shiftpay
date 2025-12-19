@@ -2,16 +2,13 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { PayrollSummary, Shift, Event, Employee, UserSettings } from '../types';
 
-// Helper to format currency
+// Format tiền tệ
 const formatMoney = (amount: number) => {
     return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 };
 
 export const exportPayrollToExcel = async (summary: PayrollSummary[], shifts: Shift[], title: string = 'Bảng Công Nợ') => {
-    // Keep existing function for backward compatibility if needed, or redirect to new one
-    // For now, let's keep it but ideally we upgrade to the detailed one.
-    // However, the user request specifically asked for "Detail Report"
-    // Let's implement the new detailed export function independently.
+    // Đã cũ. Dùng exportDetailedReport
 };
 
 export const exportDetailedReport = async (
@@ -25,7 +22,7 @@ export const exportDetailedReport = async (
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Báo Cáo Chi Tiết');
 
-    // Define Columns
+    // Cấu hình cột Excel
     sheet.columns = [
         { header: 'Ngày', key: 'date', width: 15 },
         { header: 'Tên sự kiện', key: 'event', width: 40 },
@@ -35,13 +32,13 @@ export const exportDetailedReport = async (
         { header: 'Tổng tiền', key: 'amount', width: 20 },
     ];
 
-    // Style Header
+    // Style tiêu đề
     const headerRow = sheet.getRow(1);
     headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }; // Blue
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
     headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
-    // Grouping Logic
+    // Gom nhóm theo ca
     const groupedData = new Map<string, {
         date: string;
         eventTitle: string;
@@ -51,7 +48,7 @@ export const exportDetailedReport = async (
         workerNames: string[];
     }>();
 
-    // Filter shifts for the month
+    // Lọc ca theo tháng
     const filteredShifts = shifts.filter(s => {
         const d = new Date(s.eventDate);
         return d.getMonth() + 1 === month && d.getFullYear() === year;
@@ -78,7 +75,7 @@ export const exportDetailedReport = async (
         group.workerNames.push(shift.employeeName);
     });
 
-    // Sort keys based on date (re-sort groups)
+    // Sắp xếp ngày tăng dần
     const sortedGroups = Array.from(groupedData.values()).sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
@@ -86,7 +83,7 @@ export const exportDetailedReport = async (
         return a.session === 'Sáng' ? -1 : 1;
     });
 
-    // Add Rows
+    // Ghi dữ liệu vào dòng
     sortedGroups.forEach(group => {
         const row = sheet.addRow({
             date: group.date,
@@ -97,7 +94,7 @@ export const exportDetailedReport = async (
             amount: group.amount
         });
 
-        // Cell Styling
+        // Style cho các ô
         row.getCell('date').alignment = { vertical: 'middle', horizontal: 'center' };
         row.getCell('session').alignment = { vertical: 'middle', horizontal: 'center' };
         row.getCell('count').alignment = { vertical: 'middle', horizontal: 'center' };
@@ -106,7 +103,7 @@ export const exportDetailedReport = async (
         row.getCell('amount').numFmt = '#,##0 "₫"';
     });
 
-    // Add Borders
+    // Thêm viền bảng
     sheet.eachRow((row, rowNumber) => {
         row.eachCell((cell) => {
             cell.border = {
@@ -118,10 +115,10 @@ export const exportDetailedReport = async (
         });
     });
 
-    // Generate buffer
+    // Xuất file buffer
     const buffer = await workbook.xlsx.writeBuffer();
 
-    // Save file
+    // Tải file về máy
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const filename = `Bao_Cao_Thang_${month}_${year}.xlsx`;
     saveAs(blob, filename);

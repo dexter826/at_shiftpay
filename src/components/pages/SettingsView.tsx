@@ -31,7 +31,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
-    // Helper to check for changes
+    // Kiểm tra thay đổi
     const handleChange = (key: keyof UserSettings, value: any) => {
         const newSettings = { ...editSettings, [key]: value };
         setEditSettings(newSettings);
@@ -51,7 +51,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
         setSaving(false);
     };
 
-    // Styles
+    // Style theo theme
     const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
     const cardBg = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
     const textMain = theme === 'dark' ? 'text-slate-200' : 'text-slate-800';
@@ -70,7 +70,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
         <div className={`pb-20 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
             <div className="max-w-3xl lg:max-w-5xl mx-auto p-4 md:p-6 space-y-5">
 
-                {/* Header */}
+                {/* Tiêu đề */}
                 <div className="flex items-center justify-between">
                     <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
                     <div className="flex items-center gap-3">
@@ -88,9 +88,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                     </div>
                 </div>
 
-                {/* Single column layout */}
+                {/* Bố cục cột đơn */}
                 <div className="space-y-5">
-                    {/* Profile Section */}
+                    {/* Thông tin tài khoản */}
                     <section>
                         <SectionTitle icon={User} title="Tài khoản" />
                         <div className={`${cardBg} rounded-xl border ${border} overflow-hidden`}>
@@ -122,11 +122,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                         </div>
                     </section>
 
-                    {/* Work Config Section */}
+                    {/* Cấu hình công việc */}
                     <section>
                         <SectionTitle icon={Briefcase} title="Cấu hình công việc" />
                         <div className={`${cardBg} rounded-xl border ${border}`}>
-                            {/* Shift Rate */}
+                            {/* Mức lương */}
                             <div className={`p-4 border-b ${border}`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className={`font-medium ${textMain}`}>Mức lương / ca</label>
@@ -141,7 +141,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                                 <p className={`text-xs ${textSub} mt-2`}>Áp dụng cho các ca làm việc mới</p>
                             </div>
 
-                            {/* Shift Times */}
+                            {/* Thời gian ca */}
                             <div className="grid grid-cols-1 sm:grid-cols-2">
                                 <div className={`p-4 border-b sm:border-b-0 sm:border-r ${border}`}>
                                     <label className={`block font-medium ${textMain} mb-3`}>Giờ bắt đầu ca sáng</label>
@@ -161,7 +161,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                         </div>
                     </section>
 
-                    {/* Danger Zone - Moved to bottom */}
+                    {/* Khu vực nguy hiểm */}
                     <section>
                         <div className={`${cardBg} rounded-xl border ${theme === 'dark' ? 'border-red-900/30' : 'border-red-200'} overflow-hidden`}>
                             <button
