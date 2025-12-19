@@ -117,7 +117,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             <span className={textSecondary}>Số tiền thực tế cần trả:</span>
                             <p className={`font-bold text-lg ${employeeSummary.netAmount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                 {formatCurrency(Math.abs(employeeSummary.netAmount))}
-                                {employeeSummary.netAmount < 0 && ' (Manager đã ứng thừa)'}
+                                {employeeSummary.netAmount < 0 && ' (Đã ứng thừa)'}
                             </p>
                         </div>
                     </div>

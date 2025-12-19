@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Employee, Shift } from '../../types';
 import { dbService } from '../../services/firebase';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
+import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface EmployeeManagerProps {
@@ -70,6 +71,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const [phone, setPhone] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
 
   const openAddModal = () => {
@@ -146,10 +148,35 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     }
   };
 
-  const filteredEmployees = employees.filter(e =>
-    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.phone.includes(searchTerm)
-  );
+  const filteredAndSortedEmployees = useMemo(() => {
+    const filtered = employees.filter(e =>
+      e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      e.phone.includes(searchTerm)
+    );
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name, 'vi');
+        case 'shifts':
+          const aShifts = shiftCountByEmployee[a.id] || 0;
+          const bShifts = shiftCountByEmployee[b.id] || 0;
+          return bShifts - aShifts; // Nhiều công nhất lên đầu
+        case 'recent':
+          // Sắp xếp theo nhân viên được thêm gần đây nhất
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        default:
+          return 0;
+      }
+    });
+  }, [employees, searchTerm, sortBy, shiftCountByEmployee]);
+
+  // Sort options for dropdown
+  const sortOptions: DropdownOption[] = [
+    { value: 'name', label: 'Tên A-Z' },
+    { value: 'shifts', label: 'Nhiều công' },
+    { value: 'recent', label: 'Mới nhất' }
+  ];
 
   return (
     <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
@@ -172,16 +199,26 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative mt-4">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Nhập từ khóa tìm kiếm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+        {/* Search & Sort */}
+        <div className="mt-4 flex gap-2">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Nhập từ khóa tìm kiếm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              disabled={loading}
+              className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d] disabled:opacity-50`}
+            />
+          </div>
+
+          <Dropdown
+            options={sortOptions}
+            value={sortBy}
+            onChange={(value) => setSortBy(value as 'name' | 'shifts' | 'recent')}
+            icon={<ArrowUpDown size={16} />}
             disabled={loading}
-            className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-[#ecb52d] disabled:opacity-50`}
           />
         </div>
       </div>
@@ -202,7 +239,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredEmployees.map((emp) => (
+            {filteredAndSortedEmployees.map((emp) => (
               <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-[#ecb52d]/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
                 {/* Image Container - Full height */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
@@ -262,10 +299,12 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </div>
         )}
 
-        {filteredEmployees.length === 0 && (
+        {filteredAndSortedEmployees.length === 0 && !loading && (
           <div className={`text-center py-12 ${textMutedClass}`}>
             <Users size={24} className="mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Không tìm thấy</p>
+            <p className="text-sm">
+              {searchTerm ? 'Không tìm thấy nhân viên nào' : 'Chưa có nhân viên nào'}
+            </p>
           </div>
         )}
       </div>

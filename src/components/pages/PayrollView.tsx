@@ -3,13 +3,14 @@ import { Shift, PayrollSummary, PaymentTransaction } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services/firebase';
 import { exportPayrollToExcel } from '../../services/excel';
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import { PaymentModal } from '../modals/PaymentModal';
 import { SettlementModal } from '../modals/SettlementModal';
+import { Dropdown, DropdownOption } from '../ui/Dropdown';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -22,6 +23,8 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [payrollSearchTerm, setPayrollSearchTerm] = useState('');
+  const [payrollSortBy, setPayrollSortBy] = useState<'amount' | 'shifts' | 'name'>('amount');
   const [filterDate, setFilterDate] = useState(''); // YYYY-MM
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
@@ -81,6 +84,35 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
 
     return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
   }, [shifts, employees]);
+
+  // Filtered and sorted summary for payroll tab
+  const filteredAndSortedSummary = useMemo(() => {
+    const filtered = summary.filter(item => {
+      const matchesSearch = item.employeeName.toLowerCase().includes(payrollSearchTerm.toLowerCase()) ||
+        item.phone.includes(payrollSearchTerm);
+      return matchesSearch;
+    });
+
+    return filtered.sort((a, b) => {
+      switch (payrollSortBy) {
+        case 'amount':
+          return b.totalUnpaid - a.totalUnpaid; // Số tiền cao nhất lên đầu
+        case 'shifts':
+          return b.unpaidCount - a.unpaidCount; // Nhiều công nhất lên đầu
+        case 'name':
+          return a.employeeName.localeCompare(b.employeeName, 'vi'); // Tên A-Z
+        default:
+          return 0;
+      }
+    });
+  }, [summary, payrollSearchTerm, payrollSortBy]);
+
+  // Sort options for payroll dropdown
+  const payrollSortOptions: DropdownOption[] = [
+    { value: 'amount', label: 'Số tiền cao' },
+    { value: 'shifts', label: 'Nhiều công' },
+    { value: 'name', label: 'Tên A-Z' }
+  ];
 
   const totalDebt = summary.reduce((acc, curr) => acc + curr.totalUnpaid, 0);
   const totalAdvanced = summary.reduce((acc, curr) => acc + curr.totalAdvanced, 0);
@@ -208,26 +240,67 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
           )}
         </div>
         <div className="mt-4 p-4 bg-[#ecb52d]/10 border border-[#ecb52d]/20 rounded-lg">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tình hình lương</p>
-              <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
-              <p className="text-xs text-[#ecb52d]/70 mt-1">Còn cần trả</p>
+          {/* Mobile Layout */}
+          <div className="block md:hidden">
+            {/* Main stat - prominent display */}
+            <div className="text-center mb-4">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Wallet2 size={20} className="text-[#ecb52d]/70" />
+                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide font-medium">Tình hình lương</p>
+              </div>
+              <p className="text-3xl font-bold text-[#ecb52d]">{formatCurrency(totalDebt)}</p>
+              <p className="text-sm text-[#ecb52d]/70 mt-1">Còn cần trả</p>
+            </div>
 
-              {totalAdvanced > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#ecb52d]/20">
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <p className="text-[#ecb52d]/70">Tổng đã làm:</p>
-                      <p className="font-bold text-blue-500">{formatCurrency(totalEarned)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[#ecb52d]/70">Đã ứng:</p>
-                      <p className="font-bold text-orange-500">{formatCurrency(totalAdvanced)}</p>
-                    </div>
-                  </div>
+            {/* Secondary stats in 2-column grid */}
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#ecb52d]/20">
+              <div className="text-center">
+                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
+                <p className="text-lg font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                <p className="text-xs text-blue-500/70">Tổng cộng</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
+                <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                  {formatCurrency(totalAdvanced)}
+                </p>
+                <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
+                  Tiền ứng
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex justify-between items-start">
+            <div className="flex-1">
+              <div className="grid grid-cols-3 gap-6">
+                {/* Tình hình lương */}
+                <div>
+                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tình hình lương</p>
+                  <p className="text-2xl font-bold text-[#ecb52d] mt-1">{formatCurrency(totalDebt)}</p>
+                  <p className="text-xs text-[#ecb52d]/70 mt-1">Còn cần trả</p>
                 </div>
-              )}
+
+                {/* Tổng đã làm */}
+                <div>
+                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Tổng đã làm</p>
+                  <p className="text-xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                  <p className="text-xs text-blue-500/70 mt-1">Tổng cộng</p>
+                </div>
+
+                {/* Đã ứng */}
+                <div className={totalAdvanced > 0 ? '' : 'opacity-50'}>
+                  <p className="text-xs text-[#ecb52d]/70 uppercase tracking-wide">Đã ứng</p>
+                  <p className={`text-xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                    {formatCurrency(totalAdvanced)}
+                  </p>
+                  <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
+                    Tiền ứng
+                  </p>
+                </div>
+              </div>
             </div>
             <Wallet2 size={24} className="text-[#ecb52d]/50" />
           </div>
@@ -235,7 +308,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
       </div>
 
       {/* Tabs */}
-      <div className="flex p-4 md:p-6 pb-0 gap-4">
+      <div className="flex px-4 md:px-6 pt-4 md:pt-6 pb-2 gap-4">
         <button
           onClick={() => setActiveTab('payroll')}
           className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-[#ecb52d] text-[#ecb52d]' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
@@ -250,9 +323,32 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
         </button>
       </div>
 
+      {/* Filters for Payroll */}
+      {activeTab === 'payroll' && (
+        <div className="px-4 md:px-6 pb-2 flex gap-2">
+          <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
+            <Search size={16} className={textMutedClass} />
+            <input
+              type="text"
+              placeholder="Nhập tên nhân viên"
+              value={payrollSearchTerm}
+              onChange={(e) => setPayrollSearchTerm(e.target.value)}
+              className={`ml-2 w-full bg-transparent outline-none text-sm ${textPrimaryClass} placeholder:text-slate-500`}
+            />
+          </div>
+
+          <Dropdown
+            options={payrollSortOptions}
+            value={payrollSortBy}
+            onChange={(value) => setPayrollSortBy(value as 'amount' | 'shifts' | 'name')}
+            icon={<ArrowUpDown size={16} />}
+          />
+        </div>
+      )}
+
       {/* Filters (Only for History) */}
       {activeTab === 'history' && (
-        <div className="px-4 md:px-6 mt-4 flex gap-2">
+        <div className="px-4 md:px-6 pb-2 flex gap-2">
           <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
             <Search size={16} className={textMutedClass} />
             <input
@@ -279,15 +375,15 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
       )}
 
       {/* List */}
-      <div className="p-4 md:p-6 space-y-2">
+      <div className="px-4 md:px-6 pt-2 pb-4 md:pb-6 space-y-2">
         {activeTab === 'payroll' ? (
-          summary.length === 0 ? (
+          filteredAndSortedSummary.length === 0 ? (
             <div className="text-center py-10 text-slate-500">
               <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />
-              <p>Không có khoản nợ nào</p>
+              <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
             </div>
           ) : (
-            summary.map((item) => (
+            filteredAndSortedSummary.map((item) => (
               <button
                 key={item.employeeId}
                 onClick={() => {
@@ -460,7 +556,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
               <div className="text-sm">
                 <p className={`font-medium ${textPrimaryClass} mb-1`}>Có tiền ứng cần quyết toán</p>
                 <p className={textSecondaryClass}>
-                  Nhân viên đã nhận {formatCurrency(selectedEmployeeSummary.totalAdvanced)} tiền ứng từ Manager.
+                  Nhân viên đã nhận {formatCurrency(selectedEmployeeSummary.totalAdvanced)} tiền ứng.
                 </p>
               </div>
             </div>

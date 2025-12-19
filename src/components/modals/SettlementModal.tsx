@@ -164,7 +164,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                     ? 'Tiền ứng và tiền công đã cân bằng, có thể quyết toán.'
                                     : advanceBalance.balance > 0
                                         ? 'Còn thiếu tiền cần trả cho nhân viên.'
-                                        : 'Manager đã ứng thừa tiền cho nhân viên.'
+                                        : 'Đã ứng thừa tiền cho nhân viên.'
                                 }
                             </p>
                         </div>
