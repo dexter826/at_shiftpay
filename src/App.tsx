@@ -323,7 +323,7 @@ function AppContent({
           </div>
         }
       >
-        <p className="text-sm text-slate-300">Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
       </Modal>
     </div>
   );

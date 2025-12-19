@@ -205,7 +205,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             {filteredEmployees.map((emp) => (
               <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-[#ecb52d]/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
                 {/* Image Container - Full height */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800">
+                <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
                   {emp.imageUrl ? (
                     <img
                       src={emp.imageUrl}
@@ -216,7 +216,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800">
+                    <div className={`w-full h-full flex items-center justify-center text-3xl font-bold ${theme === 'dark' ? 'text-slate-500 bg-slate-800' : 'text-slate-400 bg-slate-100'}`}>
                       {emp.name.charAt(0).toUpperCase()}
                     </div>
                   )}
