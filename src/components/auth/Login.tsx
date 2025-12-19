@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
 
 import { ForgotPasswordModal } from './ForgotPasswordModal';
@@ -14,7 +14,6 @@ interface LoginProps {
 const CORRECT_CODE = '2738';
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -238,17 +237,22 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     if (verificationSent) setVerificationSent(false);
   };
 
-  // Style theo theme
+  const { theme } = useThemeStyles();
   const isDark = theme === 'dark';
+
   const bgClass = isDark
     ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
     : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
   const cardBgClass = isDark
     ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700'
     : 'bg-white border border-slate-200 shadow-2xl shadow-slate-200/50';
-  const textPrimaryClass = isDark ? 'text-slate-200' : 'text-slate-800';
-  const textMutedClass = isDark ? 'text-slate-400' : 'text-slate-500';
-  const inputBorderClass = isDark ? 'border-slate-700' : 'border-slate-200';
+
+  const {
+    textPrimaryClass,
+    textMutedClass,
+    inputBorderClass
+  } = useThemeStyles();
+
   const illustrationBg = isDark ? 'bg-slate-900' : 'bg-slate-50';
 
   return (

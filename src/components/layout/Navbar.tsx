@@ -1,6 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface NavbarProps {
   currentTab: string;
@@ -9,7 +9,6 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
-  const { theme } = useTheme();
 
   const navItems = [
     { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
@@ -20,9 +19,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
   ];
 
   // Style theo theme
-  const sidebarBg = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderColor = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textMuted = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const {
+    theme,
+    cardBgClass: sidebarBg, // Map hook's cardBgClass to sidebarBg
+    borderClass: borderColor, // Map hook's borderClass to borderColor
+    textMutedClass: textMuted // Map hook's textMutedClass to textMuted
+  } = useThemeStyles();
+
   const hoverText = theme === 'dark' ? 'hover:text-slate-200' : 'hover:text-slate-700';
   const hoverBg = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
 import { auth } from '../../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
@@ -12,7 +12,7 @@ interface ChangePasswordModalProps {
 }
 
 export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClose }) => {
-  const { theme } = useTheme();
+
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -26,10 +26,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Style theo theme
-  const inputBorderClass = theme === 'dark' ? 'border-slate-600' : 'border-gray-300';
-  const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-gray-500';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-gray-800';
+  const { theme, inputBorderClass, textMutedClass, textPrimaryClass } = useThemeStyles();
 
   const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} placeholder-gray-400 focus:outline-none text-sm`;
 

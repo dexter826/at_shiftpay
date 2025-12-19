@@ -8,7 +8,7 @@ import { dbService } from '../../services/firebase';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface CalendarViewProps {
   events: Event[];
@@ -32,15 +32,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   loading = false
 }) => {
   const { showToast } = useToast();
-  const { theme } = useTheme();
+  const { theme } = useThemeStyles();
 
-  // Style theo theme
-  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
-  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
-  const hoverBgClass = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
+  const {
+    bgClass,
+    cardBgClass,
+    borderClass,
+    textPrimaryClass,
+    textMutedClass,
+    hoverBgClass
+  } = useThemeStyles();
 
   const [localDate, setLocalDate] = useState(new Date());
   const displayDate = propDate || localDate;

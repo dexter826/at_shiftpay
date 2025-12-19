@@ -4,6 +4,7 @@ import { auth } from '../../firebase';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface ForgotPasswordModalProps {
     isOpen: boolean;
@@ -14,6 +15,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
+    const { inputBgClass, inputBorderClass, textPrimaryClass, textSecondaryClass } = useThemeStyles();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -60,7 +62,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
             }
         >
             <div className="space-y-4">
-                <p className="text-sm text-slate-600 dark:text-slate-300">
+                <p className={`text-sm ${textSecondaryClass}`}>
                     Nhập email của bạn để nhận liên kết đặt lại mật khẩu.
                 </p>
                 <div>
@@ -70,7 +72,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Nhập email của bạn"
-                        className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#ecb52d]"
+                        className={`w-full p-2.5 rounded-lg border focus:outline-none focus:border-[#ecb52d] ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
                     />
                 </div>
             </div>

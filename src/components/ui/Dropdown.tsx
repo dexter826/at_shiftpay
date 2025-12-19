@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 export interface DropdownOption {
     value: string;
@@ -30,13 +30,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
     minWidth = 'min-w-[120px]'
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const { theme } = useTheme();
+    const { theme } = useThemeStyles();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Style theo theme
-    const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-    const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-    const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
+    const {
+        cardBgClass,
+        borderClass,
+        textSecondaryClass
+    } = useThemeStyles();
 
     // Đóng khi click ra ngoài
     useEffect(() => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { UserSettings } from '../../types';
 import { dbService } from '../../services/firebase';
 import { useToast } from '../ui/Toast';
@@ -23,7 +23,7 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
-    const { theme } = useTheme();
+    const { theme } = useThemeStyles();
     const { showToast } = useToast();
 
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
@@ -51,13 +51,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
         setSaving(false);
     };
 
-    // Style theo theme
-    const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-    const cardBg = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-    const textMain = theme === 'dark' ? 'text-slate-200' : 'text-slate-800';
-    const textSub = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
-    const border = theme === 'dark' ? 'border-slate-700' : 'border-slate-200';
-    const itemHover = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50';
+    const {
+        bgClass,
+        cardBgClass: cardBg,
+        textPrimaryClass: textMain,
+        textMutedClass: textSub,
+        borderClass: border,
+        hoverBgClass
+    } = useThemeStyles();
+
+    const itemHover = hoverBgClass;
 
     const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
         <div className={`flex items-center gap-2 mb-4 px-1 ${textSub} text-sm font-medium uppercase tracking-wider`}>

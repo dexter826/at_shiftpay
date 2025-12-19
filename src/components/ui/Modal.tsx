@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface ModalProps {
   title: string;
@@ -11,15 +11,17 @@ interface ModalProps {
 }
 
 export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, footer }) => {
-  const { theme } = useTheme();
+  const { theme } = useThemeStyles();
 
   if (!isOpen) return null;
 
-  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-  const textMutedClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
-  const hoverBgClass = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
+  const {
+    bgClass,
+    borderClass,
+    textPrimaryClass: textClass,
+    textMutedClass,
+    hoverBgClass
+  } = useThemeStyles();
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4">

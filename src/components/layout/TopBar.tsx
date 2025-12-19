@@ -1,6 +1,6 @@
 import React from 'react';
 import { Settings, LogOut } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface TopBarProps {
     user: any;
@@ -9,12 +9,13 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLogout }) => {
-    const { theme } = useTheme();
 
-    const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-    const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-    const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-    const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+    const {
+        bgClass,
+        borderClass,
+        textPrimaryClass,
+        textSecondaryClass
+    } = useThemeStyles();
 
     return (
         <div className={`md:hidden sticky top-0 z-40 px-4 py-3 ${bgClass} border-b ${borderClass} flex justify-between items-center`}>

@@ -7,7 +7,7 @@ import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -18,17 +18,18 @@ interface EmployeeManagerProps {
 
 export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [], loading = false }) => {
   const { showToast } = useToast();
-  const { theme } = useTheme();
-
-  // Style theo theme
-  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-  const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
-  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
-  const inputBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-  const inputBorderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
+  // Tách logic theme ra custom hook
+  const {
+    theme,
+    bgClass,
+    cardBgClass,
+    borderClass,
+    textPrimaryClass,
+    textSecondaryClass,
+    textMutedClass,
+    inputBgClass,
+    inputBorderClass
+  } = useThemeStyles();
 
   // Tính số công trong tháng
   const currentMonth = new Date().getMonth();

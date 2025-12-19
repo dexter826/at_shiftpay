@@ -8,7 +8,7 @@ import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { PaymentModal } from '../modals/PaymentModal';
 import { SettlementModal } from '../modals/SettlementModal';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
@@ -33,7 +33,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
-  const { theme } = useTheme();
+  const { theme } = useThemeStyles();
 
   React.useEffect(() => {
     const unsubscribe = dbService.subscribePayments((data) => {
@@ -43,12 +43,15 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
   }, []);
 
   // Style theo theme
-  const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-  const cardBgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-white';
-  const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-  const textSecondaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-700';
-  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-500';
+  // Tách logic theme ra custom hook
+  const {
+    bgClass,
+    cardBgClass,
+    borderClass,
+    textPrimaryClass,
+    textSecondaryClass,
+    textMutedClass
+  } = useThemeStyles();
 
   const summary: PayrollSummary[] = useMemo(() => {
     const map: Record<string, PayrollSummary> = {};

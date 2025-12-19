@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Shift, PaymentTransaction, AdvanceBalance } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services/firebase';
@@ -26,8 +26,14 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
     paymentHistory
 }) => {
     const [isProcessing, setIsProcessing] = useState(false);
-    const { theme } = useTheme();
     const { showToast } = useToast();
+    const {
+        theme,
+        cardBgClass,
+        borderClass,
+        textPrimaryClass,
+        textSecondaryClass
+    } = useThemeStyles();
 
     // Tính số dư nợ
     const advanceBalance = useMemo((): AdvanceBalance => {
@@ -98,10 +104,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         }
     };
 
-    const cardBg = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-    const border = theme === 'dark' ? 'border-slate-700' : 'border-slate-200';
-    const textPrimary = theme === 'dark' ? 'text-slate-100' : 'text-slate-900';
-    const textSecondary = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
+    // Style consts replaced by hook
 
     return (
         <Modal
@@ -112,29 +115,29 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         >
             <div className="space-y-6">
                 {/* Thông tin tổng quan */}
-                <div className={`p-4 ${cardBg} border ${border} rounded-lg`}>
+                <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                     <div className="flex items-center gap-2 mb-3">
                         <Calculator size={20} className="text-blue-500" />
-                        <h3 className={`font-medium ${textPrimary}`}>
+                        <h3 className={`font-medium ${textPrimaryClass}`}>
                             Tình hình tiền ứng - {employeeName}
                         </h3>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <span className={textSecondary}>Tổng tiền đã ứng:</span>
+                            <span className={textSecondaryClass}>Tổng tiền đã ứng:</span>
                             <p className={`font-medium text-orange-500`}>
                                 {formatCurrency(advanceBalance.totalAdvanced)}
                             </p>
                         </div>
                         <div>
-                            <span className={textSecondary}>Tổng tiền đã làm:</span>
+                            <span className={textSecondaryClass}>Tổng tiền đã làm:</span>
                             <p className={`font-medium text-green-500`}>
                                 {formatCurrency(advanceBalance.totalEarned)}
                             </p>
                         </div>
                         <div className="col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                            <span className={textSecondary}>Số dư:</span>
+                            <span className={textSecondaryClass}>Số dư:</span>
                             <p className={`font-bold text-lg ${advanceBalance.balance >= 0 ? 'text-green-500' : 'text-red-500'
                                 }`}>
                                 {formatCurrency(Math.abs(advanceBalance.balance))}
@@ -156,10 +159,10 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                             <AlertCircle size={20} className="text-yellow-500 mt-0.5" />
                         )}
                         <div>
-                            <p className={`font-medium ${textPrimary} mb-1`}>
+                            <p className={`font-medium ${textPrimaryClass} mb-1`}>
                                 {advanceBalance.balance === 0 ? 'Đã cân bằng' : 'Chưa cân bằng'}
                             </p>
-                            <p className={`text-sm ${textSecondary}`}>
+                            <p className={`text-sm ${textSecondaryClass}`}>
                                 {advanceBalance.balance === 0
                                     ? 'Tiền ứng và tiền công đã cân bằng, có thể quyết toán.'
                                     : advanceBalance.balance > 0
@@ -174,21 +177,21 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 {/* Lịch sử ứng tiền */}
                 {unsettledAdvances.length > 0 && (
                     <div className="space-y-3">
-                        <h4 className={`font-medium ${textPrimary}`}>
+                        <h4 className={`font-medium ${textPrimaryClass}`}>
                             Các lần ứng tiền chưa quyết toán ({unsettledAdvances.length})
                         </h4>
-                        <div className={`max-h-40 overflow-y-auto border ${border} rounded-lg`}>
+                        <div className={`max-h-40 overflow-y-auto border ${borderClass} rounded-lg`}>
                             {unsettledAdvances.map(payment => (
                                 <div
                                     key={payment.id}
-                                    className={`p-3 border-b ${border} last:border-b-0`}
+                                    className={`p-3 border-b ${borderClass} last:border-b-0`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className={`text-sm ${textPrimary}`}>
+                                            <p className={`text-sm ${textPrimaryClass}`}>
                                                 {formatDate(payment.date)}
                                             </p>
-                                            <p className={`text-xs ${textSecondary}`}>
+                                            <p className={`text-xs ${textSecondaryClass}`}>
                                                 {payment.note}
                                             </p>
                                         </div>
@@ -205,21 +208,21 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 {/* Các ca đã ứng */}
                 {advancedShifts.length > 0 && (
                     <div className="space-y-3">
-                        <h4 className={`font-medium ${textPrimary}`}>
+                        <h4 className={`font-medium ${textPrimaryClass}`}>
                             Các ca đã được ứng tiền ({advancedShifts.length})
                         </h4>
-                        <div className={`max-h-40 overflow-y-auto border ${border} rounded-lg`}>
+                        <div className={`max-h-40 overflow-y-auto border ${borderClass} rounded-lg`}>
                             {advancedShifts.map(shift => (
                                 <div
                                     key={shift.id}
-                                    className={`p-3 border-b ${border} last:border-b-0`}
+                                    className={`p-3 border-b ${borderClass} last:border-b-0`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className={`text-sm ${textPrimary}`}>
+                                            <p className={`text-sm ${textPrimaryClass}`}>
                                                 {shift.eventDate} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
                                             </p>
-                                            <p className={`text-xs ${textSecondary}`}>
+                                            <p className={`text-xs ${textSecondaryClass}`}>
                                                 Đã ứng lúc: {shift.paidAt ? formatDate(shift.paidAt) : 'N/A'}
                                             </p>
                                         </div>

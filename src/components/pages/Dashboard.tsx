@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import { Skeleton } from '../ui/Skeleton';
 import Button from '../ui/Button';
@@ -20,7 +20,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme, toggleTheme } = useThemeStyles();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -88,11 +88,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
     const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long' }).format(new Date());
 
-    const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
-    const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-    const cardBgClass = theme === 'dark' ? 'bg-slate-800/50' : 'bg-white';
-    const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-    const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+    const {
+        bgClass,
+        borderClass,
+        cardBgClass,
+        textPrimaryClass,
+        textSecondaryClass
+    } = useThemeStyles();
 
     if (loading) {
         return (
