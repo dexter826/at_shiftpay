@@ -22,10 +22,6 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  // Kiểm tra sessionStorage ngay từ đầu để tránh render không cần thiết
-  const [showSplash, setShowSplash] = useState(() => {
-    return !sessionStorage.getItem('splashscreen_shown');
-  });
 
   // Global State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -220,11 +216,6 @@ function App() {
     }
   };
 
-  // Hiển thị splashscreen nếu cần
-  if (showSplash) {
-    return <Splashscreen onComplete={() => setShowSplash(false)} />;
-  }
-
   return (
     <ToastProvider>
       <OfflineIndicator />
@@ -341,9 +332,23 @@ function AppContent({
 function AppWrapper() {
   return (
     <ThemeProvider>
-      <App />
+      <AppWithSplash />
     </ThemeProvider>
   );
+}
+
+function AppWithSplash() {
+  // Kiểm tra sessionStorage ngay từ đầu để tránh render không cần thiết
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('splashscreen_shown');
+  });
+
+  // Hiển thị splashscreen nếu cần
+  if (showSplash) {
+    return <Splashscreen onComplete={() => setShowSplash(false)} />;
+  }
+
+  return <App />;
 }
 
 export default AppWrapper;
