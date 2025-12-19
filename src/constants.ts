@@ -1,4 +1,3 @@
-export const SHIFT_RATE = 250000;
 
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('vi-VN', {
@@ -17,6 +16,4 @@ export const formatDate = (dateStr: string): string => {
   }).format(date);
 };
 
-export const generateId = (): string => {
-  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-};
+

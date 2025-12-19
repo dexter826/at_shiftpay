@@ -42,7 +42,6 @@ export interface PaymentTransaction {
   shiftIds: string[];
   note?: string;
   type: PaymentType; // Loại thanh toán
-  isAdvance?: boolean;
   settledAt?: number; // Thời điểm hoàn ứng
   settledBy?: string; // ID giao dịch hoàn ứng
 }

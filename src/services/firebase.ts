@@ -391,15 +391,6 @@ export const dbService = {
     });
   },
 
-  async getSettings(): Promise<UserSettings> {
-    const docRef = doc(db, 'settings', 'user');
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-      return snapshot.data() as UserSettings;
-    }
-    return DEFAULT_SETTINGS;
-  },
-
   async updateSettings(data: Partial<UserSettings>): Promise<void> {
     const docRef = doc(db, 'settings', 'user');
     await setDoc(docRef, data, { merge: true });

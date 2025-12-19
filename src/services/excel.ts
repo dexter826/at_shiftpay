@@ -7,9 +7,7 @@ const formatMoney = (amount: number) => {
     return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 };
 
-export const exportPayrollToExcel = async (summary: PayrollSummary[], shifts: Shift[], title: string = 'Bảng Công Nợ') => {
-    // Đã cũ. Dùng exportDetailedReport
-};
+
 
 export const exportDetailedReport = async (
     month: number,
