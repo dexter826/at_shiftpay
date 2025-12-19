@@ -47,9 +47,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         return {
             totalEvents: monthEvents.length,
             totalShifts: monthShifts.length,
-            unpaidAmount,
-            advancedAmount,
-            netAmount: unpaidAmount - advancedAmount, // Số tiền thực tế cần trả
+            unpaidAmount, // Số tiền còn cần trả
+            advancedAmount, // Số tiền đã ứng
+            totalEarned: unpaidAmount + advancedAmount, // Tổng tiền đã làm
             paidAmount: paidShifts.reduce((sum, s) => sum + s.amount, 0),
         };
     }, [events, shifts, currentMonth, currentYear]);
@@ -81,7 +81,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         const advanced = shifts.filter(s => s.status === 'advanced').length;
         return [
             { name: 'Đã thanh toán', value: paid, color: '#10b981' },
-            { name: 'Chưa thanh toán', value: unpaid, color: '#f59e0b' },
+            { name: 'Còn cần trả', value: unpaid, color: '#ecb52d' },
             { name: 'Đã ứng tiền', value: advanced, color: '#f97316' },
         ].filter(d => d.value > 0);
     }, [shifts]);
@@ -181,28 +181,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                     </div>
 
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                        <div className="flex items-center gap-2 text-orange-400 mb-2">
+                        <div className="flex items-center gap-2 text-[#ecb52d] mb-2">
                             <Wallet2 size={16} />
-                            <span className="text-xs">Chưa thanh toán</span>
+                            <span className="text-xs">Còn cần trả</span>
                         </div>
-                        <p className="text-2xl font-bold text-orange-400">
+                        <p className="text-2xl font-bold text-[#ecb52d]">
                             {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
                         </p>
                         {monthlyStats.advancedAmount > 0 && (
                             <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-orange-600">Đã ứng:</span>
-                                    <span className="font-medium text-orange-600">
-                                        {monthlyStats.advancedAmount.toLocaleString('vi-VN')}đ
+                                    <span className={textSecondaryClass}>Tổng đã làm:</span>
+                                    <span className="font-medium text-blue-500">
+                                        {monthlyStats.totalEarned.toLocaleString('vi-VN')}đ
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs mt-1">
-                                    <span className={`${monthlyStats.netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        Thực tế cần trả:
-                                    </span>
-                                    <span className={`font-bold ${monthlyStats.netAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {Math.abs(monthlyStats.netAmount).toLocaleString('vi-VN')}đ
-                                        {monthlyStats.netAmount < 0 && ' (thừa)'}
+                                    <span className={textSecondaryClass}>Đã ứng:</span>
+                                    <span className="font-medium text-orange-500">
+                                        {monthlyStats.advancedAmount.toLocaleString('vi-VN')}đ
                                     </span>
                                 </div>
                             </div>

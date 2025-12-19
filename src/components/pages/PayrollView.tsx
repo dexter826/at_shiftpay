@@ -219,7 +219,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
                       <p className="text-[#ecb52d]/70">Tổng đã làm:</p>
-                      <p className="font-bold text-blue-600">{formatCurrency(totalEarned)}</p>
+                      <p className="font-bold text-blue-500">{formatCurrency(totalEarned)}</p>
                     </div>
                     <div>
                       <p className="text-[#ecb52d]/70">Đã ứng:</p>
@@ -328,12 +328,12 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
 
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-green-500' : textMutedClass
+                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-[#ecb52d]' : textMutedClass
                       }`}>
                       {formatCurrency(item.totalUnpaid)}
                     </span>
                     {item.totalAdvanced > 0 && (
-                      <p className="text-xs text-blue-500">
+                      <p className="text-xs text-orange-500">
                         Đã ứng: {formatCurrency(item.totalAdvanced)}
                       </p>
                     )}
@@ -431,7 +431,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                 </div>
                 <div className="col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                   <span className={textMutedClass}>Tổng tiền đã làm:</span>
-                  <p className={`font-bold text-lg text-blue-600`}>
+                  <p className={`font-bold text-lg text-blue-500`}>
                     {formatCurrency(selectedEmployeeSummary.totalUnpaid + selectedEmployeeSummary.totalAdvanced)}
                   </p>
                   <div className="mt-2 text-sm">
@@ -443,7 +443,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees }) =
                     </div>
                     <div className="flex justify-between font-medium">
                       <span className={textMutedClass}>Còn lại cần trả:</span>
-                      <span className="text-green-600">
+                      <span className="text-[#ecb52d]">
                         {formatCurrency(selectedEmployeeSummary.totalUnpaid)}
                       </span>
                     </div>
