@@ -244,8 +244,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
     : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
   const cardBgClass = isDark
-    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700'
-    : 'bg-white border border-slate-200 shadow-2xl shadow-slate-200/50';
+    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 shadow-[0_0_40px_-10px_rgba(236,181,45,0.1)]'
+    : 'bg-white border border-slate-200 shadow-[0_25px_60px_-15px_rgba(236,181,45,0.25)]';
 
   const {
     textPrimaryClass,
@@ -312,8 +312,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
           </div>
 
+          {/* Đường kẻ phân cách */}
+          <div className="hidden md:block w-px bg-slate-200/50 dark:bg-slate-700/50 my-12 self-stretch" />
+
           {/* Cột phải: Form */}
-          <div className="w-full md:w-1/2 p-6 md:p-8 md:border-l border-slate-200 dark:border-slate-800 flex flex-col justify-center">
+          <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
             <div className="max-w-md mx-auto w-full">
               {/* Logo mobile (đã ẩn) */}
               <div className="md:hidden text-center mb-4 hidden">
