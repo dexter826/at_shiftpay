@@ -1,22 +1,28 @@
 <div align="center">
-  <img src="/public/logo_text.png" alt="Logo dự án">
+  <img src="/public/logo_text.png" alt="Logo dự án" width="300"/>
   <h5>Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc.</h5>
 </div>
 
 ## Tính năng chính
 
-- **Quản lý nhân viên**: Thêm, sửa, xóa thông tin nhân viên (hỗ trợ ảnh đại diện)
-- **Quản lý sự kiện (Dự án)**: Tạo và theo dõi các sự kiện làm việc theo lịch, hiển thị trạng thái và doanh thu dự kiến
-- **Phân ca làm việc**: Gán nhân viên vào ca (sáng/chiều) cho từng sự kiện, tự động tính toán chi phí
-- **Thanh toán lương**:
-  - Theo dõi công nợ chi tiết cho từng nhân viên
-  - Hỗ trợ thanh toán từng phần hoặc toàn bộ
-  - Lưu lịch sử thanh toán
-- **Dashboard**: Thống kê tổng quan, biểu đồ thu chi, nhắc nhở công nợ
-- **Báo cáo**: Xuất báo cáo chi tiết lương và chấm công ra file Excel
-- **Giao diện**: Hỗ trợ Dark Mode / Light Mode, Responsive Design
-- **Offline support**: Hoạt động mượt mà ngay cả khi mất kết nối
-- **Bảo mật**: Xác thực người dùng qua Email/Password, hỗ trợ đổi mật khẩu
+- **Quản lý nhân sự**: Thêm, sửa, xóa hồ sơ nhân viên, hỗ trợ tìm kiếm và lọc.
+- **Lịch tiệc & Sự kiện**:
+  - Tạo và quản lý các sự kiện làm việc theo ngày.
+  - Theo dõi trạng thái và doanh thu dự kiến của từng sự kiện.
+- **Phân ca & Chấm công**:
+  - Gán nhân viên vào ca (Sáng/Chiều) cho từng sự kiện.
+  - Tự động tính toán chi phí lương dựa trên cấu hình.
+- **Tài chính & Lương**:
+  - **Theo dõi công nợ**: Tự động tính toán lương chưa thanh toán.
+  - **Ứng lương**: Hỗ trợ nhân viên ứng trước lương (Advance Payment).
+  - **Thanh toán lương**: Quyết toán lương chi tiết, lưu lịch sử giao dịch.
+- **Báo cáo & Thống kê**:
+  - **Dashboard**: Biểu đồ thu chi, nhắc nhở công nợ, thống kê tổng quan.
+  - **Xuất báo cáo**: Xuất file Excel chi tiết bảng công và lương hàng tháng.
+- **Giao diện & Tiện ích**:
+  - Hỗ trợ Dark Mode / Light Mode.
+  - Hoạt động Offline (mất kết nối mạng vẫn thao tác được).
+- **Bảo mật**: Xác thực tài khoản, hỗ trợ đổi mật khẩu.
 
 <img src="docs/images/mockup.jpg" alt="Mockup ứng dụng" width="100%">
 
@@ -25,13 +31,12 @@
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS, Styled Components
 - **Backend**: Firebase (Firestore, Authentication)
-- **State Management & Data Fetching**: React Hooks, Real-time Listeners
-- **Utilities**:
+- **State Management**: React Hooks (Context API)
+- **Libraries**:
   - `exceljs`, `file-saver`: Xuất báo cáo Excel
   - `recharts`: Biểu đồ thống kê
   - `lucide-react`: Icon hệ thống
-  - `lottie-react`: Hiệu ứng SplashScreen
-  - `date-fns`: Xử lý thời gian
+  - `lottie-react`: Hiệu ứng Splash Screen
 
 ## Cài đặt
 
@@ -65,7 +70,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 npm run dev
 ```
 
-Ứng dụng sẽ chạy tại `http://localhost:3000`
+Ứng dụng sẽ chạy tại `http://localhost:3000` (hoặc port khác tùy cấu hình).
 
 ## Build production
 
@@ -76,36 +81,35 @@ npm run build
 ## Cấu trúc dự án
 
 ```
-├── components/          # Các component React
-│   ├── ui/             # Component UI tái sử dụng (Button, Modal, Toast...)
-│   ├── Dashboard.tsx    # Trang tổng quan
-│   ├── CalendarView.tsx # Lịch làm việc & quản lý sự kiện
-│   ├── EmployeeManager.tsx # Quản lý hồ sơ nhân viên
-│   ├── PayrollView.tsx  # Quản lý & thanh toán lương
-│   ├── SettingsView.tsx # Cài đặt hệ thống
-│   └── ...
-├── contexts/           # React Context (ThemeContext...)
-├── services/           # Logic xử lý (Firebase, Excel service)
-├── utils/              # Các hàm tiện ích (Format tiền tệ, ngày tháng...)
-├── constants.ts        # Các hằng số (Cấu hình mặc định...)
-├── types.ts           # Định nghĩa TypeScript Interface
-├── firebase.ts        # Cấu hình Firebase SDK
-└── App.tsx           # Component chính & Routing
+src/
+├── components/
+│   ├── auth/            # Màn hình đăng nhập, đổi mật khẩu
+│   ├── common/          # Component chung (Splashscreen...)
+│   ├── layout/          # Layout chính (Navbar, TopBar...)
+│   ├── modals/          # Các Modal (Sự kiện, Thanh toán, Xuất báo cáo...)
+│   ├── pages/           # Các trang chính (Dashboard, Lịch, Nhân sự...)
+│   └── ui/              # UI Components cơ bản (Button, Card, Input...)
+├── contexts/            # React Context (ThemeContext...)
+├── services/            # Logic xử lý (Firebase, Excel service)
+├── constants/           # Định nghĩa màu sắc, hằng số
+├── constants.ts         # Utility format tiền tệ, ngày tháng
+├── types.ts             # Định nghĩa TypeScript Interface
+├── firebase.ts          # Cấu hình Firebase SDK
+└── App.tsx              # Component chính & Routing
 ```
 
 ## Hướng dẫn sử dụng
 
-1. **Đăng nhập**: Sử dụng tài khoản email đã được cấp quyền.
-2. **Quản lý nhân sự**: Vào tab "Nhân Sự" để thêm mới hồ sơ nhân viên.
-3. **Lên lịch làm việc**:
-   - Vào tab "Lịch", chọn ngày cần tạo sự kiện.
-   - Nhập thông tin sự kiện và gán nhân viên vào các ca làm việc.
-4. **Xuất báo cáo**:
-   - Nhấn nút "Xuất báo cáo" trên thanh công cụ.
-   - Chọn tháng/năm cần xuất và tải về file Excel.
-5. **Thanh toán lương**:
-   - Vào tab "Thanh Toán" để xem bảng công nợ.
-   - Chọn nhân viên và nhập số tiền cần thanh toán để ghi nhận giao dịch.
+1. **Tổng quan**: Xem biểu đồ thống kê thu chi và nhắc nhở công nợ.
+2. **Lịch Tiệc**:
+   - Chọn ngày để tạo sự kiện mới.
+   - Gán nhân viên vào ca làm việc (Sáng/Chiều).
+3. **Nhân Sự**: Quản lý danh sách nhân viên, xem lịch sử làm việc.
+4. **Thanh Toán**:
+   - Xem bảng công nợ chi tiết của từng nhân viên.
+   - Thực hiện **Ứng lương** hoặc **Thanh toán** (quyết toán).
+   - Xuất file Excel báo cáo lương.
+5. **Cài đặt**: Cấu hình định mức lương, giờ làm việc và giao diện (Dark/Light).
 
 ---
 
