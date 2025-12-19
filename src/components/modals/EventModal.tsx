@@ -40,6 +40,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [titleError, setTitleError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -94,6 +95,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     } else {
       setSelectedSession(session);
       setAssignments({});
+      setSearchTerm('');
       // Đặt giờ mặc định theo cài đặt
       setTime(session === 'morning' ? settings.morningTime : settings.afternoonTime);
     }
@@ -338,33 +340,55 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && (
           <div>
             <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm</label>
+            
+            {/* Search Bar */}
+            <div className="mb-3">
+              <input
+                type="text"
+                placeholder="Tìm kiếm nhân viên..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                  }`}
+              />
+            </div>
+
+            {/* Filtered Employees List */}
             <div className={`border rounded-lg divide-y max-h-48 overflow-y-auto ${theme === 'dark'
               ? 'border-slate-700 divide-slate-700'
               : 'border-slate-200 divide-slate-100'
               }`}>
               {employees.length === 0 ? (
                 <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
+              ) : employees.filter(emp =>
+                emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length === 0 ? (
+                <div className="p-3 text-center text-slate-500 text-xs">Không tìm thấy nhân viên</div>
               ) : (
-                employees.map(emp => (
-                  <div
-                    key={emp.id}
-                    onClick={() => toggleAssignment(emp.id)}
-                    className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
-                      ? 'hover:bg-slate-800/50'
-                      : 'hover:bg-slate-50'
-                      }`}
-                  >
-                    <span className={`text-sm truncate flex-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{emp.name}</span>
+                employees
+                  .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(emp => (
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
-                        ? 'bg-primary border-primary'
-                        : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                      key={emp.id}
+                      onClick={() => toggleAssignment(emp.id)}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
+                        ? 'hover:bg-slate-800/50'
+                        : 'hover:bg-slate-50'
                         }`}
                     >
-                      {assignments[emp.id] && <Check size={12} className="text-white" />}
+                      <span className={`text-sm truncate flex-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{emp.name}</span>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
+                          ? 'bg-primary border-primary'
+                          : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                          }`}
+                      >
+                        {assignments[emp.id] && <Check size={12} className="text-white" />}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </div>
