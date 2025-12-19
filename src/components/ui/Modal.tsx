@@ -17,22 +17,15 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
   const { theme } = useThemeStyles();
 
   useEffect(() => {
-    if (isOpen) {
-      openModalCount++;
-      document.body.style.overflow = 'hidden';
-    } else {
+    if (!isOpen) return;
+    
+    openModalCount++;
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
       openModalCount--;
       if (openModalCount === 0) {
-        document.body.style.overflow = 'unset';
-      }
-    }
-
-    return () => {
-      if (isOpen) {
-        openModalCount--;
-        if (openModalCount === 0) {
-          document.body.style.overflow = 'unset';
-        }
+        document.body.style.overflow = '';
       }
     };
   }, [isOpen]);
