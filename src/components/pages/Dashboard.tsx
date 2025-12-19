@@ -35,21 +35,38 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         setSelectedDate(new Date(currentYear, currentMonth + 1, 1));
     };
 
-    // ... (logic calculations remain same) ...
+    // Tính toán thống kê chi tiết cho các stat cards
     const monthlyStats = useMemo(() => {
         const now = new Date();
         const statsMonth = now.getMonth();
         const statsYear = now.getFullYear();
 
+        // Sự kiện
         const monthEvents = events.filter(e => {
             const d = new Date(e.date);
             return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
+        const todayEvents = events.filter(e => {
+            const d = new Date(e.date);
+            const today = new Date();
+            return d.getFullYear() === today.getFullYear() && 
+                   d.getMonth() === today.getMonth() && 
+                   d.getDate() === today.getDate();
+        });
+        const weekStartDate = new Date(now);
+        weekStartDate.setDate(now.getDate() - now.getDay());
+        const weekEvents = monthEvents.filter(e => {
+            const d = new Date(e.date);
+            return d >= weekStartDate && d <= now;
+        });
 
+        // Công
         const monthShifts = shifts.filter(s => {
             const d = new Date(s.eventDate);
             return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
+        const morningShifts = monthShifts.filter(s => s.session === 'morning');
+        const afternoonShifts = monthShifts.filter(s => s.session === 'afternoon');
 
         const unpaidShifts = monthShifts.filter(s => s.status === 'unpaid');
         const paidShifts = monthShifts.filter(s => s.status === 'paid');
@@ -58,15 +75,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         const unpaidAmount = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
         const advancedAmount = advancedShifts.reduce((sum, s) => sum + s.amount, 0);
 
+        // Nhân viên - tính dựa trên shifts hiện có
+        const activeEmployeeIds = new Set(shifts.map(s => s.employeeId));
+        const activeEmployees = employees.filter(e => activeEmployeeIds.has(e.id));
+
         return {
             totalEvents: monthEvents.length,
+            todayEvents: todayEvents.length,
+            weekEvents: weekEvents.length,
             totalShifts: monthShifts.length,
-            unpaidAmount, // Số tiền còn cần trả
-            advancedAmount, // Số tiền đã ứng
-            totalEarned: unpaidAmount + advancedAmount, // Tổng tiền đã làm
+            morningShifts: morningShifts.length,
+            afternoonShifts: afternoonShifts.length,
+            totalEmployees: employees.length,
+            activeEmployees: activeEmployees.length,
+            unpaidAmount,
+            advancedAmount,
+            totalEarned: unpaidAmount + advancedAmount,
             paidAmount: paidShifts.reduce((sum, s) => sum + s.amount, 0),
         };
-    }, [events, shifts]); // Removing currentMonth/currentYear dependency as they are for chart now
+    }, [events, shifts, employees]);
 
     // ... (chartData logic remains same) ...
     const chartData = useMemo(() => {
@@ -193,28 +220,61 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
 
                 {/* Thẻ thống kê */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    {/* Sự kiện tháng này */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <CalendarRange size={16} />
                             <span className="text-xs">Sự kiện tháng này</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{monthlyStats.totalEvents}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalEvents}</p>
+                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Hôm nay</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.todayEvents}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Tuần này</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.weekEvents}</span>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Tổng công */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <TrendingUp size={16} />
                             <span className="text-xs">Tổng công</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{monthlyStats.totalShifts}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalShifts}</p>
+                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Sáng</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.morningShifts}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Chiều</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.afternoonShifts}</span>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Nhân viên */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <Users size={16} />
                             <span className="text-xs">Nhân viên</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass}`}>{employees.length}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalEmployees}</p>
+                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Đã làm</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.activeEmployees}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Chưa làm</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.totalEmployees - monthlyStats.activeEmployees}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
@@ -226,14 +286,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                             {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
                         </p>
                         {monthlyStats.advancedAmount > 0 && (
-                            <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                                <div className="flex justify-between items-center text-xs">
+                            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                <div className="flex justify-between">
                                     <span className={textSecondaryClass}>Tổng đã làm:</span>
                                     <span className="font-medium text-blue-500">
                                         {monthlyStats.totalEarned.toLocaleString('vi-VN')}đ
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center text-xs mt-1">
+                                <div className="flex justify-between">
                                     <span className={textSecondaryClass}>Đã ứng:</span>
                                     <span className="font-medium text-orange-500">
                                         {monthlyStats.advancedAmount.toLocaleString('vi-VN')}đ
@@ -329,35 +389,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                 Chưa có dữ liệu
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* Thẻ cài đặt (Desktop) */}
-                <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                    <div className="flex items-center justify-between mb-4">
-                        <h3
-                            className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-2 cursor-pointer hover:text-primary transition-colors`}
-                            onClick={onNavigateToSettings}
-                        >
-                            <Settings size={16} />
-                            Thông tin cấu hình
-                        </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <p className={`text-xs ${textSecondaryClass} mb-1`}>Mức lương/ca</p>
-                            <p className={`text-sm font-medium ${textPrimaryClass}`}>
-                                {settings.shiftRate.toLocaleString('vi-VN')}đ
-                            </p>
-                        </div>
-                        <div>
-                            <p className={`text-xs ${textSecondaryClass} mb-1`}>Giờ ca sáng</p>
-                            <p className={`text-sm font-medium ${textPrimaryClass}`}>{settings.morningTime}</p>
-                        </div>
-                        <div>
-                            <p className={`text-xs ${textSecondaryClass} mb-1`}>Giờ ca chiều</p>
-                            <p className={`text-sm font-medium ${textPrimaryClass}`}>{settings.afternoonTime}</p>
-                        </div>
                     </div>
                 </div>
             </div>
