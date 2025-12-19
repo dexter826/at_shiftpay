@@ -6,12 +6,10 @@ import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';
 import { ChangePasswordModal } from '../auth/ChangePasswordModal';
+import Switch from '../ui/Switch';
 import {
     User,
-    Settings as SettingsIcon,
     Briefcase,
-    Moon,
-    Sun,
     KeyRound,
     LogOut,
     ChevronRight,
@@ -25,7 +23,7 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
     const { showToast } = useToast();
 
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
@@ -75,16 +73,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
-                    {hasChanges && (
-                        <Button
-                            onClick={handleSaveSettings}
-                            disabled={saving}
-                            className=""
-                        >
-                            <Save size={18} className="text-white" />
-                            <span className="text-white">{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
-                        </Button>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {hasChanges && (
+                            <Button
+                                onClick={handleSaveSettings}
+                                disabled={saving}
+                                className=""
+                            >
+                                <Save size={18} className="text-white" />
+                                <span className="text-white">{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
+                            </Button>
+                        )}
+                        <Switch />
+                    </div>
                 </div>
 
                 {/* Single column layout */}

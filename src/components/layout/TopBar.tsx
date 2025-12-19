@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { Settings, LogOut } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface TopBarProps {
@@ -9,7 +9,7 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLogout }) => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     const bgClass = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50';
     const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
@@ -36,12 +36,6 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
             </div>
 
             <div className="flex items-center gap-1">
-                <button
-                    onClick={toggleTheme}
-                    className={`p-2 rounded-full ${theme === 'dark' ? 'bg-slate-800 text-[#ecb52d]' : 'bg-white text-[#ecb52d]'} shadow-sm border ${borderClass}`}
-                >
-                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
                 <button
                     onClick={onNavigateToSettings}
                     className={`p-2 ${textSecondaryClass} hover:text-[#ecb52d] transition-colors`}
