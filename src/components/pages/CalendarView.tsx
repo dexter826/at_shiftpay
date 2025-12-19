@@ -198,7 +198,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
                         ? 'bg-primary text-white'
                         : isToday
-                          ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-[#fdf8e8]'} text-primary font-medium`
+                          ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-medium`
                           : `${textPrimaryClass} ${hoverBgClass}`
                         }`}
                     >

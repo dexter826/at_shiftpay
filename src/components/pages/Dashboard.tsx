@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
+import { PAYMENT_COLORS } from '../../constants/colors';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
@@ -93,9 +94,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         const paid = shifts.filter(s => s.status === 'paid').length;
         const advanced = shifts.filter(s => s.status === 'advanced').length;
         return [
-            { name: 'Đã thanh toán', value: paid, color: '#10b981' },
-            { name: 'Còn cần trả', value: unpaid, color: '#ecb52d' },
-            { name: 'Đã ứng tiền', value: advanced, color: '#f97316' },
+            { name: 'Đã thanh toán', value: paid, color: PAYMENT_COLORS.PAID },
+            { name: 'Còn cần trả', value: unpaid, color: PAYMENT_COLORS.UNPAID },
+            { name: 'Đã ứng tiền', value: advanced, color: PAYMENT_COLORS.ADVANCED },
         ].filter(d => d.value > 0);
     }, [shifts]);
 
@@ -282,8 +283,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
                                         }}
                                         labelStyle={{ color: '#94a3b8' }}
                                     />
-                                    <Bar dataKey="events" name="Sự kiện" fill="#10b981" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="shifts" name="Công" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="events" name="Sự kiện" fill={PAYMENT_COLORS.SUCCESS} radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="shifts" name="Công" fill={PAYMENT_COLORS.INFO} radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         ) : (
