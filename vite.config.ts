@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
           }
         }
       },
-      chunkSizeWarningLimit: 600,
+      chunkSizeWarningLimit: 1000,
       assetsInlineLimit: 0,
       assetsInclude: ['**/*.json']
     }
