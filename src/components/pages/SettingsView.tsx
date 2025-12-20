@@ -7,13 +7,18 @@ import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';
 import { ChangePasswordModal } from '../auth/ChangePasswordModal';
 import Switch from '../ui/Switch';
+import { auth } from '../../firebase';
+import { updateProfile } from 'firebase/auth';
 import {
     User,
     Briefcase,
     KeyRound,
     LogOut,
     ChevronRight,
-    Save
+    Save,
+    Edit2,
+    Check,
+    X
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -30,6 +35,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
     const [saving, setSaving] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editedName, setEditedName] = useState(user?.displayName || '');
+    const [savingName, setSavingName] = useState(false);
 
     // Kiểm tra thay đổi
     const handleChange = (key: keyof UserSettings, value: any) => {
@@ -49,6 +57,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
             showToast('Có lỗi xảy ra', 'error');
         }
         setSaving(false);
+    };
+
+    const handleSaveDisplayName = async () => {
+        if (!editedName.trim()) {
+            showToast('Tên không được để trống', 'error');
+            return;
+        }
+        setSavingName(true);
+        try {
+            if (auth.currentUser) {
+                await updateProfile(auth.currentUser, { displayName: editedName.trim() });
+                showToast('Đã cập nhật tên hiển thị', 'success');
+                setIsEditingName(false);
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Có lỗi xảy ra', 'error');
+        }
+        setSavingName(false);
+    };
+
+    const handleCancelEditName = () => {
+        setEditedName(user?.displayName || '');
+        setIsEditingName(false);
     };
 
     const {
@@ -99,10 +131,45 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                         <div className={`${cardBg} rounded-xl border ${border} overflow-hidden`}>
                             <div className={`p-4 flex items-center gap-4 border-b ${border}`}>
                                 <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-primary" />
-                                <div>
-                                    <h3 className={`font-semibold ${textMain}`}>
-                                        {user?.displayName || 'Người dùng'}
-                                    </h3>
+                                <div className="flex-1">
+                                    {isEditingName ? (
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={editedName}
+                                                onChange={(e) => setEditedName(e.target.value)}
+                                                className={`flex-1 px-2 py-1 rounded border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary text-sm`}
+                                                placeholder="Nhập tên hiển thị"
+                                                autoFocus
+                                            />
+                                            <button
+                                                onClick={handleSaveDisplayName}
+                                                disabled={savingName}
+                                                className={`p-1.5 rounded-lg ${theme === 'dark' ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-green-50 text-green-600 hover:bg-green-100'} transition-colors`}
+                                            >
+                                                <Check size={16} />
+                                            </button>
+                                            <button
+                                                onClick={handleCancelEditName}
+                                                disabled={savingName}
+                                                className={`p-1.5 rounded-lg ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'} transition-colors`}
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <h3 className={`font-semibold ${textMain}`}>
+                                                {user?.displayName || 'Người dùng'}
+                                            </h3>
+                                            <button
+                                                onClick={() => setIsEditingName(true)}
+                                                className={`p-1 rounded ${theme === 'dark' ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'} transition-colors`}
+                                            >
+                                                <Edit2 size={14} />
+                                            </button>
+                                        </div>
+                                    )}
                                     <p className={`text-sm ${textSub}`}>{user?.email}</p>
                                 </div>
                             </div>

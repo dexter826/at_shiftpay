@@ -41,6 +41,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [titleError, setTitleError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [employeeShiftCounts, setEmployeeShiftCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -84,8 +85,30 @@ export const EventModal: React.FC<EventModalProps> = ({
         setAssignments({});
       }
       setError('');
+
+      loadEmployeeShiftCounts();
     }
   }, [isOpen, existingEvent, existingShifts, settings]);
+
+  const loadEmployeeShiftCounts = async () => {
+    try {
+      const currentDate = new Date(date);
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      const shifts = await dbService.getShiftsByMonth(currentMonth + 1, currentYear);
+      const counts: Record<string, number> = {};
+
+      shifts.forEach(shift => {
+        counts[shift.employeeId] = (counts[shift.employeeId] || 0) + 1;
+      });
+
+      setEmployeeShiftCounts(counts);
+    } catch (error) {
+      console.error('Error loading employee shift counts:', error);
+      setEmployeeShiftCounts({});
+    }
+  };
 
   const selectSession = (session: ShiftSession) => {
     if (selectedSession === session) {
@@ -109,6 +132,31 @@ export const EventModal: React.FC<EventModalProps> = ({
   };
 
   const getSelectedCount = () => Object.values(assignments).filter(Boolean).length;
+
+  const formatDateTitle = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const dayOfWeek = dayNames[date.getDay()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `${dayOfWeek}, ${day}/${month}`;
+  };
+
+  const getSortedEmployees = () => {
+    const filteredEmployees = employees.filter(emp =>
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return filteredEmployees.sort((a, b) => {
+      // Ưu tiên 1: Sắp xếp theo số ca (giảm dần)
+      const aCount = employeeShiftCounts[a.id] || 0;
+      const bCount = employeeShiftCounts[b.id] || 0;
+      if (aCount !== bCount) return bCount - aCount;
+
+      // Ưu tiên 2: Sắp xếp theo tên
+      return a.name.localeCompare(b.name);
+    });
+  };
 
   const validateTitle = (value: string) => {
     if (!value.trim()) {
@@ -220,7 +268,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   return (
     <Modal
-      title={existingEvent ? "Sửa sự kiện" : "Tạo sự kiện"}
+      title={existingEvent ? `Sửa sự kiện ${formatDateTitle(date)}` : `Tạo sự kiện ${formatDateTitle(date)}`}
       isOpen={isOpen}
       onClose={onClose}
       footer={
@@ -340,7 +388,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && (
           <div>
             <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm</label>
-            
+
             {/* Search Bar */}
             <div className="mb-3">
               <input
@@ -362,33 +410,46 @@ export const EventModal: React.FC<EventModalProps> = ({
               }`}>
               {employees.length === 0 ? (
                 <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
-              ) : employees.filter(emp =>
-                emp.name.toLowerCase().includes(searchTerm.toLowerCase())
-              ).length === 0 ? (
+              ) : getSortedEmployees().length === 0 ? (
                 <div className="p-3 text-center text-slate-500 text-xs">Không tìm thấy nhân viên</div>
               ) : (
-                employees
-                  .filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map(emp => (
+                getSortedEmployees().map(emp => {
+                  const shiftCount = employeeShiftCounts[emp.id] || 0;
+                  const isSelected = assignments[emp.id] || false;
+
+                  return (
                     <div
                       key={emp.id}
                       onClick={() => toggleAssignment(emp.id)}
                       className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
                         ? 'hover:bg-slate-800/50'
                         : 'hover:bg-slate-50'
-                        }`}
+                        } ${isSelected ? (theme === 'dark' ? 'bg-slate-800/30' : 'bg-blue-50/50') : ''}`}
                     >
-                      <span className={`text-sm truncate flex-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{emp.name}</span>
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className={`text-sm truncate ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} ${isSelected ? 'font-medium' : ''}`}>
+                          {emp.name}
+                        </span>
+                        {shiftCount > 0 && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${theme === 'dark'
+                            ? 'bg-slate-700 text-slate-400'
+                            : 'bg-slate-100 text-slate-500'
+                            }`}>
+                            {shiftCount}
+                          </span>
+                        )}
+                      </div>
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${assignments[emp.id]
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
                           ? 'bg-primary border-primary'
                           : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
                           }`}
                       >
-                        {assignments[emp.id] && <Check size={12} className="text-white" />}
+                        {isSelected && <Check size={12} className="text-white" />}
                       </div>
                     </div>
-                  ))
+                  );
+                })
               )}
             </div>
           </div>
