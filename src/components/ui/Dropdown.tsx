@@ -83,6 +83,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return (
         <div className={`relative ${className}`} ref={dropdownRef}>
             <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={disabled}
                 className={`flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
@@ -98,9 +99,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
             </button>
 
             {isOpen && (
-                <div className={`absolute top-full left-0 right-0 mt-1 ${cardBgClass} border ${borderClass} rounded-lg shadow-lg z-50 overflow-hidden`}>
+                <div className={`absolute top-full left-0 right-0 mt-1 ${cardBgClass} border ${borderClass} rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto`}>
                     {options.map((option) => (
                         <button
+                            type="button"
                             key={option.value}
                             onClick={() => handleSelect(option.value)}
                             className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/10 ${value === option.value ? `bg-primary/10 text-primary font-medium` : textSecondaryClass

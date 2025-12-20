@@ -229,9 +229,9 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         <div className="flex justify-between items-center">
           <div>
             <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Nhân Sự</h1>
-            <p className={`text-xs ${textMutedClass} mt-0.5`}>
+            <div className={`text-xs ${textMutedClass} mt-0.5`}>
               {loading ? <Skeleton width={100} height={14} /> : `${employees.length} nhân viên`}
-            </p>
+            </div>
           </div>
           <Button
             onClick={openAddModal}
@@ -385,7 +385,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             />
           </div>
           <div>
-            <label className={`block text-xs ${textMutedClass} mb-1.5`}>Số điện thoại (không bắt buộc)</label>
+            <label className={`block text-xs ${textMutedClass} mb-1.5`}>Số điện thoại (tùy chọn)</label>
             <input
               type="tel"
               placeholder="Nhập số điện thoại"
