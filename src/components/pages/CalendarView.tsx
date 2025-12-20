@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { formatDate, formatCurrency } from '../../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
 import { dbService } from '../../services/firebase';
 import { useToast } from '../ui/Toast';
@@ -386,64 +386,57 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         }
       >
         {viewingEvent && (
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <p className={`text-xs ${textMutedClass} mb-1`}>Ngày</p>
-                <p className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</p>
+          <div className="space-y-3">
+            {/* Thông tin cơ bản - 1 hàng với icon */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={14} className={textMutedClass} />
+                <span className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</span>
               </div>
-              {viewingEvent.time && (
-                <div>
-                  <p className={`text-xs ${textMutedClass} mb-1`}>Thời gian</p>
-                  <p className={`text-sm ${textPrimaryClass} flex items-center gap-1`}>
-                    <Clock size={12} className="text-primary" />
-                    {viewingEvent.time}
-                  </p>
+              <div className="flex items-center gap-1.5">
+                <Clock size={14} className="text-primary" />
+                <span className={`text-sm ${textPrimaryClass}`}>{viewingEvent.time || '--:--'}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Banknote size={14} className="text-green-500" />
+                <span className={`text-sm font-medium ${textPrimaryClass}`}>
+                  {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
+                </span>
+              </div>
+              {viewingEvent.surcharge > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <DollarSign size={14} className="text-blue-500" />
+                  <span className={`text-sm font-medium text-blue-500`}>
+                    {formatCurrency(viewingEvent.surcharge)}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Thông tin lương */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className={`text-xs ${textMutedClass} mb-1`}>Lương / 1 ca</p>
-                <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
-                  <Banknote size={14} className="text-green-500" />
-                  {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
-                </p>
-              </div>
-              <div>
-                <p className={`text-xs ${textMutedClass} mb-1`}>Phụ phí</p>
-                <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
-                  <Banknote size={14} className="text-blue-500" />
-                  {formatCurrency(viewingEvent.surcharge || 0)}
-                </p>
-              </div>
-            </div>
-
             {/* Tổng tiền */}
             {viewingEventShifts.length > 0 && (
-              <div className={`p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
-                <p className={`text-xs ${textMutedClass} mb-1`}>Tổng tiền sự kiện</p>
-                <p className={`text-lg font-bold text-primary`}>
-                  {formatCurrency(
-                    viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
-                  )}
-                </p>
-                <div className={`text-xs ${textMutedClass} mt-1 space-y-1`}>
+              <div className={`p-2.5 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg flex items-center justify-between`}>
+                <div>
+                  <p className={`text-xs ${textMutedClass} mb-0.5`}>Tổng tiền sự kiện</p>
+                  <p className={`text-lg font-bold text-primary`}>
+                    {formatCurrency(
+                      viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
+                    )}
+                  </p>
+                </div>
+                <div className={`text-xs ${textMutedClass} text-right space-y-0.5`}>
                   <p>Lương: {formatCurrency((viewingEvent.amount || settings.shiftRate) * viewingEventShifts.length)}</p>
-                  {viewingEvent.surcharge && viewingEvent.surcharge > 0 && (
-                    <>
-                      <p>Phụ phí: {formatCurrency(viewingEvent.surcharge)}</p>
+                  {viewingEvent.surcharge > 0 && (
+                    <p>
+                      Phụ phí: {formatCurrency(viewingEvent.surcharge)}
                       {viewingEvent.surchargeDistribution && (
-                        <p className="italic">
-                          {viewingEvent.surchargeDistribution.type === 'equal'
-                            ? `Chia đều cho ${viewingEventShifts.length} người`
-                            : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người được chọn`
-                          }
-                        </p>
+                        <span className="italic">
+                          {' '}({viewingEvent.surchargeDistribution.type === 'equal'
+                            ? 'Chia đều'
+                            : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người`})
+                        </span>
                       )}
-                    </>
+                    </p>
                   )}
                 </div>
               </div>

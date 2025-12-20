@@ -2,9 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Employee, Shift } from '../../types';
 import { dbService } from '../../services/firebase';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2 } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
+import { EmployeeDetailModal } from '../modals';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
@@ -68,6 +69,8 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -116,6 +119,11 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setModalOpen(true);
   };
 
+  const openDetailModal = (emp: Employee) => {
+    setSelectedEmployee(emp);
+    setDetailModalOpen(true);
+  };
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(value);
@@ -158,15 +166,22 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setModalOpen(false);
 
     try {
+      const employeeData: any = { name, phone, imageUrl };
+      if (bankAccount) {
+        employeeData.bankAccount = bankAccount;
+      }
+
       if (isEditing && empId) {
-        await dbService.updateEmployee(empId, { name, phone, imageUrl, bankAccount });
+        await dbService.updateEmployee(empId, employeeData);
         showToast('Đã cập nhật nhân viên', 'success');
       } else {
-        await dbService.addEmployee({ name, phone, imageUrl, bankAccount });
+        await dbService.addEmployee(employeeData);
         showToast('Đã thêm nhân viên mới', 'success');
       }
     } catch (err) {
-      showToast('Có lỗi xảy ra', 'error');
+      console.error('Error saving employee:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Có lỗi xảy ra';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -284,8 +299,11 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredAndSortedEmployees.map((emp) => (
-              <div key={emp.id} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square`}>
-                {/* Ảnh cover */}
+              <div 
+                key={emp.id} 
+                onClick={() => openDetailModal(emp)}
+                className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
+              >                {/* Ảnh cover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
                   {emp.imageUrl ? (
                     <img
@@ -320,6 +338,16 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                       <Trash2 size={16} />
                     </button>
                   </div>
+
+                  {/* Badge Ngân hàng */}
+                  {emp.bankAccount && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-green-500/90 text-white text-[10px] font-medium shadow-sm">
+                        <CheckCircle size={12} />
+                        <span>Ngân hàng</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Thông tin hiển thị */}
@@ -450,7 +478,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                 <label className={`block text-xs ${textMutedClass} mb-1.5`}>Tên chủ tài khoản</label>
                 <input
                   type="text"
-                  placeholder="VD: NGUYEN VAN A"
+                  placeholder="Nhập tên chủ tài khoản"
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value.toUpperCase())}
                   className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
@@ -506,6 +534,18 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       >
         <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{deleteError}</p>
       </Modal>
+
+      {/* Modal Chi tiết nhân viên */}
+      <EmployeeDetailModal
+        isOpen={detailModalOpen}
+        onClose={() => {
+          setDetailModalOpen(false);
+          setSelectedEmployee(null);
+        }}
+        employee={selectedEmployee}
+        shifts={shifts}
+        onEditClick={(emp) => openEditModal(emp)}
+      />
     </div>
   );
 };

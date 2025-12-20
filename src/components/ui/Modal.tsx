@@ -14,14 +14,21 @@ interface ModalProps {
 let openModalCount = 0;
 
 export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, footer }) => {
-  const { theme } = useThemeStyles();
+  const {
+    theme,
+    bgClass,
+    borderClass,
+    textPrimaryClass: textClass,
+    textMutedClass,
+    hoverBgClass
+  } = useThemeStyles();
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     openModalCount++;
     document.body.style.overflow = 'hidden';
-    
+
     return () => {
       openModalCount--;
       if (openModalCount === 0) {
@@ -31,14 +38,6 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
   }, [isOpen]);
 
   if (!isOpen) return null;
-
-  const {
-    bgClass,
-    borderClass,
-    textPrimaryClass: textClass,
-    textMutedClass,
-    hoverBgClass
-  } = useThemeStyles();
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 p-0 md:p-4 animate-in fade-in duration-200">

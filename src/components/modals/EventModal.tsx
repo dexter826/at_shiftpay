@@ -360,26 +360,32 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         )}
 
-        {/* Thông tin sự kiện */}
-        <div>
-          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
-          <input
-            type="text"
-            placeholder="Nhập tên sự kiện"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              if (titleError) validateTitle(e.target.value);
-            }}
-            onBlur={() => validateTitle(title)}
-            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${titleError
-              ? 'border-red-500 focus:border-red-500'
-              : theme === 'dark'
-                ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-              } ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
-          />
-          {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+        {/* Tên sự kiện và Thời gian */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
+            <input
+              type="text"
+              placeholder="Nhập tên sự kiện"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError) validateTitle(e.target.value);
+              }}
+              onBlur={() => validateTitle(title)}
+              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${titleError
+                ? 'border-red-500 focus:border-red-500'
+                : theme === 'dark'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                } ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
+            />
+            {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+          </div>
+          <div>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
+            <TimePicker value={time} onChange={setTime} />
+          </div>
         </div>
 
         <div>
@@ -428,13 +434,9 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         </div>
 
-        {/* Thời gian & Lương */}
+        {/* Lương/người và Phụ phí */}
         {selectedSession && (
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
-              <TimePicker value={time} onChange={setTime} />
-            </div>
             <div>
               <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương/người</label>
               <div className="relative">
@@ -450,25 +452,21 @@ export const EventModal: React.FC<EventModalProps> = ({
                 <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Phụ phí */}
-        {selectedSession && (
-          <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
-            <div className="relative">
-              <input
-                type="number"
-                value={surcharge || ''}
-                onChange={(e) => setSurcharge(e.target.value === '' ? 0 : Number(e.target.value))}
-                placeholder="0"
-                className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
-                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                  }`}
-              />
-              <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+            <div>
+              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={surcharge || ''}
+                  onChange={(e) => setSurcharge(e.target.value === '' ? 0 : Number(e.target.value))}
+                  placeholder="0"
+                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
+                    ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                    }`}
+                />
+                <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+              </div>
             </div>
           </div>
         )}
