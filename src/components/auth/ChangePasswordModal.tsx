@@ -121,7 +121,6 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             onClick={handleClose}
             className="flex-1"
             disabled={loading}
-            hideIcon
           >
             Hủy
           </Button>

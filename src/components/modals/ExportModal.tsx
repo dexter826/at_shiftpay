@@ -35,7 +35,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                         variant="secondary"
                         onClick={onClose}
                         className="flex-1"
-                        hideIcon
                     >
                         Hủy
                     </Button>

@@ -111,7 +111,6 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             title="Quyết toán tiền ứng"
             isOpen={isOpen}
             onClose={onClose}
-            size="lg"
         >
             <div className="space-y-6">
                 {/* Thông tin tổng quan */}
@@ -189,7 +188,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className={`text-sm ${textPrimaryClass}`}>
-                                                {formatDate(payment.date)}
+                                                {formatDate(new Date(payment.date).toISOString())}
                                             </p>
                                             <p className={`text-xs ${textSecondaryClass}`}>
                                                 {payment.note}
@@ -223,7 +222,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                                 {shift.eventDate} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
                                             </p>
                                             <p className={`text-xs ${textSecondaryClass}`}>
-                                                Đã ứng lúc: {shift.paidAt ? formatDate(shift.paidAt) : 'N/A'}
+                                                Đã ứng lúc: {shift.paidAt ? formatDate(new Date(shift.paidAt).toISOString()) : 'N/A'}
                                             </p>
                                         </div>
                                         <span className={`font-medium text-green-500`}>

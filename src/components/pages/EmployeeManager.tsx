@@ -165,7 +165,9 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           return bShifts - aShifts; // Nhiều công nhất lên đầu
         case 'recent':
           // Mới nhất lên đầu
-          return (b.createdAt || 0) - (a.createdAt || 0);
+          const aCreatedAt = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bCreatedAt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return bCreatedAt - aCreatedAt;
         default:
           return 0;
       }
@@ -376,7 +378,6 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               variant="secondary"
               onClick={() => setDeleteConfirm(null)}
               className="flex-1"
-              hideIcon
             >
               Hủy
             </Button>
@@ -403,7 +404,6 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
             variant="secondary"
             onClick={() => setDeleteError(null)}
             fullWidth
-            hideIcon
           >
             Đã hiểu
           </Button>
