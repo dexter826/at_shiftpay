@@ -297,15 +297,18 @@ export const EventModal: React.FC<EventModalProps> = ({
           : undefined
       } : undefined;
 
-      const eventData = {
+      const eventData: any = {
         date,
         title,
         note,
         time,
         amount,
-        surcharge,
-        surchargeDistribution
+        surcharge
       };
+
+      if (surchargeDistribution) {
+        eventData.surchargeDistribution = surchargeDistribution;
+      }
 
       if (isEditing && existingEvent) {
         // Cập nhật thông minh
