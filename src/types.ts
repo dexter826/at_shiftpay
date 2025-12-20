@@ -13,6 +13,11 @@ export interface Event {
   title: string;
   note?: string;
   amount?: number; // Mức lương sự kiện
+  surcharge?: number; // Phụ phí sự kiện (cố định, không nhân với số người)
+  surchargeDistribution?: {
+    type: 'equal' | 'selected';
+    selectedEmployeeIds?: string[]; // chỉ có khi type = 'selected'
+  };
 }
 
 export type ShiftSession = 'morning' | 'afternoon';

@@ -128,6 +128,7 @@ function App() {
           <PayrollView
             shifts={shifts}
             employees={employees}
+            events={events}
             loading={loading}
           />
         );
@@ -235,7 +236,6 @@ function AppContent({
               variant="secondary"
               onClick={onCloseLogoutConfirm}
               className="flex-1"
-              hideIcon
             >
               Hủy
             </Button>

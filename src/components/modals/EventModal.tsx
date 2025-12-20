@@ -35,6 +35,9 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [note, setNote] = useState('');
   const [time, setTime] = useState('');
   const [amount, setAmount] = useState<number>(settings.shiftRate);
+  const [surcharge, setSurcharge] = useState<number>(0);
+  const [surchargeDistributionType, setSurchargeDistributionType] = useState<'equal' | 'selected'>('equal');
+  const [surchargeSelectedEmployees, setSurchargeSelectedEmployees] = useState<Record<string, boolean>>({});
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
@@ -71,6 +74,22 @@ export const EventModal: React.FC<EventModalProps> = ({
         setAssignments(newAssignments);
         setSelectedSession(detectedSession);
         setAmount(detectedAmount);
+        setSurcharge(existingEvent.surcharge || 0);
+
+        // Khôi phục phân phối phụ phí
+        if (existingEvent.surchargeDistribution) {
+          setSurchargeDistributionType(existingEvent.surchargeDistribution.type);
+          if (existingEvent.surchargeDistribution.type === 'selected' && existingEvent.surchargeDistribution.selectedEmployeeIds) {
+            const selectedSurchargeEmps: Record<string, boolean> = {};
+            existingEvent.surchargeDistribution.selectedEmployeeIds.forEach(id => {
+              selectedSurchargeEmps[id] = true;
+            });
+            setSurchargeSelectedEmployees(selectedSurchargeEmps);
+          }
+        } else {
+          setSurchargeDistributionType('equal');
+          setSurchargeSelectedEmployees({});
+        }
 
         // Đặt giờ mặc định theo ca
         if (!existingEvent.time && detectedSession) {
@@ -81,6 +100,9 @@ export const EventModal: React.FC<EventModalProps> = ({
         setNote('');
         setTime('');
         setAmount(settings.shiftRate);
+        setSurcharge(0);
+        setSurchargeDistributionType('equal');
+        setSurchargeSelectedEmployees({});
         setSelectedSession(null);
         setAssignments({});
       }
@@ -132,6 +154,25 @@ export const EventModal: React.FC<EventModalProps> = ({
   };
 
   const getSelectedCount = () => Object.values(assignments).filter(Boolean).length;
+
+  const getSurchargePerPerson = () => {
+    if (!surcharge || surcharge === 0) return 0;
+
+    if (surchargeDistributionType === 'equal') {
+      const totalPeople = getSelectedCount();
+      return totalPeople > 0 ? surcharge / totalPeople : 0;
+    } else {
+      const selectedCount = Object.values(surchargeSelectedEmployees).filter(Boolean).length;
+      return selectedCount > 0 ? surcharge / selectedCount : 0;
+    }
+  };
+
+  const toggleSurchargeEmployee = (empId: string) => {
+    setSurchargeSelectedEmployees(prev => ({
+      ...prev,
+      [empId]: !prev[empId]
+    }));
+  };
 
   const formatDateTitle = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -197,6 +238,16 @@ export const EventModal: React.FC<EventModalProps> = ({
       const emp = employees.find(e => e.id === empId);
       if (!emp) return;
 
+      // Tính lương bao gồm phụ phí
+      let finalAmount = amount;
+      if (surcharge > 0) {
+        if (surchargeDistributionType === 'equal') {
+          finalAmount += getSurchargePerPerson();
+        } else if (surchargeDistributionType === 'selected' && surchargeSelectedEmployees[empId]) {
+          finalAmount += getSurchargePerPerson();
+        }
+      }
+
       const prevShift = existingShifts.find(
         s => s.employeeId === empId && s.session === selectedSession
       );
@@ -206,7 +257,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         shiftsToUpdate.push({
           id: prevShift.id,
           data: {
-            amount: amount,
+            amount: finalAmount,
             // session is same (filtered above)
             // employeeId/Name is same
           }
@@ -219,7 +270,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           employeeId: empId,
           employeeName: emp.name,
           session: selectedSession!,
-          amount: amount,
+          amount: finalAmount,
           status: 'unpaid',
         };
         shiftsToCreate.push(shiftData);
@@ -239,7 +290,22 @@ export const EventModal: React.FC<EventModalProps> = ({
     onSuccess();
 
     try {
-      const eventData = { date, title, note, time, amount };
+      const surchargeDistribution = surcharge > 0 ? {
+        type: surchargeDistributionType,
+        selectedEmployeeIds: surchargeDistributionType === 'selected'
+          ? Object.entries(surchargeSelectedEmployees).filter(([_, selected]) => selected).map(([id]) => id)
+          : undefined
+      } : undefined;
+
+      const eventData = {
+        date,
+        title,
+        note,
+        time,
+        amount,
+        surcharge,
+        surchargeDistribution
+      };
 
       if (isEditing && existingEvent) {
         // Cập nhật thông minh
@@ -367,12 +433,12 @@ export const EventModal: React.FC<EventModalProps> = ({
               <TimePicker value={time} onChange={setTime} />
             </div>
             <div>
-              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương</label>
+              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương/người</label>
               <div className="relative">
                 <input
                   type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  value={amount || ''}
+                  onChange={(e) => setAmount(e.target.value === '' ? 0 : Number(e.target.value))}
                   className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
                     ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
                     : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
@@ -381,6 +447,119 @@ export const EventModal: React.FC<EventModalProps> = ({
                 <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Phụ phí */}
+        {selectedSession && (
+          <div>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
+            <div className="relative">
+              <input
+                type="number"
+                value={surcharge || ''}
+                onChange={(e) => setSurcharge(e.target.value === '' ? 0 : Number(e.target.value))}
+                placeholder="0"
+                className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                  }`}
+              />
+              <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+            </div>
+          </div>
+        )}
+
+        {/* Phân phối phụ phí */}
+        {selectedSession && surcharge > 0 && (
+          <div>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phân phối phụ phí</label>
+
+            {/* Radio buttons */}
+            <div className="space-y-2 mb-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="surchargeDistribution"
+                  value="equal"
+                  checked={surchargeDistributionType === 'equal'}
+                  onChange={() => setSurchargeDistributionType('equal')}
+                  className="text-primary"
+                />
+                <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                  Chia đều cho tất cả
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="surchargeDistribution"
+                  value="selected"
+                  checked={surchargeDistributionType === 'selected'}
+                  onChange={() => {
+                    setSurchargeDistributionType('selected');
+                    // Tự động chọn tất cả nhân viên đang tham gia khi chuyển sang chế độ "chọn người nhận"
+                    if (Object.keys(surchargeSelectedEmployees).length === 0) {
+                      const allSelected: Record<string, boolean> = {};
+                      Object.entries(assignments).forEach(([empId, isAssigned]) => {
+                        if (isAssigned) allSelected[empId] = true;
+                      });
+                      setSurchargeSelectedEmployees(allSelected);
+                    }
+                  }}
+                  className="text-primary"
+                />
+                <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                  Chọn người nhận
+                </span>
+              </label>
+            </div>
+
+            {/* Danh sách chọn người nhận phụ phí */}
+            {surchargeDistributionType === 'selected' && (
+              <div className={`border rounded-lg divide-y max-h-32 overflow-y-auto ${theme === 'dark'
+                ? 'border-slate-700 divide-slate-700'
+                : 'border-slate-200 divide-slate-100'
+                }`}>
+                {Object.entries(assignments).filter(([_, isAssigned]) => isAssigned).map(([empId]) => {
+                  const emp = employees.find(e => e.id === empId);
+                  if (!emp) return null;
+
+                  const isSelected = surchargeSelectedEmployees[empId] || false;
+
+                  return (
+                    <div
+                      key={empId}
+                      onClick={() => toggleSurchargeEmployee(empId)}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
+                        ? 'hover:bg-slate-800/50'
+                        : 'hover:bg-slate-50'
+                        } ${isSelected ? (theme === 'dark' ? 'bg-slate-800/30' : 'bg-blue-50/50') : ''}`}
+                    >
+                      <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} ${isSelected ? 'font-medium' : ''}`}>
+                        {emp.name}
+                      </span>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
+                          ? 'bg-primary border-primary'
+                          : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                          }`}
+                      >
+                        {isSelected && <Check size={12} className="text-white" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Hiển thị tính toán */}
+            {surchargeDistributionType === 'selected' && (
+              <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                {Object.values(surchargeSelectedEmployees).filter(Boolean).length} người được chọn - {getSurchargePerPerson().toLocaleString('vi-VN')} VND/người
+              </p>
+            )}
           </div>
         )}
 

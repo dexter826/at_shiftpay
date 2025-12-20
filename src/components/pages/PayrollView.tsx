@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Skeleton } from '../ui/Skeleton';
-import { Shift, PayrollSummary, PaymentTransaction } from '../../types';
+import { Shift, PayrollSummary, PaymentTransaction, Event } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services/firebase';
 
@@ -16,10 +16,11 @@ import { Dropdown, DropdownOption } from '../ui/Dropdown';
 interface PayrollViewProps {
   shifts: Shift[];
   employees: any[];
+  events: Event[];
   loading?: boolean;
 }
 
-export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loading = false }) => {
+export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
@@ -746,7 +747,6 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
               variant="secondary"
               onClick={() => setPayConfirm(false)}
               className="flex-1"
-              hideIcon
             >
               Hủy
             </Button>
@@ -854,6 +854,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, loa
         selectedShiftIds={selectedShiftIds}
         onShiftSelect={handleSelectShift}
         onSelectAll={handleSelectAll}
+        events={events}
       />
 
       {/* Modal quyết toán */}

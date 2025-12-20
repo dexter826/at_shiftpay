@@ -3,7 +3,7 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Shift, PayrollSummary } from '../../types';
+import { Shift, PayrollSummary, Event } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services/firebase';
 import { Banknote, AlertTriangle, Info, Check } from 'lucide-react';
@@ -16,6 +16,7 @@ interface PaymentModalProps {
     selectedShiftIds: string[];
     onShiftSelect: (shiftId: string) => void;
     onSelectAll: () => void;
+    events: Event[]; // Thêm events để lấy thông tin phụ phí
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -25,7 +26,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     shifts,
     selectedShiftIds,
     onShiftSelect,
-    onSelectAll
+    onSelectAll,
+    events
 }) => {
     const [paymentType, setPaymentType] = useState<'regular' | 'advance'>('regular');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -45,6 +47,35 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             s.status === 'unpaid'
         );
     }, [shifts, employeeSummary]);
+
+    // Helper function để tính toán lương và phụ phí riêng biệt
+    const getShiftBreakdown = (shift: Shift) => {
+        const event = events.find(e => e.id === shift.eventId);
+        if (!event || !event.surcharge || event.surcharge === 0) {
+            return {
+                baseSalary: shift.amount,
+                surcharge: 0
+            };
+        }
+
+        const baseSalary = event.amount || 0;
+        const surchargePerPerson = shift.amount - baseSalary;
+
+        return {
+            baseSalary: baseSalary,
+            surcharge: surchargePerPerson
+        };
+    };
+
+    // Helper function để format ngày tháng
+    const formatShiftDate = (dateStr: string, session: 'morning' | 'afternoon') => {
+        const date = new Date(dateStr);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const sessionText = session === 'morning' ? 'Tiệc sáng' : 'Tiệc chiều';
+        return `${sessionText} - ${day}/${month}/${year}`;
+    };
 
     const handlePayment = async () => {
         if (!employeeSummary || selectedShiftIds.length === 0) return;
@@ -92,7 +123,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             title="Thanh toán / Ứng tiền"
             isOpen={isOpen}
             onClose={onClose}
-            size="lg"
         >
             <div className="space-y-6">
                 {/* Thông tin nhân viên */}
@@ -115,7 +145,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         </div>
                         <div className="col-span-2">
                             <span className={textSecondary}>Số tiền thực tế cần trả:</span>
-                            <p className={`font-bold text-lg ${employeeSummary.netAmount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            <p className={`font-bold text-lg ${employeeSummary.netAmount >= 0 ? 'text-primary' : 'text-red-500'}`}>
                                 {formatCurrency(Math.abs(employeeSummary.netAmount))}
                                 {employeeSummary.netAmount < 0 && ' (Đã ứng thừa)'}
                             </p>
@@ -130,12 +160,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         <button
                             onClick={() => setPaymentType('regular')}
                             className={`p-3 rounded-lg border-2 transition-colors ${paymentType === 'regular'
-                                ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                ? 'border-primary bg-primary dark:bg-primary/20'
                                 : `border-slate-300 dark:border-slate-600 ${cardBg}`
                                 }`}
                         >
                             <div className="flex items-center gap-2">
-                                <Banknote size={16} className="text-green-500" />
+                                <Banknote size={16} className="text-primary" />
                                 <span className={textPrimary}>Thanh toán thường</span>
                             </div>
                             <p className={`text-xs ${textSecondary} mt-1`}>
@@ -169,37 +199,46 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         </h4>
                         <button
                             onClick={onSelectAll}
-                            className="text-sm text-blue-500 hover:text-blue-600"
+                            className="text-sm text-primary hover:text-primary/80"
                         >
                             {selectedShiftIds.length === unpaidShifts.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
                         </button>
                     </div>
 
                     <div className={`max-h-40 overflow-y-auto border ${border} rounded-lg`}>
-                        {unpaidShifts.map(shift => (
-                            <div
-                                key={shift.id}
-                                onClick={() => onShiftSelect(shift.id)}
-                                className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50`}
-                            >
+                        {unpaidShifts.map(shift => {
+                            const breakdown = getShiftBreakdown(shift);
+                            return (
                                 <div
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedShiftIds.includes(shift.id)
-                                        ? 'bg-green-500 border-green-500'
-                                        : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
-                                        }`}
+                                    key={shift.id}
+                                    onClick={() => onShiftSelect(shift.id)}
+                                    className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50`}
                                 >
-                                    {selectedShiftIds.includes(shift.id) && <Check size={12} className="text-white" />}
+                                    <div
+                                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedShiftIds.includes(shift.id)
+                                            ? 'bg-primary border-primary'
+                                            : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                                            }`}
+                                    >
+                                        {selectedShiftIds.includes(shift.id) && <Check size={12} className="text-white" />}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className={`text-sm ${textPrimary}`}>
+                                            {formatShiftDate(shift.eventDate, shift.session)}
+                                        </p>
+                                        <div className={`text-xs ${textSecondary}`}>
+                                            {breakdown.surcharge > 0 ? (
+                                                <span>
+                                                    {formatCurrency(breakdown.baseSalary)} + {formatCurrency(breakdown.surcharge)} (Phụ phí)
+                                                </span>
+                                            ) : (
+                                                <span>{formatCurrency(shift.amount)}</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <p className={`text-sm ${textPrimary}`}>
-                                        {shift.eventDate} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
-                                    </p>
-                                    <p className={`text-xs ${textSecondary}`}>
-                                        {formatCurrency(shift.amount)}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

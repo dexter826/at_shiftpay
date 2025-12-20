@@ -404,13 +404,50 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </div>
 
             {/* Thông tin lương */}
-            <div>
-              <p className={`text-xs ${textMutedClass} mb-1`}>Lương / 1 ca</p>
-              <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
-                <Banknote size={14} className="text-green-500" />
-                {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className={`text-xs ${textMutedClass} mb-1`}>Lương / 1 ca</p>
+                <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
+                  <Banknote size={14} className="text-green-500" />
+                  {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
+                </p>
+              </div>
+              <div>
+                <p className={`text-xs ${textMutedClass} mb-1`}>Phụ phí</p>
+                <p className={`text-sm font-medium ${textPrimaryClass} flex items-center gap-1`}>
+                  <Banknote size={14} className="text-blue-500" />
+                  {formatCurrency(viewingEvent.surcharge || 0)}
+                </p>
+              </div>
             </div>
+
+            {/* Tổng tiền */}
+            {viewingEventShifts.length > 0 && (
+              <div className={`p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
+                <p className={`text-xs ${textMutedClass} mb-1`}>Tổng tiền sự kiện</p>
+                <p className={`text-lg font-bold text-primary`}>
+                  {formatCurrency(
+                    viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
+                  )}
+                </p>
+                <div className={`text-xs ${textMutedClass} mt-1 space-y-1`}>
+                  <p>Lương: {formatCurrency((viewingEvent.amount || settings.shiftRate) * viewingEventShifts.length)}</p>
+                  {viewingEvent.surcharge && viewingEvent.surcharge > 0 && (
+                    <>
+                      <p>Phụ phí: {formatCurrency(viewingEvent.surcharge)}</p>
+                      {viewingEvent.surchargeDistribution && (
+                        <p className="italic">
+                          {viewingEvent.surchargeDistribution.type === 'equal'
+                            ? `Chia đều cho ${viewingEventShifts.length} người`
+                            : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người được chọn`
+                          }
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {viewingEvent.note && (
               <div>
