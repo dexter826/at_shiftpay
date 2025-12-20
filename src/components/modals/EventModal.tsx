@@ -189,6 +189,13 @@ export const EventModal: React.FC<EventModalProps> = ({
     );
 
     return filteredEmployees.sort((a, b) => {
+      // Ưu tiên 0: Nếu đang edit, đưa người được chọn lên đầu
+      if (existingEvent) {
+        const aSelected = assignments[a.id] ? 1 : 0;
+        const bSelected = assignments[b.id] ? 1 : 0;
+        if (aSelected !== bSelected) return bSelected - aSelected;
+      }
+
       // Ưu tiên 1: Sắp xếp theo số ca (giảm dần)
       const aCount = employeeShiftCounts[a.id] || 0;
       const bCount = employeeShiftCounts[b.id] || 0;
@@ -477,7 +484,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phân phối phụ phí</label>
 
             {/* Radio buttons */}
-            <div className="space-y-2 mb-3">
+            <div className="grid grid-cols-2 gap-2 mb-3">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
@@ -485,7 +492,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   value="equal"
                   checked={surchargeDistributionType === 'equal'}
                   onChange={() => setSurchargeDistributionType('equal')}
-                  className="text-primary"
+                  className="accent-primary"
                 />
                 <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
                   Chia đều cho tất cả
@@ -509,7 +516,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                       setSurchargeSelectedEmployees(allSelected);
                     }
                   }}
-                  className="text-primary"
+                  className="accent-primary"
                 />
                 <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
                   Chọn người nhận
