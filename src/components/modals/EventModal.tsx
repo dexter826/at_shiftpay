@@ -260,13 +260,12 @@ export const EventModal: React.FC<EventModalProps> = ({
       );
 
       if (prevShift) {
-        // Chỉ cập nhật số tiền
+        // Cập nhật số tiền và tên nhân viên (đồng bộ nếu có thay đổi)
         shiftsToUpdate.push({
           id: prevShift.id,
           data: {
             amount: finalAmount,
-            // session is same (filtered above)
-            // employeeId/Name is same
+            employeeName: emp.name,
           }
         });
       } else {
