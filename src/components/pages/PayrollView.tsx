@@ -855,6 +855,7 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, eve
         onShiftSelect={handleSelectShift}
         onSelectAll={handleSelectAll}
         events={events}
+        employees={employees}
       />
 
       {/* Modal quyết toán */}

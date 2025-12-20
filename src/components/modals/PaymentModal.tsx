@@ -1,12 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Shift, PayrollSummary, Event } from '../../types';
+import { Shift, PayrollSummary, Event, Employee } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services/firebase';
-import { Banknote, AlertTriangle, Info, Check } from 'lucide-react';
+import { vietQRService } from '../../services/vietqr';
+import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User } from 'lucide-react';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -16,7 +17,8 @@ interface PaymentModalProps {
     selectedShiftIds: string[];
     onShiftSelect: (shiftId: string) => void;
     onSelectAll: () => void;
-    events: Event[]; // Thêm events để lấy thông tin phụ phí
+    events: Event[];
+    employees: Employee[];
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -27,10 +29,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     selectedShiftIds,
     onShiftSelect,
     onSelectAll,
-    events
+    events,
+    employees
 }) => {
     const [paymentType, setPaymentType] = useState<'regular' | 'advance'>('regular');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+    const [qrError, setQrError] = useState<string | null>(null);
     const { theme } = useTheme();
     const { showToast } = useToast();
 
@@ -39,6 +44,41 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }, [shifts, selectedShiftIds]);
 
     const selectedTotal = selectedShifts.reduce((sum, shift) => sum + shift.amount, 0);
+
+    const currentEmployee = useMemo(() => {
+        if (!employeeSummary) return null;
+        return employees.find(e => e.id === employeeSummary.employeeId);
+    }, [employees, employeeSummary]);
+
+    useEffect(() => {
+        const generateQR = async () => {
+            if (!currentEmployee?.bankAccount || selectedTotal === 0) {
+                setQrCodeUrl(null);
+                setQrError(null);
+                return;
+            }
+
+            try {
+                setQrError(null);
+                const transferContent = `THANH TOAN TIEN LUONG ${selectedShiftIds.length} CONG`;
+                const qrUrl = await vietQRService.generateQRCode({
+                    accountNo: currentEmployee.bankAccount.accountNumber,
+                    accountName: currentEmployee.bankAccount.accountName,
+                    acqId: currentEmployee.bankAccount.bankId,
+                    amount: selectedTotal,
+                    addInfo: transferContent,
+                    template: 'compact'
+                });
+                setQrCodeUrl(qrUrl);
+            } catch (error) {
+                console.error('Generate QR error:', error);
+                setQrError('Không thể tạo mã QR');
+                setQrCodeUrl(null);
+            }
+        };
+
+        generateQR();
+    }, [currentEmployee, selectedTotal, selectedShiftIds.length]);
 
     const unpaidShifts = useMemo(() => {
         if (!employeeSummary) return [];
@@ -120,7 +160,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     return (
         <Modal
-            title="Thanh toán / Ứng tiền"
+            title="Thanh toán lương"
             isOpen={isOpen}
             onClose={onClose}
         >
@@ -159,37 +199,115 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={() => setPaymentType('regular')}
-                            className={`p-3 rounded-lg border-2 transition-colors ${paymentType === 'regular'
+                            className={`p-3 rounded-lg border-2 transition-colors text-center ${paymentType === 'regular'
                                 ? 'border-primary bg-primary dark:bg-primary/20'
                                 : `border-slate-300 dark:border-slate-600 ${cardBg}`
                                 }`}
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                                 <Banknote size={16} className="text-primary" />
-                                <span className={textPrimary}>Thanh toán thường</span>
+                                <span className={`font-medium ${paymentType === 'regular' ? 'text-primary' : textPrimary}`}>Thanh toán thường</span>
                             </div>
-                            <p className={`text-xs ${textSecondary} mt-1`}>
+                            <p className={`text-xs mt-1 ${paymentType === 'regular' ? 'text-primary' : textSecondary}`}>
                                 Trả từ nguồn tiền tiệc
                             </p>
                         </button>
 
                         <button
                             onClick={() => setPaymentType('advance')}
-                            className={`p-3 rounded-lg border-2 transition-colors ${paymentType === 'advance'
+                            className={`p-3 rounded-lg border-2 transition-colors text-center ${paymentType === 'advance'
                                 ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                                 : `border-slate-300 dark:border-slate-600 ${cardBg}`
                                 }`}
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                                 <AlertTriangle size={16} className="text-orange-500" />
-                                <span className={textPrimary}>Ứng tiền</span>
+                                <span className={`font-medium ${paymentType === 'advance' ? 'text-orange-500' : textPrimary}`}>Ứng tiền</span>
                             </div>
-                            <p className={`text-xs ${textSecondary} mt-1`}>
+                            <p className={`text-xs mt-1 ${paymentType === 'advance' ? 'text-orange-500' : textSecondary}`}>
                                 Trả từ nguồn tiền cá nhân
                             </p>
                         </button>
                     </div>
                 </div>
+
+                {/* QR Code Section */}
+                {currentEmployee?.bankAccount && selectedTotal > 0 && (
+                    <div className={`p-4 ${cardBg} border-2 border-primary/30 rounded-lg space-y-3`}>
+                        <div className="flex items-center gap-2 mb-3">
+                            <QrCode size={18} className="text-primary" />
+                            <h4 className={`font-semibold ${textPrimary}`}>Thông tin chuyển khoản</h4>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="flex-shrink-0 flex justify-center">
+                                {qrCodeUrl && !qrError ? (
+                                    <div className="bg-white p-3 rounded-lg">
+                                        <img 
+                                            src={qrCodeUrl} 
+                                            alt="Mã QR chuyển khoản" 
+                                            className="w-48 h-48 object-contain"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className={`w-48 h-48 flex items-center justify-center ${cardBg} border ${border} rounded-lg`}>
+                                        <div className="text-center p-4">
+                                            {qrError ? (
+                                                <>
+                                                    <AlertTriangle size={32} className="mx-auto mb-2 text-orange-500" />
+                                                    <p className={`text-xs ${textSecondary}`}>{qrError}</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <QrCode size={32} className="mx-auto mb-2 text-slate-400" />
+                                                    <p className={`text-xs ${textSecondary}`}>Đang tạo mã QR...</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex-1 space-y-2.5 text-sm text-center md:text-left">
+                                <div>
+                                    <div className="flex items-center justify-center md:justify-start gap-1">
+                                        <Building2 size={14} className={textSecondary} />
+                                        <span className={textSecondary}>Ngân hàng:</span>
+                                    </div>
+                                    <p className={`font-medium ${textPrimary}`}>{currentEmployee.bankAccount.bankName}</p>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center justify-center md:justify-start gap-1">
+                                        <IdCard size={14} className={textSecondary} />
+                                        <span className={textSecondary}>Số tài khoản:</span>
+                                    </div>
+                                    <p className={`font-medium ${textPrimary}`}>{currentEmployee.bankAccount.accountNumber}</p>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center justify-center md:justify-start gap-1">
+                                        <User size={14} className={textSecondary} />
+                                        <span className={textSecondary}>Tên chủ TK:</span>
+                                    </div>
+                                    <p className={`font-medium ${textPrimary}`}>{currentEmployee.bankAccount.accountName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Cảnh báo thiếu thông tin ngân hàng */}
+                {!currentEmployee?.bankAccount && selectedTotal > 0 && (
+                    <div className={`p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-center`}>
+                        <div className="flex items-center gap-2">
+                            <Building2 size={16} className="text-red-500 flex-shrink-0" />
+                            <p className={`text-sm font-medium ${theme === 'dark' ? 'text-red-300' : 'text-red-700'}`}>
+                                Nhân viên không có thông tin ngân hàng
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Danh sách ca được chọn */}
                 <div className="space-y-3">

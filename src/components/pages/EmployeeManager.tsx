@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Employee, Shift } from '../../types';
 import { dbService } from '../../services/firebase';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown } from 'lucide-react';
+import { vietQRService, VietQRBank } from '../../services/vietqr';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2 } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
@@ -74,12 +75,30 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
+  
+  const [bankList, setBankList] = useState<VietQRBank[]>([]);
+  const [bankId, setBankId] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
+
+  useEffect(() => {
+    const loadBanks = async () => {
+      const banks = await vietQRService.getBankList();
+      setBankList(banks);
+    };
+    loadBanks();
+  }, []);
 
   const openAddModal = () => {
     setEditingEmp(null);
     setName('');
     setPhone('');
     setImageUrl('');
+    setBankId('');
+    setBankName('');
+    setAccountNumber('');
+    setAccountName('');
     setError('');
     setModalOpen(true);
   };
@@ -89,6 +108,10 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setName(emp.name);
     setPhone(emp.phone);
     setImageUrl(emp.imageUrl || '');
+    setBankId(emp.bankAccount?.bankId || '');
+    setBankName(emp.bankAccount?.bankName || '');
+    setAccountNumber(emp.bankAccount?.accountNumber || '');
+    setAccountName(emp.bankAccount?.accountName || '');
     setError('');
     setModalOpen(true);
   };
@@ -110,22 +133,40 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       return;
     }
 
-    // Đóng modal ngay để UX mượt
+    if ((bankId || accountNumber || accountName) && !(bankId && accountNumber && accountName)) {
+      setError('Vui lòng điền đầy đủ thông tin ngân hàng hoặc bỏ trống');
+      return;
+    }
+
+    if (bankId && accountNumber && accountName) {
+      const validation = vietQRService.validateBankAccount(accountNumber, accountName);
+      if (!validation.valid) {
+        setError(validation.error || 'Thông tin ngân hàng không hợp lệ');
+        return;
+      }
+    }
+
+    const bankAccount = bankId && accountNumber && accountName ? {
+      bankId,
+      bankName,
+      accountNumber,
+      accountName
+    } : undefined;
+
     const isEditing = !!editingEmp;
     const empId = editingEmp?.id;
     setModalOpen(false);
 
     try {
       if (isEditing && empId) {
-        await dbService.updateEmployee(empId, { name, phone, imageUrl });
+        await dbService.updateEmployee(empId, { name, phone, imageUrl, bankAccount });
         showToast('Đã cập nhật nhân viên', 'success');
       } else {
-        await dbService.addEmployee({ name, phone, imageUrl });
+        await dbService.addEmployee({ name, phone, imageUrl, bankAccount });
         showToast('Đã thêm nhân viên mới', 'success');
       }
     } catch (err) {
       showToast('Có lỗi xảy ra', 'error');
-      // Mở lại modal nếu lỗi (tùy chọn)
     }
   };
 
@@ -363,6 +404,60 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
               onChange={(e) => setImageUrl(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
+          </div>
+
+          <div className={`pt-3 border-t ${borderClass}`}>
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 size={14} className="text-primary" />
+              <label className={`text-xs font-medium ${textPrimaryClass}`}>Thông tin ngân hàng (tùy chọn)</label>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Ngân hàng</label>
+                <Dropdown
+                  options={[
+                    { value: '', label: '-- Chọn ngân hàng --' },
+                    ...bankList.map(bank => ({
+                      value: bank.bin,
+                      label: `${bank.shortName} - ${bank.name}`
+                    }))
+                  ]}
+                  value={bankId}
+                  onChange={(value) => {
+                    const selectedBank = bankList.find(b => b.bin === value);
+                    setBankId(value);
+                    setBankName(selectedBank?.shortName || '');
+                  }}
+                  placeholder="-- Chọn ngân hàng --"
+                  minWidth="w-full"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Số tài khoản</label>
+                <input
+                  type="text"
+                  placeholder="Nhập số tài khoản"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                  className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-xs ${textMutedClass} mb-1.5`}>Tên chủ tài khoản</label>
+                <input
+                  type="text"
+                  placeholder="VD: NGUYEN VAN A"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value.toUpperCase())}
+                  className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
+                />
+                <p className={`text-[10px] ${textMutedClass} mt-1`}>Viết hoa không dấu</p>
+              </div>
+            </div>
           </div>
         </form>
       </Modal>

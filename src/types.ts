@@ -1,8 +1,16 @@
+export interface BankAccount {
+  bankId: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
 export interface Employee {
   id: string;
   name: string;
   phone: string;
   imageUrl?: string;
+  bankAccount?: BankAccount;
   createdAt: string; // Chuỗi ISO 8601
 }
 

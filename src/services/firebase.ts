@@ -16,7 +16,7 @@ import {
   setDoc,
   Unsubscribe
 } from 'firebase/firestore';
-import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction } from '../types';
+import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction, BankAccount } from '../types';
 
 export const dbService = {
   // Realtime nhân viên
@@ -34,7 +34,7 @@ export const dbService = {
     );
   },
 
-  async addEmployee(data: { name: string; phone: string; imageUrl?: string }): Promise<void> {
+  async addEmployee(data: { name: string; phone: string; imageUrl?: string; bankAccount?: BankAccount }): Promise<void> {
     await addDoc(collection(db, 'employees'), {
       ...data,
       createdAt: new Date().toISOString(),
