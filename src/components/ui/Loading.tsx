@@ -66,17 +66,26 @@ const Loader = () => {
                     y={1.5}
                     x={6.5}
                   />
+                  <rect
+                    fill="#FBBF24"
+                    rx={1}
+                    height={24}
+                    width={117}
+                    y={34.5}
+                    x={8.5}
+                  />
                   <text
-                    x={67}
-                    y={46.5}
-                    fontFamily="Arial, sans-serif"
-                    fontSize={30}
-                    fill="#282828"
+                    x={66.5}
+                    y={47.5}
+                    fontFamily="'Comic Sans MS', 'Segoe UI', 'Arial', sans-serif"
+                    fontSize={20}
+                    fill="#DC2626"
                     fontWeight="bold"
                     textAnchor="middle"
                     dominantBaseline="middle"
+                    fontStyle="italic"
                   >
-                    AT
+                    Anh Thư
                   </text>
                   <rect
                     strokeWidth={2}
@@ -159,8 +168,9 @@ const Loader = () => {
                   <rect strokeWidth={2} stroke="#282828" fill="#FFFCAB" rx={1} height={7} width={5} y={63} x={187} />
                   <rect strokeWidth={2} stroke="#282828" fill="#282828" rx={1} height={11} width={4} y={81} x={193} />
                   <rect strokeWidth={3} stroke="#282828" fill="#DFDFDF" rx={2.5} height={90} width={121} y={1.5} x={6.5} />
-                  <text x={67} y="46.5" fontFamily="Arial, sans-serif" fontSize={30} fill="#282828" fontWeight="bold" textAnchor="middle" dominantBaseline="middle">
-                    AT
+                  <rect fill="#FBBF24" rx={1} height={24} width={115} y={34.5} x={9} />
+                  <text x={66.5} y={47.5} fontFamily="'Comic Sans MS', 'Segoe UI', 'Arial', sans-serif" fontSize={20} fill="#DC2626" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fontStyle="italic">
+                    Anh Thư
                   </text>
                   <rect strokeWidth={2} stroke="#282828" fill="#DFDFDF" rx={2} height={4} width={6} y={84} x={1} />
                 </svg>
