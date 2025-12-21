@@ -14,6 +14,7 @@ import {
   getDoc,
   getDocs,
   setDoc,
+  deleteField,
   Unsubscribe
 } from 'firebase/firestore';
 import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, PaymentTransaction, BankAccount } from '../types';
@@ -396,3 +397,5 @@ export const dbService = {
     await setDoc(docRef, data, { merge: true });
   },
 };
+
+export { deleteField };

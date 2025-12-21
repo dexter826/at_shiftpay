@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Employee, Shift } from '../../types';
-import { dbService } from '../../services/firebase';
+import { dbService, deleteField } from '../../services/firebase';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
 import { EmployeeDetailModal } from '../modals';
@@ -169,6 +169,9 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       const employeeData: any = { name, phone, imageUrl };
       if (bankAccount) {
         employeeData.bankAccount = bankAccount;
+      } else if (isEditing) {
+        // Xóa thông tin ngân hàng nếu đang chỉnh sửa và để trống
+        employeeData.bankAccount = deleteField();
       }
 
       if (isEditing && empId) {
@@ -340,14 +343,19 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                   </div>
 
                   {/* Badge Ngân hàng */}
-                  {emp.bankAccount && (
-                    <div className="absolute top-2 left-2 z-10">
+                  <div className="absolute top-2 left-2 z-10">
+                    {emp.bankAccount ? (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-green-500/90 text-white text-[10px] font-medium shadow-sm">
                         <CheckCircle size={12} />
-                        <span>Ngân hàng</span>
+                        <span>Liên kết tài khoản</span>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-orange-500/90 text-white text-[10px] font-medium shadow-sm">
+                        <CircleAlert size={12} />
+                        <span>Liên kết tài khoản</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Thông tin hiển thị */}
@@ -435,9 +443,25 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
           </div>
 
           <div className={`pt-3 border-t ${borderClass}`}>
-            <div className="flex items-center gap-2 mb-3">
-              <Building2 size={14} className="text-primary" />
-              <label className={`text-xs font-medium ${textPrimaryClass}`}>Thông tin ngân hàng (tùy chọn)</label>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Building2 size={14} className="text-primary" />
+                <label className={`text-xs font-medium ${textPrimaryClass}`}>Thông tin ngân hàng (tùy chọn)</label>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setBankId('');
+                  setBankName('');
+                  setAccountNumber('');
+                  setAccountName('');
+                }}
+                className={`flex items-center gap-1 px-2 py-1 rounded ${cardBgClass} hover:bg-primary/10 text-primary hover:text-primary/80 transition-colors text-xs`}
+                title="Làm mới thông tin ngân hàng"
+              >
+                <RotateCcw size={12} />
+                Làm mới
+              </button>
             </div>
             
             <div className="space-y-3">
