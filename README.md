@@ -1,11 +1,16 @@
 <div align="center">
-  <img src="/public/logo_text.png" alt="Logo dự án" width="300"/>
-  <h5>Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc.</h5>
+  <img src="public/logo_text.png" alt="Logo dự án" width="300"/>
+  <h5>
+    <i>Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc</i>
+  </h5>
 </div>
 
 ## Tính năng chính
 
-- **Quản lý nhân sự**: Thêm, sửa, xóa hồ sơ nhân viên, hỗ trợ tìm kiếm và lọc.
+- **Quản lý nhân sự**:
+  - Thêm, sửa, xóa hồ sơ nhân viên
+  - Liên kết thông tin tài khoản ngân hàng
+  - Hỗ trợ tìm kiếm và lọc/sắp xếp.
 - **Lịch tiệc & Sự kiện**:
   - Tạo và quản lý các sự kiện làm việc theo ngày.
   - Theo dõi trạng thái và doanh thu dự kiến của từng sự kiện.
@@ -14,6 +19,7 @@
   - Tự động tính toán chi phí lương dựa trên cấu hình.
 - **Tài chính & Lương**:
   - **Theo dõi công nợ**: Tự động tính toán lương chưa thanh toán.
+  - **Liên kết thanh toán**: Tích hợp và tạo mã QR chuyển khoản nhanh chóng với nội dung tạo sẵn (nếu nhân viên đã có thông tin tài khoản)
   - **Ứng lương**: Hỗ trợ nhân viên ứng trước lương (Advance Payment).
   - **Thanh toán lương**: Quyết toán lương chi tiết, lưu lịch sử giao dịch.
 - **Báo cáo & Thống kê**:
@@ -112,5 +118,9 @@ src/
 5. **Cài đặt**: Cấu hình định mức lương, giờ làm việc và giao diện (Dark/Light).
 
 ---
+
+<div align="center">
+  <i>Ứng dụng được làm ra với mục đích phục vụ nội bộ và không nhằm mục đích thương mại.</i>
+</div>
 
 <div align="center">Made with ❤️ by <a href="https://github.com/dexter826">MOB</a></div>
