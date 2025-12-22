@@ -4,11 +4,15 @@
 @tailwind utilities;
 
 @layer base {
+
+    html,
     body {
         @apply bg-slate-900 text-slate-200 antialiased;
     }
 
+    .light,
     .light body,
+    html.light,
     html.light body {
         @apply bg-slate-50 text-slate-800;
     }
