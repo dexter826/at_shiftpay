@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, TopBar, OfflineIndicator } from './components/layout';
-import { Dashboard, CalendarView, EmployeeManager, PayrollView, SettingsView } from './components/pages';
+import { Dashboard, CalendarView, EmployeeManager, PayrollView, SettingsView, ReviewsView } from './components/pages';
 import { Login } from './components/auth';
 import { Splashscreen } from './components/common';
 import { ExportModal } from './components/modals';
@@ -16,7 +16,7 @@ import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
 
 // Điều hướng đơn giản (HMR)
-type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings';
+type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>(() => {
@@ -111,6 +111,7 @@ function App() {
             settings={settings}
             currentDate={viewDate}
             onDateChange={setViewDate}
+            onNavigateToReviews={() => setActiveTab('reviews')}
             loading={loading}
           />
         );
@@ -130,6 +131,16 @@ function App() {
             employees={employees}
             events={events}
             loading={loading}
+          />
+        );
+      case 'reviews':
+        return (
+          <ReviewsView
+            events={events}
+            shifts={shifts}
+            employees={employees}
+            loading={loading}
+            onBack={() => setActiveTab('dashboard')}
           />
         );
       case 'settings':

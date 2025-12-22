@@ -49,9 +49,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         const todayEvents = events.filter(e => {
             const d = new Date(e.date);
             const today = new Date();
-            return d.getFullYear() === today.getFullYear() && 
-                   d.getMonth() === today.getMonth() && 
-                   d.getDate() === today.getDate();
+            return d.getFullYear() === today.getFullYear() &&
+                d.getMonth() === today.getMonth() &&
+                d.getDate() === today.getDate();
         });
         const weekStartDate = new Date(now);
         weekStartDate.setDate(now.getDate() - now.getDay());

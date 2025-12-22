@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Star } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface NavbarProps {
@@ -49,19 +49,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setTab(item.id)}
-              className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentTab === item.id
-                ? 'bg-primary/10 text-primary'
-                : `${textMuted} ${hoverText} ${hoverBg}`
-                }`}
-            >
-              <item.icon size={18} strokeWidth={currentTab === item.id ? 2 : 1.5} />
-              <span>{item.label}</span>
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const isActive = currentTab === item.id || (item.id === 'dashboard' && currentTab === 'reviews');
+            return (
+              <button
+                key={item.id}
+                onClick={() => setTab(item.id)}
+                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
+                  ? 'bg-primary/10 text-primary'
+                  : `${textMuted} ${hoverText} ${hoverBg}`
+                  }`}
+              >
+                <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Footer Desktop */}
@@ -78,19 +81,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
       {/* Mobile Menu */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
-        {navItems.filter(item => item.id !== 'settings').map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setTab(item.id)}
-            className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${currentTab === item.id
-              ? 'text-primary'
-              : 'text-slate-500'
-              }`}
-          >
-            <item.icon size={20} strokeWidth={currentTab === item.id ? 2 : 1.5} />
-            <span>{item.label}</span>
-          </button>
-        ))}
+        {navItems.filter(item => item.id !== 'settings').map((item) => {
+          const isActive = currentTab === item.id || (item.id === 'dashboard' && currentTab === 'reviews');
+          return (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id)}
+              className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${isActive
+                ? 'text-primary'
+                : 'text-slate-500'
+                }`}
+            >
+              <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
       </div>
     </>
   );

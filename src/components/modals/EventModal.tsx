@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
-import { dbService } from '../../services/firebase';
-import { Sun, Moon, Check, AlertCircle, Banknote, Loader2 } from 'lucide-react';
+import { dbService, deleteField } from '../../services/firebase';
+import { Sun, Moon, Check, AlertCircle, Banknote, Loader2, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -32,6 +32,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const { theme } = useTheme();
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('');
   const [note, setNote] = useState('');
   const [time, setTime] = useState('');
   const [amount, setAmount] = useState<number>(settings.shiftRate);
@@ -40,6 +41,8 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [surchargeSelectedEmployees, setSurchargeSelectedEmployees] = useState<Record<string, boolean>>({});
   const [selectedSession, setSelectedSession] = useState<ShiftSession | null>(null);
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
+  const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
+  const [reviewNote, setReviewNote] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [titleError, setTitleError] = useState('');
@@ -50,8 +53,11 @@ export const EventModal: React.FC<EventModalProps> = ({
     if (isOpen) {
       if (existingEvent) {
         setTitle(existingEvent.title);
+        setLocation(existingEvent.location || '');
         setNote(existingEvent.note || '');
         setTime(existingEvent.time || '');
+        setReview(existingEvent.review);
+        setReviewNote(existingEvent.reviewNote || '');
 
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
@@ -97,6 +103,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
       } else {
         setTitle('');
+        setLocation('');
         setNote('');
         setTime('');
         setAmount(settings.shiftRate);
@@ -105,6 +112,8 @@ export const EventModal: React.FC<EventModalProps> = ({
         setSurchargeSelectedEmployees({});
         setSelectedSession(null);
         setAssignments({});
+        setReview(undefined);
+        setReviewNote('');
       }
       setError('');
 
@@ -306,10 +315,13 @@ export const EventModal: React.FC<EventModalProps> = ({
       const eventData: any = {
         date,
         title,
+        location,
         note,
+        reviewNote: review ? reviewNote : deleteField(),
         time,
         amount,
-        surcharge
+        surcharge,
+        review: review === undefined ? deleteField() : review
       };
 
       if (surchargeDistribution) {
@@ -341,6 +353,14 @@ export const EventModal: React.FC<EventModalProps> = ({
     }
   };
 
+
+  const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const borderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
+  const cardBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
+  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-900';
+  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-400';
+  const hoverBg = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50';
+
   return (
     <Modal
       title={existingEvent ? `Sửa sự kiện ${formatDateTitle(date)}` : `Tạo sự kiện ${formatDateTitle(date)}`}
@@ -369,7 +389,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Tên sự kiện và Thời gian */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
+            <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
             <input
               type="text"
               placeholder="Nhập tên sự kiện"
@@ -389,13 +409,78 @@ export const EventModal: React.FC<EventModalProps> = ({
             {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
           </div>
           <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
+            <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
             <TimePicker value={time} onChange={setTime} />
           </div>
         </div>
 
+        {/* Địa điểm */}
+        <div className="space-y-2">
+          <label className={`block text-xs font-semibold mb-1.5 ${textSecondaryClass}`}>Địa điểm</label>
+          <div className="relative">
+            <MapPin className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
+            <input
+              type="text"
+              placeholder="Nhập địa điểm hoặc địa chỉ..."
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${borderClass} ${cardBgClass} ${textPrimaryClass} focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all`}
+            />
+          </div>
+
+          {/* Logic Cảnh báo Địa điểm */}
+          {location.length >= 2 && !existingEvent && (() => {
+            const allPastLocations = Array.from(new Set(
+              ((window as any).allEvents || [])
+                .map((e: any) => e.location)
+                .filter((loc: string) => loc && loc.toLowerCase().includes(location.toLowerCase()))
+            )) as string[];
+
+            const matchAtLocation = (window as any).allEvents?.filter((e: any) =>
+              e.location?.toLowerCase().trim() === location.toLowerCase().trim() && e.review
+            ) || [];
+
+            return (
+              <div className="space-y-2">
+                {/* Autocomplete Suggestions */}
+                {allPastLocations.length > 0 && location !== allPastLocations[0] && (
+                  <div className={`mt-1 border ${borderClass} rounded-lg overflow-hidden ${cardBgClass} shadow-sm max-h-32 overflow-y-auto`}>
+                    {allPastLocations.slice(0, 5).map((loc, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setLocation(loc)}
+                        className={`w-full px-3 py-2 text-left text-xs ${hoverBg} transition-colors border-b last:border-0 ${borderClass} ${textSecondaryClass}`}
+                      >
+                        📍 {loc}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Warning/Success History */}
+                {matchAtLocation.length > 0 && (() => {
+                  const lastEvent = matchAtLocation[matchAtLocation.length - 1];
+                  const isLow = lastEvent.review === 'low';
+                  return (
+                    <div className={`p-3 rounded-lg border flex items-start gap-3 ${isLow ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'
+                      }`}>
+                      <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                      <div className="text-xs">
+                        <p>Địa điểm này từng được đánh giá <strong>{isLow ? 'Kém' : 'Tốt'}</strong> vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')}.</p>
+                        {lastEvent.reviewNote && <p className="mt-1 italic opacity-80">"{lastEvent.reviewNote}"</p>}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })()}
+        </div>
+
+
         <div>
-          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ghi chú</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ghi chú</label>
           <textarea
             placeholder="Nhập ghi chú"
             value={note}
@@ -407,9 +492,71 @@ export const EventModal: React.FC<EventModalProps> = ({
           />
         </div>
 
+        {/* Đánh giá sự kiện */}
+        <div>
+          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Đánh giá sự kiện</label>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setReview('high')}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === 'high'
+                ? 'border-green-500/50 bg-green-500/10 text-green-500'
+                : theme === 'dark'
+                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+            >
+              <ThumbsUp size={16} />
+              Tốt
+            </button>
+            <button
+              type="button"
+              onClick={() => setReview(undefined)}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === undefined
+                ? 'border-slate-400 bg-slate-400/10 text-slate-500'
+                : theme === 'dark'
+                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+            >
+              <Minus size={16} />
+              Thường
+            </button>
+            <button
+              type="button"
+              onClick={() => setReview('low')}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === 'low'
+                ? 'border-red-500/50 bg-red-500/10 text-red-500'
+                : theme === 'dark'
+                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+            >
+              <ThumbsDown size={16} />
+              Kém
+            </button>
+          </div>
+        </div>
+
+        {/* Lý do đánh giá */}
+        {review && review !== undefined && (
+          <div className="space-y-1.5 pt-1">
+            <label className={`block text-xs font-semibold ${textSecondaryClass}`}>Lý do đánh giá ({review === 'high' ? 'Tốt' : 'Kém'})</label>
+            <textarea
+              placeholder="Nhập lý do hoặc nhận xét cụ thể..."
+              value={reviewNote}
+              onChange={(e) => setReviewNote(e.target.value)}
+              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${theme === 'dark'
+                ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
+                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
+                } ${review === 'high' ? 'focus:border-green-500/50' : 'focus:border-red-500/50'}`}
+            />
+          </div>
+        )}
+
         {/* Chọn ca (Radio) */}
         <div>
-          <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ca làm việc</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -444,7 +591,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương/người</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương/người</label>
               <div className="relative">
                 <input
                   type="number"
@@ -459,7 +606,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               </div>
             </div>
             <div>
-              <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
               <div className="relative">
                 <input
                   type="number"

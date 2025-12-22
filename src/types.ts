@@ -26,6 +26,9 @@ export interface Event {
     type: 'equal' | 'selected';
     selectedEmployeeIds?: string[]; // chỉ có khi type = 'selected'
   };
+  review?: 'high' | 'low'; // Đánh giá sự kiện
+  reviewNote?: string; // Ghi chú riêng cho phần đánh giá
+  location?: string; // Địa điểm tổ chức
 }
 
 export type ShiftSession = 'morning' | 'afternoon';

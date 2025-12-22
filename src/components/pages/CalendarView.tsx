@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { formatDate, formatCurrency } from '../../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
 import { dbService } from '../../services/firebase';
 import { useToast } from '../ui/Toast';
@@ -18,6 +18,7 @@ interface CalendarViewProps {
   settings: UserSettings;
   currentDate?: Date;
   onDateChange?: (date: Date) => void;
+  onNavigateToReviews?: () => void;
   loading?: boolean;
 }
 
@@ -29,6 +30,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   settings,
   currentDate: propDate,
   onDateChange,
+  onNavigateToReviews,
   loading = false
 }) => {
   const { showToast } = useToast();
@@ -39,9 +41,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     cardBgClass,
     borderClass,
     textPrimaryClass,
+    textSecondaryClass,
     textMutedClass,
     hoverBgClass
   } = useThemeStyles();
+
+  // Gắn events vào window để phục vụ logic cảnh báo trong EventModal
+  React.useEffect(() => {
+    (window as any).allEvents = events;
+  }, [events]);
 
   const [localDate, setLocalDate] = useState(new Date());
   const displayDate = propDate || localDate;
@@ -157,13 +165,28 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
             {/* Tiêu đề lịch */}
             <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
-              <button onClick={prevMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
-                <ChevronLeft size={18} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button onClick={prevMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
+                  <ChevronLeft size={18} />
+                </button>
+                <button onClick={nextMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+
               <h3 className={`text-sm font-medium ${textPrimaryClass} capitalize`}>{monthLabel}</h3>
-              <button onClick={nextMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
-                <ChevronRight size={18} />
-              </button>
+
+              <div className="flex items-center gap-1">
+                {onNavigateToReviews && (
+                  <button
+                    onClick={onNavigateToReviews}
+                    title="Xem các sự kiện đã đánh giá"
+                    className={`p-1.5 ${hoverBgClass} rounded transition-colors text-yellow-500`}
+                  >
+                    <Star size={18} fill="currentColor" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Tiêu đề ngày tháng */}
@@ -205,8 +228,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       <span>{date.getDate()}</span>
                       {dayEvents.length > 0 && (
                         <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
-                          {dayEvents.map((_, i) => (
-                            <span key={i} className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
+                          {dayEvents.map((evt, i) => (
+                            <div key={i} className="flex items-center">
+                              {evt.review === 'high' ? (
+                                <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
+                              ) : evt.review === 'low' ? (
+                                <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
+                              ) : (
+                                <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
+                              )}
+                            </div>
                           ))}
                         </div>
                       )}
@@ -268,7 +299,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                           <div className="flex items-start gap-2 flex-1 min-w-0">
                             <MapPin size={14} className="text-primary mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
+                                {evt.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
+                                {evt.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
+                              </div>
                               {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                             </div>
                           </div>
@@ -409,6 +444,27 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   <span className={`text-sm font-medium text-blue-500`}>
                     {formatCurrency(viewingEvent.surcharge)}
                   </span>
+                </div>
+              )}
+              {viewingEvent.location && (
+                <div className="flex items-center gap-1.5 text-blue-500">
+                  <MapPin size={14} className="flex-shrink-0" />
+                  <span className="text-sm font-medium truncate">{viewingEvent.location}</span>
+                </div>
+              )}
+              {viewingEvent.review && (
+                <div className="flex items-center gap-1.5">
+                  {viewingEvent.review === 'high' ? (
+                    <>
+                      <ThumbsUp size={14} className="text-green-500" />
+                      <span className="text-sm font-medium text-green-500">Đánh giá cao</span>
+                    </>
+                  ) : (
+                    <>
+                      <ThumbsDown size={14} className="text-red-500" />
+                      <span className="text-sm font-medium text-red-500">Đánh giá thấp</span>
+                    </>
+                  )}
                 </div>
               )}
             </div>

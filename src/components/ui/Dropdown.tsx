@@ -86,7 +86,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={disabled}
-                className={`flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
+                className={`w-full h-full flex items-center gap-2 px-3 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
             >
                 {icon && <span className="text-slate-500">{icon}</span>}
                 <span className="flex-1 text-left">
