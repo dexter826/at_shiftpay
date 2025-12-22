@@ -94,26 +94,26 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-3 w-full">
-                    <div className="flex-1 relative">
-                        <Search className={`absolute left-3.5 top-[14px] ${textMutedClass}`} size={17} />
+                <div className="flex flex-row items-center gap-2 mb-6">
+                    <div className="relative flex-1">
+                        <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
                         <input
                             type="text"
-                            placeholder="Tìm kiếm theo tên hoặc địa điểm..."
+                            placeholder="Tìm kiếm..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className={`w-full pl-10 pr-4 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
                                 } ${borderClass} ${textPrimaryClass} h-[45px]`}
                         />
                     </div>
-                    <div className="md:w-64">
+                    <div className="w-[110px] md:w-40">
                         <Dropdown
                             value={filterType}
                             onChange={(val) => setFilterType(val as any)}
                             options={[
-                                { value: 'all', label: 'Tất cả đánh giá' },
-                                { value: 'high', label: 'Đánh giá tốt', icon: <ThumbsUp size={14} className="text-green-500" /> },
-                                { value: 'low', label: 'Đánh giá kém', icon: <ThumbsDown size={14} className="text-red-500" /> }
+                                { value: 'all', label: 'Tất cả' },
+                                { value: 'high', label: 'Tốt', icon: <ThumbsUp size={14} className="text-green-500" /> },
+                                { value: 'low', label: 'Kém', icon: <ThumbsDown size={14} className="text-red-500" /> }
                             ]}
                             className="w-full h-[45px]"
                         />
