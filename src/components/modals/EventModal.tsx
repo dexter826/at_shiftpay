@@ -517,19 +517,38 @@ export const EventModal: React.FC<EventModalProps> = ({
                 )}
 
                 {/* Warning/Success History */}
-                {matchAtLocation.length > 0 && (() => {
-                  const lastEvent = matchAtLocation[matchAtLocation.length - 1];
-                  const isLow = lastEvent.review === 'low';
-                  return (
-                    <div className={`p-3 rounded-lg border flex items-start gap-3 ${isLow ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'
-                      }`}>
-                      <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                      <div className="text-xs">
-                        <p>Địa điểm này từng được đánh giá <strong>{isLow ? 'Kém' : 'Tốt'}</strong> vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')}.</p>
-                        {lastEvent.reviewNote && <p className="mt-1 italic opacity-80">"{lastEvent.reviewNote}"</p>}
+                {(() => {
+                  const exactMatches = (window as any).allEvents?.filter((e: any) =>
+                    e.location?.toLowerCase().trim() === location.toLowerCase().trim()
+                  ) || [];
+
+                  if (exactMatches.length === 0) return null;
+
+                  const lastEvent = exactMatches[exactMatches.length - 1];
+                  const hasReview = lastEvent.review;
+
+                  if (hasReview) {
+                    const isLow = lastEvent.review === 'low';
+                    return (
+                      <div className={`p-3 rounded-lg border flex items-start gap-3 ${isLow ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'
+                        }`}>
+                        <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                        <div className="text-xs">
+                          <p>Địa điểm này từng được đánh giá <strong>{isLow ? 'Kém' : 'Tốt'}</strong> vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')}.</p>
+                          {lastEvent.reviewNote && <p className="mt-1 italic opacity-80">"{lastEvent.reviewNote}"</p>}
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  } else {
+                    return (
+                      <div className={`p-3 rounded-lg border flex items-start gap-3 bg-blue-500/10 border-blue-500/20 text-blue-600`}>
+                        <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                        <div className="text-xs">
+                          <p>Địa điểm này đã từng tổ chức sự kiện vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')} (chưa có đánh giá).</p>
+                        </div>
+                      </div>
+                    );
+                  }
                 })()}
               </div>
             );
