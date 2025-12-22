@@ -22,7 +22,7 @@ interface CalendarViewProps {
   loading?: boolean;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({
+const CalendarView: React.FC<CalendarViewProps> = ({
   events,
   shifts,
   employees,
@@ -547,3 +547,5 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     </div>
   );
 };
+
+export default CalendarView;

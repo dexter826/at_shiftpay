@@ -27,7 +27,7 @@ interface SettingsViewProps {
     onLogout: () => void;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
+const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
     const { theme } = useThemeStyles();
     const { showToast } = useToast();
 
@@ -259,5 +259,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLo
                 onClose={() => setShowPasswordModal(false)}
             />
         </div>
-    );
-};
+      );
+    };
+    
+    export default SettingsView;

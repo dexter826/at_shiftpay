@@ -20,7 +20,7 @@ interface PayrollViewProps {
   loading?: boolean;
 }
 
-export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, loading = false }) => {
+const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
@@ -873,3 +873,5 @@ export const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, eve
     </div>
   );
 };
+
+export default PayrollView;

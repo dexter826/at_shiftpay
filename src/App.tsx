@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, TopBar, OfflineIndicator } from './components/layout';
-import { Dashboard, CalendarView, EmployeeManager, PayrollView, SettingsView, ReviewsView } from './components/pages';
 import { Login } from './components/auth';
 import { Splashscreen } from './components/common';
 import { ExportModal } from './components/modals';
@@ -14,6 +13,14 @@ import { exportDetailedReport } from './services/excel';
 import { useAppData } from './hooks/useAppData';
 import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
+
+// Lazy load các pages để code-split
+const Dashboard = lazy(() => import('./components/pages/Dashboard'));
+const CalendarView = lazy(() => import('./components/pages/CalendarView'));
+const EmployeeManager = lazy(() => import('./components/pages/EmployeeManager'));
+const PayrollView = lazy(() => import('./components/pages/PayrollView'));
+const SettingsView = lazy(() => import('./components/pages/SettingsView'));
+const ReviewsView = lazy(() => import('./components/pages/ReviewsView'));
 
 // Điều hướng đơn giản (HMR)
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';

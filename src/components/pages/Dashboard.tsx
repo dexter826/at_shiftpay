@@ -20,7 +20,7 @@ interface DashboardProps {
     onOpenExport: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
     const { theme, toggleTheme } = useThemeStyles();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -395,3 +395,5 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, s
         </div >
     );
 };
+
+export default Dashboard;

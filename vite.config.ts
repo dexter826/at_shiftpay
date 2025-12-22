@@ -21,13 +21,20 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
+        onwarn(warning, warn) {
+          // Bỏ qua warning eval từ lottie-web
+          if (warning.code === 'EVAL') return;
+          warn(warning);
+        },
         output: {
           manualChunks: {
             'react-vendor': ['react', 'react-dom'],
             'firebase-vendor': ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
             'charts-vendor': ['recharts'],
             'icons-vendor': ['lucide-react'],
-            'lottie-vendor': ['lottie-react']
+            'lottie-vendor': ['lottie-react'],
+            'excel-vendor': ['exceljs', 'file-saver'],
+            'styled-vendor': ['styled-components']
           }
         }
       },

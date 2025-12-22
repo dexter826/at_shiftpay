@@ -13,7 +13,7 @@ interface ReviewsViewProps {
     onBack?: () => void;
 }
 
-export const ReviewsView: React.FC<ReviewsViewProps> = ({
+const ReviewsView: React.FC<ReviewsViewProps> = ({
     events,
     shifts,
     employees,
@@ -210,3 +210,5 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         </div>
     );
 };
+
+export default ReviewsView;

@@ -19,7 +19,7 @@ interface EmployeeManagerProps {
   loading?: boolean;
 }
 
-export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [], loading = false }) => {
+const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [], loading = false }) => {
   const { showToast } = useToast();
   // Tách logic theme ra custom hook
   const {
@@ -628,3 +628,5 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     </div>
   );
 };
+
+export default EmployeeManager;
