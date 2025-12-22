@@ -55,9 +55,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, 
         });
         const weekStartDate = new Date(now);
         weekStartDate.setDate(now.getDate() - now.getDay());
+        const weekEndDate = new Date(weekStartDate);
+        weekEndDate.setDate(weekStartDate.getDate() + 6);
         const weekEvents = monthEvents.filter(e => {
             const d = new Date(e.date);
-            return d >= weekStartDate && d <= now;
+            return d >= weekStartDate && d <= weekEndDate;
         });
 
         // Công
