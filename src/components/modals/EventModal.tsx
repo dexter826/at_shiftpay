@@ -219,13 +219,6 @@ export const EventModal: React.FC<EventModalProps> = ({
     );
 
     return filteredEmployees.sort((a, b) => {
-      // Ưu tiên 0: Nếu đang edit, đưa người được chọn lên đầu
-      if (existingEvent) {
-        const aSelected = assignments[a.id] ? 1 : 0;
-        const bSelected = assignments[b.id] ? 1 : 0;
-        if (aSelected !== bSelected) return bSelected - aSelected;
-      }
-
       // Ưu tiên 1: Sắp xếp theo số ca (giảm dần)
       const aCount = employeeShiftCounts[a.id] || 0;
       const bCount = employeeShiftCounts[b.id] || 0;
