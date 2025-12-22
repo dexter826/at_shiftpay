@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Skeleton } from '../ui/Skeleton';
 import { Shift, PayrollSummary, PaymentTransaction, Event } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
-import { dbService } from '../../services/firebase';
+import { dbService } from '../../services';
 
 import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown } from 'lucide-react';
 import { Modal } from '../ui/Modal';
@@ -188,7 +188,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     if (!selectedEmpId) return [];
     return shifts
       .filter(s => s.employeeId === selectedEmpId && s.status === 'unpaid')
-      .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [selectedEmpId, shifts]);
 
   const selectedTransaction = useMemo(() => {
@@ -632,7 +632,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     </div>
                     <Calendar size={16} className={textMutedClass} />
                     <div>
-                      <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
+                      <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.date)}</p>
                       <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
                         }`}>
                         {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
@@ -722,7 +722,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 <div className="flex items-center gap-3">
                   <Calendar size={16} className={textMutedClass} />
                   <div>
-                    <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.eventDate)}</p>
+                    <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.date)}</p>
                     <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
                       }`}>
                       {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}

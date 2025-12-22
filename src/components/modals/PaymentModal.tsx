@@ -5,7 +5,7 @@ import { useToast } from '../ui/Toast';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Shift, PayrollSummary, Event, Employee } from '../../types';
 import { formatCurrency } from '../../constants';
-import { dbService } from '../../services/firebase';
+import { dbService } from '../../services';
 import { vietQRService } from '../../services/vietqr';
 import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User } from 'lucide-react';
 
@@ -342,7 +342,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                     </div>
                                     <div className="flex-1">
                                         <p className={`text-sm ${textPrimary}`}>
-                                            {formatShiftDate(shift.eventDate, shift.session)}
+                                            {formatShiftDate(shift.date, shift.session)}
                                         </p>
                                         <div className={`text-xs ${textSecondary}`}>
                                             {breakdown.surcharge > 0 ? (

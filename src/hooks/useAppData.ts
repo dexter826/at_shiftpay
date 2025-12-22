@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { dbService } from '../services/firebase';
+import { dbService } from '../services';
 import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from '../types';
 
 export function useAppData() {
@@ -82,12 +82,13 @@ export function useAppData() {
             checkLoaded();
         });
 
+        // Cleanup: unsubscribe tất cả listeners
         return () => {
-            unsubEmp();
-            unsubEvents();
-            unsubShifts();
-            unsubUnpaid();
-            unsubSettings();
+            if (unsubEmp) unsubEmp();
+            if (unsubEvents) unsubEvents();
+            if (unsubShifts) unsubShifts();
+            if (unsubUnpaid) unsubUnpaid();
+            if (unsubSettings) unsubSettings();
         };
     }, [user, viewDate]);
 
@@ -112,3 +113,4 @@ export function useAppData() {
         totalDebt
     };
 }
+

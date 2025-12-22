@@ -5,7 +5,7 @@ import { useToast } from '../ui/Toast';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Shift, PaymentTransaction, AdvanceBalance } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
-import { dbService } from '../../services/firebase';
+import { dbService } from '../../services';
 import { Calculator, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface SettlementModalProps {
@@ -219,7 +219,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className={`text-sm ${textPrimaryClass}`}>
-                                                {shift.eventDate} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
+                                                {shift.date} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
                                             </p>
                                             <p className={`text-xs ${textSecondaryClass}`}>
                                                 Đã ứng lúc: {shift.paidAt ? formatDate(new Date(shift.paidAt).toISOString()) : 'N/A'}

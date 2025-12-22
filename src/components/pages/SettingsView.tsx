@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { UserSettings } from '../../types';
-import { dbService } from '../../services/firebase';
+import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';

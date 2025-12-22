@@ -2,25 +2,17 @@ import React, { useState, Suspense, lazy } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, TopBar, OfflineIndicator } from './components/layout';
 import { Login } from './components/auth';
-import { Splashscreen } from './components/common';
+import { Splashscreen, AppRouter } from './components/common';
 import { ExportModal } from './components/modals';
 import { Modal } from './components/ui/Modal';
 import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { dbService } from './services/firebase';
+import { dbService } from './services';
 import { exportDetailedReport } from './services/excel';
 import { useAppData } from './hooks/useAppData';
 import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
-
-// Lazy load các pages để code-split
-const Dashboard = lazy(() => import('./components/pages/Dashboard'));
-const CalendarView = lazy(() => import('./components/pages/CalendarView'));
-const EmployeeManager = lazy(() => import('./components/pages/EmployeeManager'));
-const PayrollView = lazy(() => import('./components/pages/PayrollView'));
-const SettingsView = lazy(() => import('./components/pages/SettingsView'));
-const ReviewsView = lazy(() => import('./components/pages/ReviewsView'));
 
 // Điều hướng đơn giản (HMR)
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
@@ -92,77 +84,6 @@ function App() {
     handleLogout();
   };
 
-  const renderContent = (loading: boolean) => {
-    switch (activeTab) {
-      case 'overview':
-        return (
-          <Dashboard
-            user={user}
-            employees={employees}
-            events={events}
-            shifts={shifts}
-            settings={settings}
-            loading={loading}
-            onLogout={requestLogout}
-            onNavigateToSettings={() => setActiveTab('settings')}
-            onOpenExport={handleOpenExport}
-          />
-        );
-      case 'dashboard':
-        return (
-          <CalendarView
-            events={events}
-            shifts={shifts}
-            employees={employees}
-            totalDebt={totalDebt}
-            settings={settings}
-            currentDate={viewDate}
-            onDateChange={setViewDate}
-            onNavigateToReviews={() => setActiveTab('reviews')}
-            loading={loading}
-          />
-        );
-      case 'employees':
-        return (
-          <EmployeeManager
-            employees={employees}
-            shifts={shifts}
-            events={events}
-            loading={loading}
-          />
-        );
-      case 'payroll':
-        return (
-          <PayrollView
-            shifts={shifts}
-            employees={employees}
-            events={events}
-            loading={loading}
-          />
-        );
-      case 'reviews':
-        return (
-          <ReviewsView
-            events={events}
-            shifts={shifts}
-            employees={employees}
-            loading={loading}
-            onBack={() => setActiveTab('dashboard')}
-          />
-        );
-      case 'settings':
-        return (
-          <SettingsView
-            user={user}
-            settings={settings}
-            onLogout={requestLogout}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <ToastProvider>
       <OfflineIndicator />
@@ -177,8 +98,15 @@ function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onLogout={requestLogout}
-          renderContent={() => renderContent(isLoading)}
           user={user}
+          employees={employees}
+          events={events}
+          shifts={shifts}
+          settings={settings}
+          isLoading={isLoading}
+          viewDate={viewDate}
+          setViewDate={setViewDate}
+          totalDebt={totalDebt}
           onOpenExport={handleOpenExport}
           isExportModalOpen={isExportModalOpen}
           setIsExportModalOpen={setIsExportModalOpen}
@@ -197,8 +125,15 @@ function AppContent({
   activeTab,
   setActiveTab,
   onLogout,
-  renderContent,
   user,
+  employees,
+  events,
+  shifts,
+  settings,
+  isLoading,
+  viewDate,
+  setViewDate,
+  totalDebt,
   onOpenExport,
   isExportModalOpen,
   setIsExportModalOpen,
@@ -210,8 +145,15 @@ function AppContent({
   activeTab: Tab;
   setActiveTab: (tab: Tab) => void;
   onLogout: () => void;
-  renderContent: () => React.ReactNode;
   user: any;
+  employees: any[];
+  events: any[];
+  shifts: any[];
+  settings: any;
+  isLoading: boolean;
+  viewDate: Date;
+  setViewDate: (date: Date) => void;
+  totalDebt: number;
   onOpenExport: () => void;
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
@@ -235,7 +177,21 @@ function AppContent({
         onLogout={onLogout}
       />
       <main>
-        {renderContent()}
+        <AppRouter
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          user={user}
+          employees={employees}
+          events={events}
+          shifts={shifts}
+          settings={settings}
+          loading={isLoading}
+          viewDate={viewDate}
+          setViewDate={setViewDate}
+          totalDebt={totalDebt}
+          onLogout={onLogout}
+          onOpenExport={onOpenExport}
+        />
       </main>
 
       <ExportModal

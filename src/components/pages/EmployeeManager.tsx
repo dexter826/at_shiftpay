@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Employee, Shift } from '../../types';
-import { dbService, deleteField } from '../../services/firebase';
+import { dbService, deleteField } from '../../services';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
@@ -41,7 +41,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   const shiftCountByEmployee = useMemo(() => {
     const counts: Record<string, number> = {};
     shifts.forEach(s => {
-      const d = new Date(s.eventDate);
+      const d = new Date(s.date);
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         counts[s.employeeId] = (counts[s.employeeId] || 0) + 1;
       }
@@ -60,7 +60,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     }
 
     // Check lịch làm sắp tới
-    const futureShifts = shifts.filter(s => s.employeeId === empId && s.eventDate >= today);
+    const futureShifts = shifts.filter(s => s.employeeId === empId && s.date >= today);
     if (futureShifts.length > 0) {
       return { canDelete: false, reason: `Nhân viên đang có ${futureShifts.length} ca làm sắp tới` };
     }

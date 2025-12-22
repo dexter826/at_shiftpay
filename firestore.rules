@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isValidString(value) {
+      return value is string && value.size() > 0;
+    }
+    
+    function isValidNumber(value) {
+      return value is number && value >= 0;
+    }
+    
+    // Employees Collection
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated()
+        && isValidString(request.resource.data.name)
+        && isValidString(request.resource.data.phone)
+        && request.resource.data.createdAt is string;
+      
+      allow update: if isAuthenticated()
+        && (request.resource.data.name is string || !('name' in request.resource.data))
+        && (request.resource.data.phone is string || !('phone' in request.resource.data));
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // Events Collection
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated()
+        && isValidString(request.resource.data.date)
+        && isValidString(request.resource.data.title);
+      
+      allow update: if isAuthenticated();
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // Shifts Collection
+    match /shifts/{shiftId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated()
+        && isValidString(request.resource.data.eventId)
+        && isValidString(request.resource.data.date)
+        && isValidString(request.resource.data.employeeId)
+        && isValidString(request.resource.data.employeeName)
+        && request.resource.data.session in ['morning', 'afternoon']
+        && isValidNumber(request.resource.data.amount)
+        && request.resource.data.status in ['unpaid', 'paid', 'advanced'];
+      
+      allow update: if isAuthenticated()
+        && (request.resource.data.status in ['unpaid', 'paid', 'advanced'] || !('status' in request.resource.data));
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // Payments Collection
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated()
+        && isValidString(request.resource.data.employeeId)
+        && isValidString(request.resource.data.employeeName)
+        && isValidNumber(request.resource.data.amount)
+        && request.resource.data.date is number
+        && request.resource.data.shiftIds is list
+        && request.resource.data.type in ['regular', 'advance', 'settlement'];
+      
+      allow update: if isAuthenticated();
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // Settings Collection
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      
+      allow write: if isAuthenticated()
+        && isValidNumber(request.resource.data.shiftRate)
+        && isValidString(request.resource.data.morningTime)
+        && isValidString(request.resource.data.afternoonTime);
+    }
+  }
+}

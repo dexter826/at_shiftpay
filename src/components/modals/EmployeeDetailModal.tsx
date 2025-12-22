@@ -40,7 +40,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
 
         const empShifts = shifts.filter(s => s.employeeId === employee.id);
         const currentMonthShifts = empShifts.filter(s => {
-            const d = new Date(s.eventDate);
+            const d = new Date(s.date);
             return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
 

@@ -4,7 +4,7 @@ import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../ty
 import { formatDate, formatCurrency } from '../../constants';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign, ThumbsUp, ThumbsDown, Star, StickyNote } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
-import { dbService } from '../../services/firebase';
+import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -153,7 +153,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const shiftsForDisplay = useMemo(() => {
     if (!selectedDate) return [];
-    return shifts.filter(s => s.eventDate === selectedDate);
+    return shifts.filter(s => s.date === selectedDate);
   }, [selectedDate, shifts]);
 
   return (

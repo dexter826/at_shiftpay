@@ -37,14 +37,14 @@ export type ShiftStatus = 'unpaid' | 'paid' | 'advanced';
 export interface Shift {
   id: string;
   eventId: string;
-  eventDate: string;
+  date: string;
   employeeId: string;
   employeeName: string;
   session: ShiftSession;
   amount: number;
   status: ShiftStatus;
   paidAt?: number | null;
-  paymentId?: string; // ID giao dịch thanh toán
+  paymentId?: string;
 }
 
 export type PaymentType = 'regular' | 'advance' | 'settlement';

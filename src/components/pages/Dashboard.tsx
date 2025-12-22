@@ -62,7 +62,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, 
 
         // Công
         const monthShifts = shifts.filter(s => {
-            const d = new Date(s.eventDate);
+            const d = new Date(s.date);
             return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
         const morningShifts = monthShifts.filter(s => s.session === 'morning');
@@ -103,7 +103,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, 
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const dayEvents = events.filter(e => e.date === dateStr).length;
-            const dayShifts = shifts.filter(s => s.eventDate === dateStr).length;
+            const dayShifts = shifts.filter(s => s.date === dateStr).length;
 
             if (dayEvents > 0 || dayShifts > 0) {
                 data.push({

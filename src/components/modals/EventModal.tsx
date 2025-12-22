@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
-import { dbService, deleteField } from '../../services/firebase';
+import { dbService, deleteField } from '../../services';
 import { Sun, Moon, Check, AlertCircle, Banknote, Loader2, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Modal } from '../ui/Modal';
@@ -321,8 +321,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       } else {
         // Tạo ca mới
         const shiftData: Omit<Shift, 'id'> = {
-          eventId: '', // Will be set after event creation (or known if editing)
-          eventDate: date,
+          eventId: '',
+          date: date,
           employeeId: empId,
           employeeName: emp.name,
           session: selectedSession!,

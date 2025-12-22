@@ -48,9 +48,9 @@ export const exportDetailedReport = async (
 
     // Lọc ca theo tháng
     const filteredShifts = shifts.filter(s => {
-        const d = new Date(s.eventDate);
+        const d = new Date(s.date);
         return d.getMonth() + 1 === month && d.getFullYear() === year;
-    }).sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     filteredShifts.forEach(shift => {
         const key = `${shift.eventId}_${shift.session}`;
@@ -58,7 +58,7 @@ export const exportDetailedReport = async (
         if (!groupedData.has(key)) {
             const event = events.find(e => e.id === shift.eventId);
             groupedData.set(key, {
-                date: shift.eventDate,
+                date: shift.date,
                 eventTitle: event ? event.title : 'Sự kiện không xác định',
                 location: event?.location || '',
                 eventAmount: event?.amount || 0,
