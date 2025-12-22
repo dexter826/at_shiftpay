@@ -78,7 +78,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
-  
+
   const [bankList, setBankList] = useState<VietQRBank[]>([]);
   const [bankId, setBankId] = useState('');
   const [bankName, setBankName] = useState('');
@@ -302,8 +302,8 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredAndSortedEmployees.map((emp) => (
-              <div 
-                key={emp.id} 
+              <div
+                key={emp.id}
                 onClick={() => openDetailModal(emp)}
                 className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
               >                {/* Ảnh cover */}
@@ -347,12 +347,12 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                     {emp.bankAccount ? (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-green-500/90 text-white text-[10px] font-medium shadow-sm">
                         <CheckCircle size={12} />
-                        <span>Liên kết tài khoản</span>
+                        <span>Tài khoản ngân hàng</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-orange-500/90 text-white text-[10px] font-medium shadow-sm">
                         <CircleAlert size={12} />
-                        <span>Liên kết tài khoản</span>
+                        <span>Tài khoản ngân hàng</span>
                       </div>
                     )}
                   </div>
@@ -463,7 +463,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
                 Làm mới
               </button>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <label className={`block text-xs ${textMutedClass} mb-1.5`}>Ngân hàng</label>

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { formatDate, formatCurrency } from '../../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign, ThumbsUp, ThumbsDown, Star, StickyNote } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
 import { dbService } from '../../services/firebase';
 import { useToast } from '../ui/Toast';
@@ -427,103 +427,115 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         }
       >
         {viewingEvent && (
-          <div className="space-y-3">
-            {/* Thông tin cơ bản - 1 hàng với icon */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-1.5">
-                <Calendar size={14} className={textMutedClass} />
-                <span className={`text-sm ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} className="text-primary" />
-                <span className={`text-sm ${textPrimaryClass}`}>{viewingEvent.time || '--:--'}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Banknote size={14} className="text-green-500" />
-                <span className={`text-sm font-medium ${textPrimaryClass}`}>
-                  {viewingEvent.amount ? formatCurrency(viewingEvent.amount) : formatCurrency(settings.shiftRate)}
-                </span>
-              </div>
-              {viewingEvent.surcharge > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <DollarSign size={14} className="text-blue-500" />
-                  <span className={`text-sm font-medium text-blue-500`}>
-                    {formatCurrency(viewingEvent.surcharge)}
-                  </span>
+          <div className="space-y-4">
+            {/* 1. Nhóm Thời gian & Địa điểm */}
+            <div className={`p-3 rounded-xl border ${borderClass} ${theme === 'dark' ? 'bg-slate-800/30' : 'bg-slate-50/50'} space-y-3`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar size={15} className="text-primary" />
+                  <span className={`text-sm font-medium ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</span>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <Clock size={15} className="text-primary" />
+                  <span className={`text-sm font-medium ${textPrimaryClass}`}>{viewingEvent.time || '--:--'}</span>
+                </div>
+              </div>
+
               {viewingEvent.location && (
-                <div className="flex items-center gap-1.5 text-blue-500">
-                  <MapPin size={14} className="flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">{viewingEvent.location}</span>
-                </div>
-              )}
-              {viewingEvent.review && (
-                <div className="flex items-center gap-1.5">
-                  {viewingEvent.review === 'high' ? (
-                    <>
-                      <ThumbsUp size={14} className="text-green-500" />
-                      <span className="text-sm font-medium text-green-500">Đánh giá cao</span>
-                    </>
-                  ) : (
-                    <>
-                      <ThumbsDown size={14} className="text-red-500" />
-                      <span className="text-sm font-medium text-red-500">Đánh giá thấp</span>
-                    </>
-                  )}
+                <div className="flex items-start gap-2 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
+                  <MapPin size={15} className="text-primary mt-0.5 flex-shrink-0" />
+                  <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{viewingEvent.location}</span>
                 </div>
               )}
             </div>
 
-            {/* Tổng tiền */}
-            {viewingEventShifts.length > 0 && (
-              <div className={`p-2.5 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg flex items-center justify-between`}>
-                <div>
-                  <p className={`text-xs ${textMutedClass} mb-0.5`}>Tổng tiền sự kiện</p>
-                  <p className={`text-lg font-bold text-primary`}>
-                    {formatCurrency(
-                      viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
-                    )}
-                  </p>
-                </div>
-                <div className={`text-xs ${textMutedClass} text-right space-y-0.5`}>
-                  <p>Lương: {formatCurrency((viewingEvent.amount || settings.shiftRate) * viewingEventShifts.length)}</p>
-                  {viewingEvent.surcharge > 0 && (
-                    <p>
-                      Phụ phí: {formatCurrency(viewingEvent.surcharge)}
-                      {viewingEvent.surchargeDistribution && (
-                        <span className="italic">
-                          {' '}({viewingEvent.surchargeDistribution.type === 'equal'
-                            ? 'Chia đều'
-                            : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người`})
-                        </span>
-                      )}
-                    </p>
+            {/* 2. Nhóm Tài chính (Tổng tiền & Chi tiết) */}
+            <div className={`p-3.5 ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100/80 border-slate-200'} border rounded-xl flex items-center justify-between`}>
+              <div>
+                <p className={`text-[11px] ${textMutedClass} font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
+                <p className={`text-2xl font-black text-primary`}>
+                  {formatCurrency(
+                    viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
                   )}
+                </p>
+              </div>
+              <div className="text-right space-y-1">
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className={`text-[11px] ${textMutedClass}`}>Lương:</span>
+                  <span className={`text-xs font-bold ${textPrimaryClass}`}>
+                    {formatCurrency((viewingEvent.amount || settings.shiftRate) * viewingEventShifts.length)}
+                  </span>
                 </div>
+                {viewingEvent.surcharge > 0 && (
+                  <div className="flex items-center justify-end gap-1.5 text-blue-500">
+                    <span className="text-[11px] font-medium">Phụ phí:</span>
+                    <span className="text-xs font-bold">+{formatCurrency(viewingEvent.surcharge)}</span>
+                  </div>
+                )}
+                {viewingEvent.surchargeDistribution && viewingEvent.surcharge > 0 && (
+                  <p className={`text-[10px] ${textMutedClass} italic`}>
+                    ({viewingEvent.surchargeDistribution.type === 'equal'
+                      ? 'Chia đều'
+                      : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người`})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Nhóm Đánh giá & Ghi chú */}
+            {(viewingEvent.review || viewingEvent.note) && (
+              <div className="space-y-3">
+                {viewingEvent.review && (
+                  <div className={`p-4 rounded-xl border ${viewingEvent.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      {viewingEvent.review === 'high' ? (
+                        <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
+                          <ThumbsUp size={16} fill="currentColor" />
+                          <span>Đánh giá CAO</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-red-600 font-bold text-sm">
+                          <ThumbsDown size={16} fill="currentColor" />
+                          <span>Đánh giá KÉM</span>
+                        </div>
+                      )}
+                    </div>
+                    {viewingEvent.reviewNote && (
+                      <div className={`text-xs italic leading-relaxed font-medium ${viewingEvent.review === 'high' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                        “{viewingEvent.reviewNote}”
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {viewingEvent.note && (
+                  <div className={`p-3 rounded-xl border ${borderClass} bg-slate-500/5`}>
+                    <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5`}>
+                      <StickyNote size={12} />
+                      Ghi chú sự kiện
+                    </p>
+                    <p className={`text-sm ${textSecondaryClass} leading-relaxed`}>{viewingEvent.note}</p>
+                  </div>
+                )}
               </div>
             )}
 
-            {viewingEvent.note && (
-              <div>
-                <p className={`text-xs ${textMutedClass} mb-1`}>Ghi chú</p>
-                <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{viewingEvent.note}</p>
-              </div>
-            )}
-
+            {/* 4. Danh sách nhân sự - Tối ưu Grid & Scroll */}
             {viewingEventShifts.length > 0 && (
-              <div>
-                <p className={`text-xs ${textMutedClass} mb-2`}>Nhân viên ({viewingEventShifts.length})</p>
-                <div className="space-y-1.5">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider`}>Nhân viên ({viewingEventShifts.length})</p>
+                </div>
+                <div className={`grid grid-cols-2 gap-2 max-h-[180px] overflow-y-auto pr-1 custom-scrollbar`}>
                   {viewingEventShifts.map(shift => (
-                    <div key={shift.id} className={`flex items-center justify-between p-2 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
-                      <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{shift.employeeName}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${shift.session === 'morning'
-                        ? 'bg-orange-500/10 text-orange-500'
-                        : 'bg-primary/10 text-primary'
-                        }`}>
-                        {shift.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
-                      </span>
+                    <div key={shift.id} className={`flex flex-col gap-0.5 p-2 ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white border-slate-100'} border rounded-lg shadow-sm`}>
+                      <span className={`text-xs font-semibold ${textPrimaryClass} truncate`}>{shift.employeeName}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${shift.session === 'morning' ? 'bg-orange-400' : 'bg-primary'}`}></span>
+                        <span className={`text-[9px] font-medium ${textMutedClass}`}>
+                          {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
