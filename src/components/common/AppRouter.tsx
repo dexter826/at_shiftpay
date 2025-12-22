@@ -1,6 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import Loader from '../ui/Loading';
 import { Employee, Event, Shift, UserSettings } from '../../types';
+import { useTheme } from '../../contexts/ThemeContext';
+import styled from 'styled-components';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const CalendarView = lazy(() => import('../pages/CalendarView'));
@@ -10,6 +12,22 @@ const SettingsView = lazy(() => import('../pages/SettingsView'));
 const ReviewsView = lazy(() => import('../pages/ReviewsView'));
 
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
+
+// Loading overlay for Suspense fallback
+const LoadingOverlay = styled.div<{ theme: string }>`
+  position: fixed;
+  inset: 0;
+  background: ${props => props.theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(248, 250, 252, 0.95)'};
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+`;
 
 interface AppRouterProps {
   activeTab: Tab;
@@ -42,6 +60,8 @@ export function AppRouter({
   onLogout,
   onOpenExport
 }: AppRouterProps) {
+  const { theme } = useTheme();
+
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -114,7 +134,11 @@ export function AppRouter({
   };
 
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={
+      <LoadingOverlay theme={theme}>
+        <Loader />
+      </LoadingOverlay>
+    }>
       {renderContent()}
     </Suspense>
   );
