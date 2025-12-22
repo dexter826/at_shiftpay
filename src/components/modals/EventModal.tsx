@@ -216,19 +216,14 @@ export const EventModal: React.FC<EventModalProps> = ({
   };
 
   const validateTitle = (value: string) => {
-    if (!value.trim()) {
-      setTitleError('Tên sự kiện là bắt buộc');
-      return false;
-    }
+    // Không còn bắt buộc nhập tên sự kiện
     setTitleError('');
     return true;
   };
 
   const handleSubmit = async () => {
-    if (!validateTitle(title)) {
-      setError('Nhập tên sự kiện');
-      return;
-    }
+    // Tên sự kiện mặc định là "Tiệc" nếu để trống
+    const finalTitle = title.trim() || 'Tiệc';
     if (!selectedSession) {
       setError('Chọn một ca làm việc');
       return;
@@ -314,15 +309,23 @@ export const EventModal: React.FC<EventModalProps> = ({
 
       const eventData: any = {
         date,
-        title,
+        title: finalTitle,
         location,
         note,
-        reviewNote: review ? reviewNote : deleteField(),
         time,
         amount,
         surcharge,
-        review: review === undefined ? deleteField() : review
       };
+
+      // Chỉ thêm review và reviewNote nếυ có giá trị (tránh lỗi deleteField khi tạo mới)
+      if (review !== undefined) {
+        eventData.review = review;
+        if (reviewNote) eventData.reviewNote = reviewNote;
+      } else if (isEditing) {
+        // Khi edit và gỡ đánh giá, cần xóa trường trên DB
+        eventData.review = deleteField();
+        eventData.reviewNote = deleteField();
+      }
 
       if (surchargeDistribution) {
         eventData.surchargeDistribution = surchargeDistribution;
