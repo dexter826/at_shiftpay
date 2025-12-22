@@ -10,6 +10,7 @@ import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { areValuesEqual } from '../../utils/compare';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -78,6 +79,7 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
+  const [initialState, setInitialState] = useState<any>(null);
 
   const [bankList, setBankList] = useState<VietQRBank[]>([]);
   const [bankId, setBankId] = useState('');
@@ -116,6 +118,20 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     setAccountNumber(emp.bankAccount?.accountNumber || '');
     setAccountName(emp.bankAccount?.accountName || '');
     setError('');
+
+    // Lưu trạng thái ban đầu để so sánh
+    setInitialState({
+      name: emp.name,
+      phone: emp.phone,
+      imageUrl: emp.imageUrl || '',
+      bankAccount: emp.bankAccount ? {
+        bankId: emp.bankAccount.bankId,
+        bankName: emp.bankAccount.bankName,
+        accountNumber: emp.bankAccount.accountNumber,
+        accountName: emp.bankAccount.accountName
+      } : null
+    });
+
     setModalOpen(true);
   };
 
@@ -128,6 +144,26 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
     const value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(value);
   };
+
+  const hasChanged = useMemo(() => {
+    if (!editingEmp || !initialState) return true;
+
+    const bankAccount = bankId && accountNumber && accountName ? {
+      bankId,
+      bankName,
+      accountNumber,
+      accountName
+    } : null;
+
+    const currentState = {
+      name: name.trim(),
+      phone: phone.trim(),
+      imageUrl: imageUrl.trim(),
+      bankAccount: bankAccount
+    };
+
+    return !areValuesEqual(currentState, initialState);
+  }, [name, phone, imageUrl, bankId, bankName, accountNumber, accountName, initialState, editingEmp]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,14 +195,23 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
       bankName,
       accountNumber,
       accountName
-    } : undefined;
-
-    const isEditing = !!editingEmp;
-    const empId = editingEmp?.id;
-    setModalOpen(false);
+    } : null;
 
     try {
-      const employeeData: any = { name, phone, imageUrl };
+      const isEditing = !!editingEmp;
+      const empId = editingEmp?.id;
+
+      // Không cần kiểm tra areValuesEqual ở đây nữa vì nút đã bị disable nếu không có thay đổi
+      // Nhưng giữ lại safeguard nếu cần thiết hoặc chỉ đơn giản là thực hiện lưu
+
+      setModalOpen(false);
+
+      const employeeData: any = {
+        name: name.trim(),
+        phone: phone.trim(),
+        imageUrl: imageUrl.trim()
+      };
+
       if (bankAccount) {
         employeeData.bankAccount = bankAccount;
       } else if (isEditing) {
@@ -395,13 +440,23 @@ export const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shi
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         footer={
-          <Button
-            onClick={handleSubmit}
-            fullWidth
-          >
-            <Check size={16} />
-            Lưu
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setModalOpen(false)}
+              className="flex-1"
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              className="flex-1"
+              disabled={!hasChanged}
+            >
+              <Check size={16} />
+              Lưu
+            </Button>
+          </div>
         }
       >
         <form className="space-y-4">

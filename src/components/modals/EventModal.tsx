@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { dbService, deleteField } from '../../services/firebase';
 import { Sun, Moon, Check, AlertCircle, Banknote, Loader2, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';
 import { useToast } from '../ui/Toast';
+import { areValuesEqual } from '../../utils/compare';
 
 interface EventModalProps {
   date: string;
@@ -48,6 +49,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [titleError, setTitleError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [employeeShiftCounts, setEmployeeShiftCounts] = useState<Record<string, number>>({});
+  const [initialState, setInitialState] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -118,6 +120,25 @@ export const EventModal: React.FC<EventModalProps> = ({
       setError('');
 
       loadEmployeeShiftCounts();
+
+      // Lưu trạng thái ban đầu để so sánh
+      if (existingEvent) {
+        setInitialState({
+          title: existingEvent.title,
+          location: existingEvent.location || '',
+          note: existingEvent.note || '',
+          time: existingEvent.time || '',
+          amount: existingEvent.amount || settings.shiftRate,
+          surcharge: existingEvent.surcharge || 0,
+          surchargeDistribution: existingEvent.surchargeDistribution,
+          assignments: Object.fromEntries(existingShifts.map(s => [s.employeeId, true])),
+          session: existingShifts[0]?.session || null,
+          review: existingEvent.review,
+          reviewNote: existingEvent.reviewNote || ''
+        });
+      } else {
+        setInitialState(null);
+      }
     }
   }, [isOpen, existingEvent, existingShifts, settings]);
 
@@ -220,6 +241,38 @@ export const EventModal: React.FC<EventModalProps> = ({
     setTitleError('');
     return true;
   };
+
+  const hasChanged = useMemo(() => {
+    if (!existingEvent || !initialState) return true; // Luôn cho phép lưu nếu là tạo mới
+
+    const currentSurchargeDistribution = surcharge > 0 ? {
+      type: surchargeDistributionType,
+      selectedEmployeeIds: surchargeDistributionType === 'selected'
+        ? Object.entries(surchargeSelectedEmployees).filter(([_, selected]) => selected).map(([id]) => id)
+        : undefined
+    } : undefined;
+
+    const currentState = {
+      title: title.trim() || 'Tiệc',
+      location: location.trim(),
+      note: note.trim(),
+      time,
+      amount,
+      surcharge,
+      surchargeDistribution: currentSurchargeDistribution,
+      assignments: Object.fromEntries(Object.entries(assignments).filter(([_, v]) => v)),
+      session: selectedSession,
+      review,
+      reviewNote: reviewNote.trim()
+    };
+
+    return !areValuesEqual(currentState, initialState);
+  }, [
+    title, location, note, time, amount, surcharge,
+    surchargeDistributionType, surchargeSelectedEmployees,
+    assignments, selectedSession, review, reviewNote,
+    initialState, existingEvent
+  ]);
 
   const handleSubmit = async () => {
     // Tên sự kiện mặc định là "Tiệc" nếu để trống
@@ -370,15 +423,24 @@ export const EventModal: React.FC<EventModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       footer={
-        <Button
-          onClick={handleSubmit}
-          className=""
-          fullWidth
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? <Loader2 size={16} className="text-white animate-spin" /> : <Check size={16} className="text-white" />}
-          {isSubmitting ? "Đang lưu..." : (existingEvent ? "Cập nhật" : "Lưu")}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            className="flex-1"
+            disabled={isSubmitting}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={isSubmitting || !hasChanged}
+          >
+            {isSubmitting ? <Loader2 size={16} className="text-white animate-spin" /> : <Check size={16} className="text-white" />}
+            {isSubmitting ? "Đang lưu..." : (existingEvent ? "Cập nhật" : "Lưu")}
+          </Button>
+        </div>
       }
     >
       <div className="space-y-4">
