@@ -104,19 +104,6 @@ src/
 └── App.tsx              # Component chính & Routing
 ```
 
-## Hướng dẫn sử dụng
-
-1. **Tổng quan**: Xem biểu đồ thống kê thu chi và nhắc nhở công nợ.
-2. **Lịch Tiệc**:
-   - Chọn ngày để tạo sự kiện mới.
-   - Gán nhân viên vào ca làm việc (Sáng/Chiều).
-3. **Nhân Sự**: Quản lý danh sách nhân viên, xem lịch sử làm việc.
-4. **Thanh Toán**:
-   - Xem bảng công nợ chi tiết của từng nhân viên.
-   - Thực hiện **Ứng lương** hoặc **Thanh toán** (quyết toán).
-   - Xuất file Excel báo cáo lương.
-5. **Cài đặt**: Cấu hình định mức lương, giờ làm việc và giao diện (Dark/Light).
-
 ---
 
 <div align="center">

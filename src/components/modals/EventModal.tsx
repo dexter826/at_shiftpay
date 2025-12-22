@@ -424,7 +424,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             <MapPin className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
             <input
               type="text"
-              placeholder="Nhập địa điểm hoặc địa chỉ..."
+              placeholder="Nhập địa điểm"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${borderClass} ${cardBgClass} ${textPrimaryClass} focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all`}
