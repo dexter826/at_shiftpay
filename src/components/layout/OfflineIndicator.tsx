@@ -31,7 +31,7 @@ export const OfflineIndicator: React.FC = () => {
     return (
         <div
             className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium transition-all ${isOnline
-                    ? 'bg-emerald-500 text-white animate-fade-in'
+                    ? 'bg-primary text-white animate-fade-in'
                     : 'bg-slate-800 text-slate-200 border border-slate-700'
                 }`}
         >
