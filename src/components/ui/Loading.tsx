@@ -206,12 +206,32 @@ const Loader = () => {
 };
 
 const StyledWrapper = styled.div`
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  z-index: 9999;
+  background: transparent;
+
+  /* iOS PWA specific fixes */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+
   .loader {
     width: fit-content;
     height: fit-content;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Ensure loader stays centered */
+    position: relative;
   }
 
   .truckWrapper {
