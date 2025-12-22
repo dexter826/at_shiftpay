@@ -297,13 +297,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       >
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <MapPin size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                            <Calendar size={14} className="text-primary mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
                                 {evt.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
                                 {evt.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
                               </div>
+                              {evt.location && (
+                                <p className={`text-[11px] text-blue-500 mt-0.5 flex items-center gap-1 min-w-0`}>
+                                  <MapPin size={12} className="flex-shrink-0" />
+                                  <span className="truncate">{evt.location}</span>
+                                </p>
+                              )}
                               {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                             </div>
                           </div>

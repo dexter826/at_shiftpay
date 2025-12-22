@@ -166,7 +166,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                                 {evt.location && (
                                     <div className="mb-4 p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-2 group-hover:bg-blue-500/10 transition-colors">
                                         <MapPin size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                                        <span className={`text-xs font-medium text-blue-600 leading-tight`}>{evt.location}</span>
+                                        <span className={`text-xs font-medium text-blue-600 leading-tight line-clamp-2`}>{evt.location}</span>
                                     </div>
                                 )}
 
@@ -183,8 +183,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                                 )}
 
                                 {/* Footer: Personnel summary */}
-                                <div className={`mt-auto pt-3 border-t ${borderClass} flex justify-between items-center bg-transparent`}>
-                                    <div className="flex -space-x-1.5 group/avatars">
+                                <div className={`mt-auto pt-3 border-t ${borderClass} flex justify-between items-center bg-transparent gap-2`}>
+                                    <div className="flex -space-x-1.5 group/avatars flex-shrink-0">
                                         {shifts.filter(s => s.eventId === evt.id).slice(0, 5).map(s => {
                                             const emp = employees.find(e => e.id === s.employeeId);
                                             return (
@@ -199,7 +199,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                                             </div>
                                         )}
                                     </div>
-                                    <span className={`text-[11px] font-medium ${textMutedClass}`}>
+                                    <span className={`text-[11px] font-medium ${textMutedClass} truncate whitespace-nowrap`}>
                                         {shifts.filter(s => s.eventId === evt.id).length} người
                                     </span>
                                 </div>
