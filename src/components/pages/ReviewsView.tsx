@@ -102,8 +102,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                             placeholder="Tìm kiếm..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className={`w-full pl-10 pr-4 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
-                                } ${borderClass} ${textPrimaryClass} h-[45px]`}
+                            className={`w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
+                                } ${borderClass} ${textPrimaryClass}`}
                         />
                     </div>
                     <div className="w-[110px] md:w-40">
@@ -115,7 +115,6 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                                 { value: 'high', label: 'Tốt', icon: <ThumbsUp size={14} className="text-green-500" /> },
                                 { value: 'low', label: 'Kém', icon: <ThumbsDown size={14} className="text-red-500" /> }
                             ]}
-                            className="w-full h-[45px]"
                         />
                     </div>
                 </div>
