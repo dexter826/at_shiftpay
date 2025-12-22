@@ -486,12 +486,12 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     <div className="flex items-center gap-2">
                       <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
                       {item.type === 'advance' && (
-                        <span className="px-2 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                        <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
                           Ứng tiền
                         </span>
                       )}
                       {item.type === 'settlement' && (
-                        <span className="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                        <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
                           Quyết toán
                         </span>
                       )}
@@ -676,17 +676,17 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`text-xs ${textMutedClass}`}>Loại giao dịch</span>
                   {selectedTransaction?.type === 'advance' && (
-                    <span className="px-2 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
                       Ứng tiền
                     </span>
                   )}
                   {selectedTransaction?.type === 'settlement' && (
-                    <span className="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
                       Quyết toán
                     </span>
                   )}
                   {(!selectedTransaction?.type || selectedTransaction?.type === 'regular') && (
-                    <span className="px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-transparent border border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 rounded-full">
                       Thanh toán thường
                     </span>
                   )}
