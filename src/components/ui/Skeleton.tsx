@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface SkeletonProps {
@@ -40,7 +41,16 @@ export const Skeleton: React.FC<SkeletonProps> = ({
             className={`${baseClasses} ${variantClasses[variant]} ${className}`}
             style={style}
         >
-            <div className={`absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r ${shimmerGradient}`} />
+            <motion.div 
+                className={`absolute inset-0 bg-gradient-to-r ${shimmerGradient}`}
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'linear'
+                }}
+            />
         </div>
     );
 };

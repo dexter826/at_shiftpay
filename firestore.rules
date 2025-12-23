@@ -9,6 +9,10 @@ service cloud.firestore {
     function isValidString(value) {
       return value is string && value.size() > 0;
     }
+
+    function isValidOptionalString(value) {
+      return value is string;
+    }
     
     function isValidNumber(value) {
       return value is number && value >= 0;
@@ -17,10 +21,10 @@ service cloud.firestore {
     // Employees Collection
     match /employees/{employeeId} {
       allow read: if isAuthenticated();
-      
+
       allow create: if isAuthenticated()
         && isValidString(request.resource.data.name)
-        && isValidString(request.resource.data.phone)
+        && isValidOptionalString(request.resource.data.phone)
         && request.resource.data.createdAt is string;
       
       allow update: if isAuthenticated()

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 export interface DropdownOption {
@@ -92,31 +93,40 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <span className="flex-1 text-left">
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
-                <ChevronDown
-                    size={16}
-                    className={`text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                />
+                <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <ChevronDown size={16} className="text-slate-500" />
+                </motion.div>
             </button>
 
-            {isOpen && (
-                <div className={`absolute top-full left-0 right-0 mt-1 ${cardBgClass} border ${borderClass} rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto`}>
-                    {options.map((option) => (
-                        <button
-                            type="button"
-                            key={option.value}
-                            onClick={() => handleSelect(option.value)}
-                            className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/10 ${value === option.value ? `bg-primary/10 text-primary font-medium` : textSecondaryClass
-                                }`}
-                        >
-                            <div className="flex items-center gap-2">
-                                {option.icon && <span className="text-current">{option.icon}</span>}
-                                <span className="flex-1">{option.label}</span>
-                                {value === option.value && <Check size={14} className="text-primary" />}
-                            </div>
-                        </button>
-                    ))}
-                </div>
-            )}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div 
+                        className={`absolute top-full left-0 right-0 mt-1 ${cardBgClass} border ${borderClass} rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                    >
+                        {options.map((option) => (
+                            <button
+                                type="button"
+                                key={option.value}
+                                onClick={() => handleSelect(option.value)}
+                                className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/10 ${value === option.value ? `bg-primary/10 text-primary font-medium` : textSecondaryClass}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    {option.icon && <span className="text-current">{option.icon}</span>}
+                                    <span className="flex-1">{option.label}</span>
+                                    {value === option.value && <Check size={14} className="text-primary" />}
+                                </div>
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -45,7 +45,7 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
                 </button>
                 <button
                     onClick={onLogout}
-                    className={`p-2 text-red-500 hover:text-red-600 transition-colors`}
+                    className="p-2 text-red-500 hover:text-red-600 transition-colors"
                 >
                     <LogOut size={20} />
                 </button>

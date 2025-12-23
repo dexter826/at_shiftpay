@@ -1,5 +1,6 @@
 import React, { useEffect, useState, createContext, useContext, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 
 type ToastType = 'success' | 'error' | 'warning';
@@ -54,13 +55,23 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
         : 'text-slate-600 hover:text-slate-800';
 
     return (
-        <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} backdrop-blur-sm animate-slide-in ${theme === 'light' ? 'bg-white/90' : ''}`}>
+        <motion.div 
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} backdrop-blur-sm ${theme === 'light' ? 'bg-white/90' : ''}`}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            layout
+        >
             {icons[toast.type]}
             <span className={`text-sm ${textColor} flex-1`}>{toast.message}</span>
-            <button onClick={() => onRemove(toast.id)} className={buttonColor}>
+            <button 
+                onClick={() => onRemove(toast.id)} 
+                className={buttonColor}
+            >
                 <X size={16} />
             </button>
-        </div>
+        </motion.div>
     );
 };
 
@@ -80,9 +91,11 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         <ToastContext.Provider value={{ showToast }}>
             {children}
             <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[90%] max-w-sm">
-                {toasts.map(toast => (
-                    <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
-                ))}
+                <AnimatePresence mode="popLayout">
+                    {toasts.map(toast => (
+                        <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+                    ))}
+                </AnimatePresence>
             </div>
         </ToastContext.Provider>
     );

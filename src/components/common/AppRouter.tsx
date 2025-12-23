@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Loader from '../ui/Loading';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -139,7 +140,17 @@ export function AppRouter({
         <Loader />
       </LoadingOverlay>
     }>
-      {renderContent()}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
+          {renderContent()}
+        </motion.div>
+      </AnimatePresence>
     </Suspense>
   );
 }

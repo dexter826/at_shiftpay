@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface NavbarProps {
@@ -52,30 +53,32 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           {navItems.map((item) => {
             const isActive = currentTab === item.id || (item.id === 'dashboard' && currentTab === 'reviews');
             return (
-              <button
+              <motion.button
                 key={item.id}
                 onClick={() => setTab(item.id)}
                 className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
                   ? 'bg-primary/10 text-primary'
                   : `${textMuted} ${hoverText} ${hoverBg}`
                   }`}
+                whileTap={{ scale: 0.98 }}
               >
                 <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
                 <span>{item.label}</span>
-              </button>
+              </motion.button>
             );
           })}
         </nav>
 
         {/* Footer Desktop */}
         <div className={`p-4 border-t ${borderColor}`}>
-          <button
+          <motion.button
             onClick={onLogout}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10`}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
+            whileTap={{ scale: 0.98 }}
           >
             <LogOut size={18} />
             <span>Đăng xuất</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
