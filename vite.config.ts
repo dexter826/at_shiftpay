@@ -33,13 +33,11 @@ export default defineConfig(({ mode }) => {
             'charts-vendor': ['recharts'],
             'icons-vendor': ['lucide-react'],
             'lottie-vendor': ['lottie-react'],
-            'excel-vendor': ['exceljs', 'file-saver'],
             'styled-vendor': ['styled-components']
           }
         }
       },
       chunkSizeWarningLimit: 1000,
-      assetsInlineLimit: 0,
       assetsInclude: ['**/*.json']
     }
   };

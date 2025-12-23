@@ -9,7 +9,7 @@ import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { dbService } from './services';
-import { exportDetailedReport } from './services/excel';
+import { exportDetailedReport } from './services/export';
 import { useAppData } from './hooks/useAppData';
 import { auth } from './firebase';
 import { signOut } from 'firebase/auth';

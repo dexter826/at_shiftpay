@@ -44,7 +44,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                         className="flex-1"
                     >
                         <FileDown size={16} className="text-white" />
-                        Xuất Excel
+                        Xuất CSV
                     </Button>
                 </div>
             }

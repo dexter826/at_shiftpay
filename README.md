@@ -24,7 +24,7 @@
   - **Thanh toán lương**: Quyết toán lương chi tiết, lưu lịch sử giao dịch.
 - **Báo cáo & Thống kê**:
   - **Dashboard**: Biểu đồ thu chi, nhắc nhở công nợ, thống kê tổng quan.
-  - **Xuất báo cáo**: Xuất file Excel chi tiết bảng công và lương hàng tháng.
+  - **Xuất báo cáo**: Xuất file CSV chi tiết bảng công và lương hàng tháng.
 - **Giao diện & Tiện ích**:
   - Hỗ trợ Dark Mode / Light Mode.
   - Hoạt động Offline (mất kết nối mạng vẫn thao tác được).
@@ -40,7 +40,7 @@
 - **State Management**: React Hooks (Context API)
 - **Type Safety & Validation**: Zod (Runtime type validation)
 - **Libraries**:
-  - `exceljs`, `file-saver`: Xuất báo cáo Excel
+  - `framer-motion`: Animation và chuyển tiếp
   - `recharts`: Biểu đồ thống kê
   - `lucide-react`: Icon hệ thống
   - `lottie-react`: Hiệu ứng Splash Screen
@@ -107,7 +107,7 @@ src/
 │   ├── settingsService.ts    # CRUD operations cho cài đặt
 │   ├── firebase-helpers.ts   # Helper functions (DRY, retry logic)
 │   ├── index.ts              # Unified dbService export
-│   ├── excel.ts              # Excel export service
+│   ├── export.ts             # CSV export service
 │   └── vietqr.ts             # VietQR API integration
 ├── utils/               # Utility functions
 │   ├── validation.ts    # Zod schemas & validation utilities
