@@ -392,12 +392,12 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                     {emp.bankAccount ? (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-green-500/90 text-white text-[10px] font-medium shadow-sm">
                         <CheckCircle size={12} />
-                        <span>Tài khoản ngân hàng</span>
+                        <span>Ngân hàng</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-orange-500/90 text-white text-[10px] font-medium shadow-sm">
                         <CircleAlert size={12} />
-                        <span>Tài khoản ngân hàng</span>
+                        <span>Ngân hàng</span>
                       </div>
                     )}
                   </div>
