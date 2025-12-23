@@ -1,34 +1,17 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import Loader from '../ui/Loading';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import styled from 'styled-components';
 
-const Dashboard = lazy(() => import('../pages/Dashboard'));
-const CalendarView = lazy(() => import('../pages/CalendarView'));
-const EmployeeManager = lazy(() => import('../pages/EmployeeManager'));
-const PayrollView = lazy(() => import('../pages/PayrollView'));
-const SettingsView = lazy(() => import('../pages/SettingsView'));
-const ReviewsView = lazy(() => import('../pages/ReviewsView'));
+import Dashboard from '../pages/Dashboard';
+import CalendarView from '../pages/CalendarView';
+import EmployeeManager from '../pages/EmployeeManager';
+import PayrollView from '../pages/PayrollView';
+import SettingsView from '../pages/SettingsView';
+import ReviewsView from '../pages/ReviewsView';
 
 type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
-
-// Loading overlay for Suspense fallback
-const LoadingOverlay = styled.div<{ theme: string }>`
-  position: fixed;
-  inset: 0;
-  background: ${props => props.theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(248, 250, 252, 0.95)'};
-  backdrop-filter: blur(4px);
-  z-index: 9998;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: env(safe-area-inset-top, 0);
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  padding-left: env(safe-area-inset-left, 0);
-  padding-right: env(safe-area-inset-right, 0);
-`;
 
 interface AppRouterProps {
   activeTab: Tab;
@@ -135,22 +118,16 @@ export function AppRouter({
   };
 
   return (
-    <Suspense fallback={
-      <LoadingOverlay theme={theme}>
-        <Loader />
-      </LoadingOverlay>
-    }>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {renderContent()}
-        </motion.div>
-      </AnimatePresence>
-    </Suspense>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        {renderContent()}
+      </motion.div>
+    </AnimatePresence>
   );
 }
