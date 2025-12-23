@@ -38,11 +38,13 @@
 - **Styling**: Tailwind CSS, Styled Components
 - **Backend**: Firebase (Firestore, Authentication)
 - **State Management**: React Hooks (Context API)
+- **Type Safety & Validation**: Zod (Runtime type validation)
 - **Libraries**:
   - `exceljs`, `file-saver`: Xuất báo cáo Excel
   - `recharts`: Biểu đồ thống kê
   - `lucide-react`: Icon hệ thống
   - `lottie-react`: Hiệu ứng Splash Screen
+  - `zod`: Runtime validation cho Firestore data
 
 ## Cài đặt
 
@@ -90,21 +92,32 @@ npm run build
 src/
 ├── components/
 │   ├── auth/            # Màn hình đăng nhập, đổi mật khẩu
-│   ├── common/          # Component chung (Splashscreen...)
-│   ├── layout/          # Layout chính (Navbar, TopBar...)
+│   ├── common/          # Component chung (Splashscreen, AppRouter...)
+│   ├── layout/          # Layout chính (Navbar, TopBar, OfflineIndicator...)
 │   ├── modals/          # Các Modal (Sự kiện, Thanh toán, Xuất báo cáo...)
 │   ├── pages/           # Các trang chính (Dashboard, Lịch, Nhân sự...)
-│   └── ui/              # UI Components cơ bản (Button, Card, Input...)
+│   └── ui/              # UI Components cơ bản (Button, Modal, Loading...)
 ├── contexts/            # React Context (ThemeContext...)
-├── services/            # Logic xử lý (Firebase, Excel service)
+├── hooks/               # Custom React Hooks (useAppData, useThemeStyles...)
+├── services/            # Service Layer (Modular architecture)
+│   ├── employeeService.ts    # CRUD operations cho nhân viên
+│   ├── eventService.ts       # CRUD operations cho sự kiện
+│   ├── shiftService.ts       # CRUD operations cho ca làm
+│   ├── paymentService.ts     # CRUD operations cho thanh toán
+│   ├── settingsService.ts    # CRUD operations cho cài đặt
+│   ├── firebase-helpers.ts   # Helper functions (DRY, retry logic)
+│   ├── index.ts              # Unified dbService export
+│   ├── excel.ts              # Excel export service
+│   └── vietqr.ts             # VietQR API integration
+├── utils/               # Utility functions
+│   ├── validation.ts    # Zod schemas & validation utilities
+│   └── compare.ts       # Sorting & comparison utilities
 ├── constants/           # Định nghĩa màu sắc, hằng số
 ├── constants.ts         # Utility format tiền tệ, ngày tháng
 ├── types.ts             # Định nghĩa TypeScript Interface
-├── firebase.ts          # Cấu hình Firebase SDK
-└── App.tsx              # Component chính & Routing
+├── firebase.ts          # Cấu hình Firebase SDK với validation
+└── App.tsx              # Component chính & Layout
 ```
-
----
 
 <div align="center">
   <i>Ứng dụng được làm ra với mục đích phục vụ nội bộ và không nhằm mục đích thương mại.</i>
