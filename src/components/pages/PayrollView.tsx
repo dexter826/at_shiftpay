@@ -55,7 +55,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   } = useThemeStyles();
 
   const summary: PayrollSummary[] = useMemo(() => {
-    const map: Record<string, PayrollSummary> = {};
+    const map: Record<string, PayrollSummary & { totalFees?: number }> = {};
 
     employees.forEach(emp => {
       map[emp.id] = {
@@ -66,29 +66,51 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         totalUnpaid: 0,
         advancedCount: 0,
         totalAdvanced: 0,
-        netAmount: 0
+        netAmount: 0,
+        totalFees: 0
       };
     });
 
     shifts.forEach(s => {
       if (map[s.employeeId]) {
+        // Tìm event tương ứng với shift để lấy surcharge
+        const event = events.find(e => e.id === s.eventId && e.date === s.date);
+        let shiftFee = 0;
+        
+        if (event?.surcharge && event.surcharge > 0) {
+          // Kiểm tra phân bổ phụ phí
+          if (!event.surchargeDistribution || event.surchargeDistribution.type === 'equal') {
+            // Chia đều cho tất cả nhân viên trong event
+            const shiftsInEvent = shifts.filter(sh => sh.eventId === event.id && sh.date === event.date);
+            const uniqueEmployees = new Set(shiftsInEvent.map(sh => sh.employeeId));
+            shiftFee = event.surcharge / uniqueEmployees.size;
+          } else if (event.surchargeDistribution.type === 'selected') {
+            // Chỉ chia cho nhân viên được chọn
+            if (event.surchargeDistribution.selectedEmployeeIds?.includes(s.employeeId)) {
+              shiftFee = event.surcharge / event.surchargeDistribution.selectedEmployeeIds.length;
+            }
+          }
+        }
+
         if (s.status === 'unpaid') {
           map[s.employeeId].unpaidCount += 1;
           map[s.employeeId].totalUnpaid += s.amount;
+          map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
         } else if (s.status === 'advanced') {
           map[s.employeeId].advancedCount += 1;
           map[s.employeeId].totalAdvanced += s.amount;
+          map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
         }
       }
     });
 
     // Net amount = chưa trả (không trừ tạm ứng)
     Object.values(map).forEach(emp => {
-      emp.netAmount = emp.totalUnpaid; // Chỉ hiển thị số tiền chưa trả thực tế
+      emp.netAmount = emp.totalUnpaid;
     });
 
     return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
-  }, [shifts, employees]);
+  }, [shifts, employees, events]);
 
   // Lọc và sắp xếp bảng lương
   const filteredAndSortedSummary = useMemo(() => {
@@ -122,6 +144,10 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const totalDebt = summary.reduce((acc, curr) => acc + curr.totalUnpaid, 0);
   const totalAdvanced = summary.reduce((acc, curr) => acc + curr.totalAdvanced, 0);
   const totalEarned = totalDebt + totalAdvanced;
+  const totalUnpaidShifts = summary.reduce((acc, curr) => acc + curr.unpaidCount, 0);
+  const totalAdvancedShifts = summary.reduce((acc, curr) => acc + curr.advancedCount, 0);
+  const totalShifts = totalUnpaidShifts + totalAdvancedShifts;
+  const totalFees = summary.reduce((acc, curr) => acc + ((curr as any).totalFees || 0), 0);
 
   const [payConfirm, setPayConfirm] = useState(false);
   const { showToast } = useToast();
@@ -241,39 +267,41 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
           {/* Giao diện Mobile */}
           <div className="block md:hidden">
-            {/* Thống kê chính */}
+            {/* Tổng đã làm - Lên trên */}
             <div className="text-center mb-4">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Wallet2 size={20} className="text-primary/70" />
-                <p className="text-xs text-primary/70 uppercase tracking-wide font-medium">Tình hình lương</p>
+                <Wallet2 size={20} className="text-blue-500" />
+                <p className="text-xs text-blue-500 uppercase tracking-wide font-medium">Tổng đã làm</p>
               </div>
               {loading ? (
                 <Skeleton width={120} height={36} className="mx-auto" />
               ) : (
-                <p className="text-3xl font-bold text-primary">{formatCurrency(totalDebt)}</p>
+                <p className="text-3xl font-bold text-blue-500">{formatCurrency(totalEarned)}</p>
               )}
-              <p className="text-sm text-primary/70 mt-1">Còn cần trả</p>
+              <p className="text-sm text-blue-500 mt-1">
+                {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
+              </p>
             </div>
 
-            {/* Thống kê phụ (2 cột) */}
+            {/* Tình hình lương + Đã ứng (2 cột) */}
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-primary/20">
               <div className="text-center flex flex-col items-center">
-                <p className="text-xs text-primary/70 uppercase tracking-wide">Tổng đã làm</p>
+                <p className="text-xs text-primary uppercase tracking-wide">Tình hình lương</p>
                 {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
-                  <p className="text-lg font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                  <p className="text-lg font-bold text-primary mt-1">{formatCurrency(totalDebt)}</p>
                 )}
-                <p className="text-xs text-blue-500/70">Tổng cộng</p>
+                <p className="text-xs text-primary">{totalUnpaidShifts} công</p>
               </div>
 
               <div className="text-center flex flex-col items-center">
-                <p className="text-xs text-primary/70 uppercase tracking-wide">Đã ứng</p>
+                <p className="text-xs text-orange-500 uppercase tracking-wide">Đã ứng</p>
                 {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
                   <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                     {formatCurrency(totalAdvanced)}
                   </p>
                 )}
-                <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
-                  Tiền ứng
+                <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                  {totalAdvancedShifts} công
                 </p>
               </div>
             </div>
@@ -285,32 +313,34 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               <div className="grid grid-cols-3 gap-6">
                 {/* Tình hình lương */}
                 <div>
-                  <p className="text-xs text-primary/70 uppercase tracking-wide">Tình hình lương</p>
+                  <p className="text-xs text-primary uppercase tracking-wide">Tình hình lương</p>
                   {loading ? <Skeleton width={100} height={32} className="mt-1" /> : (
                     <p className="text-2xl font-bold text-primary mt-1">{formatCurrency(totalDebt)}</p>
                   )}
-                  <p className="text-xs text-primary/70 mt-1">Còn cần trả</p>
-                </div>
-
-                {/* Tổng đã làm */}
-                <div>
-                  <p className="text-xs text-primary/70 uppercase tracking-wide">Tổng đã làm</p>
-                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
-                    <p className="text-xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
-                  )}
-                  <p className="text-xs text-blue-500/70 mt-1">Tổng cộng</p>
+                  <p className="text-xs text-primary mt-1">{totalUnpaidShifts} công</p>
                 </div>
 
                 {/* Đã ứng */}
                 <div className={totalAdvanced > 0 ? '' : 'opacity-50'}>
-                  <p className="text-xs text-primary/70 uppercase tracking-wide">Đã ứng</p>
+                  <p className="text-xs text-orange-500 uppercase tracking-wide">Đã ứng</p>
                   {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
-                    <p className={`text-xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                    <p className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                       {formatCurrency(totalAdvanced)}
                     </p>
                   )}
-                  <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500/70' : 'text-slate-400'}`}>
-                    Tiền ứng
+                  <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                    {totalAdvancedShifts} công
+                  </p>
+                </div>
+
+                {/* Tổng đã làm */}
+                <div>
+                  <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
+                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
+                    <p className="text-2xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
+                  )}
+                  <p className="text-xs text-blue-500 mt-1">
+                    {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
                   </p>
                 </div>
               </div>
@@ -409,27 +439,44 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
             </div>
           ) : (
-            filteredAndSortedSummary.map((item) => (
+            filteredAndSortedSummary.map((item) => {
+              const employee = employees.find(e => e.id === item.employeeId);
+              const employeeImage = employee?.imageUrl || employee?.avatar;
+              const itemWithFees = item as typeof item & { totalFees?: number };
+
+              return (
               <button
                 key={item.employeeId}
                 onClick={() => {
                   setSelectedEmpId(item.employeeId);
-                  // Nếu có công chưa trả, mở modal thanh toán
                   if (item.totalUnpaid > 0) {
                     setShowPaymentModal(true);
                   }
-                  // Nếu chỉ có tiền ứng (không có công chưa trả), không mở modal nào
-                  // Modal chi tiết sẽ tự động mở khi selectedEmpId được set
                 }}
                 className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
-                    }`}>
-                    {item.employeeName.charAt(0)}
-                  </div>
+                  {employeeImage ? (
+                    <img
+                      src={employeeImage}
+                      alt={item.employeeName}
+                      className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
+                    />
+                  ) : (
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
+                      }`}>
+                      {item.employeeName.charAt(0)}
+                    </div>
+                  )}
                   <div className="text-left">
-                    <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                      {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
+                          Có phụ phí
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 text-xs">
                       {item.unpaidCount > 0 && (
                         <span className="text-primary">
@@ -450,8 +497,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
 
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass
-                      }`}>
+                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
                       {formatCurrency(item.totalUnpaid)}
                     </span>
                     {item.totalAdvanced > 0 && (
@@ -463,7 +509,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                   <ChevronRight size={16} className={textMutedClass} />
                 </div>
               </button>
-            ))
+            );})
           )
         ) : (
           filteredHistory.length === 0 ? (
