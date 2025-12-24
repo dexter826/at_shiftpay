@@ -66,8 +66,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         totalUnpaid: 0,
         advancedCount: 0,
         totalAdvanced: 0,
-        netAmount: 0,
-        totalFees: 0
+        netAmount: 0
       };
     });
 
@@ -95,11 +94,15 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         if (s.status === 'unpaid') {
           map[s.employeeId].unpaidCount += 1;
           map[s.employeeId].totalUnpaid += s.amount;
-          map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
+          if (shiftFee > 0) {
+            map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
+          }
         } else if (s.status === 'advanced') {
           map[s.employeeId].advancedCount += 1;
           map[s.employeeId].totalAdvanced += s.amount;
-          map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
+          if (shiftFee > 0) {
+            map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
+          }
         }
       }
     });

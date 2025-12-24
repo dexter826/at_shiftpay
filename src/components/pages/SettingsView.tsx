@@ -130,31 +130,31 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                         <SectionTitle icon={User} title="Tài khoản" />
                         <div className={`${cardBg} rounded-xl border ${border} overflow-hidden`}>
                             <div className={`p-4 flex items-center gap-4 border-b ${border}`}>
-                                <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-primary" />
-                                <div className="flex-1">
+                                <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-primary flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
                                     {isEditingName ? (
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="text"
                                                 value={editedName}
                                                 onChange={(e) => setEditedName(e.target.value)}
-                                                className={`flex-1 px-2 py-1 rounded border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary text-sm`}
+                                                className={`flex-1 min-w-0 px-3 py-2 rounded-lg border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary text-sm`}
                                                 placeholder="Nhập tên hiển thị"
                                                 autoFocus
                                             />
                                             <button
                                                 onClick={handleSaveDisplayName}
                                                 disabled={savingName}
-                                                className={`p-1.5 rounded-lg ${theme === 'dark' ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-green-50 text-green-600 hover:bg-green-100'} transition-colors`}
+                                                className={`p-2 rounded-lg flex-shrink-0 ${theme === 'dark' ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-green-50 text-green-600 hover:bg-green-100'} transition-colors`}
                                             >
-                                                <Check size={16} />
+                                                <Check size={18} />
                                             </button>
                                             <button
                                                 onClick={handleCancelEditName}
                                                 disabled={savingName}
-                                                className={`p-1.5 rounded-lg ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'} transition-colors`}
+                                                className={`p-2 rounded-lg flex-shrink-0 ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'} transition-colors`}
                                             >
-                                                <X size={16} />
+                                                <X size={18} />
                                             </button>
                                         </div>
                                     ) : (
