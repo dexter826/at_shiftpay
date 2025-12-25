@@ -24,7 +24,6 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialEvents, shifts: initialShifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
-    const { theme, toggleTheme } = useThemeStyles();
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [monthlyData, setMonthlyData] = useState<{ events: Event[], shifts: Shift[] }>({
@@ -182,6 +181,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
     const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(selectedDate);
 
     const {
+        theme,
         bgClass,
         borderClass,
         cardBgClass,
@@ -259,17 +259,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
                                 <div className="flex items-center gap-4">
                                     {/* Bộ chọn tháng Desktop */}
-                                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                                    <div className={`flex items-center gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'} p-1 rounded-lg border`}>
                                         <button
                                             onClick={handleGoToToday}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-md ${textSecondaryClass} hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm transition-all`}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-md ${textSecondaryClass} ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} hover:shadow-sm transition-all`}
                                         >
                                             Tháng này
                                         </button>
                                         <div className="flex items-center gap-1 px-2">
                                             <button
                                                 onClick={handlePrevMonth}
-                                                className={`p-1.5 rounded-md hover:bg-white dark:hover:bg-slate-700 ${textSecondaryClass} transition-all`}
+                                                className={`p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
                                             >
                                                 <ChevronLeft size={18} />
                                             </button>
@@ -278,7 +278,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </span>
                                             <button
                                                 onClick={handleNextMonth}
-                                                className={`p-1.5 rounded-md hover:bg-white dark:hover:bg-slate-700 ${textSecondaryClass} transition-all`}
+                                                className={`p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
                                             >
                                                 <ChevronRight size={18} />
                                             </button>
@@ -306,7 +306,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="fixed md:absolute top-[64px] md:top-0 bottom-[72px] md:bottom-0 inset-x-0 md:inset-0 bg-white/60 dark:bg-slate-900/60 z-30 md:z-10 flex items-center justify-center backdrop-blur-[2px] md:rounded-xl"
+                                        className={`fixed md:absolute top-[64px] md:top-0 bottom-[72px] md:bottom-0 inset-x-0 md:inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-white/60'} z-30 md:z-10 flex items-center justify-center backdrop-blur-[2px] md:rounded-xl`}
                                     >
                                         <motion.div
                                             initial={{ scale: 0.5, opacity: 0 }}
