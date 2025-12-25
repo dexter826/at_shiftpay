@@ -50,6 +50,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [employeeShiftCounts, setEmployeeShiftCounts] = useState<Record<string, number>>({});
   const [initialState, setInitialState] = useState<any>(null);
+  const [initialSelectedIds, setInitialSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (isOpen) {
@@ -80,6 +81,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         });
 
         setAssignments(newAssignments);
+        setInitialSelectedIds(new Set(existingShifts.map(s => s.employeeId)));
         setSelectedSession(detectedSession);
         setAmount(detectedAmount);
         setSurcharge(existingEvent.surcharge || 0);
@@ -114,6 +116,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         setSurchargeSelectedEmployees({});
         setSelectedSession(null);
         setAssignments({});
+        setInitialSelectedIds(new Set());
         setReview(undefined);
         setReviewNote('');
       }
@@ -219,6 +222,11 @@ export const EventModal: React.FC<EventModalProps> = ({
     );
 
     return filteredEmployees.sort((a, b) => {
+      // Ưu tiên 0: Nhân viên đã được chọn từ lúc mở modal
+      const aInitial = initialSelectedIds.has(a.id) ? 1 : 0;
+      const bInitial = initialSelectedIds.has(b.id) ? 1 : 0;
+      if (aInitial !== bInitial) return bInitial - aInitial;
+
       // Ưu tiên 1: Sắp xếp theo số ca (giảm dần)
       const aCount = employeeShiftCounts[a.id] || 0;
       const bCount = employeeShiftCounts[b.id] || 0;
