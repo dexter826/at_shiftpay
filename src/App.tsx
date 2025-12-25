@@ -2,7 +2,7 @@ import React, { useState, Suspense, lazy } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, TopBar, OfflineIndicator } from './components/layout';
 import { Login } from './components/auth';
-import { Splashscreen, AppRouter } from './components/common';
+import { Splashscreen, AppRouter, PullToRefresh } from './components/common';
 import { ExportModal } from './components/modals';
 import { Modal } from './components/ui/Modal';
 import Button from './components/ui/Button';
@@ -15,11 +15,11 @@ import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
 
 // Điều hướng đơn giản (HMR)
-type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
+type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'reviews';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>(() => {
-    return (localStorage.getItem('activeTab') as Tab) || 'overview';
+    return (localStorage.getItem('activeTab') as Tab) || 'dashboard';
   });
 
   React.useEffect(() => {
@@ -37,7 +37,8 @@ function App() {
     isLoading,
     viewDate,
     setViewDate,
-    totalDebt
+    totalDebt,
+    refreshData
   } = useAppData();
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -107,6 +108,7 @@ function App() {
           viewDate={viewDate}
           setViewDate={setViewDate}
           totalDebt={totalDebt}
+          refreshData={refreshData}
           onOpenExport={handleOpenExport}
           isExportModalOpen={isExportModalOpen}
           setIsExportModalOpen={setIsExportModalOpen}
@@ -134,6 +136,7 @@ function AppContent({
   viewDate,
   setViewDate,
   totalDebt,
+  refreshData,
   onOpenExport,
   isExportModalOpen,
   setIsExportModalOpen,
@@ -154,6 +157,7 @@ function AppContent({
   viewDate: Date;
   setViewDate: (date: Date) => void;
   totalDebt: number;
+  refreshData: () => void;
   onOpenExport: () => void;
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
@@ -176,22 +180,24 @@ function AppContent({
         setTab={(t) => setActiveTab(t as Tab)}
         onLogout={onLogout}
       />
-      <main>
-        <AppRouter
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          user={user}
-          employees={employees}
-          events={events}
-          shifts={shifts}
-          settings={settings}
-          loading={isLoading}
-          viewDate={viewDate}
-          setViewDate={setViewDate}
-          totalDebt={totalDebt}
-          onLogout={onLogout}
-          onOpenExport={onOpenExport}
-        />
+      <main className="md:pl-60">
+        <PullToRefresh onRefresh={refreshData}>
+          <AppRouter
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            user={user}
+            employees={employees}
+            events={events}
+            shifts={shifts}
+            settings={settings}
+            loading={isLoading}
+            viewDate={viewDate}
+            setViewDate={setViewDate}
+            totalDebt={totalDebt}
+            onLogout={onLogout}
+            onOpenExport={onOpenExport}
+          />
+        </PullToRefresh>
       </main>
 
       <ExportModal

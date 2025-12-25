@@ -181,7 +181,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events, shifts, 
     }
 
     return (
-        <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
+        <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen`}>
             {/* Header section removed - moved to global TopBar */}
             {/* Greeting Header (Desktop) */}
             <div className={`hidden md:block p-6 border-b ${borderClass}`}>

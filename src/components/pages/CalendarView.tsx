@@ -157,7 +157,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }, [selectedDate, shifts]);
 
   return (
-    <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
+    <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen`}>
       <div className="p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
 
         {/* Calendar */}

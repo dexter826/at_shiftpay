@@ -15,6 +15,11 @@ export function useAppData() {
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
     const [isLoading, setIsLoading] = useState(true);
     const [viewDate, setViewDate] = useState(new Date());
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refreshData = () => {
+        setRefreshKey(prev => prev + 1);
+    };
 
     // Theo dõi đăng nhập
     useEffect(() => {
@@ -90,7 +95,7 @@ export function useAppData() {
             if (unsubUnpaid) unsubUnpaid();
             if (unsubSettings) unsubSettings();
         };
-    }, [user, viewDate]);
+    }, [user, viewDate, refreshKey]);
 
     // Tính tổng nợ
     const totalDebt = useMemo(() =>
@@ -110,7 +115,8 @@ export function useAppData() {
         isLoading,
         viewDate,
         setViewDate,
-        totalDebt
+        totalDebt,
+        refreshData
     };
 }
 

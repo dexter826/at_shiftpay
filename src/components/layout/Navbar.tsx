@@ -12,8 +12,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
 
   const navItems = [
-    { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard },
-    { id: 'dashboard', label: 'Lịch Tiệc', icon: CalendarRange },
+    { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+    { id: 'calendar', label: 'Lịch Tiệc', icon: CalendarRange },
     { id: 'employees', label: 'Nhân Sự', icon: Users },
     { id: 'payroll', label: 'Thanh Toán', icon: Wallet2 },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => {
-            const isActive = currentTab === item.id || (item.id === 'dashboard' && currentTab === 'reviews');
+            const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'reviews');
             return (
               <motion.button
                 key={item.id}
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       {/* Mobile Menu */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
         {navItems.filter(item => item.id !== 'settings').map((item) => {
-          const isActive = currentTab === item.id || (item.id === 'dashboard' && currentTab === 'reviews');
+          const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'reviews');
           return (
             <button
               key={item.id}

@@ -102,7 +102,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     );
 
     return (
-        <div className={`pb-20 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
+        <div className={`pb-20 md:pb-0 ${bgClass} min-h-screen`}>
             <div className="max-w-3xl lg:max-w-5xl mx-auto p-4 md:p-6 space-y-5">
 
                 {/* Tiêu đề */}

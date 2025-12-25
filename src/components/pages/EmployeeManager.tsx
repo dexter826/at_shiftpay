@@ -286,7 +286,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   ];
 
   return (
-    <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen`}>
+    <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">

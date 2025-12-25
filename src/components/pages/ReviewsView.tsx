@@ -56,7 +56,7 @@ const ReviewsView: React.FC<ReviewsViewProps> = ({
     }, [ratedEvents]);
 
     return (
-        <div className={`pb-16 md:pb-0 md:ml-60 ${bgClass} min-h-screen p-4 md:p-6`}>
+        <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen p-4 md:p-6`}>
             <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

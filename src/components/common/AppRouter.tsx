@@ -11,7 +11,7 @@ import PayrollView from '../pages/PayrollView';
 import SettingsView from '../pages/SettingsView';
 import ReviewsView from '../pages/ReviewsView';
 
-type Tab = 'overview' | 'dashboard' | 'employees' | 'payroll' | 'settings' | 'reviews';
+type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'reviews';
 
 interface AppRouterProps {
   activeTab: Tab;
@@ -48,7 +48,7 @@ export function AppRouter({
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
+      case 'dashboard':
         return (
           <Dashboard
             user={user}
@@ -62,7 +62,7 @@ export function AppRouter({
             onOpenExport={onOpenExport}
           />
         );
-      case 'dashboard':
+      case 'calendar':
         return (
           <CalendarView
             events={events}
@@ -101,7 +101,7 @@ export function AppRouter({
             shifts={shifts}
             employees={employees}
             loading={loading}
-            onBack={() => setActiveTab('dashboard')}
+            onBack={() => setActiveTab('calendar')}
           />
         );
       case 'settings':
