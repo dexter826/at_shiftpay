@@ -22,8 +22,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
     // Hiệu ứng shimmer theo theme
     const shimmerGradient = theme === 'dark'
-        ? 'from-transparent via-slate-600/30 to-transparent'
-        : 'from-transparent via-white/50 to-transparent';
+        ? 'from-transparent via-slate-600/40 to-transparent'
+        : 'from-transparent via-white/60 to-transparent';
 
     const variantClasses = {
         text: 'rounded',
@@ -37,7 +37,10 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     };
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
             className={`${baseClasses} ${variantClasses[variant]} ${className}`}
             style={style}
         >
@@ -51,6 +54,6 @@ export const Skeleton: React.FC<SkeletonProps> = ({
                     ease: 'linear'
                 }}
             />
-        </div>
+        </motion.div>
     );
 };

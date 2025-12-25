@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Search, ThumbsUp, ThumbsDown, Calendar, MapPin, Clock, ArrowLeft } from 'lucide-react';
@@ -121,90 +123,138 @@ const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                 {/* List - Grid View */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-fr">
-                    {loading ? (
-                        <div className="col-span-full text-center py-12 text-slate-500">Đang tải...</div>
-                    ) : filteredEvents.length === 0 ? (
-                        <div className={`col-span-full text-center py-12 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}>
-                            {searchTerm || filterType !== 'all' ? 'Không tìm thấy kết quả phù hợp' : 'Chưa có sự kiện nào được đánh giá'}
-                        </div>
-                    ) : (
-                        filteredEvents.map(evt => (
-                            <div
-                                key={evt.id}
-                                className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 hover:border-primary/50 transition-all group flex flex-col h-full shadow-sm hover:shadow-md`}
+                    <AnimatePresence mode="wait">
+                        {loading ? (
+                            <motion.div
+                                key="loading-reviews"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
                             >
-                                {/* Header: Title & Rating */}
-                                <div className="flex justify-between items-start gap-3 mb-3">
-                                    <h3 className={`font-semibold ${textPrimaryClass} line-clamp-1 flex-1`} title={evt.title}>
-                                        {evt.title}
-                                    </h3>
-                                    {evt.review === 'high' ? (
-                                        <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
-                                            <ThumbsUp size={10} /> Tốt
-                                        </span>
-                                    ) : (
-                                        <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-                                            <ThumbsDown size={10} /> Kém
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Event Meta: Date & Time */}
-                                <div className="flex items-center gap-4 text-[11px] mb-3">
-                                    <div className={`flex items-center gap-1.5 ${textSecondaryClass}`}>
-                                        <Calendar size={13} className="text-primary/70" />
-                                        {formatDate(evt.date)}
-                                    </div>
-                                    <div className={`flex items-center gap-1.5 ${textSecondaryClass}`}>
-                                        <Clock size={13} className="text-primary/70" />
-                                        {evt.time || '--:--'}
-                                    </div>
-                                </div>
-
-                                {/* Location - Important & Prominent */}
-                                {evt.location && (
-                                    <div className="mb-4 p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-2 group-hover:bg-blue-500/10 transition-colors">
-                                        <MapPin size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                                        <span className={`text-xs font-medium text-blue-600 leading-tight line-clamp-2`}>{evt.location}</span>
-                                    </div>
-                                )}
-
-                                {/* Review Note - Focused block */}
-                                {evt.reviewNote ? (
-                                    <div className={`flex-1 p-3 rounded-xl ${hoverBgClass} text-xs ${textSecondaryClass} border ${borderClass} border-dashed mb-4 relative overflow-hidden group-hover:bg-primary/5 transition-colors`}>
-                                        <div className="flex items-start gap-2 h-full">
-                                            <span className="text-primary font-bold flex-shrink-0">Lí do:</span>
-                                            <span className="italic leading-relaxed line-clamp-3">"{evt.reviewNote}"</span>
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 space-y-4`}>
+                                        <div className="flex justify-between items-start">
+                                            <Skeleton width="60%" height={20} />
+                                            <Skeleton width={60} height={20} />
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <Skeleton width={80} height={14} />
+                                            <Skeleton width={80} height={14} />
+                                        </div>
+                                        <Skeleton width="100%" height={40} />
+                                        <Skeleton width="100%" height={60} />
+                                        <div className="pt-3 border-t flex justify-between items-center">
+                                            <div className="flex -space-x-1.5">
+                                                {Array.from({ length: 3 }).map((_, j) => (
+                                                    <Skeleton key={j} variant="circular" width={28} height={28} />
+                                                ))}
+                                            </div>
+                                            <Skeleton width={40} height={14} />
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="flex-1 min-h-[40px]"></div>
-                                )}
+                                ))}
+                            </motion.div>
+                        ) : filteredEvents.length === 0 ? (
+                            <motion.div
+                                key="empty-reviews"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className={`col-span-full text-center py-12 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}
+                            >
+                                {searchTerm || filterType !== 'all' ? 'Không tìm thấy kết quả phù hợp' : 'Chưa có sự kiện nào được đánh giá'}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="content-reviews"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
+                            >
+                                {filteredEvents.map(evt => (
+                                    <div
+                                        key={evt.id}
+                                        className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 hover:border-primary/50 transition-all group flex flex-col h-full shadow-sm hover:shadow-md`}
+                                    >
+                                        {/* Header: Title & Rating */}
+                                        <div className="flex justify-between items-start gap-3 mb-3">
+                                            <h3 className={`font-semibold ${textPrimaryClass} line-clamp-1 flex-1`} title={evt.title}>
+                                                {evt.title}
+                                            </h3>
+                                            {evt.review === 'high' ? (
+                                                <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                                    <ThumbsUp size={10} /> Tốt
+                                                </span>
+                                            ) : (
+                                                <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+                                                    <ThumbsDown size={10} /> Kém
+                                                </span>
+                                            )}
+                                        </div>
 
-                                {/* Footer: Personnel summary */}
-                                <div className={`mt-auto pt-3 border-t ${borderClass} flex justify-between items-center bg-transparent gap-2`}>
-                                    <div className="flex -space-x-1.5 group/avatars flex-shrink-0">
-                                        {shifts.filter(s => s.eventId === evt.id).slice(0, 5).map(s => {
-                                            const emp = employees.find(e => e.id === s.employeeId);
-                                            return (
-                                                <div key={s.id} className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-100'} flex items-center justify-center text-[10px] font-bold text-slate-600 overflow-hidden shadow-sm hover:z-10 transition-transform hover:scale-110`} title={emp?.name}>
-                                                    {emp?.imageUrl ? <img src={emp.imageUrl} alt="" className="w-full h-full object-cover" /> : emp?.name.charAt(0)}
-                                                </div>
-                                            )
-                                        })}
-                                        {shifts.filter(s => s.eventId === evt.id).length > 5 && (
-                                            <div className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-200'} flex items-center justify-center text-[10px] text-slate-500 font-medium`}>
-                                                +{shifts.filter(s => s.eventId === evt.id).length - 5}
+                                        {/* Event Meta: Date & Time */}
+                                        <div className="flex items-center gap-4 text-[11px] mb-3">
+                                            <div className={`flex items-center gap-1.5 ${textSecondaryClass}`}>
+                                                <Calendar size={13} className="text-primary/70" />
+                                                {formatDate(evt.date)}
+                                            </div>
+                                            <div className={`flex items-center gap-1.5 ${textSecondaryClass}`}>
+                                                <Clock size={13} className="text-primary/70" />
+                                                {evt.time || '--:--'}
+                                            </div>
+                                        </div>
+
+                                        {/* Location - Important & Prominent */}
+                                        {evt.location && (
+                                            <div className="mb-4 p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-2 group-hover:bg-blue-500/10 transition-colors">
+                                                <MapPin size={14} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                                                <span className={`text-xs font-medium text-blue-600 leading-tight line-clamp-2`}>{evt.location}</span>
                                             </div>
                                         )}
+
+                                        {/* Review Note - Focused block */}
+                                        {evt.reviewNote ? (
+                                            <div className={`flex-1 p-3 rounded-xl ${hoverBgClass} text-xs ${textSecondaryClass} border ${borderClass} border-dashed mb-4 relative overflow-hidden group-hover:bg-primary/5 transition-colors`}>
+                                                <div className="flex items-start gap-2 h-full">
+                                                    <span className="text-primary font-bold flex-shrink-0">Lí do:</span>
+                                                    <span className="italic leading-relaxed line-clamp-3">"{evt.reviewNote}"</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex-1 min-h-[40px]"></div>
+                                        )}
+
+                                        {/* Footer: Personnel summary */}
+                                        <div className={`mt-auto pt-3 border-t ${borderClass} flex justify-between items-center bg-transparent gap-2`}>
+                                            <div className="flex -space-x-1.5 group/avatars flex-shrink-0">
+                                                {shifts.filter(s => s.eventId === evt.id).slice(0, 5).map(s => {
+                                                    const emp = employees.find(e => e.id === s.employeeId);
+                                                    return (
+                                                        <div key={s.id} className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-100'} flex items-center justify-center text-[10px] font-bold text-slate-600 overflow-hidden shadow-sm hover:z-10 transition-transform hover:scale-110`} title={emp?.name}>
+                                                            {emp?.imageUrl ? <img src={emp.imageUrl} alt="" className="w-full h-full object-cover" /> : emp?.name.charAt(0)}
+                                                        </div>
+                                                    )
+                                                })}
+                                                {shifts.filter(s => s.eventId === evt.id).length > 5 && (
+                                                    <div className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-200'} flex items-center justify-center text-[10px] text-slate-500 font-medium`}>
+                                                        +{shifts.filter(s => s.eventId === evt.id).length - 5}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className={`text-[11px] font-medium ${textMutedClass} truncate whitespace-nowrap`}>
+                                                {shifts.filter(s => s.eventId === evt.id).length} người
+                                            </span>
+                                        </div>
                                     </div>
-                                    <span className={`text-[11px] font-medium ${textMutedClass} truncate whitespace-nowrap`}>
-                                        {shifts.filter(s => s.eventId === evt.id).length} người
-                                    </span>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

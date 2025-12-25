@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Shift, PayrollSummary, PaymentTransaction, Event } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
@@ -276,11 +277,30 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 <Wallet2 size={20} className="text-blue-500" />
                 <p className="text-xs text-blue-500 uppercase tracking-wide font-medium">Tổng đã làm</p>
               </div>
-              {loading ? (
-                <Skeleton width={120} height={36} className="mx-auto" />
-              ) : (
-                <p className="text-3xl font-bold text-blue-500">{formatCurrency(totalEarned)}</p>
-              )}
+              <AnimatePresence mode="wait">
+                {loading ? (
+                  <motion.div
+                    key="loading-total"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Skeleton width={120} height={36} className="mx-auto" />
+                  </motion.div>
+                ) : (
+                  <motion.p
+                    key="content-total"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-3xl font-bold text-blue-500"
+                  >
+                    {formatCurrency(totalEarned)}
+                  </motion.p>
+                )}
+              </AnimatePresence>
               <p className="text-sm text-blue-500 mt-1">
                 {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
               </p>
@@ -290,19 +310,61 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-primary/20">
               <div className="text-center flex flex-col items-center">
                 <p className="text-xs text-primary uppercase tracking-wide">Tình hình lương</p>
-                {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
-                  <p className="text-lg font-bold text-primary mt-1">{formatCurrency(totalDebt)}</p>
-                )}
+                <AnimatePresence mode="wait">
+                  {loading ? (
+                    <motion.div
+                      key="loading-debt"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mt-1"
+                    >
+                      <Skeleton width={80} height={24} />
+                    </motion.div>
+                  ) : (
+                    <motion.p
+                      key="content-debt"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-lg font-bold text-primary mt-1"
+                    >
+                      {formatCurrency(totalDebt)}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
                 <p className="text-xs text-primary">{totalUnpaidShifts} công</p>
               </div>
 
               <div className="text-center flex flex-col items-center">
                 <p className="text-xs text-orange-500 uppercase tracking-wide">Đã ứng</p>
-                {loading ? <Skeleton width={80} height={24} className="mt-1" /> : (
-                  <p className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                    {formatCurrency(totalAdvanced)}
-                  </p>
-                )}
+                <AnimatePresence mode="wait">
+                  {loading ? (
+                    <motion.div
+                      key="loading-advanced"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mt-1"
+                    >
+                      <Skeleton width={80} height={24} />
+                    </motion.div>
+                  ) : (
+                    <motion.p
+                      key="content-advanced"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}
+                    >
+                      {formatCurrency(totalAdvanced)}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
                 <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                   {totalAdvancedShifts} công
                 </p>
@@ -317,20 +379,62 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 {/* Tình hình lương */}
                 <div>
                   <p className="text-xs text-primary uppercase tracking-wide">Tình hình lương</p>
-                  {loading ? <Skeleton width={100} height={32} className="mt-1" /> : (
-                    <p className="text-2xl font-bold text-primary mt-1">{formatCurrency(totalDebt)}</p>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.div
+                        key="loading-debt-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-1"
+                      >
+                        <Skeleton width={100} height={32} />
+                      </motion.div>
+                    ) : (
+                      <motion.p
+                        key="content-debt-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-2xl font-bold text-primary mt-1"
+                      >
+                        {formatCurrency(totalDebt)}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                   <p className="text-xs text-primary mt-1">{totalUnpaidShifts} công</p>
                 </div>
 
                 {/* Đã ứng */}
                 <div className={totalAdvanced > 0 ? '' : 'opacity-50'}>
                   <p className="text-xs text-orange-500 uppercase tracking-wide">Đã ứng</p>
-                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
-                    <p className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                      {formatCurrency(totalAdvanced)}
-                    </p>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.div
+                        key="loading-advanced-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-1"
+                      >
+                        <Skeleton width={100} height={28} />
+                      </motion.div>
+                    ) : (
+                      <motion.p
+                        key="content-advanced-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}
+                      >
+                        {formatCurrency(totalAdvanced)}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                   <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
                     {totalAdvancedShifts} công
                   </p>
@@ -339,9 +443,31 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 {/* Tổng đã làm */}
                 <div>
                   <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
-                  {loading ? <Skeleton width={100} height={28} className="mt-1" /> : (
-                    <p className="text-2xl font-bold text-blue-500 mt-1">{formatCurrency(totalEarned)}</p>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.div
+                        key="loading-total-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-1"
+                      >
+                        <Skeleton width={100} height={28} />
+                      </motion.div>
+                    ) : (
+                      <motion.p
+                        key="content-total-dt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-2xl font-bold text-blue-500 mt-1"
+                      >
+                        {formatCurrency(totalEarned)}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                   <p className="text-xs text-blue-500 mt-1">
                     {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
                   </p>
@@ -422,148 +548,178 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
 
       {/* Danh sách */}
       <div className="px-4 md:px-6 pt-2 pb-4 md:pb-6 space-y-2">
-        {loading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg flex justify-between items-center`}>
-              <div className="flex items-center gap-3 w-full">
-                <Skeleton variant="circular" width={36} height={36} />
-                <div className="flex-1 space-y-2">
-                  <Skeleton width="40%" height={16} />
-                  <Skeleton width="30%" height={12} />
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="loading-list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2"
+            >
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg flex justify-between items-center`}>
+                  <div className="flex items-center gap-3 w-full">
+                    <Skeleton variant="circular" width={36} height={36} />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton width="40%" height={16} />
+                      <Skeleton width="30%" height={12} />
+                    </div>
+                    <Skeleton width={80} height={20} />
+                  </div>
                 </div>
-                <Skeleton width={80} height={20} />
-              </div>
-            </div>
-          ))
-        ) : activeTab === 'payroll' ? (
-          filteredAndSortedSummary.length === 0 ? (
-            <div className="text-center py-10 text-slate-500">
-              <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />
-              <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
-            </div>
+              ))}
+            </motion.div>
+          ) : activeTab === 'payroll' ? (
+            <motion.div
+              key="payroll-list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2"
+            >
+              {filteredAndSortedSummary.length === 0 ? (
+                <div className="text-center py-10 text-slate-500">
+                  <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />
+                  <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
+                </div>
+              ) : (
+                filteredAndSortedSummary.map((item) => {
+                  const employee = employees.find(e => e.id === item.employeeId);
+                  const employeeImage = employee?.imageUrl || employee?.avatar;
+                  const itemWithFees = item as typeof item & { totalFees?: number };
+
+                  return (
+                    <button
+                      key={item.employeeId}
+                      onClick={() => {
+                        setSelectedEmpId(item.employeeId);
+                        if (item.totalUnpaid > 0) {
+                          setShowPaymentModal(true);
+                        }
+                      }}
+                      className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {employeeImage ? (
+                          <img
+                            src={employeeImage}
+                            alt={item.employeeName}
+                            className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
+                          />
+                        ) : (
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
+                            }`}>
+                            {item.employeeName.charAt(0)}
+                          </div>
+                        )}
+                        <div className="text-left">
+                          <div className="flex items-center gap-2">
+                            <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                            {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
+                              <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
+                                Có phụ phí
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            {item.unpaidCount > 0 && (
+                              <span className="text-primary">
+                                {item.unpaidCount} công chưa trả
+                              </span>
+                            )}
+                            {item.advancedCount > 0 && (
+                              <span className="text-orange-500">
+                                {item.advancedCount} công đã ứng
+                              </span>
+                            )}
+                            {item.unpaidCount === 0 && item.advancedCount === 0 && (
+                              <span className={textMutedClass}>Không có công nợ</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
+                            {formatCurrency(item.totalUnpaid)}
+                          </span>
+                          {item.totalAdvanced > 0 && (
+                            <p className="text-xs text-orange-500">
+                              Đã ứng: {formatCurrency(item.totalAdvanced)}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight size={16} className={textMutedClass} />
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </motion.div>
           ) : (
-            filteredAndSortedSummary.map((item) => {
-              const employee = employees.find(e => e.id === item.employeeId);
-              const employeeImage = employee?.imageUrl || employee?.avatar;
-              const itemWithFees = item as typeof item & { totalFees?: number };
-
-              return (
-              <button
-                key={item.employeeId}
-                onClick={() => {
-                  setSelectedEmpId(item.employeeId);
-                  if (item.totalUnpaid > 0) {
-                    setShowPaymentModal(true);
-                  }
-                }}
-                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
-              >
-                <div className="flex items-center gap-3">
-                  {employeeImage ? (
-                    <img
-                      src={employeeImage}
-                      alt={item.employeeName}
-                      className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
-                    />
-                  ) : (
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
-                      }`}>
-                      {item.employeeName.charAt(0)}
+            <motion.div
+              key="history-list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2"
+            >
+              {filteredHistory.length === 0 ? (
+                <div className="text-center py-10 text-slate-500">
+                  <History size={48} className="mx-auto mb-2 opacity-20" />
+                  <p>Không tìm thấy giao dịch nào</p>
+                </div>
+              ) : (
+                filteredHistory.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedTransactionId(item.id)}
+                    className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`}>
+                        <History size={16} />
+                      </div>
+                      <div className="text-left">
+                        <div className="flex items-center gap-2">
+                          <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                          {item.type === 'advance' && (
+                            <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
+                              Ứng tiền
+                            </span>
+                          )}
+                          {item.type === 'settlement' && (
+                            <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
+                              Quyết toán
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size={12} className={textMutedClass} />
+                          <p className={`text-xs ${textMutedClass}`}>
+                            {new Date(item.date).toLocaleDateString('vi-VN')} {new Date(item.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className="text-left">
+
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                      {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
-                          Có phụ phí
-                        </span>
-                      )}
+                      <span className={`text-sm font-medium ${textSecondaryClass}`}>
+                        {formatCurrency(item.amount)}
+                      </span>
+                      <ChevronRight size={16} className={textMutedClass} />
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      {item.unpaidCount > 0 && (
-                        <span className="text-primary">
-                          {item.unpaidCount} công chưa trả
-                        </span>
-                      )}
-                      {item.advancedCount > 0 && (
-                        <span className="text-orange-500">
-                          {item.advancedCount} công đã ứng
-                        </span>
-                      )}
-                      {item.unpaidCount === 0 && item.advancedCount === 0 && (
-                        <span className={textMutedClass}>Không có công nợ</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
-                      {formatCurrency(item.totalUnpaid)}
-                    </span>
-                    {item.totalAdvanced > 0 && (
-                      <p className="text-xs text-orange-500">
-                        Đã ứng: {formatCurrency(item.totalAdvanced)}
-                      </p>
-                    )}
-                  </div>
-                  <ChevronRight size={16} className={textMutedClass} />
-                </div>
-              </button>
-            );})
-          )
-        ) : (
-          filteredHistory.length === 0 ? (
-            <div className="text-center py-10 text-slate-500">
-              <History size={48} className="mx-auto mb-2 opacity-20" />
-              <p>Không tìm thấy giao dịch nào</p>
-            </div>
-          ) : (
-            filteredHistory.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setSelectedTransactionId(item.id)}
-                className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`}>
-                    <History size={16} />
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                      {item.type === 'advance' && (
-                        <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
-                          Ứng tiền
-                        </span>
-                      )}
-                      {item.type === 'settlement' && (
-                        <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
-                          Quyết toán
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock size={12} className={textMutedClass} />
-                      <p className={`text-xs ${textMutedClass}`}>
-                        {new Date(item.date).toLocaleDateString('vi-VN')} {new Date(item.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm font-medium ${textSecondaryClass}`}>
-                    {formatCurrency(item.amount)}
-                  </span>
-                  <ChevronRight size={16} className={textMutedClass} />
-                </div>
-              </button>
-            ))
-          )
-        )}
+                  </button>
+                ))
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Modal chi tiết nhân viên */}

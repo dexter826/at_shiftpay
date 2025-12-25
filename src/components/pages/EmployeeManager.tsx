@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
@@ -332,26 +333,41 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
 
       {/* Danh sách nhân viên */}
       <div className="p-4 md:p-6">
-        {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-              <div key={i} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden relative aspect-square`}>
-                <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-2">
-                  <Skeleton variant="circular" width={64} height={64} />
-                  <Skeleton width={80} height={16} />
-                  <Skeleton width={60} height={12} />
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+                <div key={i} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden relative aspect-square`}>
+                  <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-2">
+                    <Skeleton variant="circular" width={64} height={64} />
+                    <Skeleton width={80} height={16} />
+                    <Skeleton width={60} height={12} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {filteredAndSortedEmployees.map((emp) => (
-              <div
-                key={emp.id}
-                onClick={() => openDetailModal(emp)}
-                className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
-              >                {/* Ảnh cover */}
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+            >
+              {filteredAndSortedEmployees.map((emp) => (
+                <div
+                  key={emp.id}
+                  onClick={() => openDetailModal(emp)}
+                  className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
+                >                {/* Ảnh cover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
                   {emp.imageUrl ? (
                     <img
@@ -421,10 +437,11 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                 </div>
               </div>
             ))}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {filteredAndSortedEmployees.length === 0 && !loading && (
+        {!loading && filteredAndSortedEmployees.length === 0 && (
           <div className={`text-center py-12 ${textMutedClass}`}>
             <Users size={24} className="mx-auto mb-2 opacity-50" />
             <p className="text-sm">
