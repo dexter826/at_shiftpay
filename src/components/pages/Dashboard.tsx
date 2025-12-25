@@ -432,16 +432,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className="flex items-center gap-2 text-primary mb-2">
                             <Wallet2 size={16} />
-                            <span className="text-xs font-semibold">Tổng còn cần trả</span>
+                            <span className="text-xs font-semibold">Tổng lương</span>
                         </div>
                         <p className="text-2xl font-bold text-primary">
-                            {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
+                            {monthlyStats.totalEarned.toLocaleString('vi-VN')}đ
                         </p>
                         <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
                             <div className="flex justify-between">
-                                <span className={textSecondaryClass}>Tổng nợ:</span>
+                                <span className={textSecondaryClass}>Còn cần trả:</span>
                                 <span className="font-medium text-blue-500">
-                                    {monthlyStats.totalEarned.toLocaleString('vi-VN')}đ
+                                    {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
                             <div className="flex justify-between">

@@ -302,7 +302,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 )}
               </AnimatePresence>
               <p className="text-sm text-blue-500 mt-1">
-                {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
+                {totalShifts} công{totalFees > 0 ? ` (+ ${formatCurrency(totalFees)} phụ phí)` : ''}
               </p>
             </div>
 
@@ -469,7 +469,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     )}
                   </AnimatePresence>
                   <p className="text-xs text-blue-500 mt-1">
-                    {totalShifts} công{totalFees > 0 ? ' (Có phụ phí)' : ''}
+                    {totalShifts} công{totalFees > 0 ? ` (+ ${formatCurrency(totalFees)} phụ phí)` : ''}
                   </p>
                 </div>
               </div>
