@@ -165,32 +165,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             onClose={onClose}
         >
             <div className="space-y-6">
-                {/* Thông tin nhân viên */}
-                <div className={`p-4 ${cardBg} border ${border} rounded-lg`}>
-                    <h3 className={`font-medium ${textPrimary} mb-2`}>
+                {/* Thông tin nhân viên - chỉ hiển thị tên */}
+                <div className={`p-3 ${cardBg} border ${border} rounded-lg`}>
+                    <h3 className={`font-medium ${textPrimary} text-center`}>
                         {employeeSummary.employeeName}
                     </h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span className={textSecondary}>Chưa thanh toán:</span>
-                            <p className={`font-medium ${textPrimary}`}>
-                                {formatCurrency(employeeSummary.totalUnpaid)} ({employeeSummary.unpaidCount} ca)
-                            </p>
-                        </div>
-                        <div>
-                            <span className={textSecondary}>Đã ứng:</span>
-                            <p className={`font-medium text-orange-500`}>
-                                {formatCurrency(employeeSummary.totalAdvanced)} ({employeeSummary.advancedCount} ca)
-                            </p>
-                        </div>
-                        <div className="col-span-2">
-                            <span className={textSecondary}>Số tiền thực tế cần trả:</span>
-                            <p className={`font-bold text-lg ${employeeSummary.netAmount >= 0 ? 'text-primary' : 'text-red-500'}`}>
-                                {formatCurrency(Math.abs(employeeSummary.netAmount))}
-                                {employeeSummary.netAmount < 0 && ' (Đã ứng thừa)'}
-                            </p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Chọn loại thanh toán */}
@@ -243,9 +222,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             <div className="flex-shrink-0 flex justify-center">
                                 {qrCodeUrl && !qrError ? (
                                     <div className="bg-white p-3 rounded-lg">
-                                        <img 
-                                            src={qrCodeUrl} 
-                                            alt="Mã QR chuyển khoản" 
+                                        <img
+                                            src={qrCodeUrl}
+                                            alt="Mã QR chuyển khoản"
                                             className="w-48 h-48 object-contain"
                                         />
                                     </div>
@@ -326,6 +305,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <div className={`max-h-40 overflow-y-auto border ${border} rounded-lg`}>
                         {unpaidShifts.map(shift => {
                             const breakdown = getShiftBreakdown(shift);
+                            const event = events.find(e => e.id === shift.eventId);
                             return (
                                 <div
                                     key={shift.id}
@@ -333,16 +313,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                     className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50`}
                                 >
                                     <div
-                                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedShiftIds.includes(shift.id)
+                                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0 ${selectedShiftIds.includes(shift.id)
                                             ? 'bg-primary border-primary'
                                             : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
                                             }`}
                                     >
                                         {selectedShiftIds.includes(shift.id) && <Check size={12} className="text-white" />}
                                     </div>
-                                    <div className="flex-1">
-                                        <p className={`text-sm ${textPrimary}`}>
-                                            {formatShiftDate(shift.date, shift.session)}
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-sm font-medium ${textPrimary} truncate`}>
+                                            {event?.title || 'Không rõ'}
+                                        </p>
+                                        <p className={`text-xs ${textSecondary} truncate`}>
+                                            {event?.location || 'Không rõ địa điểm'} • {formatShiftDate(shift.date, shift.session)}
                                         </p>
                                         <div className={`text-xs ${textSecondary}`}>
                                             {breakdown.surcharge > 0 ? (
@@ -360,12 +343,26 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 </div>
 
-                {/* Tổng tiền */}
+                {/* Tổng hợp thanh toán */}
                 <div className={`p-4 ${cardBg} border ${border} rounded-lg`}>
-                    <div className="flex justify-between items-center">
-                        <span className={`font-medium ${textPrimary}`}>Tổng tiền:</span>
-                        <span className={`text-lg font-bold ${textPrimary}`}>
-                            {formatCurrency(selectedTotal)}
+                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                        <div>
+                            <span className={textSecondary}>Chưa thanh toán:</span>
+                            <p className={`font-medium ${textPrimary}`}>
+                                {formatCurrency(employeeSummary.totalUnpaid)} ({employeeSummary.unpaidCount} ca)
+                            </p>
+                        </div>
+                        <div>
+                            <span className={textSecondary}>Đã ứng:</span>
+                            <p className={`font-medium text-orange-500`}>
+                                {formatCurrency(employeeSummary.totalAdvanced)} ({employeeSummary.advancedCount} ca)
+                            </p>
+                        </div>
+                    </div>
+                    <div className="border-t border-dashed pt-3 mt-3 flex justify-between items-center">
+                        <span className={`font-medium ${textPrimary}`}>Đang chọn thanh toán:</span>
+                        <span className={`text-lg font-bold text-primary`}>
+                            {formatCurrency(selectedTotal)} ({selectedShiftIds.length} ca)
                         </span>
                     </div>
                 </div>

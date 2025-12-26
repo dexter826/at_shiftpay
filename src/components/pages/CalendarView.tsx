@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
-import { Event, Shift, Employee, UserSettings, DEFAULT_SETTINGS } from '../../types';
-import { formatDate, formatCurrency } from '../../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Clock, Banknote, Calendar, DollarSign, ThumbsUp, ThumbsDown, Star, StickyNote } from 'lucide-react';
+import { Event, Shift, Employee, UserSettings } from '../../types';
+import { formatDate } from '../../constants';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Calendar, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
+import { EventDetailModal } from '../modals/EventDetailModal';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
@@ -27,7 +28,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   events,
   shifts,
   employees,
-  totalDebt,
   settings,
   currentDate: propDate,
   onDateChange,
@@ -42,12 +42,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     cardBgClass,
     borderClass,
     textPrimaryClass,
-    textSecondaryClass,
     textMutedClass,
     hoverBgClass
   } = useThemeStyles();
 
-  // Gắn events vào window để phục vụ logic cảnh báo trong EventModal
   React.useEffect(() => {
     (window as any).allEvents = events;
   }, [events]);
@@ -78,7 +76,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const year = displayDate.getFullYear();
     const month = displayDate.getMonth();
     const date = new Date(year, month, 1);
-    const days = [];
+    const days: (Date | null)[] = [];
 
     for (let i = 0; i < date.getDay(); i++) {
       days.push(null);
@@ -105,7 +103,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const eventsByDate = useMemo(() => {
     const map: Record<string, Event[]> = {};
-    events.forEach(e => {
+    events.forEach((e: Event) => {
       if (!map[e.date]) map[e.date] = [];
       map[e.date].push(e);
     });
@@ -126,7 +124,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   const handleEditEvent = (evt: Event) => {
-    const eventShifts = shifts.filter(s => s.eventId === evt.id);
+    const eventShifts = shifts.filter((s: Shift) => s.eventId === evt.id);
     setShiftsForEditing(eventShifts);
     setEditingEvent(evt);
     setIsModalOpen(true);
@@ -138,9 +136,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const confirmDeleteEvent = async () => {
     if (deleteConfirm) {
-      // Delete event and its shifts together in one batch
-      const eventShifts = shifts.filter(s => s.eventId === deleteConfirm);
-      await dbService.deleteEventWithShifts(deleteConfirm, eventShifts.map(s => s.id));
+      const eventShifts = shifts.filter((s: Shift) => s.eventId === deleteConfirm);
+      await dbService.deleteEventWithShifts(deleteConfirm, eventShifts.map((s: Shift) => s.id));
       showToast('Đã xóa sự kiện', 'success');
       setDeleteConfirm(null);
     }
@@ -150,33 +147,26 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     setViewingEvent(evt);
   };
 
-  const viewingEventShifts = useMemo(() => {
-    if (!viewingEvent) return [];
-    return shifts.filter(s => s.eventId === viewingEvent.id);
-  }, [viewingEvent, shifts]);
-
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
 
   const [shiftsForEditing, setShiftsForEditing] = useState<Shift[]>([]);
 
   const shiftsForDisplay = useMemo(() => {
     if (!selectedDate) return [];
-    return shifts.filter(s => s.date === selectedDate);
+    return shifts.filter((s: Shift) => s.date === selectedDate);
   }, [selectedDate, shifts]);
 
   return (
     <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen relative`}>
       <div className="p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
-
         {/* Calendar */}
         <div className="flex-1">
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
-            {/* Tiêu đề lịch */}
             <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
               <div className="flex items-center gap-1">
                 <button
                   onClick={goToToday}
-                  className={`px-2 py-1 text-[10px] font-medium rounded border ${borderClass} ${textSecondaryClass} ${hoverBgClass} transition-colors mr-1`}
+                  className={`px-2 py-1 text-[10px] font-medium rounded border ${borderClass} ${hoverBgClass} transition-colors mr-1`}
                 >
                   Hôm nay
                 </button>
@@ -187,9 +177,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   <ChevronRight size={18} />
                 </button>
               </div>
-
               <h3 className={`text-sm font-medium ${textPrimaryClass} capitalize`}>{monthLabel}</h3>
-
               <div className="flex items-center gap-1">
                 {onNavigateToReviews && (
                   <button
@@ -203,36 +191,22 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
             </div>
 
-            {/* Tiêu đề ngày tháng */}
             <div className={`grid grid-cols-7 border-b ${borderClass}`}>
               {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => (
                 <div key={d} className={`py-2 text-center text-[11px] font-medium ${textMutedClass}`}>{d}</div>
               ))}
             </div>
 
-            {/* Lưới lịch */}
             <div className="grid grid-cols-7 p-2 gap-1 lg:flex-1 lg:auto-rows-fr">
               <AnimatePresence mode="wait">
                 {loading ? (
-                  <motion.div 
-                    key="loading"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="contents"
-                  >
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="contents">
                     {Array.from({ length: 35 }).map((_, i) => (
                       <Skeleton key={i} className="aspect-square lg:aspect-auto rounded" height="100%" />
                     ))}
                   </motion.div>
                 ) : (
-                  <motion.div 
-                    key="content"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="contents"
-                  >
+                  <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="contents">
                     {daysInMonth.map((date, idx) => {
                       if (!date) return <div key={`empty-${idx}`} className="aspect-square lg:aspect-auto" />;
 
@@ -291,10 +265,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     <p className={`text-[11px] ${textMutedClass} uppercase tracking-wide`}>Ngày chọn</p>
                     <h3 className={`text-sm font-medium ${textPrimaryClass} mt-0.5`}>{formatDate(selectedDate)}</h3>
                   </div>
-                  <button
-                    onClick={handleAddEvent}
-                    className="p-2 bg-primary text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                  >
+                  <button onClick={handleAddEvent} className="p-2 bg-primary text-white rounded-lg hover:bg-yellow-600 transition-colors">
                     <Plus size={16} />
                   </button>
                 </div>
@@ -302,14 +273,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 <div className="flex-1 p-3 space-y-2 overflow-y-auto">
                   <AnimatePresence mode="wait">
                     {loading ? (
-                      <motion.div
-                        key="loading-sidebar"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="space-y-2"
-                      >
+                      <motion.div key="loading-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
                         {Array.from({ length: 3 }).map((_, i) => (
                           <div key={i} className={`p-3 border ${borderClass} rounded-lg ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
                             <div className="flex justify-between items-start gap-2 mb-2">
@@ -324,28 +288,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                         ))}
                       </motion.div>
                     ) : selectedEvents.length === 0 ? (
-                      <motion.div
-                        key="empty-sidebar"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}
-                      >
+                      <motion.div key="empty-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                         <p>Chưa có sự kiện</p>
-                        <button onClick={handleAddEvent} className="text-primary mt-1 hover:underline text-xs">
-                          Tạo mới
-                        </button>
+                        <button onClick={handleAddEvent} className="text-primary mt-1 hover:underline text-xs">Tạo mới</button>
                       </motion.div>
                     ) : (
-                      <motion.div
-                        key="content-sidebar"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="space-y-2"
-                      >
+                      <motion.div key="content-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
                         {selectedEvents.map(evt => (
                           <div
                             key={evt.id}
@@ -370,7 +318,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                   {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                                 </div>
                               </div>
-                              <div className="flex gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                              <div className="flex gap-1 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                 <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-primary transition-colors`}>
                                   <Edit2 size={14} />
                                 </button>
@@ -379,15 +327,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                 </button>
                               </div>
                             </div>
-
-                            {/* Thông tin ca */}
                             <div className="flex gap-2 mt-2 ml-5">
-                              {['morning', 'afternoon'].map(session => {
-                                const count = shiftsForDisplay.filter(s => s.eventId === evt.id && s.session === session).length;
+                              {(['morning', 'afternoon'] as const).map(session => {
+                                const count = shiftsForDisplay.filter((s: Shift) => s.eventId === evt.id && s.session === session).length;
                                 if (count === 0) return null;
                                 return (
-                                  <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'
-                                    }`}>
+                                  <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'}`}>
                                     {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
                                   </span>
                                 );
@@ -417,192 +362,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         existingShifts={shiftsForEditing}
         employees={employees}
         settings={settings}
-        onSuccess={() => {
-          setIsModalOpen(false);
-        }}
+        onSuccess={() => setIsModalOpen(false)}
       />
 
-      {/* Modal xác nhận xóa */}
       <Modal
         title="Xác nhận xóa"
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         footer={
           <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => setDeleteConfirm(null)}
-              className="flex-1"
-            >
-              Hủy
-            </Button>
-            <Button
-              variant="danger"
-              onClick={confirmDeleteEvent}
-              className="flex-1"
-            >
-              Xóa
-            </Button>
+            <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1">Hủy</Button>
+            <Button variant="danger" onClick={confirmDeleteEvent} className="flex-1">Xóa</Button>
           </div>
         }
       >
         <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa sự kiện này?</p>
       </Modal>
 
-      {/* Modal chi tiết sự kiện */}
-      <Modal
-        title={viewingEvent?.title || "Chi tiết sự kiện"}
+      <EventDetailModal
+        event={viewingEvent}
+        shifts={shifts}
         isOpen={!!viewingEvent}
         onClose={() => setViewingEvent(null)}
-        footer={
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (viewingEvent) {
-                  handleEditEvent(viewingEvent);
-                  setViewingEvent(null);
-                }
-              }}
-              className="flex-1"
-            >
-              <Edit2 size={14} />
-              Sửa
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                if (viewingEvent) {
-                  handleDeleteEvent(viewingEvent.id);
-                  setViewingEvent(null);
-                }
-              }}
-              className="flex-1"
-            >
-              <Trash2 size={14} />
-              Xóa
-            </Button>
-          </div>
-        }
-      >
-        {viewingEvent && (
-          <div className="space-y-4">
-            {/* 1. Nhóm Thời gian & Địa điểm */}
-            <div className={`p-3 rounded-xl border ${borderClass} ${theme === 'dark' ? 'bg-slate-800/30' : 'bg-slate-50/50'} space-y-3`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Calendar size={15} className="text-primary" />
-                  <span className={`text-sm font-medium ${textPrimaryClass}`}>{formatDate(viewingEvent.date)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={15} className="text-primary" />
-                  <span className={`text-sm font-medium ${textPrimaryClass}`}>{viewingEvent.time || '--:--'}</span>
-                </div>
-              </div>
-
-              {viewingEvent.location && (
-                <div className="flex items-start gap-2 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
-                  <MapPin size={15} className="text-primary mt-0.5 flex-shrink-0" />
-                  <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{viewingEvent.location}</span>
-                </div>
-              )}
-            </div>
-
-            {/* 2. Nhóm Tài chính (Tổng tiền & Chi tiết) */}
-            <div className={`p-3.5 ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100/80 border-slate-200'} border rounded-xl flex items-center justify-between`}>
-              <div>
-                <p className={`text-[11px] ${textMutedClass} font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
-                <p className={`text-2xl font-black text-primary`}>
-                  {formatCurrency(
-                    viewingEventShifts.reduce((sum, shift) => sum + shift.amount, 0)
-                  )}
-                </p>
-              </div>
-              <div className="text-right space-y-1">
-                <div className="flex items-center justify-end gap-1.5">
-                  <span className={`text-[11px] ${textMutedClass}`}>Lương:</span>
-                  <span className={`text-xs font-bold ${textPrimaryClass}`}>
-                    {formatCurrency((viewingEvent.amount || settings.shiftRate) * viewingEventShifts.length)}
-                  </span>
-                </div>
-                {viewingEvent.surcharge > 0 && (
-                  <div className="flex items-center justify-end gap-1.5 text-blue-500">
-                    <span className="text-[11px] font-medium">Phụ phí:</span>
-                    <span className="text-xs font-bold">+{formatCurrency(viewingEvent.surcharge)}</span>
-                  </div>
-                )}
-                {viewingEvent.surchargeDistribution && viewingEvent.surcharge > 0 && (
-                  <p className={`text-[10px] ${textMutedClass} italic`}>
-                    ({viewingEvent.surchargeDistribution.type === 'equal'
-                      ? 'Chia đều'
-                      : `Chia cho ${viewingEvent.surchargeDistribution.selectedEmployeeIds?.length || 0} người`})
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* 3. Nhóm Đánh giá & Ghi chú */}
-            {(viewingEvent.review || viewingEvent.note) && (
-              <div className="space-y-3">
-                {viewingEvent.review && (
-                  <div className={`p-4 rounded-xl border ${viewingEvent.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
-                    <div className="flex items-center gap-2 mb-2.5">
-                      {viewingEvent.review === 'high' ? (
-                        <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
-                          <ThumbsUp size={16} fill="currentColor" />
-                          <span>Đánh giá CAO</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-red-600 font-bold text-sm">
-                          <ThumbsDown size={16} fill="currentColor" />
-                          <span>Đánh giá KÉM</span>
-                        </div>
-                      )}
-                    </div>
-                    {viewingEvent.reviewNote && (
-                      <div className={`text-xs italic leading-relaxed font-medium ${viewingEvent.review === 'high' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                        “{viewingEvent.reviewNote}”
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {viewingEvent.note && (
-                  <div className={`p-3 rounded-xl border ${borderClass} bg-slate-500/5`}>
-                    <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5`}>
-                      <StickyNote size={12} />
-                      Ghi chú sự kiện
-                    </p>
-                    <p className={`text-sm ${textSecondaryClass} leading-relaxed`}>{viewingEvent.note}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 4. Danh sách nhân sự - Tối ưu Grid & Scroll */}
-            {viewingEventShifts.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider`}>Nhân viên ({viewingEventShifts.length})</p>
-                </div>
-                <div className={`grid grid-cols-2 gap-2 max-h-[180px] overflow-y-auto pr-1 custom-scrollbar`}>
-                  {viewingEventShifts.map(shift => (
-                    <div key={shift.id} className={`flex flex-col gap-0.5 p-2 ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white border-slate-100'} border rounded-lg shadow-sm`}>
-                      <span className={`text-xs font-semibold ${textPrimaryClass} truncate`}>{shift.employeeName}</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${shift.session === 'morning' ? 'bg-orange-400' : 'bg-primary'}`}></span>
-                        <span className={`text-[9px] font-medium ${textMutedClass}`}>
-                          {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+        settings={settings}
+      />
     </div>
   );
 };
