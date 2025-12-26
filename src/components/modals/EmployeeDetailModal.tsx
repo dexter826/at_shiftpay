@@ -155,7 +155,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <div className={`text-center p-3 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} rounded-lg`}>
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <Briefcase size={14} className="text-primary" />
                                 <p className={`text-xs ${textMutedClass}`}>Tổng công</p>
@@ -163,7 +163,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                             <p className={`text-2xl font-bold ${textPrimaryClass}`}>{employeeStats.totalShifts}</p>
                         </div>
 
-                        <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <div className={`text-center p-3 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} rounded-lg`}>
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <AlertCircle size={14} className="text-blue-500" />
                                 <p className={`text-xs ${textMutedClass}`}>Chưa trả</p>
@@ -171,7 +171,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                             <p className="text-2xl font-bold text-blue-500">{employeeStats.unpaidCount}</p>
                         </div>
 
-                        <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <div className={`text-center p-3 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} rounded-lg`}>
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <Wallet size={14} className="text-orange-500" />
                                 <p className={`text-xs ${textMutedClass}`}>Đã ứng</p>
@@ -179,7 +179,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                             <p className="text-2xl font-bold text-orange-500">{employeeStats.advancedCount}</p>
                         </div>
 
-                        <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                        <div className={`text-center p-3 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} rounded-lg`}>
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <DollarSign size={14} className="text-green-500" />
                                 <p className={`text-xs ${textMutedClass}`}>Thực nhận</p>
