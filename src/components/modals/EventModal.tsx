@@ -805,7 +805,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Danh sách nhân viên */}
         {selectedSession && (
           <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm</label>
+            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm ({getSelectedCount()})</label>
 
             {/* Search Bar */}
             <div className="mb-3">
