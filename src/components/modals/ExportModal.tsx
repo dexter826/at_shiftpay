@@ -24,6 +24,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
         onExport(selectedMonth, selectedYear);
     };
 
+    const isAllSelected = selectedMonth === 0;
+
     return (
         <Modal
             title="Xuất báo cáo chi tiết"
@@ -71,6 +73,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
 
                 {/* Lưới chọn tháng */}
                 <div className="grid grid-cols-3 gap-3">
+                    <button
+                        onClick={() => setSelectedMonth(0)}
+                        className={`
+                           col-span-3 py-3 rounded-lg text-sm font-medium transition-colors border
+                           ${isAllSelected
+                                ? 'bg-primary text-white border-primary'
+                                : `
+                                 ${theme === 'dark' ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-slate-50 hover:bg-slate-100'}
+                                 ${borderClass} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}
+                              `
+                            }
+                        `}
+                    >
+                        Tất cả các tháng trong năm
+                    </button>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(month => {
                         const isSelected = selectedMonth === month;
                         const isCurrentMonth = new Date().getMonth() + 1 === month && new Date().getFullYear() === selectedYear;

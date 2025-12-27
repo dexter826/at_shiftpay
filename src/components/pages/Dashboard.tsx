@@ -489,7 +489,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
                     {/* Biểu đồ tròn */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán (Tổng)</h3>
+                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán</h3>
                         {paymentData.length > 0 ? (
                             <div className="flex items-center justify-center gap-6">
                                 <ResponsiveContainer width={150} height={150}>

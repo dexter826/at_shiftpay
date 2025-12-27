@@ -24,6 +24,7 @@ export const exportDetailedReport = (
     // Lọc ca theo tháng
     const filteredShifts = shifts.filter(s => {
         const d = new Date(s.date);
+        if (month === 0) return d.getFullYear() === year;
         return d.getMonth() + 1 === month && d.getFullYear() === year;
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -90,7 +91,8 @@ export const exportDetailedReport = (
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `Bao_Cao_Thang_${month}_${year}.csv`);
+    const fileName = month === 0 ? `Bao_Cao_Nam_${year}.csv` : `Bao_Cao_Thang_${month}_${year}.csv`;
+    link.setAttribute('download', fileName);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

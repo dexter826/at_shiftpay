@@ -20,8 +20,18 @@ export function buildMonthRangeQuery({
   orderByField,
   orderDirection = 'desc'
 }: DateRangeQuery): Query {
-  const startDate = new Date(year, month, 1).toISOString();
-  const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+  let startDate: string;
+  let endDate: string;
+
+  if (month === -1) {
+    // Cả năm
+    startDate = new Date(year, 0, 1).toISOString();
+    endDate = new Date(year, 11, 31, 23, 59, 59).toISOString();
+  } else {
+    // Theo tháng
+    startDate = new Date(year, month, 1).toISOString();
+    endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+  }
 
   return query(
     collection(db, collectionName),
