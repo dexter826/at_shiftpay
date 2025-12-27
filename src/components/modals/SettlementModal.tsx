@@ -3,10 +3,10 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Shift, PaymentTransaction, AdvanceBalance } from '../../types';
+import { Shift, PaymentTransaction, AdvanceBalance, Event } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
-import { Calculator, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Calculator, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
 
 interface SettlementModalProps {
     isOpen: boolean;
@@ -15,6 +15,7 @@ interface SettlementModalProps {
     employeeName: string;
     shifts: Shift[];
     paymentHistory: PaymentTransaction[];
+    events: Event[];
 }
 
 export const SettlementModal: React.FC<SettlementModalProps> = ({
@@ -23,7 +24,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
     employeeId,
     employeeName,
     shifts,
-    paymentHistory
+    paymentHistory,
+    events
 }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const { showToast } = useToast();
@@ -211,26 +213,43 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                             Các ca đã được ứng tiền ({advancedShifts.length})
                         </h4>
                         <div className={`max-h-40 overflow-y-auto border ${borderClass} rounded-lg`}>
-                            {advancedShifts.map(shift => (
-                                <div
-                                    key={shift.id}
-                                    className={`p-3 border-b ${borderClass} last:border-b-0`}
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className={`text-sm ${textPrimaryClass}`}>
-                                                {shift.date} - {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
-                                            </p>
-                                            <p className={`text-xs ${textSecondaryClass}`}>
-                                                Đã ứng lúc: {shift.paidAt ? formatDate(new Date(shift.paidAt).toISOString()) : 'N/A'}
-                                            </p>
+                            {advancedShifts.map(shift => {
+                                const event = events.find(e => e.id === shift.eventId);
+                                return (
+                                    <div
+                                        key={shift.id}
+                                        className={`p-3 border-b ${borderClass} last:border-b-0`}
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-start gap-3">
+                                                <Calendar size={16} className={`${textSecondaryClass} mt-1`} />
+                                                <div>
+                                                    <p className={`text-sm font-medium ${textPrimaryClass}`}>
+                                                        {event?.title || 'Không rõ sự kiện'}
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] font-medium ${shift.session === 'morning' ? 'text-orange-500' : 'text-primary'
+                                                            }`}>
+                                                            {shift.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
+                                                        </span>
+                                                        <span className={`text-[10px] ${textSecondaryClass}`}>•</span>
+                                                        <span className={`text-[10px] ${textSecondaryClass}`}>{formatDate(shift.date)}</span>
+                                                    </div>
+                                                    {event?.location && (
+                                                        <p className={`text-[10px] ${textSecondaryClass} mt-0.5`}>{event.location}</p>
+                                                    )}
+                                                    <p className={`text-[10px] ${textSecondaryClass} mt-1`}>
+                                                        Đã ứng lúc: {shift.paidAt ? formatDate(new Date(shift.paidAt).toISOString()) : 'N/A'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span className={`font-medium text-green-500`}>
+                                                {formatCurrency(shift.amount)}
+                                            </span>
                                         </div>
-                                        <span className={`font-medium text-green-500`}>
-                                            {formatCurrency(shift.amount)}
-                                        </span>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}

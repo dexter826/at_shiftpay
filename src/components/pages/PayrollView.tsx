@@ -246,7 +246,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const transactionShifts = useMemo(() => {
     if (!selectedTransaction) return [];
     return shifts.filter(s => s.paymentId === selectedTransaction.id);
-    return shifts.filter(s => s.paymentId === selectedTransaction.id);
   }, [selectedTransaction, shifts]);
 
   // Lịch sử giao dịch
@@ -922,21 +921,31 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               <p className="text-sm">Không tìm thấy thông tin ca làm việc (Có thể đã bị xóa)</p>
             </div>
           ) : (
-            transactionShifts.map((s) => (
-              <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
-                <div className="flex items-center gap-3">
-                  <Calendar size={16} className={textMutedClass} />
-                  <div>
-                    <p className={`text-sm ${textSecondaryClass}`}>{formatDate(s.date)}</p>
-                    <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
-                      }`}>
-                      {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
-                    </span>
+            transactionShifts.map((s) => {
+              const event = events.find(e => e.id === s.eventId);
+              return (
+                <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
+                  <div className="flex items-center gap-3">
+                    <Calendar size={16} className={textMutedClass} />
+                    <div>
+                      <p className={`text-sm font-medium ${textSecondaryClass}`}>{event?.title || 'Không rõ sự kiện'}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-medium ${s.session === 'morning' ? 'text-orange-500' : 'text-primary'
+                          }`}>
+                          {s.session === 'morning' ? 'Tiệc Sáng' : 'Tiệc Chiều'}
+                        </span>
+                        <span className={`text-[10px] ${textMutedClass}`}>•</span>
+                        <span className={`text-[10px] ${textMutedClass}`}>{formatDate(s.date)}</span>
+                      </div>
+                      {event?.location && (
+                        <p className={`text-[10px] ${textMutedClass} mt-0.5`}>{event.location}</p>
+                      )}
+                    </div>
                   </div>
+                  <p className={`text-sm font-medium ${textSecondaryClass}`}>{formatCurrency(s.amount)}</p>
                 </div>
-                <p className={`text-sm font-medium ${textSecondaryClass}`}>{formatCurrency(s.amount)}</p>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Modal>
@@ -1072,6 +1081,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           employeeName={selectedEmployeeSummary?.employeeName || ''}
           shifts={shifts}
           paymentHistory={paymentHistory}
+          events={events}
         />
       )}
 

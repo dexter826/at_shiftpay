@@ -13,6 +13,7 @@ export const exportDetailedReport = (
         date: string;
         eventTitle: string;
         location: string;
+        eventNote: string;
         eventAmount: number;
         session: string;
         shiftIds: string[];
@@ -37,6 +38,7 @@ export const exportDetailedReport = (
                 date: shift.date,
                 eventTitle: event ? event.title : 'Sự kiện không xác định',
                 location: event?.location || '',
+                eventNote: event?.note || '',
                 eventAmount: event?.amount || 0,
                 session: shift.session === 'morning' ? 'Sáng' : 'Chiều',
                 shiftIds: [],
@@ -61,7 +63,7 @@ export const exportDetailedReport = (
     });
 
     // Tạo CSV
-    const headers = ['Ngày', 'Tên sự kiện', 'Địa điểm', 'Ca làm', 'Tổng công', 'Người làm', 'Lương/người', 'Phụ phí', 'Tổng tiền'];
+    const headers = ['Ngày', 'Tên sự kiện', 'Địa điểm', 'Ca làm', 'Ghi chú', 'Tổng công', 'Người làm', 'Lương/người', 'Phụ phí', 'Tổng tiền'];
     const csvRows = [headers];
 
     sortedGroups.forEach(group => {
@@ -70,6 +72,7 @@ export const exportDetailedReport = (
             group.eventTitle,
             group.location,
             group.session,
+            group.eventNote,
             group.workerNames.length.toString(),
             group.workerNames.join('; '), // Dùng ; để tránh conflict với ,
             group.eventAmount.toString(),
