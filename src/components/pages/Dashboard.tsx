@@ -74,27 +74,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         setSelectedDate(new Date());
     };
 
-    // Tính toán thống kê chi tiết cho các stat cards dựa trên monthlyData
-    const monthlyStats = useMemo(() => {
-        const { events, shifts } = monthlyData;
-        const statsMonth = selectedDate.getMonth();
-        const statsYear = selectedDate.getFullYear();
+    // Tính toán thống kê tổng quan (không lọc theo tháng)
+    const stats = useMemo(() => {
         const now = new Date();
-        const isCurrentMonth = statsMonth === now.getMonth() && statsYear === now.getFullYear();
 
-        // Sự kiện trong tháng được chọn
-        const monthEvents = events.filter(e => {
-            const d = new Date(e.date);
-            return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
-        });
-
-        // Sự kiện hôm nay (chỉ hiển thị nếu đang ở tháng/năm hiện tại)
-        const todayEvents = isCurrentMonth ? events.filter(e => {
+        // Sự kiện hôm nay
+        const todayEvents = initialEvents.filter(e => {
             const d = new Date(e.date);
             return d.getFullYear() === now.getFullYear() &&
                 d.getMonth() === now.getMonth() &&
                 d.getDate() === now.getDate();
-        }) : [];
+        });
 
         const weekStartDate = new Date(now);
         weekStartDate.setHours(0, 0, 0, 0);
@@ -103,47 +93,44 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         weekEndDate.setDate(weekStartDate.getDate() + 6);
         weekEndDate.setHours(23, 59, 59, 999);
 
-        // Sự kiện tuần này (chỉ hiển thị nếu đang ở tháng/năm hiện tại)
-        const weekEvents = isCurrentMonth ? events.filter(e => {
+        // Sự kiện tuần này
+        const weekEvents = initialEvents.filter(e => {
             const d = new Date(e.date);
             return d >= weekStartDate && d <= weekEndDate;
-        }) : [];
-
-        // Công trong tháng được chọn
-        const monthShifts = shifts.filter(s => {
-            const d = new Date(s.date);
-            return d.getMonth() === statsMonth && d.getFullYear() === statsYear;
         });
 
-        const morningShifts = monthShifts.filter(s => s.session === 'morning');
-        const afternoonShifts = monthShifts.filter(s => s.session === 'afternoon');
+        // Chỉ lấy shifts chưa trả lương
+        const unpaidShifts = initialShifts.filter(s => s.status === 'unpaid');
+        const morningShifts = unpaidShifts.filter(s => s.session === 'morning');
+        const afternoonShifts = unpaidShifts.filter(s => s.session === 'afternoon');
 
-        // "Còn cần trả" lấy FULL từ initialShifts (không lọc theo tháng)
-        const allUnpaidShifts = initialShifts.filter(s => s.status === 'unpaid');
-        const allAdvancedShifts = initialShifts.filter(s => s.status === 'advanced');
-
-        const totalUnpaidAmount = allUnpaidShifts.reduce((sum, s) => sum + s.amount, 0);
-        const totalAdvancedAmount = allAdvancedShifts.reduce((sum, s) => sum + s.amount, 0);
-
-        // Nhân viên - tính dựa trên shifts hiện có trong tháng
-        const activeEmployeeIds = new Set(monthShifts.map(s => s.employeeId));
+        // Nhân viên active (có shifts chưa trả lương)
+        const activeEmployeeIds = new Set(unpaidShifts.map(s => s.employeeId));
         const activeEmployees = employees.filter(e => activeEmployeeIds.has(e.id));
 
+        // Sự kiện chưa hoàn tất lương (còn shifts unpaid)
+        const unpaidEventIds = new Set(unpaidShifts.map(s => s.eventId));
+        const unpaidEvents = initialEvents.filter(e => unpaidEventIds.has(e.id));
+
+        // Tổng lương
+        const totalUnpaidAmount = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
+        const allAdvancedShifts = initialShifts.filter(s => s.status === 'advanced');
+        const totalAdvancedAmount = allAdvancedShifts.reduce((sum, s) => sum + s.amount, 0);
+
         return {
-            totalEvents: monthEvents.length,
+            totalEvents: unpaidEvents.length,
             todayEvents: todayEvents.length,
             weekEvents: weekEvents.length,
-            totalShifts: monthShifts.length,
+            totalShifts: unpaidShifts.length,
             morningShifts: morningShifts.length,
             afternoonShifts: afternoonShifts.length,
             totalEmployees: employees.length,
             activeEmployees: activeEmployees.length,
-            unpaidAmount: totalUnpaidAmount, // Dữ liệu tổng
-            advancedAmount: totalAdvancedAmount, // Dữ liệu tổng
-            totalEarned: totalUnpaidAmount + totalAdvancedAmount,
-            isCurrentMonth
+            unpaidAmount: totalUnpaidAmount,
+            advancedAmount: totalAdvancedAmount,
+            totalEarned: totalUnpaidAmount + totalAdvancedAmount
         };
-    }, [monthlyData, initialShifts, selectedDate, employees]);
+    }, [initialEvents, initialShifts, employees]);
 
     // ... (chartData logic remains same) ...
     const chartData = useMemo(() => {
@@ -168,13 +155,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
     }, [monthlyData, currentMonth, currentYear]);
 
     const paymentData = useMemo(() => {
-        const unpaid = initialShifts.filter(s => s.status === 'unpaid').length;
-        const paid = initialShifts.filter(s => s.status === 'paid').length;
-        const advanced = initialShifts.filter(s => s.status === 'advanced').length;
+        const unpaidShifts = initialShifts.filter(s => s.status === 'unpaid').length;
+        const advancedShifts = initialShifts.filter(s => s.status === 'advanced').length;
         return [
-            { name: 'Đã thanh toán', value: paid, color: PAYMENT_COLORS.PAID },
-            { name: 'Còn cần trả', value: unpaid, color: PAYMENT_COLORS.UNPAID },
-            { name: 'Đã ứng tiền', value: advanced, color: PAYMENT_COLORS.ADVANCED },
+            { name: 'Chưa thanh toán', value: unpaidShifts, color: PAYMENT_COLORS.UNPAID },
+            { name: 'Đã ứng tiền', value: advancedShifts, color: PAYMENT_COLORS.ADVANCED },
         ].filter(d => d.value > 0);
     }, [initialShifts]);
 
@@ -258,36 +243,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                    {/* Bộ chọn tháng Desktop */}
-                                    <div className={`flex items-center gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'} p-1 rounded-lg border`}>
-                                        <button
-                                            onClick={handleGoToToday}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-md ${textSecondaryClass} ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} hover:shadow-sm transition-all`}
-                                        >
-                                            Tháng này
-                                        </button>
-                                        <div className="flex items-center gap-1 px-2">
-                                            <button
-                                                onClick={handlePrevMonth}
-                                                className={`p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
-                                            >
-                                                <ChevronLeft size={18} />
-                                            </button>
-                                            <span className={`text-sm font-semibold ${textPrimaryClass} min-w-[140px] text-center capitalize`}>
-                                                {monthName}
-                                            </span>
-                                            <button
-                                                onClick={handleNextMonth}
-                                                className={`p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
-                                            >
-                                                <ChevronRight size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-
                                     <Button
                                         onClick={onOpenExport}
-                                        variant="success"
+                                        variant="primary"
                                         className="flex items-center gap-2"
                                     >
                                         <FileDown size={18} />
@@ -298,59 +256,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                         </div>
 
                         <div className="relative min-h-[calc(100vh-120px)]">
-                            {/* Loading Overlay cho dữ liệu tháng mới */}
-                            <AnimatePresence>
-                                {isDataLoading && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className={`fixed md:absolute top-[64px] md:top-0 bottom-[72px] md:bottom-0 inset-x-0 md:inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-white/60'} z-30 md:z-10 flex items-center justify-center backdrop-blur-[2px] md:rounded-xl`}
-                                    >
-                                        <motion.div
-                                            initial={{ scale: 0.5, opacity: 0 }}
-                                            animate={{ scale: 0.9, opacity: 1 }}
-                                            exit={{ scale: 0.5, opacity: 0 }}
-                                            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                                        >
-                                            <Loader fullScreen={false} />
-                                        </motion.div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
                             <div className={`p-4 md:p-6 space-y-6 transition-all duration-300`}>
-                                {/* Bộ chọn tháng & Xuất báo cáo (Mobile) */}
-                                <div className="md:hidden space-y-3">
-                                    <div className={`flex items-center justify-between p-2 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                                        <button
-                                            onClick={handlePrevMonth}
-                                            className={`p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 ${textSecondaryClass}`}
-                                        >
-                                            <ChevronLeft size={20} />
-                                        </button>
-                                        <div className="flex flex-col items-center">
-                                            <span className={`text-sm font-bold ${textPrimaryClass} capitalize`}>
-                                                {monthName}
-                                            </span>
-                                            <button
-                                                onClick={handleGoToToday}
-                                                className="text-[10px] text-primary font-medium"
-                                            >
-                                                Quay về tháng này
-                                            </button>
-                                        </div>
-                                        <button
-                                            onClick={handleNextMonth}
-                                            className={`p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 ${textSecondaryClass}`}
-                                        >
-                                            <ChevronRight size={20} />
-                                        </button>
-                                    </div>
+                                {/* Xuất báo cáo (Mobile) */}
+                                <div className="md:hidden">
                                     <Button
                                         onClick={onOpenExport}
-                                        variant="success"
+                                        variant="primary"
                                         fullWidth={true}
                                         className="flex items-center justify-center gap-2"
                                     >
@@ -361,33 +272,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
                 {/* Thẻ thống kê */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 min-h-[260px] md:min-h-[130px]">
-                    {/* Sự kiện tháng này */}
+                    {/* Tổng sự kiện */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <CalendarRange size={16} />
-                            <span className="text-xs">Sự kiện {monthlyStats.isCurrentMonth ? 'tháng này' : 'trong tháng'}</span>
+                            <span className="text-xs">Tổng sự kiện</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalEvents}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEvents}</p>
                         <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
-                            {monthlyStats.isCurrentMonth ? (
-                                <>
-                                    <div className="flex justify-between">
-                                        <span className={textSecondaryClass}>Hôm nay</span>
-                                        <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.todayEvents}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className={textSecondaryClass}>Tuần này</span>
-                                        <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.weekEvents}</span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex justify-between">
-                                    <span className={textSecondaryClass}>Trung bình/tuần</span>
-                                    <span className={`font-medium ${textPrimaryClass}`}>
-                                        {Math.round(monthlyStats.totalEvents / 4)}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Hôm nay</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.todayEvents}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className={textSecondaryClass}>Tuần này</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.weekEvents}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -397,34 +297,34 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                             <TrendingUp size={16} />
                             <span className="text-xs">Tổng công</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalShifts}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalShifts}</p>
                         <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
                             <div className="flex justify-between">
                                 <span className={textSecondaryClass}>Sáng</span>
-                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.morningShifts}</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.morningShifts}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className={textSecondaryClass}>Chiều</span>
-                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.afternoonShifts}</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.afternoonShifts}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Nhân viên */}
+                    {/* Tổng nhân viên */}
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                             <Users size={16} />
-                            <span className="text-xs">Nhân viên</span>
+                            <span className="text-xs">Tổng nhân viên</span>
                         </div>
-                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{monthlyStats.totalEmployees}</p>
+                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEmployees}</p>
                         <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
                             <div className="flex justify-between">
                                 <span className={textSecondaryClass}>Đã làm</span>
-                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.activeEmployees}</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.activeEmployees}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className={textSecondaryClass}>Chưa làm</span>
-                                <span className={`font-medium ${textPrimaryClass}`}>{monthlyStats.totalEmployees - monthlyStats.activeEmployees}</span>
+                                <span className={`font-medium ${textPrimaryClass}`}>{stats.totalEmployees - stats.activeEmployees}</span>
                             </div>
                         </div>
                     </div>
@@ -435,19 +335,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                             <span className="text-xs font-semibold">Tổng lương</span>
                         </div>
                         <p className="text-2xl font-bold text-primary">
-                            {monthlyStats.totalEarned.toLocaleString('vi-VN')}đ
+                            {stats.totalEarned.toLocaleString('vi-VN')}đ
                         </p>
                         <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
                             <div className="flex justify-between">
-                                <span className={textSecondaryClass}>Còn cần trả:</span>
-                                <span className="font-medium text-blue-500">
-                                    {monthlyStats.unpaidAmount.toLocaleString('vi-VN')}đ
+                                <span className={textSecondaryClass}>Đã ứng:</span>
+                                <span className="font-medium text-orange-500">
+                                    {stats.advancedAmount.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className={textSecondaryClass}>Đã ứng:</span>
-                                <span className="font-medium text-orange-500">
-                                    {monthlyStats.advancedAmount.toLocaleString('vi-VN')}đ
+                                <span className={textSecondaryClass}>Còn cần trả:</span>
+                                <span className="font-medium text-blue-500">
+                                    {stats.unpaidAmount.toLocaleString('vi-VN')}đ
                                 </span>
                             </div>
                         </div>
@@ -457,11 +357,56 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                 {/* Biểu đồ */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Biểu đồ cột */}
-                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg min-h-[300px]`}>
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className={`text-sm font-medium ${textPrimaryClass}`}>
+                    <div className={`relative p-4 ${cardBgClass} border ${borderClass} rounded-lg min-h-[300px]`}>
+                        <AnimatePresence>
+                            {isDataLoading && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className={`absolute inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-white/60'} z-10 flex items-center justify-center backdrop-blur-[2px] rounded-lg`}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        animate={{ scale: 0.9, opacity: 1 }}
+                                        exit={{ scale: 0.5, opacity: 0 }}
+                                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                                    >
+                                        <Loader fullScreen={false} />
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                            <h3 className={`text-sm font-semibold ${textPrimaryClass} whitespace-nowrap`}>
                                 Hoạt động trong tháng
                             </h3>
+                            <div className={`flex items-center gap-1 sm:gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'} p-1 rounded-lg border w-full sm:w-auto justify-between sm:justify-start`}>
+                                <button
+                                    onClick={handleGoToToday}
+                                    className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md ${textSecondaryClass} ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} hover:shadow-sm transition-all whitespace-nowrap`}
+                                >
+                                    Tháng này
+                                </button>
+                                <div className="flex items-center gap-1 px-1 sm:px-2">
+                                    <button
+                                        onClick={handlePrevMonth}
+                                        className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
+                                    >
+                                        <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                    </button>
+                                    <span className={`text-xs sm:text-sm font-semibold ${textPrimaryClass} min-w-[100px] sm:min-w-[120px] text-center capitalize`}>
+                                        {monthName}
+                                    </span>
+                                    <button
+                                        onClick={handleNextMonth}
+                                        className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
+                                    >
+                                        <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         {chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height={200}>
@@ -491,28 +436,39 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                         <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán</h3>
                         {paymentData.length > 0 ? (
-                            <div className="flex items-center justify-center gap-6">
-                                <ResponsiveContainer width={150} height={150}>
-                                    <PieChart>
-                                        <Pie
-                                            data={paymentData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={40}
-                                            outerRadius={60}
-                                            dataKey="value"
-                                        >
-                                            {paymentData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                <div className="space-y-2">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                                <div className="relative w-[150px] h-[150px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={paymentData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={40}
+                                                outerRadius={60}
+                                                dataKey="value"
+                                            >
+                                                {paymentData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value: number) => [`${value} công`, 'Số lượng']}
+                                                contentStyle={{
+                                                    backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+                                                    border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+                                                    borderRadius: 8,
+                                                    fontSize: '12px'
+                                                }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2">
                                     {paymentData.map((item, index) => (
                                         <div key={index} className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                                            <span className={`text-xs ${textSecondaryClass}`}>{item.name}: {item.value}</span>
+                                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                                            <span className={`text-xs ${textSecondaryClass} whitespace-nowrap`}>{item.name}: {item.value} công</span>
                                         </div>
                                     ))}
                                 </div>

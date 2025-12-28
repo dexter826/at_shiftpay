@@ -41,7 +41,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                         Hủy
                     </Button>
                     <Button
-                        variant="success"
+                        variant="primary"
                         onClick={handleExport}
                         className="flex-1"
                     >
