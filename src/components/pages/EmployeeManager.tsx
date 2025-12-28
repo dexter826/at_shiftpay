@@ -35,7 +35,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     inputBorderClass
   } = useThemeStyles();
 
-  // Tính số công trong tháng
+  // Tính số công còn nợ trong tháng
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
@@ -43,7 +43,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     const counts: Record<string, number> = {};
     shifts.forEach(s => {
       const d = new Date(s.date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear && s.status === 'unpaid') {
         counts[s.employeeId] = (counts[s.employeeId] || 0) + 1;
       }
     });
