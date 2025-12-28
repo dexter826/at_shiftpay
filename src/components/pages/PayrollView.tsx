@@ -245,7 +245,9 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
 
   const transactionShifts = useMemo(() => {
     if (!selectedTransaction) return [];
-    return shifts.filter(s => s.paymentId === selectedTransaction.id);
+    return selectedTransaction.shiftIds?.map(shiftId =>
+      shifts.find(s => s.id === shiftId)
+    ).filter(Boolean) || [];
   }, [selectedTransaction, shifts]);
 
   // Lịch sử giao dịch
