@@ -137,7 +137,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                 {formatCurrency(advanceBalance.totalEarned)}
                             </p>
                         </div>
-                        <div className="col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                        <div className={`col-span-2 pt-2 border-t ${borderClass}`}>
                             <span className={textSecondaryClass}>Số dư:</span>
                             <p className={`font-bold text-lg ${advanceBalance.balance >= 0 ? 'text-green-500' : 'text-red-500'
                                 }`}>

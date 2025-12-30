@@ -28,7 +28,15 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     onDelete,
     settings
 }) => {
-    const { theme, borderClass, textPrimaryClass, textSecondaryClass, textMutedClass } = useThemeStyles();
+    const { 
+        theme, 
+        borderClass, 
+        textPrimaryClass, 
+        textSecondaryClass, 
+        textMutedClass,
+        highlightBgClass,
+        cardBgClass
+    } = useThemeStyles();
 
     const eventShifts = useMemo(() => {
         if (!event) return [];
@@ -71,7 +79,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         >
             <div className="space-y-4">
                 {/* 1. Nhóm Thời gian & Địa điểm */}
-                <div className={`p-3 rounded-xl border ${borderClass} ${theme === 'dark' ? 'bg-slate-800/30' : 'bg-slate-50/50'} space-y-3`}>
+                <div className={`p-3 rounded-xl border ${borderClass} ${highlightBgClass} space-y-3`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Calendar size={15} className="text-primary" />
@@ -84,7 +92,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     </div>
 
                     {event.location && (
-                        <div className="flex items-start gap-2 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700">
+                        <div className={`flex items-start gap-2 pt-2 border-t border-dashed ${borderClass}`}>
                             <MapPin size={15} className="text-primary mt-0.5 flex-shrink-0" />
                             <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{event.location}</span>
                         </div>
@@ -92,7 +100,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 </div>
 
                 {/* 2. Nhóm Tài chính (Tổng tiền & Chi tiết) */}
-                <div className={`p-3.5 ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100/80 border-slate-200'} border rounded-xl flex items-center justify-between`}>
+                <div className={`p-3.5 ${highlightBgClass} border ${borderClass} rounded-xl flex items-center justify-between`}>
                     <div>
                         <p className={`text-[11px] ${textMutedClass} font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
                         <p className={`text-2xl font-black text-primary`}>

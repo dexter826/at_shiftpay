@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
 import { dbService, deleteField } from '../../services';
 import { Sun, Moon, Check, AlertCircle, Banknote, Loader2, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';
@@ -30,7 +30,18 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const { theme } = useTheme();
+  const { 
+    theme, 
+    textPrimaryClass, 
+    textSecondaryClass, 
+    textMutedClass, 
+    borderClass, 
+    cardBgClass, 
+    hoverBgClass: hoverBg,
+    inputBgClass,
+    inputBorderClass,
+    highlightBgClass
+  } = useThemeStyles();
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -410,14 +421,6 @@ export const EventModal: React.FC<EventModalProps> = ({
     }
   };
 
-
-  const textSecondaryClass = theme === 'dark' ? 'text-slate-400' : 'text-slate-500';
-  const borderClass = theme === 'dark' ? 'border-slate-700' : 'border-slate-300';
-  const cardBgClass = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-  const textPrimaryClass = theme === 'dark' ? 'text-slate-200' : 'text-slate-900';
-  const textMutedClass = theme === 'dark' ? 'text-slate-500' : 'text-slate-400';
-  const hoverBg = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50';
-
   return (
     <Modal
       title={existingEvent ? `Sửa sự kiện ${formatDateTitle(date)}` : `Tạo sự kiện ${formatDateTitle(date)}`}
@@ -455,7 +458,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Tên sự kiện và Thời gian */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Tên sự kiện</label>
+            <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Tên sự kiện</label>
             <input
               type="text"
               placeholder="Nhập tên sự kiện"
@@ -467,15 +470,13 @@ export const EventModal: React.FC<EventModalProps> = ({
               onBlur={() => validateTitle(title)}
               className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${titleError
                 ? 'border-red-500 focus:border-red-500'
-                : theme === 'dark'
-                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                } ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
+                : `${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`
+                }`}
             />
             {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
           </div>
           <div>
-            <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Thời gian bắt đầu</label>
+            <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Thời gian bắt đầu</label>
             <TimePicker value={time} onChange={setTime} />
           </div>
         </div>
@@ -565,30 +566,25 @@ export const EventModal: React.FC<EventModalProps> = ({
 
 
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ghi chú</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Ghi chú</label>
           <textarea
             placeholder="Nhập ghi chú"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${theme === 'dark'
-              ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-              : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-              }`}
+            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
           />
         </div>
 
         {/* Đánh giá sự kiện */}
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Đánh giá sự kiện</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Đánh giá sự kiện</label>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => setReview('high')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === 'high'
                 ? 'border-green-500/50 bg-green-500/10 text-green-500'
-                : theme === 'dark'
-                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
                 }`}
             >
               <ThumbsUp size={16} />
@@ -598,10 +594,8 @@ export const EventModal: React.FC<EventModalProps> = ({
               type="button"
               onClick={() => setReview(undefined)}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === undefined
-                ? 'border-slate-400 bg-slate-400/10 text-slate-500'
-                : theme === 'dark'
-                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                ? 'border-primary/50 bg-primary/10 text-primary'
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
                 }`}
             >
               <Minus size={16} />
@@ -612,9 +606,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               onClick={() => setReview('low')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === 'low'
                 ? 'border-red-500/50 bg-red-500/10 text-red-500'
-                : theme === 'dark'
-                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                : `${inputBorderClass} ${textMutedClass} hover:border-red-500/50`
                 }`}
             >
               <ThumbsDown size={16} />
@@ -631,26 +623,21 @@ export const EventModal: React.FC<EventModalProps> = ({
               placeholder="Nhập lý do hoặc nhận xét cụ thể..."
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${theme === 'dark'
-                ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                } ${review === 'high' ? 'focus:border-green-500/50' : 'focus:border-red-500/50'}`}
+              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${review === 'high' ? 'focus:border-green-500/50' : 'focus:border-red-500/50'}`}
             />
           </div>
         )}
 
         {/* Chọn ca (Radio) */}
         <div>
-          <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Ca làm việc</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => selectSession('morning')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'morning'
                 ? 'border-orange-500/50 bg-orange-500/10 text-orange-500'
-                : theme === 'dark'
-                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
                 }`}
             >
               <Sun size={16} />
@@ -661,9 +648,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               onClick={() => selectSession('afternoon')}
               className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === 'afternoon'
                 ? 'border-primary/50 bg-primary/10 text-primary'
-                : theme === 'dark'
-                  ? 'border-slate-700 text-slate-500 hover:border-slate-600'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
                 }`}
             >
               <Moon size={16} />
@@ -676,34 +661,28 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Lương/người</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Lương/người</label>
               <div className="relative">
                 <input
                   type="number"
                   value={amount || ''}
                   onChange={(e) => setAmount(e.target.value === '' ? 0 : Number(e.target.value))}
-                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
-                    ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                    }`}
+                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
                 />
-                <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                <Banknote size={16} className={`absolute left-3 top-2.5 ${textMutedClass}`} />
               </div>
             </div>
             <div>
-              <label className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Phụ phí</label>
+              <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Phụ phí</label>
               <div className="relative">
                 <input
                   type="number"
                   value={surcharge || ''}
                   onChange={(e) => setSurcharge(e.target.value === '' ? 0 : Number(e.target.value))}
                   placeholder="0"
-                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
-                    ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                    }`}
+                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
                 />
-                <Banknote size={16} className={`absolute left-3 top-2.5 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                <Banknote size={16} className={`absolute left-3 top-2.5 ${textMutedClass}`} />
               </div>
             </div>
           </div>
@@ -725,7 +704,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   onChange={() => setSurchargeDistributionType('equal')}
                   className="accent-primary"
                 />
-                <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                <span className={`text-sm ${textSecondaryClass}`}>
                   Chia đều cho tất cả
                 </span>
               </label>
@@ -749,7 +728,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   }}
                   className="accent-primary"
                 />
-                <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                <span className={`text-sm ${textSecondaryClass}`}>
                   Chọn người nhận
                 </span>
               </label>
@@ -757,10 +736,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
             {/* Danh sách chọn người nhận phụ phí */}
             {surchargeDistributionType === 'selected' && (
-              <div className={`border rounded-lg divide-y max-h-32 overflow-y-auto ${theme === 'dark'
-                ? 'border-slate-700 divide-slate-700'
-                : 'border-slate-200 divide-slate-100'
-                }`}>
+              <div className={`border rounded-lg divide-y max-h-32 overflow-y-auto ${borderClass} ${divideClass}`}>
                 {Object.entries(assignments).filter(([_, isAssigned]) => isAssigned).map(([empId]) => {
                   const emp = employees.find(e => e.id === empId);
                   if (!emp) return null;
@@ -771,18 +747,15 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <div
                       key={empId}
                       onClick={() => toggleSurchargeEmployee(empId)}
-                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
-                        ? 'hover:bg-slate-800/50'
-                        : 'hover:bg-slate-50'
-                        } ${isSelected ? (theme === 'dark' ? 'bg-slate-800/30' : 'bg-blue-50/50') : ''}`}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${isSelected ? 'bg-primary/10' : ''}`}
                     >
-                      <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} ${isSelected ? 'font-medium' : ''}`}>
+                      <span className={`text-sm ${textSecondaryClass} ${isSelected ? 'font-medium' : ''}`}>
                         {emp.name}
                       </span>
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
                           ? 'bg-primary border-primary'
-                          : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                          : inputBorderClass
                           }`}
                       >
                         {isSelected && <Check size={12} className="text-white" />}
@@ -795,7 +768,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
             {/* Hiển thị tính toán */}
             {surchargeDistributionType === 'selected' && (
-              <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+              <p className={`text-xs mt-2 ${textMutedClass}`}>
                 {Object.values(surchargeSelectedEmployees).filter(Boolean).length} người được chọn - {getSurchargePerPerson().toLocaleString('vi-VN')} VND/người
               </p>
             )}
@@ -805,7 +778,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Danh sách nhân viên */}
         {selectedSession && (
           <div>
-            <label className={`block text-xs mb-1.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Chọn người làm ({getSelectedCount()})</label>
+            <label className={`block text-xs mb-1.5 ${textMutedClass}`}>Chọn người làm ({getSelectedCount()})</label>
 
             {/* Search Bar */}
             <div className="mb-3">
@@ -814,22 +787,16 @@ export const EventModal: React.FC<EventModalProps> = ({
                 placeholder="Tìm kiếm nhân viên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${theme === 'dark'
-                  ? 'bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500 focus:border-slate-600'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-slate-400'
-                  }`}
+                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
               />
             </div>
 
             {/* Filtered Employees List */}
-            <div className={`border rounded-lg divide-y max-h-48 overflow-y-auto ${theme === 'dark'
-              ? 'border-slate-700 divide-slate-700'
-              : 'border-slate-200 divide-slate-100'
-              }`}>
+            <div className={`border rounded-lg divide-y max-h-48 overflow-y-auto ${borderClass} ${divideClass}`}>
               {employees.length === 0 ? (
-                <div className="p-3 text-center text-slate-500 text-xs">Chưa có nhân viên</div>
+                <div className={`p-3 text-center text-xs ${textMutedClass}`}>Chưa có nhân viên</div>
               ) : getSortedEmployees().length === 0 ? (
-                <div className="p-3 text-center text-slate-500 text-xs">Không tìm thấy nhân viên</div>
+                <div className={`p-3 text-center text-xs ${textMutedClass}`}>Không tìm thấy nhân viên</div>
               ) : (
                 getSortedEmployees().map(emp => {
                   const shiftCount = employeeShiftCounts[emp.id] || 0;
@@ -839,20 +806,14 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <div
                       key={emp.id}
                       onClick={() => toggleAssignment(emp.id)}
-                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${theme === 'dark'
-                        ? 'hover:bg-slate-800/50'
-                        : 'hover:bg-slate-50'
-                        } ${isSelected ? (theme === 'dark' ? 'bg-slate-800/30' : 'bg-blue-50/50') : ''}`}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${isSelected ? 'bg-primary/10' : ''}`}
                     >
                       <div className="flex items-center gap-2 flex-1">
-                        <span className={`text-sm truncate ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} ${isSelected ? 'font-medium' : ''}`}>
+                        <span className={`text-sm truncate ${textSecondaryClass} ${isSelected ? 'font-medium' : ''}`}>
                           {emp.name}
                         </span>
                         {shiftCount > 0 && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${theme === 'dark'
-                            ? 'bg-slate-700 text-slate-400'
-                            : 'bg-slate-100 text-slate-500'
-                            }`}>
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full ${highlightBgClass} ${textMutedClass}`}>
                             {shiftCount}
                           </span>
                         )}
@@ -860,7 +821,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
                           ? 'bg-primary border-primary'
-                          : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                          : inputBorderClass
                           }`}
                       >
                         {isSelected && <Check size={12} className="text-white" />}

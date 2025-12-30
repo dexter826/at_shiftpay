@@ -116,7 +116,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 disabled={disabled}
                 className={`w-full flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
             >
-                {icon && <span className="text-slate-500">{icon}</span>}
+                {icon && <span className={textMutedClass}>{icon}</span>}
                 <span className="flex-1 text-left truncate">
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
@@ -124,7 +124,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <ChevronDown size={16} className="text-slate-500" />
+                    <ChevronDown size={16} className={textMutedClass} />
                 </motion.div>
             </button>
 

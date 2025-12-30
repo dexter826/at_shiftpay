@@ -35,24 +35,18 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
-  const { theme } = useThemeStyles();
-
-  React.useEffect(() => {
-    const unsubscribe = dbService.subscribePayments((data) => {
-      setPaymentHistory(data);
-    });
-    return unsubscribe;
-  }, []);
-
   // Style theo theme
   // Tách logic theme ra custom hook
   const {
+    theme,
     bgClass,
     cardBgClass,
     borderClass,
     textPrimaryClass,
     textSecondaryClass,
-    textMutedClass
+    textMutedClass,
+    hoverBgClass,
+    highlightBgClass
   } = useThemeStyles();
 
   const summary: PayrollSummary[] = useMemo(() => {
@@ -359,13 +353,13 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}
+                      className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
                     >
                       {formatCurrency(totalAdvanced)}
                     </motion.p>
                   )}
                 </AnimatePresence>
-                <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
                   {totalAdvancedShifts} công
                 </p>
               </div>
@@ -429,14 +423,13 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}
-                      >
-                        {formatCurrency(totalAdvanced)}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                  <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                    {totalAdvancedShifts} công
+                      className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
+                    >
+                      {formatCurrency(totalAdvanced)}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
                   </p>
                 </div>
 
@@ -483,13 +476,13 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       <div className="flex px-4 md:px-6 pt-4 md:pt-6 pb-2 gap-4">
         <button
           onClick={() => setActiveTab('payroll')}
-          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
+          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-primary text-primary' : `border-transparent ${textMutedClass} hover:${textSecondaryClass}`}`}
         >
           Chưa thanh toán
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-400'}`}
+          className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'history' ? 'border-primary text-primary' : `border-transparent ${textMutedClass} hover:${textSecondaryClass}`}`}
         >
           Lịch sử
         </button>
@@ -581,7 +574,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               className="space-y-2"
             >
               {filteredAndSortedSummary.length === 0 ? (
-                <div className="text-center py-10 text-slate-500">
+                <div className={`text-center py-10 ${textMutedClass}`}>
                   <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />
                   <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
                 </div>
@@ -610,7 +603,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                             className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
                           />
                         ) : (
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${hoverBgClass} ${textMutedClass}`
                             }`}>
                             {item.employeeName.charAt(0)}
                           </div>
@@ -670,7 +663,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               className="space-y-2"
             >
               {filteredHistory.length === 0 ? (
-                <div className="text-center py-10 text-slate-500">
+                <div className={`text-center py-10 ${textMutedClass}`}>
                   <History size={48} className="mx-auto mb-2 opacity-20" />
                   <p>Không tìm thấy giao dịch nào</p>
                 </div>
@@ -682,7 +675,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'} ${textMutedClass}`}>
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${hoverBgClass} ${textMutedClass}`}>
                         <History size={16} />
                       </div>
                       <div className="text-left">
@@ -756,7 +749,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     {formatCurrency(selectedEmployeeSummary.totalAdvanced)} ({selectedEmployeeSummary.advancedCount} ca)
                   </p>
                 </div>
-                <div className="col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className={`col-span-2 pt-2 border-t ${borderClass}`}>
                   <span className={textMutedClass}>Tổng tiền đã làm:</span>
                   <p className={`font-bold text-lg text-blue-500`}>
                     {formatCurrency(selectedEmployeeSummary.totalUnpaid + selectedEmployeeSummary.totalAdvanced)}
@@ -822,14 +815,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                   key={s.id}
                   className={`flex justify-between items-center p-3 border rounded-lg cursor-pointer transition-all ${selectedShiftIds.includes(s.id)
                     ? 'bg-primary/10 border-primary/30'
-                    : `${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} ${borderClass} hover:border-primary/20`
+                    : `${hoverBgClass} ${borderClass} hover:border-primary/20`
                     }`}
                   onClick={() => handleSelectShift(s.id)}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${selectedShiftIds.includes(s.id)
                       ? 'bg-primary border-primary'
-                      : `border-slate-400 ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`
+                      : `${inputBorderClass} ${inputBgClass}`
                       }`}>
                       {selectedShiftIds.includes(s.id) && (
                         <Check size={10} className="text-white" />
@@ -909,7 +902,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             </div>
 
             {selectedTransaction?.note && (
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+              <div className={`pt-2 border-t ${borderClass}`}>
                 <span className={`text-xs ${textMutedClass}`}>Ghi chú:</span>
                 <p className={`text-sm ${textSecondaryClass}`}>{selectedTransaction.note}</p>
               </div>
@@ -925,7 +918,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             transactionShifts.map((s) => {
               const event = events.find(e => e.id === s.eventId);
               return (
-                <div key={s.id} className={`flex justify-between items-center p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} border ${borderClass} rounded-lg`}>
+                <div key={s.id} className={`flex justify-between items-center p-3 ${hoverBgClass} border ${borderClass} rounded-lg`}>
                   <div className="flex items-center gap-3">
                     <Calendar size={16} className={textMutedClass} />
                     <div>
@@ -976,10 +969,10 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         }
       >
         <div className="space-y-3">
-          <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+          <p className={`text-sm ${textSecondaryClass}`}>
             Thanh toán {formatCurrency(selectedShiftsTotal)} cho {selectedEmployeeSummary?.employeeName}?
           </p>
-          <div className={`p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-100'} rounded-lg`}>
+          <div className={`p-3 ${hoverBgClass} rounded-lg`}>
             <p className={`text-xs ${textMutedClass} mb-1`}>Chi tiết:</p>
             <p className={`text-sm ${textSecondaryClass}`}>
               {selectedShiftIds.length} ca làm việc được chọn
@@ -999,7 +992,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               setFilterDate('');
               setIsFilterModalOpen(false);
             }}
-            className={`w-full py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}
+            className={`w-full py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${textSecondaryClass} hover:${hoverBgClass} transition-colors`}
           >
             Xem tất cả lịch sử
           </button>
@@ -1009,14 +1002,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           <div className="flex justify-between items-center px-2">
             <button
               onClick={() => setViewYear(prev => prev - 1)}
-              className={`p-1 rounded-full hover:bg-slate-100 ${theme === 'dark' ? 'hover:bg-slate-800' : ''}`}
+              className={`p-1 rounded-full ${hoverBgClass}`}
             >
               <ChevronLeft size={20} className={textSecondaryClass} />
             </button>
             <span className={`text-lg font-bold ${textPrimaryClass}`}>{viewYear}</span>
             <button
               onClick={() => setViewYear(prev => prev + 1)}
-              className={`p-1 rounded-full hover:bg-slate-100 ${theme === 'dark' ? 'hover:bg-slate-800' : ''}`}
+              className={`p-1 rounded-full ${hoverBgClass}`}
             >
               <ChevronRight size={20} className={textSecondaryClass} />
             </button>
@@ -1041,7 +1034,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                            ${isSelected
                       ? 'bg-primary text-white border-primary'
                       : `
-                                 ${theme === 'dark' ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-slate-50 hover:bg-slate-100'}
+                                 ${hoverBgClass}
                                  ${borderClass} ${textSecondaryClass}
                                  ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}
                               `

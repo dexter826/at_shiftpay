@@ -1,7 +1,7 @@
 import React, { useEffect, useState, createContext, useContext, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -24,7 +24,7 @@ export const useToast = () => {
 };
 
 const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({ toast, onRemove }) => {
-    const { theme } = useTheme();
+    const { theme, textPrimaryClass, textMutedClass, cardBgClass } = useThemeStyles();
 
     useEffect(() => {
         const timer = setTimeout(() => onRemove(toast.id), 3000);
@@ -38,25 +38,14 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
     };
 
     const bgColors = {
-        success: theme === 'dark'
-            ? 'bg-primary/10 border-primary/30'
-            : 'bg-primary/20 border-primary/40 shadow-lg',
-        error: theme === 'dark'
-            ? 'bg-red-500/10 border-red-500/30'
-            : 'bg-red-500/20 border-red-500/40 shadow-lg',
-        warning: theme === 'dark'
-            ? 'bg-amber-500/10 border-amber-500/30'
-            : 'bg-amber-500/20 border-amber-500/40 shadow-lg'
+        success: 'bg-primary/10 border-primary/30',
+        error: 'bg-red-500/10 border-red-500/30',
+        warning: 'bg-amber-500/10 border-amber-500/30'
     };
-
-    const textColor = theme === 'dark' ? 'text-slate-200' : 'text-slate-800';
-    const buttonColor = theme === 'dark'
-        ? 'text-slate-500 hover:text-slate-300'
-        : 'text-slate-600 hover:text-slate-800';
 
     return (
         <motion.div 
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} backdrop-blur-sm ${theme === 'light' ? 'bg-white/90' : ''}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} backdrop-blur-md shadow-lg ${cardBgClass}/90`}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -64,10 +53,10 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
             layout
         >
             {icons[toast.type]}
-            <span className={`text-sm ${textColor} flex-1`}>{toast.message}</span>
+            <span className={`text-sm ${textPrimaryClass} flex-1`}>{toast.message}</span>
             <button 
                 onClick={() => onRemove(toast.id)} 
-                className={buttonColor}
+                className={`${textMutedClass} hover:text-primary transition-colors`}
             >
                 <X size={16} />
             </button>

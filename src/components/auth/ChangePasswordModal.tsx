@@ -28,7 +28,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
 
   const { theme, inputBorderClass, textMutedClass, textPrimaryClass } = useThemeStyles();
 
-  const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} placeholder-gray-400 focus:outline-none text-sm`;
+  const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} focus:outline-none text-sm`;
 
   const resetForm = () => {
     setCurrentPassword('');

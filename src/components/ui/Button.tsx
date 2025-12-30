@@ -1,4 +1,5 @@
 import React from 'react';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 
 type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline' | 'success';
@@ -9,35 +10,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
 }
 
-const variants = {
-    primary: {
-        back: "from-[#8e6d1b] via-primary to-[#8e6d1b]",
-        front: "from-[#d9a016] via-primary to-[#f5d173]",
-        text: "text-white"
-    },
-    danger: {
-        back: "from-red-900 via-red-700 to-red-900",
-        front: "from-red-600 via-red-500 to-red-400",
-        text: "text-white"
-    },
-    secondary: {
-        back: "from-slate-700 via-slate-600 to-slate-700",
-        front: "from-slate-600 via-slate-500 to-slate-400",
-        text: "text-white"
-    },
-    success: {
-        back: "from-green-700 via-green-600 to-green-700",
-        front: "from-green-600 via-green-500 to-green-400",
-        text: "text-white"
-    },
-    outline: {
-        // Style 3D xám tạm thời
-        back: "from-slate-300 via-slate-200 to-slate-300",
-        front: "from-slate-100 via-white to-slate-50",
-        text: "text-slate-700"
-    }
-};
-
 const Button: React.FC<ButtonProps> = ({
     children,
     className = '',
@@ -46,6 +18,36 @@ const Button: React.FC<ButtonProps> = ({
     disabled,
     ...props
 }) => {
+    const { theme } = useThemeStyles();
+
+    const variants = {
+        primary: {
+            back: "from-[#8e6d1b] via-primary to-[#8e6d1b]",
+            front: "from-[#d9a016] via-primary to-[#f5d173]",
+            text: "text-white"
+        },
+        danger: {
+            back: "from-red-900 via-red-700 to-red-900",
+            front: "from-red-600 via-red-500 to-red-400",
+            text: "text-white"
+        },
+        secondary: {
+            back: theme === 'dark' ? "from-slate-800 via-slate-700 to-slate-800" : "from-slate-700 via-slate-600 to-slate-700",
+            front: theme === 'dark' ? "from-slate-700 via-slate-600 to-slate-500" : "from-slate-600 via-slate-500 to-slate-400",
+            text: "text-white"
+        },
+        success: {
+            back: "from-green-700 via-green-600 to-green-700",
+            front: "from-green-600 via-green-500 to-green-400",
+            text: "text-white"
+        },
+        outline: {
+            back: theme === 'dark' ? "from-slate-700 via-slate-800 to-slate-700" : "from-slate-300 via-slate-200 to-slate-300",
+            front: theme === 'dark' ? "from-slate-800 via-slate-900 to-slate-800" : "from-slate-100 via-white to-slate-50",
+            text: theme === 'dark' ? "text-slate-300" : "text-slate-700"
+        }
+    };
+
     const variantStyles = variants[variant];
 
     return (

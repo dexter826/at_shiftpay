@@ -30,7 +30,8 @@ const ReviewsView: React.FC<ReviewsViewProps> = ({
         textPrimaryClass,
         textSecondaryClass,
         textMutedClass,
-        hoverBgClass
+        hoverBgClass,
+        highlightBgClass
     } = useThemeStyles();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -235,13 +236,13 @@ const ReviewsView: React.FC<ReviewsViewProps> = ({
                                                 {shifts.filter(s => s.eventId === evt.id).slice(0, 5).map(s => {
                                                     const emp = employees.find(e => e.id === s.employeeId);
                                                     return (
-                                                        <div key={s.id} className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-100'} flex items-center justify-center text-[10px] font-bold text-slate-600 overflow-hidden shadow-sm hover:z-10 transition-transform hover:scale-110`} title={emp?.name}>
+                                                        <div key={s.id} className={`w-7 h-7 rounded-full border-2 ${borderClass} ${highlightBgClass} flex items-center justify-center text-[10px] font-bold ${textMutedClass} overflow-hidden shadow-sm hover:z-10 transition-transform hover:scale-110`} title={emp?.name}>
                                                             {emp?.imageUrl ? <img src={emp.imageUrl} alt="" className="w-full h-full object-cover" /> : emp?.name.charAt(0)}
                                                         </div>
                                                     )
                                                 })}
                                                 {shifts.filter(s => s.eventId === evt.id).length > 5 && (
-                                                    <div className={`w-7 h-7 rounded-full border-2 ${theme === 'dark' ? 'border-slate-800 bg-slate-700' : 'border-white bg-slate-200'} flex items-center justify-center text-[10px] text-slate-500 font-medium`}>
+                                                    <div className={`w-7 h-7 rounded-full border-2 ${borderClass} ${highlightBgClass} flex items-center justify-center text-[10px] ${textMutedClass} font-medium`}>
                                                         +{shifts.filter(s => s.eventId === evt.id).length - 5}
                                                     </div>
                                                 )}

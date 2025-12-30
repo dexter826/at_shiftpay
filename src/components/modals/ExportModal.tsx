@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { FileDown, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -11,14 +11,15 @@ interface ExportModalProps {
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExport }) => {
-    const { theme } = useTheme();
+    const {
+        theme,
+        textPrimaryClass,
+        textSecondaryClass,
+        borderClass,
+        hoverBgClass
+    } = useThemeStyles();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-
-    const textPrimaryClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-800';
-    const textSecondaryClass = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
-    const borderClass = theme === 'dark' ? 'border-slate-800' : 'border-slate-200';
-    const hoverBgClass = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
 
     const handleExport = () => {
         onExport(selectedMonth, selectedYear);

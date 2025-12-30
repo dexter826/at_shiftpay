@@ -89,7 +89,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
         textPrimaryClass: textMain,
         textMutedClass: textSub,
         borderClass: border,
-        hoverBgClass
+        hoverBgClass,
+        highlightBgClass
     } = useThemeStyles();
 
     const itemHover = hoverBgClass;
@@ -145,14 +146,14 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                             <button
                                                 onClick={handleSaveDisplayName}
                                                 disabled={savingName}
-                                                className={`p-2 rounded-lg flex-shrink-0 ${theme === 'dark' ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' : 'bg-green-50 text-green-600 hover:bg-green-100'} transition-colors`}
+                                                className="p-2 rounded-lg flex-shrink-0 bg-green-500/10 text-green-500 hover:bg-green-500/20 transition-colors"
                                             >
                                                 <Check size={18} />
                                             </button>
                                             <button
                                                 onClick={handleCancelEditName}
                                                 disabled={savingName}
-                                                className={`p-2 rounded-lg flex-shrink-0 ${theme === 'dark' ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'} transition-colors`}
+                                                className="p-2 rounded-lg flex-shrink-0 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
                                             >
                                                 <X size={18} />
                                             </button>
@@ -164,7 +165,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                             </h3>
                                             <button
                                                 onClick={() => setIsEditingName(true)}
-                                                className={`p-1 rounded ${theme === 'dark' ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'} transition-colors`}
+                                                className={`p-1 rounded ${hoverBgClass} ${textSub} transition-colors`}
                                             >
                                                 <Edit2 size={14} />
                                             </button>
@@ -179,7 +180,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                 className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
+                                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
                                         <KeyRound size={20} />
                                     </div>
                                     <div>
@@ -200,7 +201,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                             <div className={`p-4 border-b ${border}`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className={`font-medium ${textMain}`}>Mức lương / ca</label>
-                                    <span className={`text-xs ${textSub} px-2 py-1 rounded ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-100'}`}>VNĐ</span>
+                                    <span className={`text-xs ${textSub} px-2 py-1 rounded ${highlightBgClass}`}>VNĐ</span>
                                 </div>
                                 <input
                                     type="number"
@@ -233,13 +234,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 
                     {/* Khu vực nguy hiểm */}
                     <section>
-                        <div className={`${cardBg} rounded-xl border ${theme === 'dark' ? 'border-red-900/30' : 'border-red-200'} overflow-hidden`}>
+                        <div className={`${cardBg} rounded-xl border border-red-500/20 overflow-hidden`}>
                             <button
                                 onClick={onLogout}
-                                className={`w-full flex items-center justify-between p-4 ${theme === 'dark' ? 'hover:bg-red-900/10' : 'hover:bg-red-50'} transition-colors text-left group`}
+                                className="w-full flex items-center justify-between p-4 hover:bg-red-500/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-red-900/20' : 'bg-red-100'} text-red-500 group-hover:text-red-600`}>
+                                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
                                         <LogOut size={20} />
                                     </div>
                                     <div>

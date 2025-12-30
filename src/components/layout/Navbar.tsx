@@ -22,13 +22,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
   // Style theo theme
   const {
     theme,
-    cardBgClass: sidebarBg, // Map hook's cardBgClass to sidebarBg
-    borderClass: borderColor, // Map hook's borderClass to borderColor
-    textMutedClass: textMuted // Map hook's textMutedClass to textMuted
+    cardBgClass: sidebarBg,
+    borderClass: borderColor,
+    textMutedClass: textMuted,
+    textSecondaryClass,
+    hoverBgClass: hoverBg
   } = useThemeStyles();
 
-  const hoverText = theme === 'dark' ? 'hover:text-slate-200' : 'hover:text-slate-700';
-  const hoverBg = theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100';
+  const hoverText = `hover:${textSecondaryClass}`;
 
   return (
     <>
@@ -36,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
         <div className={`p-5 border-b ${borderColor} flex flex-col items-center`}>
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
-          <span className="text-[11px] text-slate-500 mt-0.5 block">
+          <span className={`text-[11px] ${textMuted} mt-0.5 block`}>
             Made by{' '}
             <a
               href="https://github.com/dexter826/dexter826"
@@ -92,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               onClick={() => setTab(item.id)}
               className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${isActive
                 ? 'text-primary'
-                : 'text-slate-500'
+                : textMuted
                 }`}
             >
               <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />

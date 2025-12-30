@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 export const OfflineIndicator: React.FC = () => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [showNotification, setShowNotification] = useState(false);
+    const { highlightBgClass, textSecondaryClass, borderClass } = useThemeStyles();
 
     useEffect(() => {
         const handleOnline = () => {
@@ -33,7 +35,7 @@ export const OfflineIndicator: React.FC = () => {
                 <motion.div
                     className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium ${isOnline
                             ? 'bg-primary text-white'
-                            : 'bg-slate-800 text-slate-200 border border-slate-700'
+                            : `${highlightBgClass} ${textSecondaryClass} border ${borderClass}`
                         }`}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}

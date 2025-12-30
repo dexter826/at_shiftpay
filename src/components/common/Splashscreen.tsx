@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Lottie from 'lottie-react';
 import splashScreenAnimation from '../../assets/splashscreen.json';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 const SPLASHSCREEN_KEY = 'splashscreen_shown';
 const SPLASHSCREEN_DURATION = 2000; // 2 giây
@@ -11,7 +11,7 @@ interface SplashscreenProps {
 }
 
 export const Splashscreen: React.FC<SplashscreenProps> = ({ onComplete }) => {
-    const { theme } = useTheme();
+    const { bgClass } = useThemeStyles();
 
     useEffect(() => {
         // Đánh dấu đã hiển thị
@@ -29,7 +29,7 @@ export const Splashscreen: React.FC<SplashscreenProps> = ({ onComplete }) => {
     }, []); // Chạy 1 lần
 
     return (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <div className={`fixed inset-0 z-50 flex items-center justify-center ${bgClass}`}>
             <div className="w-full max-w-md px-4">
                 <Lottie
                     animationData={splashScreenAnimation}

@@ -171,7 +171,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         borderClass,
         cardBgClass,
         textPrimaryClass,
-        textSecondaryClass
+        textSecondaryClass,
+        textMutedClass,
+        inputBgClass,
+        inputBorderClass,
+        hoverBgClass
     } = useThemeStyles();
 
     return (
@@ -279,7 +283,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <span className="text-xs">Tổng sự kiện</span>
                                         </div>
                                         <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEvents}</p>
-                                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                        <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Hôm nay</span>
                                                 <span className={`font-medium ${textPrimaryClass}`}>{stats.todayEvents}</span>
@@ -298,7 +302,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <span className="text-xs">Tổng công</span>
                                         </div>
                                         <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalShifts}</p>
-                                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                        <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Sáng</span>
                                                 <span className={`font-medium ${textPrimaryClass}`}>{stats.morningShifts}</span>
@@ -317,7 +321,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <span className="text-xs">Tổng nhân viên</span>
                                         </div>
                                         <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEmployees}</p>
-                                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                        <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã làm</span>
                                                 <span className={`font-medium ${textPrimaryClass}`}>{stats.activeEmployees}</span>
@@ -337,7 +341,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         <p className="text-2xl font-bold text-primary mb-3">
                                             {stats.totalEarned.toLocaleString('vi-VN')}đ
                                         </p>
-                                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                        <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã ứng:</span>
                                                 <span className="font-medium text-orange-500">
@@ -365,7 +369,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    className={`absolute inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-white/60'} z-10 flex items-center justify-center backdrop-blur-[2px] rounded-lg`}
+                                                    className={`absolute inset-0 ${cardBgClass}/60 z-10 flex items-center justify-center backdrop-blur-[2px] rounded-lg`}
                                                 >
                                                     <motion.div
                                                         initial={{ scale: 0.5, opacity: 0 }}
@@ -382,17 +386,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <h3 className={`text-sm font-semibold ${textPrimaryClass} whitespace-nowrap`}>
                                                 Hoạt động trong tháng
                                             </h3>
-                                            <div className={`flex items-center gap-1 sm:gap-2 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'} p-1 rounded-lg border w-full sm:w-auto justify-between sm:justify-start`}>
+                                            <div className={`flex items-center gap-1 sm:gap-2 ${inputBgClass} ${inputBorderClass} p-1 rounded-lg border w-full sm:w-auto justify-between sm:justify-start`}>
                                                 <button
                                                     onClick={handleGoToToday}
-                                                    className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md ${textSecondaryClass} ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} hover:shadow-sm transition-all whitespace-nowrap`}
+                                                    className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md ${textSecondaryClass} ${hoverBgClass} hover:shadow-sm transition-all whitespace-nowrap`}
                                                 >
                                                     Tháng này
                                                 </button>
                                                 <div className="flex items-center gap-1 px-1 sm:px-2">
                                                     <button
                                                         onClick={handlePrevMonth}
-                                                        className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
+                                                        className={`p-1 sm:p-1.5 rounded-md ${hoverBgClass} ${textSecondaryClass} transition-all`}
                                                     >
                                                         <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
                                                     </button>
@@ -401,7 +405,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                                     </span>
                                                     <button
                                                         onClick={handleNextMonth}
-                                                        className={`p-1 sm:p-1.5 rounded-md ${theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-white'} ${textSecondaryClass} transition-all`}
+                                                        className={`p-1 sm:p-1.5 rounded-md ${hoverBgClass} ${textSecondaryClass} transition-all`}
                                                     >
                                                         <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
                                                     </button>
@@ -409,17 +413,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                         </div>
                                         {chartData.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height={200}>
+                                            <ResponsiveContainer width="100%" height={200} minWidth={0}>
                                                 <BarChart data={chartData}>
-                                                    <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                                                    <XAxis dataKey="day" tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                                                    <YAxis tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                                                     <Tooltip
                                                         contentStyle={{
                                                             backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
                                                             border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
                                                             borderRadius: 8
                                                         }}
-                                                        labelStyle={{ color: '#94a3b8' }}
+                                                        labelStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
                                                     />
                                                     <Bar dataKey="events" name="Sự kiện" fill={PAYMENT_COLORS.SUCCESS} radius={[4, 4, 0, 0]} />
                                                     <Bar dataKey="shifts" name="Công" fill={PAYMENT_COLORS.INFO} radius={[4, 4, 0, 0]} />
@@ -438,7 +442,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         {paymentData.length > 0 ? (
                                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                                                 <div className="relative w-[150px] h-[150px]">
-                                                    <ResponsiveContainer width="100%" height="100%">
+                                                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                                         <PieChart>
                                                             <Pie
                                                                 data={paymentData}
@@ -460,6 +464,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                                                     borderRadius: 8,
                                                                     fontSize: '12px'
                                                                 }}
+                                                                itemStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
                                                             />
                                                         </PieChart>
                                                     </ResponsiveContainer>

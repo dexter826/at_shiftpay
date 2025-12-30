@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Shift, PayrollSummary, Event, Employee } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services';
@@ -36,7 +36,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     const [isProcessing, setIsProcessing] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
     const [qrError, setQrError] = useState<string | null>(null);
-    const { theme } = useTheme();
+    const {
+        theme,
+        cardBgClass: cardBg,
+        borderClass: border,
+        textPrimaryClass: textPrimary,
+        textSecondaryClass: textSecondary,
+        hoverBgClass,
+        inputBorderClass
+    } = useThemeStyles();
     const { showToast } = useToast();
 
     const selectedShifts = useMemo(() => {
@@ -153,11 +161,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     if (!employeeSummary) return null;
 
-    const cardBg = theme === 'dark' ? 'bg-slate-800' : 'bg-white';
-    const border = theme === 'dark' ? 'border-slate-700' : 'border-slate-200';
-    const textPrimary = theme === 'dark' ? 'text-slate-100' : 'text-slate-900';
-    const textSecondary = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
-
     return (
         <Modal
             title="Thanh toán lương"
@@ -180,7 +183,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             onClick={() => setPaymentType('regular')}
                             className={`p-3 rounded-lg border-2 transition-colors text-center ${paymentType === 'regular'
                                 ? 'border-primary bg-primary dark:bg-primary/20'
-                                : `border-slate-300 dark:border-slate-600 ${cardBg}`
+                                : `${inputBorderClass} ${cardBg}`
                                 }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -196,7 +199,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             onClick={() => setPaymentType('advance')}
                             className={`p-3 rounded-lg border-2 transition-colors text-center ${paymentType === 'advance'
                                 ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                                : `border-slate-300 dark:border-slate-600 ${cardBg}`
+                                : `${inputBorderClass} ${cardBg}`
                                 }`}
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -310,12 +313,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                 <div
                                     key={shift.id}
                                     onClick={() => onShiftSelect(shift.id)}
-                                    className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50`}
+                                    className={`flex items-center gap-3 p-3 border-b ${border} last:border-b-0 cursor-pointer ${hoverBgClass}`}
                                 >
                                     <div
                                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0 ${selectedShiftIds.includes(shift.id)
                                             ? 'bg-primary border-primary'
-                                            : theme === 'dark' ? 'border-slate-600' : 'border-slate-300'
+                                            : inputBorderClass
                                             }`}
                                     >
                                         {selectedShiftIds.includes(shift.id) && <Check size={12} className="text-white" />}

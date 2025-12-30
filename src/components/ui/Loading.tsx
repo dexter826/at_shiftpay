@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
-  const { theme } = useTheme();
+  const { theme } = useThemeStyles();
 
   return (
-    <StyledWrapper $fullScreen={fullScreen}>
+    <StyledWrapper $fullScreen={fullScreen} $theme={theme}>
       <div className="loader">
         <div className="truckWrapper">
           {theme === 'dark' ? (
@@ -205,7 +205,8 @@ const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
   );
 };
 
-const StyledWrapper = styled.div<{ $fullScreen?: boolean }>`
+const StyledWrapper = styled.div<{ $fullScreen?: boolean; $theme: string }>`
+  background-color: ${props => props.$theme === 'dark' ? '#0f172a' : '#f8fafc'};
   ${props => props.$fullScreen ? `
     position: fixed;
     inset: 0;
@@ -289,7 +290,7 @@ const StyledWrapper = styled.div<{ $fullScreen?: boolean }>`
   .road {
     width: 100%;
     height: 1.5px;
-    background-color: #282828;
+    background-color: ${props => props.$theme === 'dark' ? '#334155' : '#282828'};
     position: relative;
     bottom: 0;
     align-self: flex-end;
@@ -300,22 +301,22 @@ const StyledWrapper = styled.div<{ $fullScreen?: boolean }>`
     position: absolute;
     width: 20px;
     height: 100%;
-    background-color: #282828;
+    background-color: ${props => props.$theme === 'dark' ? '#334155' : '#282828'};
     right: -50%;
     border-radius: 3px;
     animation: roadAnimation 1.4s linear infinite;
-    border-left: 10px solid white;
+    border-left: 10px solid ${props => props.$theme === 'dark' ? '#475569' : 'white'};
   }
   .road::after {
     content: "";
     position: absolute;
     width: 10px;
     height: 100%;
-    background-color: #282828;
+    background-color: ${props => props.$theme === 'dark' ? '#334155' : '#282828'};
     right: -65%;
     border-radius: 3px;
     animation: roadAnimation 1.4s linear infinite;
-    border-left: 4px solid white;
+    border-left: 4px solid ${props => props.$theme === 'dark' ? '#475569' : 'white'};
   }
 
   .lampPost {

@@ -32,7 +32,8 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     textSecondaryClass,
     textMutedClass,
     inputBgClass,
-    inputBorderClass
+    inputBorderClass,
+    highlightBgClass
   } = useThemeStyles();
 
   // Tính số công còn nợ trong tháng
@@ -309,7 +310,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         {/* Tìm kiếm & Sắp xếp */}
         <div className="mt-4 flex gap-2">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
             <input
               type="text"
               placeholder="Nhập từ khóa tìm kiếm"
@@ -367,7 +368,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                   onClick={() => openDetailModal(emp)}
                   className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
                 >                {/* Ảnh cover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${theme === 'dark' ? 'from-slate-700 to-slate-800' : 'from-slate-200 to-slate-300'}`}>
+                <div className={`absolute inset-0 bg-gradient-to-br ${highlightBgClass}`}>
                   {emp.imageUrl ? (
                     <img
                       src={emp.imageUrl}
@@ -378,7 +379,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                       }}
                     />
                   ) : (
-                    <div className={`w-full h-full flex items-center justify-center text-3xl font-bold ${theme === 'dark' ? 'text-slate-500 bg-slate-800' : 'text-slate-400 bg-slate-100'}`}>
+                    <div className={`w-full h-full flex items-center justify-center text-3xl font-bold ${textMutedClass} ${highlightBgClass}`}>
                       {emp.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -611,7 +612,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
           </div>
         }
       >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn xóa nhân viên này?</p>
+        <p className={`text-sm ${textSecondaryClass}`}>Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
 
       {/* Thông báo lỗi xóa */}
@@ -629,7 +630,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
           </Button>
         }
       >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{deleteError}</p>
+        <p className={`text-sm ${textSecondaryClass}`}>{deleteError}</p>
       </Modal>
 
       {/* Modal Chi tiết nhân viên */}

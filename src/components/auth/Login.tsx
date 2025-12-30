@@ -237,21 +237,27 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     if (verificationSent) setVerificationSent(false);
   };
 
-  const { theme } = useThemeStyles();
+  const {
+    theme,
+    bgClass: themeBgClass,
+    cardBgClass: themeCardBgClass,
+    textPrimaryClass,
+    textSecondaryClass,
+    textMutedClass,
+    inputBorderClass,
+    borderClass,
+    hoverBgClass
+  } = useThemeStyles();
+
   const isDark = theme === 'dark';
 
   const bgClass = isDark
     ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
     : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
+
   const cardBgClass = isDark
     ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 shadow-[0_0_40px_-10px_rgba(236,181,45,0.1)]'
     : 'bg-white border border-slate-200 shadow-[0_25px_60px_-15px_rgba(236,181,45,0.25)]';
-
-  const {
-    textPrimaryClass,
-    textMutedClass,
-    inputBorderClass
-  } = useThemeStyles();
 
   const illustrationBg = isDark ? 'bg-slate-900' : 'bg-slate-50';
 
@@ -280,7 +286,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   e.currentTarget.style.display = 'none';
                 }}
               />
-              <p className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'} mt-2 max-w-xs leading-relaxed`}>
+              <p className={`text-sm font-medium ${textSecondaryClass} mt-2 max-w-xs leading-relaxed`}>
                 Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc
               </p>
             </div>
@@ -300,11 +306,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 </p>
                 <button
                   onClick={handleSwitchMode}
-                  className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300
-                      ${isDark
-                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
-                      : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200 shadow-sm'
-                    }`}
+                  className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${borderClass} ${hoverBgClass} ${textSecondaryClass}`}
                 >
                   {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
                 </button>
@@ -313,7 +315,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
 
           {/* Đường kẻ phân cách */}
-          <div className="hidden md:block w-px bg-slate-200/50 dark:bg-slate-700/50 my-12 self-stretch" />
+          <div className={`hidden md:block w-px ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200/50'} my-12 self-stretch`} />
 
           {/* Cột phải: Form */}
           <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
@@ -340,11 +342,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Email */}
                 <div className="space-y-1.5">
-                  <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                  <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                     Email
                   </label>
                   <div className="relative group">
-                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                       <User size={18} />
                     </div>
                     <input
@@ -355,8 +357,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
                         ? 'border-red-500 focus:ring-red-500/20'
                         : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
-                      placeholder:text-slate-400`}
+                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                       placeholder="Nhập email của bạn"
                     />
                   </div>
@@ -366,11 +367,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 {/* Họ tên */}
                 {isSignUp && (
                   <div className="space-y-1.5">
-                    <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                    <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                       Họ và tên
                     </label>
                     <div className="relative group">
-                      <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                      <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                         <User size={18} />
                       </div>
                       <input
@@ -384,8 +385,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
                           ? 'border-red-500 focus:ring-red-500/20'
                           : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
-                        placeholder:text-slate-400`}
+                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                         placeholder="Nhập họ tên của bạn"
                       />
                     </div>
@@ -395,11 +395,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
                 {/* Mật khẩu */}
                 <div className="space-y-1.5">
-                  <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                  <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                     Mật khẩu
                   </label>
                   <div className="relative group">
-                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                       <Lock size={18} />
                     </div>
                     <input
@@ -416,14 +416,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
                         ? 'border-red-500 focus:ring-red-500/20'
                         : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
-                      placeholder:text-slate-400`}
+                      focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                       placeholder="Nhập mật khẩu"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 ${textMutedClass} transition-colors`}
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -434,11 +433,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 {/* Xác nhận mật khẩu */}
                 {isSignUp && (
                   <div className="space-y-1.5">
-                    <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>
+                    <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                       Xác nhận mật khẩu
                     </label>
                     <div className="relative group">
-                      <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[var(--text-primary)]' : 'text-slate-400 group-focus-within:text-slate-600'}`}>
+                      <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                         <Lock size={18} />
                       </div>
                       <input
@@ -452,14 +451,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
                           ? 'border-red-500 focus:ring-red-500/20'
                           : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}
-                        placeholder:text-slate-400`}
+                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                         placeholder="Nhập lại mật khẩu"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 ${textMutedClass} transition-colors`}
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                       >
                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -471,7 +469,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 {/* Mã bếp */}
                 {isSignUp && (
                   <div className="space-y-2">
-                    <label className={`block text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
+                    <label className={`block text-sm font-medium ${textSecondaryClass} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
                     <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
                       {codeDigits.map((digit, index) => (
                         <input
@@ -503,13 +501,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                           type="checkbox"
                           checked={rememberMe}
                           onChange={(e) => setRememberMe(e.target.checked)}
-                          className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-600 checked:border-primary checked:bg-primary transition-all"
+                          className={`peer h-4 w-4 cursor-pointer appearance-none rounded border ${borderClass} checked:border-primary checked:bg-primary transition-all`}
                         />
                         <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
                           <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
-                      <span className={`text-sm ${textMutedClass} group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors`}>
+                      <span className={`text-sm ${textMutedClass} group-hover:${textSecondaryClass} transition-colors`}>
                         Ghi nhớ đăng nhập
                       </span>
                     </label>
@@ -545,7 +543,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </form>
 
               {/* Đổi chế độ mobile */}
-              <div className="md:hidden mt-8 text-center border-t border-slate-200 dark:border-slate-700 pt-6">
+              <div className={`md:hidden mt-8 text-center border-t ${borderClass} pt-6`}>
                 <p className={`text-sm ${textMutedClass} mb-3`}>
                   {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
                 </p>

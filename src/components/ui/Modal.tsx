@@ -20,6 +20,7 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
     bgClass,
     borderClass,
     textPrimaryClass: textClass,
+    textSecondaryClass,
     textMutedClass,
     hoverBgClass
   } = useThemeStyles();
@@ -60,7 +61,7 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
           <h3 className={`text-base font-semibold ${textClass}`}>{title}</h3>
           <button
             onClick={onClose}
-            className={`p-1.5 ${textMutedClass} hover:${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'} rounded-md ${hoverBgClass} transition-colors`}
+            className={`p-1.5 ${textMutedClass} hover:${textSecondaryClass} rounded-md ${hoverBgClass} transition-colors`}
           >
             <X size={18} />
           </button>
