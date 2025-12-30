@@ -292,10 +292,9 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           <div>
-            <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Nhân Sự</h1>
-            <div className={`text-xs ${textMutedClass} mt-0.5`}>
-              {loading ? <Skeleton width={100} height={14} /> : `${employees.length} nhân viên`}
-            </div>
+            <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>
+              {loading ? <Skeleton width={120} height={24} /> : `${employees.length} nhân viên`}
+            </h1>
           </div>
           <Button
             onClick={openAddModal}

@@ -264,7 +264,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
-          <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Thanh Toán</h1>
           {activeTab === 'payroll' && summary.length > 0 && (
             null
           )}

@@ -256,7 +256,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                         </div>
 
                         <div className="relative min-h-[calc(100vh-120px)]">
-                            <div className={`px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-6 transition-all duration-300`}>
+                            <div className={`px-4 pt-4 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-4 md:space-y-6 transition-all duration-300`}>
                                 {/* Xuất báo cáo (Mobile) */}
                                 <div className="md:hidden">
                                     <Button
@@ -271,7 +271,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                 </div>
 
                                 {/* Thẻ thống kê */}
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 min-h-[260px] md:min-h-[130px]">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 min-h-[260px] md:min-h-[130px]">
                                     {/* Tổng sự kiện */}
                                     <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
@@ -334,10 +334,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <Wallet2 size={16} />
                                             <span className="text-xs font-semibold">Tổng lương</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-primary">
+                                        <p className="text-2xl font-bold text-primary mb-3">
                                             {stats.totalEarned.toLocaleString('vi-VN')}đ
                                         </p>
-                                        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
+                                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1 text-xs">
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã ứng:</span>
                                                 <span className="font-medium text-orange-500">
@@ -378,7 +378,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                                             <h3 className={`text-sm font-semibold ${textPrimaryClass} whitespace-nowrap`}>
                                                 Hoạt động trong tháng
                                             </h3>
