@@ -10,24 +10,51 @@ interface PullToRefreshProps {
 export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, children }) => {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [startY, setStartY] = useState(0);
+  const startYRef = React.useRef(0);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const controls = useAnimation();
 
   const PULL_THRESHOLD = 80;
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTouchMoveRaw = (e: TouchEvent) => {
+      if (startYRef.current === 0 || isRefreshing) return;
+
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - startYRef.current;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (distance > 0 && scrollTop <= 0) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    container.addEventListener('touchmove', handleTouchMoveRaw, { passive: false });
+    return () => {
+      container.removeEventListener('touchmove', handleTouchMoveRaw);
+    };
+  }, [isRefreshing]);
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
-      setStartY(e.touches[0].clientY);
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop <= 0) {
+      startYRef.current = e.touches[0].clientY;
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (startY === 0 || isRefreshing) return;
+    if (startYRef.current === 0 || isRefreshing) return;
 
     const currentY = e.touches[0].clientY;
-    const distance = currentY - startY;
+    const distance = currentY - startYRef.current;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-    if (distance > 0 && window.scrollY === 0) {
+    if (distance > 0 && scrollTop <= 0) {
       // Resistance effect
       const pull = Math.min(distance * 0.4, PULL_THRESHOLD + 20);
       setPullDistance(pull);
@@ -50,15 +77,17 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
     } else {
       setPullDistance(0);
     }
-    setStartY(0);
+    startYRef.current = 0;
   };
 
   return (
     <div
+      ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       className="relative"
+      style={{ overscrollBehaviorY: pullDistance > 0 ? 'none' : 'auto' }}
     >
       <div 
         className="absolute left-0 right-0 flex justify-center pointer-events-none z-50"

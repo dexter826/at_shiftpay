@@ -556,6 +556,8 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                   placeholder="-- Chọn ngân hàng --"
                   minWidth="w-full"
                   className="w-full"
+                  searchable={true}
+                  searchPlaceholder="Tìm tên ngân hàng..."
                 />
               </div>
 
