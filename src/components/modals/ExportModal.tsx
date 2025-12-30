@@ -7,7 +7,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 interface ExportModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onExport: (month: number, year: number) => void;
+    onExport: (month: number, year: number, onlyDebt: boolean) => void;
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExport }) => {
@@ -20,9 +20,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
     } = useThemeStyles();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const [onlyDebt, setOnlyDebt] = useState(false);
 
     const handleExport = () => {
-        onExport(selectedMonth, selectedYear);
+        onExport(selectedMonth, selectedYear, onlyDebt);
     };
 
     const isAllSelected = selectedMonth === 0;
@@ -56,7 +57,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                 <p className={`text-sm ${textSecondaryClass}`}>Chọn thời gian để xuất báo cáo lương và lịch tiệc.</p>
 
                 {/* Chọn năm */}
-                <div className="flex justify-between items-center px-2 py-2">
+                <div className={`flex justify-between items-center px-2 py-2 ${isAllSelected ? 'opacity-50 pointer-events-none' : ''}`}>
                     <button
                         onClick={() => setSelectedYear(prev => prev - 1)}
                         className={`p-1 rounded-full ${hoverBgClass}`}
@@ -70,6 +71,40 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                     >
                         <ChevronRight size={20} className={textSecondaryClass} />
                     </button>
+                </div>
+
+                {/* Lựa chọn chỉ xuất công nợ */}
+                <div
+                    onClick={() => setOnlyDebt(!onlyDebt)}
+                    className={`
+                        flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all
+                        ${onlyDebt
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                            : `${borderClass} ${theme === 'dark' ? 'bg-slate-800/30' : 'bg-slate-50'}`
+                        }
+                    `}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className={`
+                            p-2 rounded-lg border transition-colors
+                            ${onlyDebt
+                                ? 'bg-primary/10 border-primary/30 text-primary'
+                                : `${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} text-slate-400`
+                            }
+                        `}>
+                            <CalendarDays size={18} />
+                        </div>
+                        <div>
+                            <p className={`text-sm font-bold ${onlyDebt ? 'text-primary' : textPrimaryClass}`}>Chỉ xuất sự kiện còn nợ</p>
+                            <p className="text-xs text-slate-500">Lọc các sự kiện chưa thanh toán hết</p>
+                        </div>
+                    </div>
+                    <div className={`
+                        w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
+                        ${onlyDebt ? 'border-primary bg-primary' : 'border-slate-300'}
+                    `}>
+                        {onlyDebt && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </div>
                 </div>
 
                 {/* Lưới chọn tháng */}
@@ -87,7 +122,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                             }
                         `}
                     >
-                        Tất cả các tháng trong năm
+                        Tất cả thời gian
                     </button>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(month => {
                         const isSelected = selectedMonth === month;

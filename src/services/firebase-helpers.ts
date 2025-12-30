@@ -23,6 +23,14 @@ export function buildMonthRangeQuery({
   let startDate: string;
   let endDate: string;
 
+  if (month === -1 && year === 0) {
+    // Tất cả thời gian
+    return query(
+      collection(db, collectionName),
+      orderBy(orderByField || dateField, orderDirection)
+    );
+  }
+
   if (month === -1) {
     // Cả năm
     startDate = new Date(year, 0, 1).toISOString();

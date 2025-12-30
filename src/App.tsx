@@ -51,14 +51,15 @@ function App() {
     setIsExportModalOpen(true);
   };
 
-  const handleExportReport = async (month: number, year: number) => {
+  const handleExportReport = async (month: number, year: number, onlyDebt: boolean) => {
     try {
       setIsExporting(true);
+      const queryYear = month === 0 ? 0 : year;
       const [fetchedEvents, fetchedShifts] = await Promise.all([
-        dbService.getEventsByMonth(month, year),
-        dbService.getShiftsByMonth(month, year)
+        dbService.getEventsByMonth(month, queryYear),
+        dbService.getShiftsByMonth(month, queryYear)
       ]);
-      await exportDetailedReport(month, year, fetchedEvents, fetchedShifts, employees, settings);
+      await exportDetailedReport(month, queryYear, fetchedEvents, fetchedShifts, employees, settings, onlyDebt);
       setIsExportModalOpen(false);
     } catch (error) {
       console.error("Export failed:", error);
@@ -161,7 +162,7 @@ function AppContent({
   onOpenExport: () => void;
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
-  onExportReport: (month: number, year: number) => void;
+  onExportReport: (month: number, year: number, onlyDebt: boolean) => void;
   showLogoutConfirm: boolean;
   onCloseLogoutConfirm: () => void;
   onConfirmLogout: () => void;

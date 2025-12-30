@@ -6,7 +6,8 @@ export const exportDetailedReport = (
     events: Event[],
     shifts: Shift[],
     employees: Employee[],
-    settings: UserSettings
+    settings: UserSettings,
+    onlyDebt: boolean = false
 ) => {
     // Gom nhóm theo ca
     const groupedData = new Map<string, {
@@ -22,11 +23,26 @@ export const exportDetailedReport = (
         workerNames: string[];
     }>();
 
-    // Lọc ca theo tháng
+    // Lọc ca theo tháng và công nợ
     const filteredShifts = shifts.filter(s => {
+        // Lọc theo tháng/năm
         const d = new Date(s.date);
-        if (month === 0) return d.getFullYear() === year;
-        return d.getMonth() + 1 === month && d.getFullYear() === year;
+        let matchesTime = true;
+        
+        if (month !== 0) {
+            matchesTime = d.getMonth() + 1 === month && d.getFullYear() === year;
+        } else if (year !== 0) {
+            matchesTime = d.getFullYear() === year;
+        }
+        
+        if (!matchesTime) return false;
+
+        // Lọc theo công nợ nếu được yêu cầu
+        if (onlyDebt) {
+            return s.status !== 'paid';
+        }
+
+        return true;
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     filteredShifts.forEach(shift => {
@@ -94,7 +110,17 @@ export const exportDetailedReport = (
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    const fileName = month === 0 ? `Bao_Cao_Nam_${year}.csv` : `Bao_Cao_Thang_${month}_${year}.csv`;
+    
+    let fileName = '';
+    if (month === 0) {
+        fileName = year === 0 ? 'Bao_Cao_Tat_Ca' : `Bao_Cao_Nam_${year}`;
+    } else {
+        fileName = `Bao_Cao_Thang_${month}_${year}`;
+    }
+    
+    if (onlyDebt) fileName += '_Cong_No';
+    fileName += '.csv';
+    
     link.setAttribute('download', fileName);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
