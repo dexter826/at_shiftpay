@@ -6,7 +6,9 @@ import {
   deleteDoc,
   doc,
   writeBatch,
-  Unsubscribe
+  Unsubscribe,
+  query,
+  where
 } from 'firebase/firestore';
 import { Event, Shift } from '../types';
 import { buildMonthRangeQuery, createRealtimeSubscription, executeBatchQuery, executeBatchWithRetry } from './firebase-helpers';
@@ -31,6 +33,22 @@ export const eventService = {
       year
     });
     return executeBatchQuery<Event>(q, EventSchema);
+  },
+
+  async getEventsByIds(ids: string[]): Promise<Event[]> {
+    if (ids.length === 0) return [];
+    // Firestore limits 'in' queries to 30 items
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 30) {
+      chunks.push(ids.slice(i, i + 30));
+    }
+
+    const results = await Promise.all(chunks.map(async (chunk) => {
+      const q = query(collection(db, 'events'), where('__name__', 'in', chunk));
+      return executeBatchQuery<Event>(q, EventSchema);
+    }));
+
+    return results.flat();
   },
 
   async addEvent(data: Omit<Event, 'id'>): Promise<string> {

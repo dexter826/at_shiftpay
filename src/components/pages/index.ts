@@ -1,6 +1,6 @@
-export { Dashboard } from './Dashboard';
-export { CalendarView } from './CalendarView';
-export { PayrollView } from './PayrollView';
-export { SettingsView } from './SettingsView';
-export { EmployeeManager } from './EmployeeManager';
-export { ReviewsView } from './ReviewsView';
+export { default as Dashboard } from './Dashboard';
+export { default as CalendarView } from './CalendarView';
+export { default as PayrollView } from './PayrollView';
+export { default as SettingsView } from './SettingsView';
+export { default as EmployeeManager } from './EmployeeManager';
+export { default as ReviewsView } from './ReviewsView';

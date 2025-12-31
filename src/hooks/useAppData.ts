@@ -53,34 +53,76 @@ export function useAppData() {
 
         const month = viewDate.getMonth();
         const year = viewDate.getFullYear();
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        const unsubEvents = dbService.subscribeEventsByMonth(month, year, (data) => {
-            setEvents(data);
-            checkLoaded();
-        });
-
-        // Gộp ca làm việc
-        let currentShifts: Shift[] = [];
+        let viewEvents: Event[] = [];
+        let dashboardEvents: Event[] = [];
+        let extraEvents: Event[] = [];
+        let viewShifts: Shift[] = [];
+        let dashboardShifts: Shift[] = [];
         let unpaidShifts: Shift[] = [];
 
-        const updateShifts = () => {
-            // Loại bỏ ID trùng
-            const map = new Map();
-            [...currentShifts, ...unpaidShifts].forEach(s => map.set(s.id, s));
-            setShifts(Array.from(map.values()));
+        const updateData = () => {
+            // Gộp events: tháng đang xem + tháng hiện tại + các event lẻ từ ca chưa thanh toán
+            const eventMap = new Map();
+            [...viewEvents, ...dashboardEvents, ...extraEvents].forEach(e => eventMap.set(e.id, e));
+            setEvents(Array.from(eventMap.values()));
+
+            // Gộp shifts: tháng đang xem + tháng hiện tại + tất cả unpaid
+            const shiftMap = new Map();
+            [...viewShifts, ...dashboardShifts, ...unpaidShifts].forEach(s => shiftMap.set(s.id, s));
+            setShifts(Array.from(shiftMap.values()));
         };
 
-        const unsubShifts = dbService.subscribeShiftsByMonth(month, year, (data) => {
-            currentShifts = data;
-            updateShifts();
+        const unsubEvents = dbService.subscribeEventsByMonth(month, year, (data) => {
+            viewEvents = data;
+            updateData();
             checkLoaded();
         });
 
-        const unsubUnpaid = dbService.subscribeUnpaidShifts((data) => {
-            unpaidShifts = data;
-            updateShifts();
+        const unsubShifts = dbService.subscribeShiftsByMonth(month, year, (data) => {
+            viewShifts = data;
+            updateData();
             checkLoaded();
         });
+
+        const unsubUnpaid = dbService.subscribeUnpaidShifts(async (data) => {
+            unpaidShifts = data;
+            
+            // Tải thêm các event bị thiếu cho các ca chưa thanh toán (khác tháng)
+            const eventIds = Array.from(new Set(data.map(s => s.eventId)));
+            const existingEventIds = new Set([...viewEvents, ...dashboardEvents].map(e => e.id));
+            const missingEventIds = eventIds.filter(id => id && !existingEventIds.has(id));
+            
+            if (missingEventIds.length > 0) {
+                try {
+                    const fetchedExtra = await dbService.getEventsByIds(missingEventIds);
+                    extraEvents = fetchedExtra;
+                } catch (error) {
+                    console.error("Error fetching extra events:", error);
+                }
+            }
+            
+            updateData();
+            checkLoaded();
+        });
+
+        // Nếu tháng đang xem khác tháng hiện tại, sub thêm tháng hiện tại cho Dashboard
+        let unsubDashEvents: any = null;
+        let unsubDashShifts: any = null;
+
+        if (month !== currentMonth || year !== currentYear) {
+            unsubDashEvents = dbService.subscribeEventsByMonth(currentMonth, currentYear, (data) => {
+                dashboardEvents = data;
+                updateData();
+            });
+            unsubDashShifts = dbService.subscribeShiftsByMonth(currentMonth, currentYear, (data) => {
+                dashboardShifts = data;
+                updateData();
+            });
+        }
 
         const unsubSettings = dbService.subscribeSettings((data) => {
             if (data) setSettings(data);
@@ -94,6 +136,8 @@ export function useAppData() {
             if (unsubShifts) unsubShifts();
             if (unsubUnpaid) unsubUnpaid();
             if (unsubSettings) unsubSettings();
+            if (unsubDashEvents) unsubDashEvents();
+            if (unsubDashShifts) unsubDashShifts();
         };
     }, [user, viewDate, refreshKey]);
 

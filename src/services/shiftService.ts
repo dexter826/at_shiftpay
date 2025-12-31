@@ -39,7 +39,7 @@ export const shiftService = {
   subscribeUnpaidShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
     const q = query(
       collection(db, 'shifts'),
-      where('status', '==', 'unpaid'),
+      where('status', 'in', ['unpaid', 'advanced']),
       orderBy('date', 'asc')
     );
     return createRealtimeSubscription<Shift>(q, callback, 'subscribeUnpaidShifts', ShiftSchema);

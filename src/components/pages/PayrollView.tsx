@@ -45,6 +45,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     textPrimaryClass,
     textSecondaryClass,
     textMutedClass,
+    inputBgClass,
+    inputBorderClass,
     hoverBgClass,
     highlightBgClass
   } = useThemeStyles();
@@ -430,12 +432,13 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                   )}
                 </AnimatePresence>
                 <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
-                  </p>
-                </div>
+                  {totalAdvancedShifts} công
+                </p>
+              </div>
 
-                {/* Tổng đã làm */}
-                <div>
-                  <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
+              {/* Tổng đã làm */}
+              <div>
+                <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
                   <AnimatePresence mode="wait">
                     {loading ? (
                       <motion.div
