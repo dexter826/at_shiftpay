@@ -102,9 +102,6 @@ export function AppRouter({
         return (
           <LocationManager
             locations={locations}
-            events={events}
-            shifts={shifts}
-            employees={employees}
             loading={loading}
             onBack={() => setActiveTab('calendar')}
           />

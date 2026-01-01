@@ -6,6 +6,8 @@ import {
   deleteDoc,
   doc,
   writeBatch,
+  getDocs,
+  orderBy,
   Unsubscribe,
   query,
   where
@@ -49,6 +51,17 @@ export const eventService = {
     }));
 
     return results.flat();
+  },
+
+  async getAllEvents(): Promise<Event[]> {
+    try {
+      const q = query(collection(db, 'events'), orderBy('date', 'desc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+    } catch (error) {
+      console.error('getAllEvents error:', error);
+      return [];
+    }
   },
 
   async addEvent(data: Omit<Event, 'id'>): Promise<string> {

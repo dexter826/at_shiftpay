@@ -12,18 +12,12 @@ import { Dropdown, DropdownOption } from '../ui/Dropdown';
 
 interface LocationManagerProps {
     locations: Location[];
-    events: Event[];
-    shifts: Shift[];
-    employees: Employee[];
     loading?: boolean;
     onBack?: () => void;
 }
 
 const LocationManager: React.FC<LocationManagerProps> = ({
     locations,
-    events,
-    shifts,
-    employees,
     loading = false,
     onBack
 }) => {
@@ -43,10 +37,28 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'high' | 'low'>('all');
+    const [allEvents, setAllEvents] = useState<Event[]>([]);
+    const [loadingEvents, setLoadingEvents] = useState(true);
     
     // State cho Modal Thêm/Sửa
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+
+    // Tải tất cả sự kiện để đếm số lần làm việc chính xác
+    React.useEffect(() => {
+        const fetchAllEvents = async () => {
+            setLoadingEvents(true);
+            try {
+                const data = await dbService.getAllEvents();
+                setAllEvents(data);
+            } catch (error) {
+                console.error("Error fetching all events:", error);
+            } finally {
+                setLoadingEvents(false);
+            }
+        };
+        fetchAllEvents();
+    }, []);
     const [name, setName] = useState('');
     const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
     const [reviewNote, setReviewNote] = useState('');
@@ -281,7 +293,11 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
                                         <div className={`mt-4 pt-3 border-t ${borderClass} flex justify-between items-center`}>
                                             <span className={`text-[10px] ${textMutedClass}`}>
-                                                Đã làm ở địa điểm này {events.filter(e => e.locationId === loc.id).length} lần
+                                                {loadingEvents ? (
+                                                    "Đang tính toán..."
+                                                ) : (
+                                                    <>Đã làm ở địa điểm này {allEvents.filter(e => e.locationId === loc.id).length} lần</>
+                                                )}
                                             </span>
                                         </div>
                                     </div>
