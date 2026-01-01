@@ -180,7 +180,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                 className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
                                         <KeyRound size={20} />
                                     </div>
                                     <div>
