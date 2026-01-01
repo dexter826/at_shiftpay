@@ -413,7 +413,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                         </div>
                                         {chartData.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height={200} minWidth={0}>
+                                            <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0} debounce={1}>
                                                 <BarChart data={chartData}>
                                                     <XAxis dataKey="day" tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                                                     <YAxis tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -442,32 +442,30 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         {paymentData.length > 0 ? (
                                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
                                                 <div className="relative w-[150px] h-[150px]">
-                                                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                                        <PieChart>
-                                                            <Pie
-                                                                data={paymentData}
-                                                                cx="50%"
-                                                                cy="50%"
-                                                                innerRadius={40}
-                                                                outerRadius={60}
-                                                                dataKey="value"
-                                                            >
-                                                                {paymentData.map((entry, index) => (
-                                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                                ))}
-                                                            </Pie>
-                                                            <Tooltip
-                                                                formatter={(value: number) => [`${value} công`, 'Số lượng']}
-                                                                contentStyle={{
-                                                                    backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
-                                                                    border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
-                                                                    borderRadius: 8,
-                                                                    fontSize: '12px'
-                                                                }}
-                                                                itemStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
-                                                            />
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
+                                                    <PieChart width={150} height={150}>
+                                                        <Pie
+                                                            data={paymentData}
+                                                            cx="50%"
+                                                            cy="50%"
+                                                            innerRadius={40}
+                                                            outerRadius={60}
+                                                            dataKey="value"
+                                                        >
+                                                            {paymentData.map((entry, index) => (
+                                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                                            ))}
+                                                        </Pie>
+                                                        <Tooltip
+                                                            formatter={(value: number) => [`${value} công`, 'Số lượng']}
+                                                            contentStyle={{
+                                                                backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+                                                                border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+                                                                borderRadius: 8,
+                                                                fontSize: '12px'
+                                                            }}
+                                                            itemStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
+                                                        />
+                                                    </PieChart>
                                                 </div>
                                                 <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2">
                                                     {paymentData.map((item, index) => (
