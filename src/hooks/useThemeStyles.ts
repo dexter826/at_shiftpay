@@ -24,7 +24,7 @@ export const useThemeStyles = () => {
         inputBorderClass: theme === 'dark' ? 'border-slate-700' : 'border-slate-300',
 
         // Interactive
-        hoverBgClass: theme === 'dark' ? 'hover:bg-slate-800' : 'hover:bg-slate-100',
+        hoverBgClass: theme === 'dark' ? 'hover:bg-slate-700' : 'hover:bg-slate-100',
 
         // Highlighted backgrounds (for sub-cards or sections)
         highlightBgClass: theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100',

@@ -264,7 +264,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             null
           )}
         </div>
-        <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+        <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
           {/* Giao diện Mobile */}
           <div className="block md:hidden">
             {/* Tổng đã làm - Lên trên */}
