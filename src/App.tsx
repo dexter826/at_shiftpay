@@ -15,7 +15,7 @@ import { auth } from './firebase';
 import { signOut } from 'firebase/auth';
 
 // Điều hướng đơn giản (HMR)
-type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'reviews';
+type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'locations';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>(() => {
@@ -31,6 +31,7 @@ function App() {
     user,
     authLoading,
     employees,
+    locations,
     events,
     shifts,
     settings,
@@ -59,7 +60,7 @@ function App() {
         dbService.getEventsByMonth(month, queryYear),
         dbService.getShiftsByMonth(month, queryYear)
       ]);
-      await exportDetailedReport(month, queryYear, fetchedEvents, fetchedShifts, employees, settings, onlyDebt);
+      await exportDetailedReport(month, queryYear, fetchedEvents, fetchedShifts, employees, locations, settings, onlyDebt);
       setIsExportModalOpen(false);
     } catch (error) {
       console.error("Export failed:", error);
@@ -102,6 +103,7 @@ function App() {
           onLogout={requestLogout}
           user={user}
           employees={employees}
+          locations={locations}
           events={events}
           shifts={shifts}
           settings={settings}
@@ -130,6 +132,7 @@ function AppContent({
   onLogout,
   user,
   employees,
+  locations,
   events,
   shifts,
   settings,
@@ -151,6 +154,7 @@ function AppContent({
   onLogout: () => void;
   user: any;
   employees: any[];
+  locations: any[];
   events: any[];
   shifts: any[];
   settings: any;
@@ -185,9 +189,10 @@ function AppContent({
         <PullToRefresh onRefresh={refreshData}>
           <AppRouter
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={(t) => setActiveTab(t as any)}
             user={user}
             employees={employees}
+            locations={locations}
             events={events}
             shifts={shifts}
             settings={settings}

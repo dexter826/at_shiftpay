@@ -1,4 +1,4 @@
-import { Shift, Event, Employee, UserSettings } from '../types';
+import { Shift, Event, Employee, UserSettings, Location } from '../types';
 
 export const exportDetailedReport = (
     month: number,
@@ -6,6 +6,7 @@ export const exportDetailedReport = (
     events: Event[],
     shifts: Shift[],
     employees: Employee[],
+    locations: Location[],
     settings: UserSettings,
     onlyDebt: boolean = false
 ) => {
@@ -50,10 +51,14 @@ export const exportDetailedReport = (
 
         if (!groupedData.has(key)) {
             const event = events.find(e => e.id === shift.eventId);
+            const locationName = event?.locationId 
+                ? locations.find(l => l.id === event.locationId)?.name || ''
+                : '';
+
             groupedData.set(key, {
                 date: shift.date,
                 eventTitle: event ? event.title : 'Sự kiện không xác định',
-                location: event?.location || '',
+                location: locationName,
                 eventNote: event?.note || '',
                 eventAmount: event?.amount || 0,
                 session: shift.session === 'morning' ? 'Sáng' : 'Chiều',

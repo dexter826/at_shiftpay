@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Employee, Event, Shift, UserSettings } from '../../types';
+import { Employee, Event, Shift, UserSettings, Location } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import styled from 'styled-components';
 
@@ -9,15 +9,16 @@ import CalendarView from '../pages/CalendarView';
 import EmployeeManager from '../pages/EmployeeManager';
 import PayrollView from '../pages/PayrollView';
 import SettingsView from '../pages/SettingsView';
-import ReviewsView from '../pages/ReviewsView';
+import LocationManager from '../pages/LocationManager';
 
-type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'reviews';
+type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'locations';
 
 interface AppRouterProps {
   activeTab: Tab;
   setActiveTab: (tab: Tab) => void;
   user: any;
   employees: Employee[];
+  locations: Location[];
   events: Event[];
   shifts: Shift[];
   settings: UserSettings;
@@ -34,6 +35,7 @@ export function AppRouter({
   setActiveTab,
   user,
   employees,
+  locations,
   events,
   shifts,
   settings,
@@ -68,11 +70,12 @@ export function AppRouter({
             events={events}
             shifts={shifts}
             employees={employees}
+            locations={locations}
             totalDebt={totalDebt}
             settings={settings}
             currentDate={viewDate}
             onDateChange={setViewDate}
-            onNavigateToReviews={() => setActiveTab('reviews')}
+            onNavigateToReviews={() => setActiveTab('locations')}
             loading={loading}
           />
         );
@@ -91,12 +94,14 @@ export function AppRouter({
             shifts={shifts}
             employees={employees}
             events={events}
+            locations={locations}
             loading={loading}
           />
         );
-      case 'reviews':
+      case 'locations':
         return (
-          <ReviewsView
+          <LocationManager
+            locations={locations}
             events={events}
             shifts={shifts}
             employees={employees}

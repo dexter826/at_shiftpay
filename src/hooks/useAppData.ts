@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { dbService } from '../services';
-import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS } from '../types';
+import { Employee, Event, Shift, UserSettings, DEFAULT_SETTINGS, Location } from '../types';
 
 export function useAppData() {
     const [user, setUser] = useState<any>(null);
@@ -10,6 +10,7 @@ export function useAppData() {
 
     // Khởi tạo state
     const [employees, setEmployees] = useState<Employee[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
     const [shifts, setShifts] = useState<Shift[]>([]);
     const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
@@ -43,11 +44,16 @@ export function useAppData() {
         // Kiểm tra tiến độ tải
         const checkLoaded = () => {
             loadedCount++;
-            if (loadedCount >= 5) setIsLoading(false);
+            if (loadedCount >= 6) setIsLoading(false);
         };
 
         const unsubEmp = dbService.subscribeEmployees((data) => {
             setEmployees(data);
+            checkLoaded();
+        });
+
+        const unsubLoc = dbService.subscribeLocations((data) => {
+            setLocations(data);
             checkLoaded();
         });
 
@@ -132,6 +138,7 @@ export function useAppData() {
         // Cleanup: unsubscribe tất cả listeners
         return () => {
             if (unsubEmp) unsubEmp();
+            if (unsubLoc) unsubLoc();
             if (unsubEvents) unsubEvents();
             if (unsubShifts) unsubShifts();
             if (unsubUnpaid) unsubUnpaid();
@@ -153,6 +160,7 @@ export function useAppData() {
         user,
         authLoading,
         employees,
+        locations,
         events,
         shifts,
         settings,

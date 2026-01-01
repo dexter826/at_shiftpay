@@ -16,6 +16,14 @@ export const EmployeeSchema = z.object({
   createdAt: z.string(),
 });
 
+export const LocationSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, 'Tên địa điểm không được để trống'),
+  review: z.enum(['high', 'low']).optional(),
+  reviewNote: z.string().optional(),
+  createdAt: z.string(),
+});
+
 export const EventSchema = z.object({
   id: z.string(),
   date: z.string(),
@@ -28,9 +36,7 @@ export const EventSchema = z.object({
     type: z.enum(['equal', 'selected']),
     selectedEmployeeIds: z.array(z.string()).optional(),
   }).optional(),
-  review: z.enum(['high', 'low']).optional(),
-  reviewNote: z.string().optional(),
-  location: z.string().optional(),
+  locationId: z.string().optional(),
 });
 
 export const ShiftSchema = z.object({

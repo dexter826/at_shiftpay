@@ -14,6 +14,14 @@ export interface Employee {
   createdAt: string; // Chuỗi ISO 8601
 }
 
+export interface Location {
+  id: string;
+  name: string;
+  review?: 'high' | 'low';
+  reviewNote?: string;
+  createdAt: string;
+}
+
 export interface Event {
   id: string;
   date: string; // YYYY-MM-DD
@@ -26,9 +34,7 @@ export interface Event {
     type: 'equal' | 'selected';
     selectedEmployeeIds?: string[]; // chỉ có khi type = 'selected'
   };
-  review?: 'high' | 'low'; // Đánh giá sự kiện
-  reviewNote?: string; // Ghi chú riêng cho phần đánh giá
-  location?: string; // Địa điểm tổ chức
+  locationId?: string; // Liên kết tới bảng Location
 }
 
 export type ShiftSession = 'morning' | 'afternoon';

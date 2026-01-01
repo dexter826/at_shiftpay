@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
-import { Event, Shift, Employee, UserSettings } from '../../types';
+import { Event, Shift, Employee, UserSettings, Location } from '../../types';
 import { formatDate } from '../../constants';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Calendar, ThumbsUp, ThumbsDown, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Calendar, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
 import { EventDetailModal } from '../modals/EventDetailModal';
 import { dbService } from '../../services';
@@ -16,6 +16,7 @@ interface CalendarViewProps {
   events: Event[];
   shifts: Shift[];
   employees: Employee[];
+  locations: Location[];
   totalDebt: number;
   settings: UserSettings;
   currentDate?: Date;
@@ -28,6 +29,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   events,
   shifts,
   employees,
+  locations,
   settings,
   currentDate: propDate,
   onDateChange,
@@ -182,10 +184,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 {onNavigateToReviews && (
                   <button
                     onClick={onNavigateToReviews}
-                    title="Xem các sự kiện đã đánh giá"
-                    className={`p-1.5 ${hoverBgClass} rounded transition-colors text-yellow-500`}
+                    title="Quản lý địa điểm"
+                    className={`p-1.5 ${hoverBgClass} rounded transition-colors text-primary`}
                   >
-                    <Star size={18} fill="currentColor" />
+                    <MapPin size={18} />
                   </button>
                 )}
               </div>
@@ -232,17 +234,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                           <span>{date.getDate()}</span>
                           {dayEvents.length > 0 && (
                             <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
-                              {dayEvents.map((evt, i) => (
-                                <div key={i} className="flex items-center">
-                                  {evt.review === 'high' ? (
-                                    <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
-                                  ) : evt.review === 'low' ? (
-                                    <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
-                                  ) : (
-                                    <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
-                                  )}
-                                </div>
-                              ))}
+                              {dayEvents.map((evt, i) => {
+                                const loc = locations.find(l => l.id === evt.locationId);
+                                return (
+                                  <div key={i} className="flex items-center">
+                                    {loc?.review === 'high' ? (
+                                      <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
+                                    ) : loc?.review === 'low' ? (
+                                      <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
+                                    ) : (
+                                      <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </button>
@@ -294,52 +299,55 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       </motion.div>
                     ) : (
                       <motion.div key="content-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
-                        {selectedEvents.map(evt => (
-                          <div
-                            key={evt.id}
-                            onClick={() => handleViewEvent(evt)}
-                            className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
-                          >
-                            <div className="flex justify-between items-start gap-2">
-                              <div className="flex items-start gap-2 flex-1 min-w-0">
-                                <Calendar size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
-                                    {evt.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
-                                    {evt.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
+                        {selectedEvents.map(evt => {
+                          const loc = locations.find(l => l.id === evt.locationId);
+                          return (
+                            <div
+                              key={evt.id}
+                              onClick={() => handleViewEvent(evt)}
+                              className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
+                            >
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex items-start gap-2 flex-1 min-w-0">
+                                  <Calendar size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
+                                      {loc?.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
+                                      {loc?.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
+                                    </div>
+                                    {loc && (
+                                      <p className={`text-[11px] text-blue-500 mt-0.5 flex items-center gap-1 min-w-0`}>
+                                        <MapPin size={12} className="flex-shrink-0" />
+                                        <span className="truncate">{loc.name}</span>
+                                      </p>
+                                    )}
+                                    {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                                   </div>
-                                  {evt.location && (
-                                    <p className={`text-[11px] text-blue-500 mt-0.5 flex items-center gap-1 min-w-0`}>
-                                      <MapPin size={12} className="flex-shrink-0" />
-                                      <span className="truncate">{evt.location}</span>
-                                    </p>
-                                  )}
-                                  {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
+                                </div>
+                                <div className="flex gap-1 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                  <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-primary transition-colors`}>
+                                    <Edit2 size={14} />
+                                  </button>
+                                  <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
+                                    <Trash2 size={14} />
+                                  </button>
                                 </div>
                               </div>
-                              <div className="flex gap-1 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-primary transition-colors`}>
-                                  <Edit2 size={14} />
-                                </button>
-                                <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
-                                  <Trash2 size={14} />
-                                </button>
+                              <div className="flex gap-2 mt-2 ml-5">
+                                {(['morning', 'afternoon'] as const).map(session => {
+                                  const count = shiftsForDisplay.filter((s: Shift) => s.eventId === evt.id && s.session === session).length;
+                                  if (count === 0) return null;
+                                  return (
+                                    <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'}`}>
+                                      {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
-                            <div className="flex gap-2 mt-2 ml-5">
-                              {(['morning', 'afternoon'] as const).map(session => {
-                                const count = shiftsForDisplay.filter((s: Shift) => s.eventId === evt.id && s.session === session).length;
-                                if (count === 0) return null;
-                                return (
-                                  <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'}`}>
-                                    {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -361,6 +369,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         existingEvent={editingEvent}
         existingShifts={shiftsForEditing}
         employees={employees}
+        locations={locations}
         settings={settings}
         onSuccess={() => setIsModalOpen(false)}
       />
@@ -382,6 +391,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <EventDetailModal
         event={viewingEvent}
         shifts={shifts}
+        locations={locations}
         isOpen={!!viewingEvent}
         onClose={() => setViewingEvent(null)}
         onEdit={handleEditEvent}

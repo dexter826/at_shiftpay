@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS } from '../../types';
+import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS, Location } from '../../types';
 import { dbService, deleteField } from '../../services';
-import { Sun, Moon, Check, AlertCircle, Banknote, Loader2, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
+import { Sun, Moon, Check, AlertCircle, Banknote, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -14,6 +14,7 @@ interface EventModalProps {
   existingEvent: Event | null;
   existingShifts: Shift[];
   employees: Employee[];
+  locations: Location[];
   settings: UserSettings;
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +26,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   existingEvent,
   existingShifts,
   employees,
+  locations,
   settings,
   isOpen,
   onClose,
@@ -68,11 +70,22 @@ export const EventModal: React.FC<EventModalProps> = ({
     if (isOpen) {
       if (existingEvent) {
         setTitle(existingEvent.title);
-        setLocation(existingEvent.location || '');
+        
+        // Tìm tên địa điểm từ locationId
+        const loc = locations.find(l => l.id === existingEvent.locationId);
+        setLocation(loc ? loc.name : '');
+        
         setNote(existingEvent.note || '');
         setTime(existingEvent.time || '');
-        setReview(existingEvent.review);
-        setReviewNote(existingEvent.reviewNote || '');
+        
+        // Lấy review từ location tương ứng
+        if (loc) {
+          setReview(loc.review);
+          setReviewNote(loc.reviewNote || '');
+        } else {
+          setReview(undefined);
+          setReviewNote('');
+        }
 
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
@@ -136,11 +149,21 @@ export const EventModal: React.FC<EventModalProps> = ({
 
       loadEmployeeShiftCounts();
 
+      // Lấy review từ location thay vì event
+      if (existingEvent) {
+        const loc = locations.find(l => l.id === existingEvent.locationId);
+        if (loc) {
+          setReview(loc.review);
+          setReviewNote(loc.reviewNote || '');
+        }
+      }
+
       // Lưu trạng thái ban đầu để so sánh
       if (existingEvent) {
+        const loc = locations.find(l => l.id === existingEvent.locationId);
         setInitialState({
           title: existingEvent.title,
-          location: existingEvent.location || '',
+          locationId: existingEvent.locationId || '',
           note: existingEvent.note || '',
           time: existingEvent.time || '',
           amount: existingEvent.amount || settings.shiftRate,
@@ -148,14 +171,14 @@ export const EventModal: React.FC<EventModalProps> = ({
           surchargeDistribution: existingEvent.surchargeDistribution,
           assignments: Object.fromEntries(existingShifts.map(s => [s.employeeId, true])),
           session: existingShifts[0]?.session || null,
-          review: existingEvent.review,
-          reviewNote: existingEvent.reviewNote || ''
+          review: loc?.review,
+          reviewNote: loc?.reviewNote || ''
         });
       } else {
         setInitialState(null);
       }
     }
-  }, [isOpen, existingEvent, existingShifts, settings]);
+  }, [isOpen, existingEvent, existingShifts, settings, locations]);
 
   const loadEmployeeShiftCounts = async () => {
     try {
@@ -267,7 +290,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
     const currentState = {
       title: title.trim() || 'Tiệc',
-      location: location.trim(),
+      locationId: locations.find(l => l.name === location.trim())?.id || '',
       note: note.trim(),
       time,
       amount,
@@ -301,71 +324,80 @@ export const EventModal: React.FC<EventModalProps> = ({
 
     setIsSubmitting(true);
 
-    // Chuẩn bị dữ liệu
-    const isEditing = !!existingEvent;
-
-    // Phân loại: Thêm, Sửa, Xóa
-    const shiftsToCreate: Omit<Shift, 'id'>[] = [];
-    const shiftsToUpdate: { id: string, data: Partial<Shift> }[] = [];
-    const shiftIdsToDelete: string[] = [];
-
-    // 1. Xác định Thêm & Sửa
-    Object.entries(assignments).forEach(([empId, isAssigned]) => {
-      if (!isAssigned) return;
-      const emp = employees.find(e => e.id === empId);
-      if (!emp) return;
-
-      // Tính lương bao gồm phụ phí
-      let finalAmount = amount;
-      if (surcharge > 0) {
-        if (surchargeDistributionType === 'equal') {
-          finalAmount += getSurchargePerPerson();
-        } else if (surchargeDistributionType === 'selected' && surchargeSelectedEmployees[empId]) {
-          finalAmount += getSurchargePerPerson();
-        }
-      }
-
-      const prevShift = existingShifts.find(
-        s => s.employeeId === empId && s.session === selectedSession
-      );
-
-      if (prevShift) {
-        // Cập nhật số tiền và tên nhân viên (đồng bộ nếu có thay đổi)
-        shiftsToUpdate.push({
-          id: prevShift.id,
-          data: {
-            amount: finalAmount,
-            employeeName: emp.name,
-          }
-        });
-      } else {
-        // Tạo ca mới
-        const shiftData: Omit<Shift, 'id'> = {
-          eventId: '',
-          date: date,
-          employeeId: empId,
-          employeeName: emp.name,
-          session: selectedSession!,
-          amount: finalAmount,
-          status: 'unpaid',
-        };
-        shiftsToCreate.push(shiftData);
-      }
-    });
-
-    // 2. Xác định Xóa (ca không còn được chọn)
-
-    existingShifts.forEach(s => {
-      const kept = shiftsToUpdate.find(upd => upd.id === s.id);
-      if (!kept) {
-        shiftIdsToDelete.push(s.id);
-      }
-    });
-
-    // Đóng nhanh để UX mượt
-    onSuccess();
-
     try {
+      // Xử lý Location và Review trước
+      let locationId = '';
+      if (location.trim()) {
+        locationId = await dbService.findOrCreateLocation(location.trim(), {
+          review,
+          reviewNote: reviewNote.trim()
+        });
+      }
+
+      // Chuẩn bị dữ liệu
+      const isEditing = !!existingEvent;
+
+      // Phân loại: Thêm, Sửa, Xóa
+      const shiftsToCreate: Omit<Shift, 'id'>[] = [];
+      const shiftsToUpdate: { id: string, data: Partial<Shift> }[] = [];
+      const shiftIdsToDelete: string[] = [];
+
+      // 1. Xác định Thêm & Sửa
+      Object.entries(assignments).forEach(([empId, isAssigned]) => {
+        if (!isAssigned) return;
+        const emp = employees.find(e => e.id === empId);
+        if (!emp) return;
+
+        // Tính lương bao gồm phụ phí
+        let finalAmount = amount;
+        if (surcharge > 0) {
+          if (surchargeDistributionType === 'equal') {
+            finalAmount += getSurchargePerPerson();
+          } else if (surchargeDistributionType === 'selected' && surchargeSelectedEmployees[empId]) {
+            finalAmount += getSurchargePerPerson();
+          }
+        }
+
+        const prevShift = existingShifts.find(
+          s => s.employeeId === empId && s.session === selectedSession
+        );
+
+        if (prevShift) {
+          // Cập nhật số tiền và tên nhân viên (đồng bộ nếu có thay đổi)
+          shiftsToUpdate.push({
+            id: prevShift.id,
+            data: {
+              amount: finalAmount,
+              employeeName: emp.name,
+            }
+          });
+        } else {
+          // Tạo ca mới
+          const shiftData: Omit<Shift, 'id'> = {
+            eventId: '',
+            date: date,
+            employeeId: empId,
+            employeeName: emp.name,
+            session: selectedSession!,
+            amount: finalAmount,
+            status: 'unpaid',
+          };
+          shiftsToCreate.push(shiftData);
+        }
+      });
+
+      // 2. Xác định Xóa (ca không còn được chọn)
+
+      existingShifts.forEach(s => {
+        const kept = shiftsToUpdate.find(upd => upd.id === s.id);
+        if (!kept) {
+          shiftIdsToDelete.push(s.id);
+        }
+      });
+
+      // Đóng nhanh để UX mượt
+      onSuccess();
+
       const surchargeDistribution = surcharge > 0 ? {
         type: surchargeDistributionType,
         selectedEmployeeIds: surchargeDistributionType === 'selected'
@@ -376,22 +408,12 @@ export const EventModal: React.FC<EventModalProps> = ({
       const eventData: any = {
         date,
         title: finalTitle,
-        location,
+        locationId,
         note,
         time,
         amount,
         surcharge,
       };
-
-      // Chỉ thêm review và reviewNote nếυ có giá trị (tránh lỗi deleteField khi tạo mới)
-      if (review !== undefined) {
-        eventData.review = review;
-        if (reviewNote) eventData.reviewNote = reviewNote;
-      } else if (isEditing) {
-        // Khi edit và gỡ đánh giá, cần xóa trường trên DB
-        eventData.review = deleteField();
-        eventData.reviewNote = deleteField();
-      }
 
       if (surchargeDistribution) {
         eventData.surchargeDistribution = surchargeDistribution;
@@ -440,10 +462,10 @@ export const EventModal: React.FC<EventModalProps> = ({
           <Button
             onClick={handleSubmit}
             className="flex-1"
-            disabled={isSubmitting || !hasChanged}
+            loading={isSubmitting}
+            disabled={!hasChanged}
           >
-            {isSubmitting ? <Loader2 size={16} className="text-white animate-spin" /> : <Check size={16} className="text-white" />}
-            {isSubmitting ? "Đang lưu..." : (existingEvent ? "Cập nhật" : "Lưu")}
+            {existingEvent ? "Cập nhật" : "Lưu"}
           </Button>
         </div>
       }
@@ -497,66 +519,47 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
 
           {/* Logic Cảnh báo Địa điểm */}
-          {location.length >= 2 && !existingEvent && (() => {
-            const allEvents = (window as any).allEvents || [];
-            const allPastLocations = Array.from(new Set(
-              allEvents
-                .map((e: any) => e.location)
-                .filter((loc: string) => loc && loc.toLowerCase().includes(location.toLowerCase()))
-            )) as string[];
+          {location.length >= 2 && (() => {
+            const suggestions = locations.filter(l => 
+              l.name.toLowerCase().includes(location.toLowerCase()) && 
+              l.name.toLowerCase() !== location.toLowerCase()
+            );
+
+            const exactMatch = locations.find(l => l.name.toLowerCase() === location.toLowerCase());
 
             return (
               <div className="space-y-2">
                 {/* Autocomplete Suggestions */}
-                {allPastLocations.length > 0 && location !== allPastLocations[0] && (
+                {suggestions.length > 0 && (
                   <div className={`mt-1 border ${borderClass} rounded-lg overflow-hidden ${cardBgClass} shadow-sm max-h-32 overflow-y-auto`}>
-                    {allPastLocations.slice(0, 5).map((loc, idx) => (
+                    {suggestions.slice(0, 5).map((loc, idx) => (
                       <button
                         key={idx}
                         type="button"
-                        onClick={() => setLocation(loc)}
+                        onClick={() => {
+                          setLocation(loc.name);
+                          setReview(loc.review);
+                          setReviewNote(loc.reviewNote || '');
+                        }}
                         className={`w-full px-3 py-2 text-left text-xs ${hoverBg} transition-colors border-b last:border-0 ${borderClass} ${textSecondaryClass}`}
                       >
-                        📍 {loc}
+                        📍 {loc.name}
                       </button>
                     ))}
                   </div>
                 )}
 
                 {/* Warning/Success History */}
-                {(() => {
-                  const exactMatches = allEvents.filter((e: any) =>
-                    e.location?.toLowerCase().trim() === location.toLowerCase().trim()
-                  ) || [];
-
-                  if (exactMatches.length === 0) return null;
-
-                  const lastEvent = exactMatches[exactMatches.length - 1];
-                  const hasReview = lastEvent.review;
-
-                  if (hasReview) {
-                    const isLow = lastEvent.review === 'low';
-                    return (
-                      <div className={`p-3 rounded-lg border flex items-start gap-3 ${isLow ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'
-                        }`}>
-                        <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                        <div className="text-xs">
-                          <p>Địa điểm này từng được đánh giá <strong>{isLow ? 'Kém' : 'Tốt'}</strong> vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')}.</p>
-                          {lastEvent.reviewNote && <p className="mt-1 italic opacity-80">"{lastEvent.reviewNote}"</p>}
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div className={`p-3 rounded-lg border flex items-start gap-3 bg-blue-500/10 border-blue-500/20 text-blue-600`}>
-                        <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                        <div className="text-xs">
-                          <p>Địa điểm này đã từng tổ chức sự kiện vào ngày {lastEvent.date && lastEvent.date.split('-').reverse().join('/')} (chưa có đánh giá).</p>
-                        </div>
-                      </div>
-                    );
-                  }
-                })()}
+                {exactMatch && exactMatch.review && (
+                  <div className={`p-3 rounded-lg border flex items-start gap-3 ${exactMatch.review === 'low' ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'
+                    }`}>
+                    <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                    <div className="text-xs">
+                      <p>Địa điểm này từng được đánh giá <strong>{exactMatch.review === 'low' ? 'Kém' : 'Tốt'}</strong>.</p>
+                      {exactMatch.reviewNote && <p className="mt-1 italic opacity-80">"{exactMatch.reviewNote}"</p>}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}

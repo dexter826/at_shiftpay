@@ -3,10 +3,10 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Shift, PaymentTransaction, AdvanceBalance, Event } from '../../types';
+import { Shift, PaymentTransaction, AdvanceBalance, Event, Location } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
-import { Calculator, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
+import { Calculator, AlertCircle, CheckCircle2, Calendar, MapPin } from 'lucide-react';
 
 interface SettlementModalProps {
     isOpen: boolean;
@@ -16,6 +16,7 @@ interface SettlementModalProps {
     shifts: Shift[];
     paymentHistory: PaymentTransaction[];
     events: Event[];
+    locations: Location[];
 }
 
 export const SettlementModal: React.FC<SettlementModalProps> = ({
@@ -25,7 +26,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
     employeeName,
     shifts,
     paymentHistory,
-    events
+    events,
+    locations
 }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const { showToast } = useToast();
@@ -235,8 +237,11 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                                         <span className={`text-[10px] ${textSecondaryClass}`}>•</span>
                                                         <span className={`text-[10px] ${textSecondaryClass}`}>{formatDate(shift.date)}</span>
                                                     </div>
-                                                    {event?.location && (
-                                                        <p className={`text-[10px] ${textSecondaryClass} mt-0.5`}>{event.location}</p>
+                                                    {event?.locationId && (
+                                                        <p className={`text-[10px] ${textSecondaryClass} mt-0.5 flex items-center gap-1`}>
+                                                            <MapPin size={10} />
+                                                            {locations.find(l => l.id === event.locationId)?.name || 'Không rõ địa điểm'}
+                                                        </p>
                                                     )}
                                                     <p className={`text-[10px] ${textSecondaryClass} mt-1`}>
                                                         Đã ứng lúc: {shift.paidAt ? formatDate(new Date(shift.paidAt).toISOString()) : 'N/A'}

@@ -33,6 +33,16 @@ service cloud.firestore {
       
       allow delete: if isAuthenticated();
     }
+
+    // Locations Collection
+    match /locations/{locationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated()
+        && isValidString(request.resource.data.name)
+        && request.resource.data.createdAt is string;
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
     
     // Events Collection
     match /events/{eventId} {

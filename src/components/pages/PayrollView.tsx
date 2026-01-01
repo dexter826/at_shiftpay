@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
-import { Shift, PayrollSummary, PaymentTransaction, Event } from '../../types';
+import { Shift, PayrollSummary, PaymentTransaction, Event, Location } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
 
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
@@ -18,10 +18,11 @@ interface PayrollViewProps {
   shifts: Shift[];
   employees: any[];
   events: Event[];
+  locations: Location[];
   loading?: boolean;
 }
 
-const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, loading = false }) => {
+const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, locations, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
@@ -934,8 +935,11 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                         <span className={`text-[10px] ${textMutedClass}`}>•</span>
                         <span className={`text-[10px] ${textMutedClass}`}>{formatDate(s.date)}</span>
                       </div>
-                      {event?.location && (
-                        <p className={`text-[10px] ${textMutedClass} mt-0.5`}>{event.location}</p>
+                      {event?.locationId && (
+                        <p className={`text-[10px] ${textMutedClass} mt-0.5 flex items-center gap-1`}>
+                          <MapPin size={10} />
+                          {locations.find(l => l.id === event.locationId)?.name || 'Không rõ địa điểm'}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1067,6 +1071,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         onSelectAll={handleSelectAll}
         events={events}
         employees={employees}
+        locations={locations}
       />
 
       {/* Modal quyết toán */}
@@ -1079,6 +1084,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           shifts={shifts}
           paymentHistory={paymentHistory}
           events={events}
+          locations={locations}
         />
       )}
 

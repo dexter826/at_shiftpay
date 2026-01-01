@@ -3,11 +3,11 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Shift, PayrollSummary, Event, Employee } from '../../types';
+import { Shift, PayrollSummary, Event, Employee, Location } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services';
 import { vietQRService } from '../../services/vietqr';
-import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User } from 'lucide-react';
+import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User, MapPin } from 'lucide-react';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -19,6 +19,7 @@ interface PaymentModalProps {
     onSelectAll: () => void;
     events: Event[];
     employees: Employee[];
+    locations: Location[];
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -30,7 +31,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     onShiftSelect,
     onSelectAll,
     events,
-    employees
+    employees,
+    locations
 }) => {
     const [paymentType, setPaymentType] = useState<'regular' | 'advance'>('regular');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -328,7 +330,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                             {event?.title || 'Không rõ'}
                                         </p>
                                         <p className={`text-xs ${textSecondary} truncate`}>
-                                            {event?.location || 'Không rõ địa điểm'} • {formatShiftDate(shift.date, shift.session)}
+                                            <div className="flex items-center gap-1 truncate">
+                                                <MapPin size={12} className="shrink-0" />
+                                                <span>{locations.find(l => l.id === event?.locationId)?.name || 'Không rõ địa điểm'}</span>
+                                                <span className="mx-1">•</span>
+                                                <span>{formatShiftDate(shift.date, shift.session)}</span>
+                                            </div>
                                         </p>
                                         <div className={`text-xs ${textSecondary}`}>
                                             {breakdown.surcharge > 0 ? (

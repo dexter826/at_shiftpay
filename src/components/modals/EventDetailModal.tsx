@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { Event, Shift, UserSettings } from '../../types';
+import { Event, Shift, UserSettings, Location } from '../../types';
 import { formatDate, formatCurrency } from '../../constants';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import {
@@ -12,6 +12,7 @@ import {
 interface EventDetailModalProps {
     event: Event | null;
     shifts: Shift[];
+    locations: Location[];
     isOpen: boolean;
     onClose: () => void;
     onEdit: (event: Event) => void;
@@ -22,6 +23,7 @@ interface EventDetailModalProps {
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     event,
     shifts,
+    locations,
     isOpen,
     onClose,
     onEdit,
@@ -42,6 +44,11 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         if (!event) return [];
         return shifts.filter(s => s.eventId === event.id);
     }, [event, shifts]);
+
+    const locationInfo = useMemo(() => {
+        if (!event) return null;
+        return locations.find(l => l.id === event.locationId || l.name === event.location);
+    }, [event, locations]);
 
     if (!event) return null;
 
@@ -91,10 +98,10 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                         </div>
                     </div>
 
-                    {event.location && (
+                    {locationInfo && (
                         <div className={`flex items-start gap-2 pt-2 border-t border-dashed ${borderClass}`}>
                             <MapPin size={15} className="text-primary mt-0.5 flex-shrink-0" />
-                            <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{event.location}</span>
+                            <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{locationInfo.name}</span>
                         </div>
                     )}
                 </div>
@@ -133,26 +140,26 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 </div>
 
                 {/* 3. Nhóm Đánh giá & Ghi chú */}
-                {(event.review || event.note) && (
+                {(locationInfo?.review || event.note) && (
                     <div className="space-y-3">
-                        {event.review && (
-                            <div className={`p-4 rounded-xl border ${event.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                        {locationInfo?.review && (
+                            <div className={`p-4 rounded-xl border ${locationInfo.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
                                 <div className="flex items-center gap-2 mb-2.5">
-                                    {event.review === 'high' ? (
+                                    {locationInfo.review === 'high' ? (
                                         <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
                                             <ThumbsUp size={16} fill="currentColor" />
-                                            <span>Đánh giá CAO</span>
+                                            <span>Đánh giá địa điểm: Tốt</span>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-2 text-red-600 font-bold text-sm">
                                             <ThumbsDown size={16} fill="currentColor" />
-                                            <span>Đánh giá KÉM</span>
+                                            <span>Đánh giá địa điểm: Kém</span>
                                         </div>
                                     )}
                                 </div>
-                                {event.reviewNote && (
-                                    <div className={`text-xs italic leading-relaxed font-medium ${event.review === 'high' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                                        "{event.reviewNote}"
+                                {locationInfo.reviewNote && (
+                                    <div className={`text-xs italic leading-relaxed font-medium ${locationInfo.review === 'high' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                                        "{locationInfo.reviewNote}"
                                     </div>
                                 )}
                             </div>

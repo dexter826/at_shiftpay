@@ -3,6 +3,7 @@ import { eventService } from './eventService';
 import { shiftService } from './shiftService';
 import { paymentService } from './paymentService';
 import { settingsService } from './settingsService';
+import { locationService } from './locationService';
 
 export const dbService = {
   ...employeeService,
@@ -10,6 +11,7 @@ export const dbService = {
   ...shiftService,
   ...paymentService,
   ...settingsService,
+  ...locationService,
 };
 
 export { deleteField } from 'firebase/firestore';
