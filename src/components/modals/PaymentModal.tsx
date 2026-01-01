@@ -329,14 +329,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                         <p className={`text-sm font-medium ${textPrimary} truncate`}>
                                             {event?.title || 'Không rõ'}
                                         </p>
-                                        <p className={`text-xs ${textSecondary} truncate`}>
+                                        <div className={`text-xs ${textSecondary} truncate`}>
                                             <div className="flex items-center gap-1 truncate">
                                                 <MapPin size={12} className="shrink-0" />
                                                 <span>{locations.find(l => l.id === event?.locationId)?.name || 'Không rõ địa điểm'}</span>
                                                 <span className="mx-1">•</span>
                                                 <span>{formatShiftDate(shift.date, shift.session)}</span>
                                             </div>
-                                        </p>
+                                        </div>
                                         <div className={`text-xs ${textSecondary}`}>
                                             {breakdown.surcharge > 0 ? (
                                                 <span>
