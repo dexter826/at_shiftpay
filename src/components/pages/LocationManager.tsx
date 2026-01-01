@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Search, ThumbsUp, ThumbsDown, MapPin, ArrowLeft, Plus, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Search, ThumbsUp, ThumbsDown, MapPin, ArrowLeft, Plus, Edit2, Trash2, MoreVertical, ArrowUpDown } from 'lucide-react';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
@@ -37,12 +37,14 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'high' | 'low'>('all');
+    const [sortBy, setSortBy] = useState<'name' | 'count' | 'newest'>('newest');
     const [allEvents, setAllEvents] = useState<Event[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
     
     // State cho Modal Thêm/Sửa
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
     // Tải tất cả sự kiện để đếm số lần làm việc chính xác
     React.useEffect(() => {
@@ -69,8 +71,17 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             const matchSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchFilter = filterType === 'all' || loc.review === filterType;
             return matchSearch && matchFilter;
-        }).sort((a, b) => a.name.localeCompare(b.name));
-    }, [locations, searchTerm, filterType]);
+        }).sort((a, b) => {
+            if (sortBy === 'name') return a.name.localeCompare(b.name);
+            if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            if (sortBy === 'count') {
+                const countA = allEvents.filter(e => e.locationId === a.id).length;
+                const countB = allEvents.filter(e => e.locationId === b.id).length;
+                return countB - countA;
+            }
+            return 0;
+        });
+    }, [locations, searchTerm, filterType, sortBy, allEvents]);
 
     const stats = useMemo(() => {
         const high = locations.filter(l => l.review === 'high').length;
@@ -125,14 +136,19 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa địa điểm này?')) {
-            try {
-                await dbService.deleteLocation(id);
-                showToast('Xóa địa điểm thành công', 'success');
-            } catch (error) {
-                showToast('Không thể xóa địa điểm', 'error');
-            }
+    const handleDelete = (id: string) => {
+        setDeleteConfirm(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteConfirm) return;
+        
+        try {
+            await dbService.deleteLocation(deleteConfirm);
+            showToast('Xóa địa điểm thành công', 'success');
+            setDeleteConfirm(null);
+        } catch (error) {
+            showToast('Không thể xóa địa điểm', 'error');
         }
     };
 
@@ -158,11 +174,15 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="flex gap-2">
-                            <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`}>
+                            <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`} title="Tổng địa điểm">
+                                <MapPin size={14} className="text-primary" />
+                                <span className={`text-xs font-medium ${textPrimaryClass}`}>{stats.total}</span>
+                            </div>
+                            <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`} title="Đánh giá tốt">
                                 <ThumbsUp size={14} className="text-green-500" />
                                 <span className={`text-xs font-medium ${textPrimaryClass}`}>{stats.high}</span>
                             </div>
-                            <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`}>
+                            <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`} title="Đánh giá kém">
                                 <ThumbsDown size={14} className="text-red-500" />
                                 <span className={`text-xs font-medium ${textPrimaryClass}`}>{stats.low}</span>
                             </div>
@@ -202,6 +222,16 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                         value={filterType}
                         onChange={(value) => setFilterType(value as any)}
                         className="min-w-[100px]"
+                    />
+                    <Dropdown
+                        options={[
+                            { value: 'name', label: 'Tên A-Z' },
+                            { value: 'count', label: 'Làm nhiều nhất' },
+                            { value: 'newest', label: 'Mới nhất' }
+                        ]}
+                        value={sortBy}
+                        onChange={(value) => setSortBy(value as any)}
+                        className="min-w-[130px]"
                     />
                 </div>
 
@@ -307,6 +337,21 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     </AnimatePresence>
                 </div>
             </div>
+
+            {/* Modal Xác nhận xóa */}
+            <Modal
+                title="Xác nhận xóa"
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                footer={
+                    <div className="flex gap-2">
+                        <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1">Hủy</Button>
+                        <Button variant="danger" onClick={confirmDelete} className="flex-1">Xóa</Button>
+                    </div>
+                }
+            >
+                <p className={`text-sm ${textSecondaryClass}`}>Bạn có chắc chắn muốn xóa địa điểm này? Hành động này không thể hoàn tác.</p>
+            </Modal>
 
             {/* Modal Thêm/Sửa */}
             <Modal
