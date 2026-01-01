@@ -206,12 +206,11 @@ const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
 };
 
 const StyledWrapper = styled.div<{ $fullScreen?: boolean; $theme: string }>`
-  background-color: ${props => props.$theme === 'dark' ? '#0f172a' : '#f8fafc'};
+  background-color: transparent;
   ${props => props.$fullScreen ? `
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: transparent;
   ` : `
     position: relative;
     width: 100%;
