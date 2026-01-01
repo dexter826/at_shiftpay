@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Employee, Shift, ShiftSession, Event, UserSettings, DEFAULT_SETTINGS, Location } from '../../types';
 import { dbService, deleteField } from '../../services';
-import { Sun, Moon, Check, AlertCircle, Banknote, ThumbsUp, ThumbsDown, Minus, MapPin } from 'lucide-react';
+import { Sun, Moon, Check, AlertCircle, Banknote, ThumbsUp, ThumbsDown, Minus, MapPin, Type, FileText, Search } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -482,20 +482,23 @@ export const EventModal: React.FC<EventModalProps> = ({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Tên sự kiện</label>
-            <input
-              type="text"
-              placeholder="Nhập tên sự kiện"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (titleError) validateTitle(e.target.value);
-              }}
-              onBlur={() => validateTitle(title)}
-              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${titleError
-                ? 'border-red-500 focus:border-red-500'
-                : `${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`
-                }`}
-            />
+            <div className="relative">
+              <Type className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
+              <input
+                type="text"
+                placeholder="Nhập tên sự kiện"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (titleError) validateTitle(e.target.value);
+                }}
+                onBlur={() => validateTitle(title)}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${titleError
+                  ? 'border-red-500 focus:border-red-500'
+                  : `${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`
+                  }`}
+              />
+            </div>
             {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
           </div>
           <div>
@@ -508,13 +511,13 @@ export const EventModal: React.FC<EventModalProps> = ({
         <div className="space-y-2">
           <label className={`block text-xs font-semibold mb-1.5 ${textSecondaryClass}`}>Địa điểm</label>
           <div className="relative">
-            <MapPin className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
+            <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
             <input
               type="text"
               placeholder="Nhập địa điểm"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${borderClass} ${cardBgClass} ${textPrimaryClass} focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all`}
+              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all`}
             />
           </div>
 
@@ -568,12 +571,15 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         <div>
           <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Ghi chú</label>
-          <textarea
-            placeholder="Nhập ghi chú"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
-          />
+          <div className="relative">
+            <FileText className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
+            <textarea
+              placeholder="Nhập ghi chú"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
+            />
+          </div>
         </div>
 
         {/* Đánh giá sự kiện */}
@@ -620,12 +626,15 @@ export const EventModal: React.FC<EventModalProps> = ({
         {review && review !== undefined && (
           <div className="space-y-1.5 pt-1">
             <label className={`block text-xs font-semibold ${textSecondaryClass}`}>Lý do đánh giá ({review === 'high' ? 'Tốt' : 'Kém'})</label>
-            <textarea
-              placeholder="Nhập lý do hoặc nhận xét cụ thể..."
-              value={reviewNote}
-              onChange={(e) => setReviewNote(e.target.value)}
-              className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none h-16 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${review === 'high' ? 'focus:border-green-500/50' : 'focus:border-red-500/50'}`}
-            />
+            <div className="relative">
+              <FileText className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
+              <textarea
+                placeholder="Nhập lý do hoặc nhận xét cụ thể..."
+                value={reviewNote}
+                onChange={(e) => setReviewNote(e.target.value)}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${review === 'high' ? 'focus:border-green-500/50' : 'focus:border-red-500/50'}`}
+              />
+            </div>
           </div>
         )}
 
@@ -664,26 +673,26 @@ export const EventModal: React.FC<EventModalProps> = ({
             <div>
               <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Lương/người</label>
               <div className="relative">
+                <Banknote size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
                 <input
                   type="number"
                   value={amount || ''}
                   onChange={(e) => setAmount(e.target.value === '' ? 0 : Number(e.target.value))}
-                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
                 />
-                <Banknote size={16} className={`absolute left-3 top-2.5 ${textMutedClass}`} />
               </div>
             </div>
             <div>
               <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Phụ phí</label>
               <div className="relative">
+                <Banknote size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
                 <input
                   type="number"
                   value={surcharge || ''}
                   onChange={(e) => setSurcharge(e.target.value === '' ? 0 : Number(e.target.value))}
                   placeholder="0"
-                  className={`w-full p-2.5 pl-9 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
                 />
-                <Banknote size={16} className={`absolute left-3 top-2.5 ${textMutedClass}`} />
               </div>
             </div>
           </div>
@@ -782,13 +791,14 @@ export const EventModal: React.FC<EventModalProps> = ({
             <label className={`block text-xs mb-1.5 ${textMutedClass}`}>Chọn người làm ({getSelectedCount()})</label>
 
             {/* Search Bar */}
-            <div className="mb-3">
+            <div className="mb-3 relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
               <input
                 type="text"
                 placeholder="Tìm kiếm nhân viên..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
               />
             </div>
 
