@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Search, ThumbsUp, ThumbsDown, MapPin, ArrowLeft, Plus, Edit2, Trash2, MoreVertical, ArrowUpDown } from 'lucide-react';
+import { Search, ThumbsUp, ThumbsDown, MapPin, ArrowLeft, Plus, Edit2, Trash2, MoreVertical, ArrowUpDown, Calendar } from 'lucide-react';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
@@ -40,6 +40,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [sortBy, setSortBy] = useState<'name' | 'count' | 'newest'>('newest');
     const [allEvents, setAllEvents] = useState<Event[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
+    const [visibleCount, setVisibleCount] = useState(10);
     
     // State cho Modal Thêm/Sửa
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,6 +66,11 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
     const [reviewNote, setReviewNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Reset số lượng hiển thị khi lọc hoặc tìm kiếm
+    React.useEffect(() => {
+        setVisibleCount(10);
+    }, [searchTerm, filterType, sortBy]);
 
     const filteredLocations = useMemo(() => {
         return locations.filter(loc => {
@@ -153,7 +159,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen p-4 md:p-6`}>
+        <div className={`pb-24 md:pb-12 ${bgClass} min-h-screen p-4 md:p-6`}>
             <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -201,7 +207,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-row items-center gap-2 mb-6">
+                <div className="flex flex-col md:flex-row gap-3 mb-6">
                     <div className="relative flex-1">
                         <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
                         <input
@@ -209,30 +215,32 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             placeholder="Tìm tên địa điểm..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className={`w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
+                            className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
                                 } ${borderClass} ${textPrimaryClass}`}
                         />
                     </div>
-                    <Dropdown
-                        options={[
-                            { value: 'all', label: 'Tất cả' },
-                            { value: 'high', label: 'Tốt' },
-                            { value: 'low', label: 'Kém' }
-                        ]}
-                        value={filterType}
-                        onChange={(value) => setFilterType(value as any)}
-                        className="min-w-[100px]"
-                    />
-                    <Dropdown
-                        options={[
-                            { value: 'name', label: 'Tên A-Z' },
-                            { value: 'count', label: 'Làm nhiều nhất' },
-                            { value: 'newest', label: 'Mới nhất' }
-                        ]}
-                        value={sortBy}
-                        onChange={(value) => setSortBy(value as any)}
-                        className="min-w-[130px]"
-                    />
+                    <div className="flex gap-2">
+                        <Dropdown
+                            options={[
+                                { value: 'all', label: 'Tất cả' },
+                                { value: 'high', label: 'Tốt' },
+                                { value: 'low', label: 'Kém' }
+                            ]}
+                            value={filterType}
+                            onChange={(value) => setFilterType(value as any)}
+                            className="flex-1 md:min-w-[100px]"
+                        />
+                        <Dropdown
+                            options={[
+                                { value: 'name', label: 'Tên A-Z' },
+                                { value: 'count', label: 'Làm nhiều nhất' },
+                                { value: 'newest', label: 'Mới nhất' }
+                            ]}
+                            value={sortBy}
+                            onChange={(value) => setSortBy(value as any)}
+                            className="flex-1 md:min-w-[130px]"
+                        />
+                    </div>
                 </div>
 
                 {/* List */}
@@ -247,10 +255,17 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
                             >
                                 {Array.from({ length: 4 }).map((_, i) => (
-                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 space-y-3`}>
-                                        <Skeleton width="70%" height={20} />
-                                        <Skeleton width="40%" height={14} />
-                                        <Skeleton width="100%" height={40} />
+                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 flex flex-col gap-3`}>
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3 flex-1">
+                                                <Skeleton width={40} height={40} borderRadius={12} />
+                                                <div className="flex-1 space-y-2">
+                                                    <Skeleton width="60%" height={16} />
+                                                    <Skeleton width="40%" height={12} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Skeleton width="100%" height={40} borderRadius={12} />
                                     </div>
                                 ))}
                             </motion.div>
@@ -273,65 +288,71 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 transition={{ duration: 0.2 }}
                                 className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
                             >
-                                {filteredLocations.map(loc => (
-                                    <div
-                                        key={loc.id}
-                                        className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 hover:border-primary/50 transition-all shadow-sm flex flex-col`}
-                                    >
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`p-2 rounded-lg bg-primary/10 text-primary`}>
-                                                    <MapPin size={18} />
+                                {filteredLocations.slice(0, visibleCount).map(loc => {
+                                    const workCount = allEvents.filter(e => e.locationId === loc.id).length;
+                                    return (
+                                        <div
+                                            key={loc.id}
+                                            className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 hover:border-primary/50 transition-all shadow-sm flex flex-col gap-3`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <div className={`p-2.5 rounded-xl bg-primary/10 text-primary shrink-0`}>
+                                                        <MapPin size={20} />
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <h3 className={`font-bold ${textPrimaryClass} truncate text-base`}>{loc.name}</h3>
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <span className={`text-[11px] ${textMutedClass} flex items-center gap-1`}>
+                                                                <Calendar size={10} />
+                                                                {loadingEvents ? "..." : `${workCount} lần làm`}
+                                                            </span>
+                                                            {loc.review && (
+                                                                <span className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${
+                                                                    loc.review === 'high' ? 'text-green-500' : 'text-red-500'
+                                                                }`}>
+                                                                    • {loc.review === 'high' ? 'Tốt' : 'Kém'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <h3 className={`font-semibold ${textPrimaryClass} line-clamp-1`}>{loc.name}</h3>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button
+                                                        onClick={() => handleOpenEdit(loc)}
+                                                        className={`p-2 rounded-lg ${hoverBgClass} ${textSecondaryClass} transition-colors`}
+                                                    >
+                                                        <Edit2 size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(loc.id)}
+                                                        className={`p-2 rounded-lg ${hoverBgClass} text-red-500 transition-colors`}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <button
-                                                    onClick={() => handleOpenEdit(loc)}
-                                                    className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}
-                                                >
-                                                    <Edit2 size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(loc.id)}
-                                                    className={`p-1.5 rounded-lg ${hoverBgClass} text-red-500`}
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
+
+                                            {loc.reviewNote && (
+                                                <div className={`px-3 py-2.5 rounded-xl bg-secondary/20 border-l-2 border-primary/30 text-xs ${textSecondaryClass} italic leading-relaxed`}>
+                                                    "{loc.reviewNote}"
+                                                </div>
+                                            )}
                                         </div>
+                                    );
+                                })}
 
-                                        {loc.review && (
-                                            <div className="mb-3">
-                                                {loc.review === 'high' ? (
-                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
-                                                        <ThumbsUp size={10} /> Tốt
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-                                                        <ThumbsDown size={10} /> Kém
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {loc.reviewNote && (
-                                            <div className={`p-3 rounded-xl ${hoverBgClass} text-xs ${textSecondaryClass} italic opacity-80`}>
-                                                "{loc.reviewNote}"
-                                            </div>
-                                        )}
-
-                                        <div className={`mt-4 pt-3 border-t ${borderClass} flex justify-between items-center`}>
-                                            <span className={`text-[10px] ${textMutedClass}`}>
-                                                {loadingEvents ? (
-                                                    "Đang tính toán..."
-                                                ) : (
-                                                    <>Đã làm ở địa điểm này {allEvents.filter(e => e.locationId === loc.id).length} lần</>
-                                                )}
-                                            </span>
-                                        </div>
+                                {filteredLocations.length > visibleCount && (
+                                    <div className="col-span-full flex justify-center mt-4">
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => setVisibleCount(prev => prev + 10)}
+                                            className="w-full md:w-auto px-8"
+                                        >
+                                            Xem thêm ({filteredLocations.length - visibleCount})
+                                        </Button>
                                     </div>
-                                ))}
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>
