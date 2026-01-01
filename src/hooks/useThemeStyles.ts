@@ -12,6 +12,7 @@ export const useThemeStyles = () => {
 
         // Borders
         borderClass: theme === 'dark' ? 'border-slate-800' : 'border-slate-200',
+        divideClass: theme === 'dark' ? 'divide-slate-800' : 'divide-slate-200',
 
         // Text
         textPrimaryClass: theme === 'dark' ? 'text-slate-100' : 'text-slate-800',

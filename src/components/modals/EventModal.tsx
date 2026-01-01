@@ -36,6 +36,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     textSecondaryClass, 
     textMutedClass, 
     borderClass, 
+    divideClass,
     cardBgClass, 
     hoverBgClass: hoverBg,
     inputBgClass,
@@ -497,15 +498,12 @@ export const EventModal: React.FC<EventModalProps> = ({
 
           {/* Logic Cảnh báo Địa điểm */}
           {location.length >= 2 && !existingEvent && (() => {
+            const allEvents = (window as any).allEvents || [];
             const allPastLocations = Array.from(new Set(
-              ((window as any).allEvents || [])
+              allEvents
                 .map((e: any) => e.location)
                 .filter((loc: string) => loc && loc.toLowerCase().includes(location.toLowerCase()))
             )) as string[];
-
-            const matchAtLocation = (window as any).allEvents?.filter((e: any) =>
-              e.location?.toLowerCase().trim() === location.toLowerCase().trim() && e.review
-            ) || [];
 
             return (
               <div className="space-y-2">
@@ -527,7 +525,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Warning/Success History */}
                 {(() => {
-                  const exactMatches = (window as any).allEvents?.filter((e: any) =>
+                  const exactMatches = allEvents.filter((e: any) =>
                     e.location?.toLowerCase().trim() === location.toLowerCase().trim()
                   ) || [];
 
