@@ -23,7 +23,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
     if (!container) return;
 
     const handleTouchMoveRaw = (e: TouchEvent) => {
-      if (startYRef.current === 0 || isRefreshing) return;
+      if (startYRef.current === 0 || isRefreshing || document.body.style.overflow === 'hidden') return;
 
       const currentY = e.touches[0].clientY;
       const distance = currentY - startYRef.current;
@@ -43,6 +43,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
   }, [isRefreshing]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (document.body.style.overflow === 'hidden') return;
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     if (scrollTop <= 0) {
       startYRef.current = e.touches[0].clientY;
@@ -50,7 +51,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (startYRef.current === 0 || isRefreshing) return;
+    if (startYRef.current === 0 || isRefreshing || document.body.style.overflow === 'hidden') return;
 
     const currentY = e.touches[0].clientY;
     const distance = currentY - startYRef.current;
