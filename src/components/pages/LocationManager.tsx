@@ -40,7 +40,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [sortBy, setSortBy] = useState<'name' | 'count' | 'newest'>('newest');
     const [allEvents, setAllEvents] = useState<Event[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
-    const [visibleCount, setVisibleCount] = useState(10);
+    const [visibleCount, setVisibleCount] = useState(12);
     const [name, setName] = useState('');
     const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
     const [reviewNote, setReviewNote] = useState('');
@@ -70,7 +70,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
     // Reset số lượng hiển thị khi lọc hoặc tìm kiếm
     useEffect(() => {
-        setVisibleCount(10);
+        setVisibleCount(12);
     }, [searchTerm, filterType, sortBy]);
 
     const filteredLocations = useMemo(() => {
@@ -182,7 +182,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
     return (
         <div className={`pb-24 md:pb-12 ${bgClass} min-h-screen p-4 md:p-6`}>
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             placeholder="Tìm tên địa điểm..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
+                            className={`w-full pl-10 pr-4 h-[42px] border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
                                 } ${borderClass} ${textPrimaryClass}`}
                         />
                     </div>
@@ -250,23 +250,23 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             ]}
                             value={filterType}
                             onChange={(value) => setFilterType(value as any)}
-                            className="flex-1 md:min-w-[100px]"
+                            className="flex-1 md:min-w-[120px] h-[42px]"
                         />
                         <Dropdown
                             options={[
+                                { value: 'newest', label: 'Mới nhất' },
                                 { value: 'name', label: 'Tên A-Z' },
-                                { value: 'count', label: 'Làm nhiều nhất' },
-                                { value: 'newest', label: 'Mới nhất' }
+                                { value: 'count', label: 'Làm nhiều nhất' }
                             ]}
                             value={sortBy}
                             onChange={(value) => setSortBy(value as any)}
-                            className="flex-1 md:min-w-[130px]"
+                            className="flex-1 md:min-w-[150px] h-[42px]"
                         />
                     </div>
                 </div>
 
                 {/* List */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <AnimatePresence mode="wait">
                         {loading ? (
                             <motion.div
@@ -274,20 +274,22 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
+                                className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                             >
-                                {Array.from({ length: 4 }).map((_, i) => (
-                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 flex flex-col gap-3`}>
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-center gap-3 flex-1">
-                                                <Skeleton width={40} height={40} borderRadius={12} />
-                                                <div className="flex-1 space-y-2">
-                                                    <Skeleton width="60%" height={16} />
-                                                    <Skeleton width="40%" height={12} />
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-b-2xl rounded-t-none overflow-hidden flex flex-col gap-3`}>
+                                        <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800" />
+                                        <div className="p-5 space-y-4">
+                                            <Skeleton width="70%" height={24} />
+                                            <Skeleton width="100%" height={40} />
+                                            <div className="flex justify-between items-center pt-4">
+                                                <Skeleton variant="circular" width={24} height={24} />
+                                                <div className="flex gap-2">
+                                                    <Skeleton width={60} height={32} borderRadius={20} />
+                                                    <Skeleton width={60} height={32} borderRadius={20} />
                                                 </div>
                                             </div>
                                         </div>
-                                        <Skeleton width="100%" height={40} borderRadius={12} />
                                     </div>
                                 ))}
                             </motion.div>
@@ -297,9 +299,10 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className={`col-span-full text-center py-12 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}
+                                className={`col-span-full text-center py-20 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}
                             >
-                                Không tìm thấy địa điểm nào
+                                <MapPin size={48} className="mx-auto mb-4 opacity-20" />
+                                <p className="text-lg">Không tìm thấy địa điểm nào</p>
                             </motion.div>
                         ) : (
                             <motion.div
@@ -308,58 +311,66 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4"
+                                className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                             >
                                 {filteredLocations.slice(0, visibleCount).map(loc => {
                                     const workCount = allEvents.filter(e => e.locationId === loc.id).length;
                                     return (
                                         <div
                                             key={loc.id}
-                                            className={`${cardBgClass} border ${borderClass} rounded-2xl p-4 hover:border-primary/50 transition-all shadow-sm flex flex-col gap-3`}
+                                            className={`${theme === 'dark' ? 'bg-slate-800/80' : 'bg-white'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'} rounded-b-2xl rounded-t-none overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 flex flex-col group relative`}
                                         >
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                    <div className={`p-2.5 rounded-xl bg-primary/10 text-primary shrink-0`}>
-                                                        <MapPin size={20} />
-                                                    </div>
-                                                    <div className="flex flex-col min-w-0">
-                                                        <h3 className={`font-bold ${textPrimaryClass} truncate text-base`}>{loc.name}</h3>
-                                                        <div className="flex items-center gap-2 mt-0.5">
-                                                            <span className={`text-[11px] ${textMutedClass} flex items-center gap-1`}>
-                                                                <Calendar size={10} />
-                                                                {loadingEvents ? "..." : `${workCount} lần làm`}
-                                                            </span>
-                                                            {loc.review && (
-                                                                <span className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${
-                                                                    loc.review === 'high' ? 'text-green-500' : 'text-red-500'
-                                                                }`}>
-                                                                    • {loc.review === 'high' ? 'Tốt' : 'Kém'}
-                                                                </span>
-                                                            )}
-                                                        </div>
+                                            {/* 1. Viền ngang bên trên theo màu đánh giá */}
+                                            <div className={`h-1.5 w-full ${loc.review === 'high' ? 'bg-green-500' :
+                                                loc.review === 'low' ? 'bg-red-500' : 'bg-slate-300 dark:bg-slate-700'
+                                                }`} />
+
+                                            <div className="p-5 flex flex-col h-full">
+                                                {/* 2. Tên địa điểm (Premium) */}
+                                                <h3 className={`text-xl font-bold ${textPrimaryClass} mb-2 truncate`}>
+                                                    {loc.name}
+                                                </h3>
+
+                                                {/* 3. Review note và số lần làm */}
+                                                <div className="flex-1">
+                                                    <p className={`text-sm ${textSecondaryClass} line-clamp-2 mb-3 leading-relaxed min-h-[40px]`}>
+                                                        {loc.reviewNote ? `"${loc.reviewNote}"` : "Chưa có ghi chú đánh giá cho địa điểm này."}
+                                                    </p>
+                                                    <div className={`flex items-center gap-1.5 text-[11px] ${textMutedClass} mb-4`}>
+                                                        <Calendar size={12} />
+                                                        <span>{loadingEvents ? "..." : `${workCount} lần làm việc tại đây`}</span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 shrink-0">
-                                                    <button
-                                                        onClick={() => handleOpenEdit(loc)}
-                                                        className={`p-2 rounded-lg ${hoverBgClass} ${textSecondaryClass} transition-colors`}
-                                                    >
-                                                        <Edit2 size={14} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(loc.id)}
-                                                        className={`p-2 rounded-lg ${hoverBgClass} text-red-500 transition-colors`}
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
+
+                                                <div className="flex items-center justify-between mt-auto pt-2">
+                                                    {/* 4. Icon đánh giá (Thay cho tia sét) */}
+                                                    <div className={`${loc.review === 'high' ? 'text-green-500' :
+                                                        loc.review === 'low' ? 'text-red-500' : textMutedClass
+                                                        }`}>
+                                                        {loc.review === 'high' ? <ThumbsUp size={22} /> :
+                                                            loc.review === 'low' ? <ThumbsDown size={22} /> :
+                                                                <MapPin size={22} />}
+                                                    </div>
+
+                                                    {/* 5. Nút Edit/Delete (Vị trí glee/download) */}
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleOpenEdit(loc)}
+                                                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
+                                                                } ${textPrimaryClass}`}
+                                                        >
+                                                            Sửa
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(loc.id)}
+                                                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-red-900/20 hover:bg-red-900/30' : 'bg-red-50 hover:bg-red-100'
+                                                                } text-red-500`}
+                                                        >
+                                                            Xóa
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            {loc.reviewNote && (
-                                                <div className={`px-3 py-2.5 rounded-xl bg-secondary/20 border-l-2 border-primary/30 text-xs ${textSecondaryClass} italic leading-relaxed`}>
-                                                    "{loc.reviewNote}"
-                                                </div>
-                                            )}
                                         </div>
                                     );
                                 })}

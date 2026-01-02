@@ -317,7 +317,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               disabled={loading}
-              className={`w-full pl-9 pr-4 py-2 ${cardBgClass} border ${borderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary disabled:opacity-50`}
+              className={`w-full pl-9 pr-4 h-[42px] ${cardBgClass} border ${borderClass} rounded-xl text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary disabled:opacity-50`}
             />
           </div>
 
@@ -327,6 +327,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
             onChange={(value) => setSortBy(value as 'name' | 'shifts' | 'recent')}
             icon={<ArrowUpDown size={16} />}
             disabled={loading}
+            className="h-[42px]"
           />
         </div>
       </div>

@@ -551,7 +551,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Bộ lọc lương */}
       {activeTab === 'payroll' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
-          <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
+          <div className={`flex-1 flex items-center px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass}`}>
             <Search size={16} className={textMutedClass} />
             <input
               type="text"
@@ -567,6 +567,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             value={payrollSortBy}
             onChange={(value) => setPayrollSortBy(value as 'amount' | 'shifts' | 'name')}
             icon={<ArrowUpDown size={16} />}
+            className="h-[42px]"
           />
         </div>
       )}
@@ -574,7 +575,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Bộ lọc lịch sử */}
       {activeTab === 'history' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
-          <div className={`flex-1 flex items-center px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass}`}>
+          <div className={`flex-1 flex items-center px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass}`}>
             <Search size={16} className={textMutedClass} />
             <input
               type="text"
@@ -589,7 +590,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               setViewYear(filterDate ? parseInt(filterDate.split('-')[0]) : new Date().getFullYear());
               setIsFilterModalOpen(true);
             }}
-            className={`flex items-center gap-2 px-3 py-2 border ${borderClass} rounded-lg ${cardBgClass} text-sm ${textPrimaryClass}`}
+            className={`flex items-center gap-2 px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass} text-sm ${textPrimaryClass}`}
           >
             <CalendarDays size={16} className={filterDate ? 'text-primary' : textMutedClass} />
             <span className={filterDate ? 'text-primary font-medium' : textMutedClass}>
