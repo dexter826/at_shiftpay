@@ -509,7 +509,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         {/* Địa điểm */}
         <div className="space-y-2">
-          <label className={`block text-xs font-semibold mb-1.5 ${textSecondaryClass}`}>Địa điểm</label>
+          <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Địa điểm</label>
           <div className="relative">
             <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
             <input
@@ -517,7 +517,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               placeholder="Nhập địa điểm"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all`}
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
             />
           </div>
 
@@ -625,7 +625,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Lý do đánh giá */}
         {review && review !== undefined && (
           <div className="space-y-1.5 pt-1">
-            <label className={`block text-xs font-semibold ${textSecondaryClass}`}>Lý do đánh giá ({review === 'high' ? 'Tốt' : 'Kém'})</label>
+            <label className={`block text-xs font-semibold ${textMutedClass}`}>Lý do đánh giá ({review === 'high' ? 'Tốt' : 'Kém'})</label>
             <div className="relative">
               <FileText className={`absolute left-3 top-3 ${textMutedClass}`} size={18} />
               <textarea

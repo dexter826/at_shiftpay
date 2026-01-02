@@ -77,16 +77,27 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const daysInMonth = useMemo(() => {
     const year = displayDate.getFullYear();
     const month = displayDate.getMonth();
-    const date = new Date(year, month, 1);
-    const days: (Date | null)[] = [];
+    const firstDayOfMonth = new Date(year, month, 1);
+    const days: Date[] = [];
 
-    for (let i = 0; i < date.getDay(); i++) {
-      days.push(null);
+    // Các ngày của tháng trước
+    const prevMonthLastDay = new Date(year, month, 0);
+    const prevDaysCount = firstDayOfMonth.getDay();
+    for (let i = prevDaysCount - 1; i >= 0; i--) {
+      days.push(new Date(year, month - 1, prevMonthLastDay.getDate() - i));
     }
 
+    // Các ngày của tháng hiện tại
+    const date = new Date(firstDayOfMonth);
     while (date.getMonth() === month) {
       days.push(new Date(date));
       date.setDate(date.getDate() + 1);
+    }
+
+    // Các ngày của tháng sau để lấp đầy lưới (6 hàng * 7 ngày = 42 ô)
+    const nextDaysCount = 42 - days.length;
+    for (let i = 1; i <= nextDaysCount; i++) {
+      days.push(new Date(year, month + 1, i));
     }
     return days;
   }, [displayDate]);
@@ -117,6 +128,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const localDate = new Date(date.getTime() - (offset * 60 * 1000));
     const dateStr = localDate.toISOString().split('T')[0];
     setSelectedDate(dateStr);
+
+    if (date.getMonth() !== displayDate.getMonth()) {
+      handleMonthChange(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
   };
 
   const handleAddEvent = () => {
@@ -210,8 +225,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 ) : (
                   <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="contents">
                     {daysInMonth.map((date, idx) => {
-                      if (!date) return <div key={`empty-${idx}`} className="aspect-square lg:aspect-auto" />;
-
                       const offset = date.getTimezoneOffset();
                       const localDate = new Date(date.getTime() - (offset * 60 * 1000));
                       const dateStr = localDate.toISOString().split('T')[0];
@@ -219,6 +232,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       const dayEvents = eventsByDate[dateStr] || [];
                       const isSelected = selectedDate === dateStr;
                       const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                      const isCurrentMonth = date.getMonth() === displayDate.getMonth();
 
                       return (
                         <button
@@ -228,7 +242,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                             ? 'bg-primary text-white'
                             : isToday
                               ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-medium`
-                              : `${textPrimaryClass} ${hoverBgClass}`
+                              : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
                             }`}
                         >
                           <span>{date.getDate()}</span>
