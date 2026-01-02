@@ -108,10 +108,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const nextMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1));
   const goToToday = () => {
     const today = new Date();
+    const todayStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60 * 1000)).toISOString().split('T')[0];
+    
+    const isSameMonth = displayDate.getFullYear() === today.getFullYear() && 
+                       displayDate.getMonth() === today.getMonth();
+    
+    if (isSameMonth && selectedDate === todayStr) return;
+
     handleMonthChange(new Date(today.getFullYear(), today.getMonth(), 1));
-    const offset = today.getTimezoneOffset();
-    const localDate = new Date(today.getTime() - (offset * 60 * 1000));
-    setSelectedDate(localDate.toISOString().split('T')[0]);
+    setSelectedDate(todayStr);
   };
 
   const eventsByDate = useMemo(() => {

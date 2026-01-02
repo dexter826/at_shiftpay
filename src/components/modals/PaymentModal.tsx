@@ -7,7 +7,7 @@ import { Shift, PayrollSummary, Event, Employee, Location } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services';
 import { vietQRService } from '../../services/vietqr';
-import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User, MapPin } from 'lucide-react';
+import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User, MapPin, Wallet } from 'lucide-react';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -208,7 +208,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                 }`}
                         >
                             <div className="flex items-center justify-center gap-2">
-                                <AlertTriangle size={16} className="text-orange-500" />
+                                <Wallet size={16} className="text-orange-500" />
                                 <span className={`font-medium ${paymentType === 'advance' ? 'text-orange-500' : textPrimary}`}>Ứng tiền</span>
                             </div>
                             <p className={`text-xs mt-1 ${paymentType === 'advance' ? 'text-orange-500' : textSecondary}`}>
@@ -332,23 +332,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                         <p className={`text-sm font-medium ${textPrimary} truncate`}>
                                             {event?.title || 'Không rõ'}
                                         </p>
-                                        <div className={`text-xs ${textSecondary} truncate`}>
-                                            <div className="flex items-center gap-1 truncate">
-                                                <MapPin size={12} className="shrink-0" />
-                                                <span>{locations.find(l => l.id === event?.locationId)?.name || 'Không rõ địa điểm'}</span>
-                                                <span className="mx-1">•</span>
-                                                <span>{formatShiftDate(shift.date, shift.session)}</span>
+                                        <div className={`text-xs ${textSecondary} flex items-center gap-1 truncate`}>
+                                            <MapPin size={12} className="shrink-0" />
+                                            <span className="truncate">{locations.find(l => l.id === event?.locationId)?.name || 'Không rõ địa điểm'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right flex-shrink-0">
+                                        <div className={`text-sm font-bold ${textPrimary}`}>
+                                            {formatCurrency(shift.amount)}
+                                        </div>
+                                        <div className={`text-[10px] ${textSecondary} mt-0.5`}>
+                                            {formatShiftDate(shift.date, shift.session)}
+                                        </div>
+                                        {breakdown.surcharge > 0 && (
+                                            <div className={`text-[9px] ${textSecondary} opacity-80`}>
+                                                {formatCurrency(breakdown.baseSalary)} + {formatCurrency(breakdown.surcharge)}
                                             </div>
-                                        </div>
-                                        <div className={`text-xs ${textSecondary}`}>
-                                            {breakdown.surcharge > 0 ? (
-                                                <span>
-                                                    {formatCurrency(breakdown.baseSalary)} + {formatCurrency(breakdown.surcharge)} (Phụ phí)
-                                                </span>
-                                            ) : (
-                                                <span>{formatCurrency(shift.amount)}</span>
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             );
