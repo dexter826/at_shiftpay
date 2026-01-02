@@ -52,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => {
-            const isActive = currentTab === item.id;
+            const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
             return (
               <motion.button
                 key={item.id}
@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       {/* Mobile Menu */}
       <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
         {navItems.filter(item => item.id !== 'settings').map((item) => {
-          const isActive = currentTab === item.id;
+          const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
           return (
             <button
               key={item.id}
