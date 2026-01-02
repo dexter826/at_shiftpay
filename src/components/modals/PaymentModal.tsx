@@ -20,6 +20,7 @@ interface PaymentModalProps {
     events: Event[];
     employees: Employee[];
     locations: Location[];
+    onSuccess?: () => void;
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -32,7 +33,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     onSelectAll,
     events,
     employees,
-    locations
+    locations,
+    onSuccess
 }) => {
     const [paymentType, setPaymentType] = useState<'regular' | 'advance'>('regular');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -152,6 +154,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 showToast('Đã thanh toán thành công', 'success');
             }
 
+            onSuccess?.();
             onClose();
         } catch (error) {
             console.error('Payment error:', error);

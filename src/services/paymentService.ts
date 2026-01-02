@@ -5,6 +5,10 @@ import {
   writeBatch,
   query,
   orderBy,
+  limit,
+  startAfter,
+  getDocs,
+  QueryDocumentSnapshot,
   Unsubscribe
 } from 'firebase/firestore';
 import { PaymentTransaction } from '../types';
@@ -15,6 +19,37 @@ export const paymentService = {
   subscribePayments(callback: (payments: PaymentTransaction[]) => void): Unsubscribe {
     const q = query(collection(db, 'payments'), orderBy('date', 'desc'));
     return createRealtimeSubscription<PaymentTransaction>(q, callback, 'subscribePayments', PaymentTransactionSchema);
+  },
+
+  async getPaymentsPaginated(
+    pageSize: number,
+    lastVisibleDoc?: QueryDocumentSnapshot
+  ): Promise<{ payments: PaymentTransaction[]; lastVisible: QueryDocumentSnapshot | null }> {
+    try {
+      let q = query(
+        collection(db, 'payments'),
+        orderBy('date', 'desc'),
+        limit(pageSize)
+      );
+
+      if (lastVisibleDoc) {
+        q = query(q, startAfter(lastVisibleDoc));
+      }
+
+      const snapshot = await getDocs(q);
+      const payments = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as PaymentTransaction[];
+
+      return {
+        payments,
+        lastVisible: snapshot.docs[snapshot.docs.length - 1] || null
+      };
+    } catch (error) {
+      console.error('getPaymentsPaginated error:', error);
+      throw new Error('Không thể tải lịch sử thanh toán');
+    }
   },
 
   async createPaymentTransaction(

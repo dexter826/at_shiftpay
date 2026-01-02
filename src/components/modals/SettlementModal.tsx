@@ -17,6 +17,7 @@ interface SettlementModalProps {
     paymentHistory: PaymentTransaction[];
     events: Event[];
     locations: Location[];
+    onSuccess?: () => void;
 }
 
 export const SettlementModal: React.FC<SettlementModalProps> = ({
@@ -27,7 +28,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
     shifts,
     paymentHistory,
     events,
-    locations
+    locations,
+    onSuccess
 }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const { showToast } = useToast();
@@ -99,6 +101,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             );
 
             showToast('Quyết toán tiền ứng thành công', 'success');
+            onSuccess?.();
             onClose();
         } catch (error) {
             console.error('Settlement error:', error);

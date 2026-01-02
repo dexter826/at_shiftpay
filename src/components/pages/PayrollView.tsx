@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Shift, PayrollSummary, PaymentTransaction, Event, Location } from '../../types';
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
 
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin, Loader2 } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
@@ -25,6 +25,11 @@ interface PayrollViewProps {
 const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, locations, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
+  const [lastVisible, setLastVisible] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const observer = useRef<IntersectionObserver | null>(null);
+
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +41,55 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
+
+  const loadMorePayments = useCallback(async (isInitial = false) => {
+    if (isFetchingMore || (!hasMore && !isInitial)) return;
+
+    setIsFetchingMore(true);
+    try {
+      const { payments, lastVisible: nextLastVisible } = await dbService.getPaymentsPaginated(
+        20,
+        isInitial ? undefined : lastVisible
+      );
+
+      if (isInitial) {
+        setPaymentHistory(payments);
+      } else {
+        // Tránh trùng lặp nếu có real-time update hoặc fetch song song
+        setPaymentHistory(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newPayments = payments.filter(p => !existingIds.has(p.id));
+          return [...prev, ...newPayments];
+        });
+      }
+
+      setLastVisible(nextLastVisible);
+      setHasMore(payments.length === 20);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  }, [isFetchingMore, hasMore, lastVisible]);
+
+  const lastElementRef = useCallback((node: HTMLDivElement) => {
+    if (isFetchingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMorePayments();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [isFetchingMore, hasMore, loadMorePayments]);
+
+  // Tải dữ liệu ban đầu cho lịch sử
+  useEffect(() => {
+    if (activeTab === 'history' && paymentHistory.length === 0) {
+      loadMorePayments(true);
+    }
+  }, [activeTab, paymentHistory.length, loadMorePayments]);
+
   // Style theo theme
   // Tách logic theme ra custom hook
   const {
@@ -204,6 +258,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       setSelectedEmpId(null);
       setPayConfirm(false);
       setSelectedShiftIds([]);
+      // Làm mới lịch sử
+      loadMorePayments(true);
     } catch (error) {
       console.error('Error:', error);
       showToast('Có lỗi xảy ra', 'error');
@@ -666,53 +722,68 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
               transition={{ duration: 0.3 }}
               className="space-y-2"
             >
-              {filteredHistory.length === 0 ? (
+              {filteredHistory.length === 0 && !isFetchingMore ? (
                 <div className={`text-center py-10 ${textMutedClass}`}>
                   <History size={48} className="mx-auto mb-2 opacity-20" />
                   <p>Không tìm thấy giao dịch nào</p>
                 </div>
               ) : (
-                filteredHistory.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedTransactionId(item.id)}
-                    className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${hoverBgClass} ${textMutedClass}`}>
-                        <History size={16} />
-                      </div>
-                      <div className="text-left">
-                        <div className="flex items-center gap-2">
-                          <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                          {item.type === 'advance' && (
-                            <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
-                              Ứng tiền
-                            </span>
-                          )}
-                          {item.type === 'settlement' && (
-                            <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
-                              Quyết toán
-                            </span>
-                          )}
+                <>
+                  {filteredHistory.map((item, index) => (
+                    <button
+                      key={item.id}
+                      ref={index === filteredHistory.length - 1 ? lastElementRef : null}
+                      onClick={() => setSelectedTransactionId(item.id)}
+                      className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${hoverBgClass} ${textMutedClass}`}>
+                          <History size={16} />
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock size={12} className={textMutedClass} />
-                          <p className={`text-xs ${textMutedClass}`}>
-                            {new Date(item.date).toLocaleDateString('vi-VN')} {new Date(item.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                        <div className="text-left">
+                          <div className="flex items-center gap-2">
+                            <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                            {item.type === 'advance' && (
+                              <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
+                                Ứng tiền
+                              </span>
+                            )}
+                            {item.type === 'settlement' && (
+                              <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
+                                Quyết toán
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock size={12} className={textMutedClass} />
+                            <p className={`text-xs ${textMutedClass}`}>
+                              {new Date(item.date).toLocaleDateString('vi-VN')} {new Date(item.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium ${textSecondaryClass}`}>
-                        {formatCurrency(item.amount)}
-                      </span>
-                      <ChevronRight size={16} className={textMutedClass} />
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${textSecondaryClass}`}>
+                          {formatCurrency(item.amount)}
+                        </span>
+                        <ChevronRight size={16} className={textMutedClass} />
+                      </div>
+                    </button>
+                  ))}
+
+                  {isFetchingMore && (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="w-6 h-6 text-primary animate-spin" />
                     </div>
-                  </button>
-                ))
+                  )}
+
+                  {!hasMore && filteredHistory.length > 0 && (
+                    <p className={`text-center text-xs ${textMutedClass} py-4`}>
+                      Đã hiển thị tất cả lịch sử
+                    </p>
+                  )}
+                </>
               )}
             </motion.div>
           )}
@@ -1072,6 +1143,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         events={events}
         employees={employees}
         locations={locations}
+        onSuccess={() => loadMorePayments(true)}
       />
 
       {/* Modal quyết toán */}
@@ -1085,6 +1157,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           paymentHistory={paymentHistory}
           events={events}
           locations={locations}
+          onSuccess={() => loadMorePayments(true)}
         />
       )}
 

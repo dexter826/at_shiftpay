@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
@@ -41,6 +41,11 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [allEvents, setAllEvents] = useState<Event[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
     const [visibleCount, setVisibleCount] = useState(10);
+    const [name, setName] = useState('');
+    const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
+    const [reviewNote, setReviewNote] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const observerTarget = useRef<HTMLDivElement>(null);
     
     // State cho Modal Thêm/Sửa
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,7 +53,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
     // Tải tất cả sự kiện để đếm số lần làm việc chính xác
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchAllEvents = async () => {
             setLoadingEvents(true);
             try {
@@ -62,13 +67,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         };
         fetchAllEvents();
     }, []);
-    const [name, setName] = useState('');
-    const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
-    const [reviewNote, setReviewNote] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Reset số lượng hiển thị khi lọc hoặc tìm kiếm
-    React.useEffect(() => {
+    useEffect(() => {
         setVisibleCount(10);
     }, [searchTerm, filterType, sortBy]);
 
@@ -94,6 +95,27 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         const low = locations.filter(l => l.review === 'low').length;
         return { high, low, total: locations.length };
     }, [locations]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && filteredLocations.length > visibleCount) {
+                    setVisibleCount(prev => prev + 10);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [filteredLocations.length, visibleCount]);
 
     const handleOpenAdd = () => {
         setEditingLocation(null);
@@ -343,14 +365,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 })}
 
                                 {filteredLocations.length > visibleCount && (
-                                    <div className="col-span-full flex justify-center mt-4">
-                                        <Button
-                                            variant="secondary"
-                                            onClick={() => setVisibleCount(prev => prev + 10)}
-                                            className="w-full md:w-auto px-8"
-                                        >
-                                            Xem thêm ({filteredLocations.length - visibleCount})
-                                        </Button>
+                                    <div ref={observerTarget} className="col-span-full flex justify-center py-8">
+                                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                     </div>
                                 )}
                             </motion.div>
