@@ -318,7 +318,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                     return (
                                         <div
                                             key={loc.id}
-                                            className={`${theme === 'dark' ? 'bg-slate-800/80' : 'bg-white'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'} rounded-b-2xl rounded-t-none overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 flex flex-col group relative`}
+                                            className={`${theme === 'dark' ? 'bg-slate-800/80' : 'bg-white'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} rounded-b-2xl rounded-t-none overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col group relative`}
                                         >
                                             {/* 1. Viền ngang bên trên theo màu đánh giá */}
                                             <div className={`h-1.5 w-full ${loc.review === 'high' ? 'bg-green-500' :
@@ -334,7 +334,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                 {/* 3. Review note và số lần làm */}
                                                 <div className="flex-1">
                                                     <p className={`text-sm ${textSecondaryClass} line-clamp-2 mb-3 leading-relaxed min-h-[40px]`}>
-                                                        {loc.reviewNote ? `"${loc.reviewNote}"` : "Chưa có ghi chú đánh giá cho địa điểm này."}
+                                                        {loc.reviewNote ? `"${loc.reviewNote}"` : "Chưa có ghi chú cho địa điểm này."}
                                                     </p>
                                                     <div className={`flex items-center gap-1.5 text-[11px] ${textMutedClass} mb-4`}>
                                                         <Calendar size={12} />
@@ -357,14 +357,14 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                         <button
                                                             onClick={() => handleOpenEdit(loc)}
                                                             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
-                                                                } ${textPrimaryClass}`}
+                                                                } ${textPrimaryClass} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200/50'}`}
                                                         >
                                                             Sửa
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(loc.id)}
                                                             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-red-900/20 hover:bg-red-900/30' : 'bg-red-50 hover:bg-red-100'
-                                                                } text-red-500`}
+                                                                } text-red-500 border ${theme === 'dark' ? 'border-red-900/30' : 'border-red-100'}`}
                                                         >
                                                             Xóa
                                                         </button>
