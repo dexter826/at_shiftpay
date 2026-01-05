@@ -349,11 +349,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                     <div
                                         className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-amber-50 to-white'} border ${borderClass} rounded-2xl`}
                                     >
-                                        <div className="flex items-center gap-2 text-primary mb-2">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
+                                        <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
+                                            <div className="p-2 bg-primary/10 rounded-lg text-primary">
                                                 <Wallet2 size={16} />
                                             </div>
-                                            <span className="text-xs font-bold uppercase tracking-wider">Tổng lương</span>
+                                            <span className="text-xs font-medium uppercase tracking-wider">Tổng lương</span>
                                         </div>
                                         <p className="text-2xl font-bold text-primary mb-3 truncate">
                                             {stats.totalEarned.toLocaleString('vi-VN')}đ
