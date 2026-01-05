@@ -11,6 +11,7 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLogout }) => {
 
     const {
+        theme,
         bgClass,
         borderClass,
         textPrimaryClass,
@@ -18,7 +19,7 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
     } = useThemeStyles();
 
     return (
-        <div className={`md:hidden sticky top-0 z-40 px-4 py-3 ${bgClass} border-b ${borderClass} shadow-sm flex justify-between items-center`}>
+        <div className={`md:hidden sticky top-0 z-40 px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/70' : 'bg-white/70'} backdrop-blur-md border-b ${borderClass} shadow-sm flex justify-between items-center transition-all duration-300`}>
             <div className="flex items-center gap-3">
                 <img
                     src="/avatar.png"
@@ -37,12 +38,6 @@ export const TopBar: React.FC<TopBarProps> = ({ user, onNavigateToSettings, onLo
             </div>
 
             <div className="flex items-center gap-1">
-                <button
-                    onClick={onNavigateToSettings}
-                    className={`p-2 ${textSecondaryClass} hover:text-primary transition-colors`}
-                >
-                    <Settings size={20} />
-                </button>
                 <button
                     onClick={onLogout}
                     className="p-2 text-red-500 hover:text-red-600 transition-colors"

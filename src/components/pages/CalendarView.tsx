@@ -109,10 +109,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const goToToday = () => {
     const today = new Date();
     const todayStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60 * 1000)).toISOString().split('T')[0];
-    
-    const isSameMonth = displayDate.getFullYear() === today.getFullYear() && 
-                       displayDate.getMonth() === today.getMonth();
-    
+
+    const isSameMonth = displayDate.getFullYear() === today.getFullYear() &&
+      displayDate.getMonth() === today.getMonth();
+
     if (isSameMonth && selectedDate === todayStr) return;
 
     handleMonthChange(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -240,20 +240,33 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       const isCurrentMonth = date.getMonth() === displayDate.getMonth();
 
                       return (
-                        <button
+                        <motion.button
                           key={dateStr}
                           onClick={() => handleDateClick(date)}
-                          className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded text-sm transition-colors ${isSelected
-                            ? 'bg-primary text-white'
+                          whileHover={{ zIndex: 10 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative overflow-hidden ${isSelected
+                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
                             : isToday
-                              ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-medium`
+                              ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-bold ring-2 ring-primary/20`
                               : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
                             }`}
                         >
-                          <span>{date.getDate()}</span>
+                          <span className="relative z-10">{date.getDate()}</span>
+
                           {dayEvents.length > 0 && (
-                            <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-[80%]">
-                              {dayEvents.map((evt, i) => {
+                            <div className="absolute top-1 right-1 flex flex-col gap-0.5 pointer-events-none">
+                              {dayEvents.length > 1 && (
+                                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${isSelected ? 'bg-white text-primary' : 'bg-primary text-white shadow-sm'}`}>
+                                  {dayEvents.length}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {dayEvents.length > 0 && (
+                            <div className="flex flex-wrap justify-center gap-1 mt-1 px-1">
+                              {dayEvents.slice(0, 3).map((evt, i) => {
                                 const loc = locations.find(l => l.id === evt.locationId);
                                 return (
                                   <div key={i} className="flex items-center">
@@ -262,14 +275,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                     ) : loc?.review === 'low' ? (
                                       <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
                                     ) : (
-                                      <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary'}`} />
+                                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary/60'}`} />
                                     )}
                                   </div>
                                 );
                               })}
+                              {dayEvents.length > 3 && <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/40' : 'bg-slate-400'}`} />}
                             </div>
                           )}
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </motion.div>

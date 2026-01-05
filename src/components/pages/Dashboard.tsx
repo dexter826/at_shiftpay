@@ -277,80 +277,97 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                 {/* Thẻ thống kê */}
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 min-h-[260px] md:min-h-[130px]">
                                     {/* Tổng sự kiện */}
-                                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                                    <div
+                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-blue-50 to-white'} border ${borderClass} rounded-2xl`}
+                                    >
                                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                                            <CalendarRange size={16} />
-                                            <span className="text-xs">Tổng sự kiện</span>
+                                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                                <CalendarRange size={16} />
+                                            </div>
+                                            <span className="text-xs font-medium uppercase tracking-wider">Tổng sự kiện</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEvents}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalEvents}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Hôm nay</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.todayEvents}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.todayEvents}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Tuần này</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.weekEvents}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.weekEvents}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Tổng công */}
-                                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                                    <div
+                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-emerald-50 to-white'} border ${borderClass} rounded-2xl`}
+                                    >
                                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                                            <TrendingUp size={16} />
-                                            <span className="text-xs">Tổng công</span>
+                                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                                                <TrendingUp size={16} />
+                                            </div>
+                                            <span className="text-xs font-medium uppercase tracking-wider">Tổng công</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalShifts}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalShifts}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Sáng</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.morningShifts}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.morningShifts}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Chiều</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.afternoonShifts}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.afternoonShifts}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Tổng nhân viên */}
-                                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                                    <div
+                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-orange-50 to-white'} border ${borderClass} rounded-2xl`}
+                                    >
                                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                                            <Users size={16} />
-                                            <span className="text-xs">Tổng nhân viên</span>
+                                            <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
+                                                <Users size={16} />
+                                            </div>
+                                            <span className="text-xs font-medium uppercase tracking-wider">Tổng nhân viên</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3`}>{stats.totalEmployees}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalEmployees}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã làm</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.activeEmployees}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.activeEmployees}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Chưa làm</span>
-                                                <span className={`font-medium ${textPrimaryClass}`}>{stats.totalEmployees - stats.activeEmployees}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.totalEmployees - stats.activeEmployees}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
+                                    {/* Tổng lương */}
+                                    <div
+                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-amber-50 to-white'} border ${borderClass} rounded-2xl`}
+                                    >
                                         <div className="flex items-center gap-2 text-primary mb-2">
-                                            <Wallet2 size={16} />
-                                            <span className="text-xs font-semibold">Tổng lương</span>
+                                            <div className="p-2 bg-primary/10 rounded-lg">
+                                                <Wallet2 size={16} />
+                                            </div>
+                                            <span className="text-xs font-bold uppercase tracking-wider">Tổng lương</span>
                                         </div>
-                                        <p className="text-2xl font-bold text-primary mb-3">
+                                        <p className="text-2xl font-bold text-primary mb-3 truncate">
                                             {stats.totalEarned.toLocaleString('vi-VN')}đ
                                         </p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
-                                                <span className={textSecondaryClass}>Đã ứng:</span>
-                                                <span className="font-medium text-orange-500">
+                                                <span className={textSecondaryClass}>Đã ứng</span>
+                                                <span className="font-semibold text-orange-500">
                                                     {stats.advancedAmount.toLocaleString('vi-VN')}đ
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className={textSecondaryClass}>Còn cần trả:</span>
-                                                <span className="font-medium text-blue-500">
+                                                <span className={textSecondaryClass}>Cần trả</span>
+                                                <span className="font-semibold text-blue-500">
                                                     {stats.unpaidAmount.toLocaleString('vi-VN')}đ
                                                 </span>
                                             </div>

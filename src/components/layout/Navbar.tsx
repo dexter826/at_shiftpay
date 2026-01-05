@@ -50,19 +50,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </span>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 relative">
           {navItems.map((item) => {
             const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
             return (
               <motion.button
                 key={item.id}
                 onClick={() => setTab(item.id)}
-                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                  ? 'bg-primary/10 text-primary'
+                className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors z-10 ${isActive
+                  ? 'text-primary bg-primary/5'
                   : `${textMuted} ${hoverText} ${hoverBg}`
                   }`}
-                whileTap={{ scale: 0.98 }}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-indicator-desktop"
+                    className="absolute left-0 top-2 bottom-2 w-[3px] bg-primary rounded-full z-20"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
                 <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
                 <span>{item.label}</span>
               </motion.button>
@@ -75,7 +81,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           <motion.button
             onClick={onLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
-            whileTap={{ scale: 0.98 }}
           >
             <LogOut size={18} />
             <span>Đăng xuất</span>
@@ -84,20 +89,27 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden fixed bottom-0 left-0 right-0 ${sidebarBg} border-t ${borderColor} flex z-50`}>
-        {navItems.filter(item => item.id !== 'settings').map((item) => {
+      <div className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}>
+        {navItems.map((item) => {
           const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
           return (
             <button
               key={item.id}
               onClick={() => setTab(item.id)}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${isActive
-                ? 'text-primary'
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors rounded-xl ${isActive
+                ? 'text-primary bg-primary/5'
                 : textMuted
                 }`}
             >
+              {isActive && (
+                <motion.div
+                  layoutId="nav-indicator-mobile"
+                  className="absolute top-0 w-8 h-[3px] bg-primary rounded-full z-20"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
               <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-              <span>{item.label}</span>
+              <span className="text-[10px]">{item.label}</span>
             </button>
           );
         })}
