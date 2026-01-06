@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import Loader from './components/ui/Loading';
 import { Navbar, OfflineIndicator } from './components/layout';
 import { Login } from './components/auth';
@@ -7,29 +7,16 @@ import { ExportModal } from './components/modals';
 import { Modal } from './components/ui/Modal';
 import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { useThemeStore, useAuthStore, useAppDataStore } from './stores';
 import { dbService } from './services';
 import { exportDetailedReport } from './services/export';
-import { useAppData } from './hooks/useAppData';
-import { auth } from './firebase';
-import { signOut } from 'firebase/auth';
 
-// Điều hướng đơn giản (HMR)
 type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'locations';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>(() => {
-    return (localStorage.getItem('activeTab') as Tab) || 'dashboard';
-  });
-
-  React.useEffect(() => {
-    localStorage.setItem('activeTab', activeTab);
-  }, [activeTab]);
-
-  // Custom hook quản lý dữ liệu
+  const theme = useThemeStore(state => state.theme);
+  const { user, loading: authLoading, init: initAuth, logout } = useAuthStore();
   const {
-    user,
-    authLoading,
     employees,
     locations,
     events,
@@ -39,14 +26,39 @@ function App() {
     viewDate,
     setViewDate,
     totalDebt,
+    activeTab,
+    setActiveTab,
+    initSubscriptions,
+    cleanupSubscriptions,
     refreshData
-  } = useAppData();
+  } = useAppDataStore();
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  const { theme } = useTheme();
+  // Init auth listener
+  useEffect(() => {
+    const unsubscribe = initAuth();
+    return () => unsubscribe();
+  }, [initAuth]);
+
+  // Init data subscriptions when user changes
+  useEffect(() => {
+    if (user) {
+      initSubscriptions(user.uid);
+    } else {
+      cleanupSubscriptions();
+    }
+    return () => cleanupSubscriptions();
+  }, [user, initSubscriptions, cleanupSubscriptions]);
+
+  // Re-init subscriptions when viewDate changes
+  useEffect(() => {
+    if (user) {
+      initSubscriptions(user.uid);
+    }
+  }, [viewDate, user, initSubscriptions]);
 
   const handleOpenExport = () => {
     setIsExportModalOpen(true);
@@ -64,17 +76,8 @@ function App() {
       setIsExportModalOpen(false);
     } catch (error) {
       console.error("Export failed:", error);
-      // Ideally show a toast here
     } finally {
       setIsExporting(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Logout error", error);
     }
   };
 
@@ -84,7 +87,7 @@ function App() {
 
   const confirmLogout = () => {
     setShowLogoutConfirm(false);
-    handleLogout();
+    logout();
   };
 
   return (
@@ -125,7 +128,6 @@ function App() {
   );
 }
 
-// Tách component để dùng theme
 function AppContent({
   activeTab,
   setActiveTab,
@@ -171,7 +173,7 @@ function AppContent({
   onCloseLogoutConfirm: () => void;
   onConfirmLogout: () => void;
 }) {
-  const { theme } = useTheme();
+  const theme = useThemeStore(state => state.theme);
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
@@ -230,27 +232,19 @@ function AppContent({
           </div>
         }
       >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Bạn có chắc muốn đăng xuất khỏi ứng dụng?</p>
+        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+          Bạn có chắc muốn đăng xuất khỏi ứng dụng?
+        </p>
       </Modal>
     </div>
   );
 }
 
 function AppWrapper() {
-  return (
-    <ThemeProvider>
-      <AppWithSplash />
-    </ThemeProvider>
-  );
-}
-
-function AppWithSplash() {
-  // Check sessionStorage tránh render thừa
   const [showSplash, setShowSplash] = useState(() => {
     return !sessionStorage.getItem('splashscreen_shown');
   });
 
-  // Hiển thị splashscreen
   if (showSplash) {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;
   }

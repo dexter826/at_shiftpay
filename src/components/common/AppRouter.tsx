@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Employee, Event, Shift, UserSettings, Location } from '../../types';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStore } from '../../stores';
 import styled from 'styled-components';
 
 import Dashboard from '../pages/Dashboard';
@@ -46,7 +46,7 @@ export function AppRouter({
   onLogout,
   onOpenExport
 }: AppRouterProps) {
-  const { theme } = useTheme();
+  const theme = useThemeStore(state => state.theme);
 
   const renderContent = () => {
     switch (activeTab) {

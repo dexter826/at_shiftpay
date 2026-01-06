@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useThemeStore } from '../../stores';
 
 const Switch = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useThemeStore();
 
   return (
     <StyledWrapper>

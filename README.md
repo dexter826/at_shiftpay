@@ -11,9 +11,13 @@
   - Thêm, sửa, xóa hồ sơ nhân viên
   - Liên kết thông tin tài khoản ngân hàng
   - Hỗ trợ tìm kiếm và lọc/sắp xếp.
+- **Quản lý địa điểm**:
+  - Thêm, sửa, xóa địa điểm làm việc
+  - Đánh giá và ghi chú cho từng địa điểm
 - **Lịch tiệc & Sự kiện**:
   - Tạo và quản lý các sự kiện làm việc theo ngày.
   - Theo dõi trạng thái và doanh thu dự kiến của từng sự kiện.
+  - Liên kết sự kiện với địa điểm cụ thể
 - **Phân ca & Chấm công**:
   - Gán nhân viên vào ca (Sáng/Chiều) cho từng sự kiện.
   - Tự động tính toán chi phí lương dựa trên cấu hình.
@@ -28,7 +32,9 @@
 - **Giao diện & Tiện ích**:
   - Hỗ trợ Dark Mode / Light Mode.
   - Hoạt động Offline (mất kết nối mạng vẫn thao tác được).
-- **Bảo mật**: Xác thực tài khoản, hỗ trợ đổi mật khẩu.
+  - Pull-to-refresh để cập nhật dữ liệu
+  - Responsive design cho mobile và desktop
+- **Bảo mật**: Xác thực tài khoản, hỗ trợ đổi mật khẩu, quên mật khẩu.
 
 <img src="docs/images/mockup.jpg" alt="Mockup ứng dụng" width="100%">
 
@@ -37,7 +43,7 @@
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS, Styled Components
 - **Backend**: Firebase (Firestore, Authentication)
-- **State Management**: React Hooks (Context API)
+- **State Management**: Zustand
 - **Type Safety & Validation**: Zod (Runtime type validation)
 - **Libraries**:
   - `framer-motion`: Animation và chuyển tiếp
@@ -45,6 +51,7 @@
   - `lucide-react`: Icon hệ thống
   - `lottie-react`: Hiệu ứng Splash Screen
   - `zod`: Runtime validation cho Firestore data
+  - `zustand`: State management hiện đại và nhẹ
 
 ## Cài đặt
 
@@ -91,17 +98,18 @@ npm run build
 ```
 src/
 ├── components/
-│   ├── auth/            # Màn hình đăng nhập, đổi mật khẩu
-│   ├── common/          # Component chung (Splashscreen, AppRouter...)
-│   ├── layout/          # Layout chính (Navbar, TopBar, OfflineIndicator...)
-│   ├── modals/          # Các Modal (Sự kiện, Thanh toán, Xuất báo cáo...)
-│   ├── pages/           # Các trang chính (Dashboard, Lịch, Nhân sự...)
-│   └── ui/              # UI Components cơ bản (Button, Modal, Loading...)
-├── contexts/            # React Context (ThemeContext...)
-├── hooks/               # Custom React Hooks (useAppData, useThemeStyles...)
+│   ├── auth/            # Màn hình đăng nhập, đổi mật khẩu, quên mật khẩu
+│   ├── common/          # Component chung (Splashscreen, AppRouter, PullToRefresh...)
+│   ├── layout/          # Layout chính (Navbar, OfflineIndicator...)
+│   ├── modals/          # Các Modal (Sự kiện, Thanh toán, Xuất báo cáo, Chi tiết nhân viên...)
+│   ├── pages/           # Các trang chính (Dashboard, Lịch, Nhân sự, Địa điểm, Bảng lương...)
+│   └── ui/              # UI Components cơ bản (Button, Modal, Loading, Toast, Switch...)
+├── stores/              # Zustand State Management (Theme, Auth, AppData)
+├── hooks/               # Custom React Hooks (useThemeStyles...)
 ├── services/            # Service Layer (Modular architecture)
 │   ├── employeeService.ts    # CRUD operations cho nhân viên
 │   ├── eventService.ts       # CRUD operations cho sự kiện
+│   ├── locationService.ts    # CRUD operations cho địa điểm
 │   ├── shiftService.ts       # CRUD operations cho ca làm
 │   ├── paymentService.ts     # CRUD operations cho thanh toán
 │   ├── settingsService.ts    # CRUD operations cho cài đặt
@@ -113,6 +121,11 @@ src/
 │   ├── validation.ts    # Zod schemas & validation utilities
 │   └── compare.ts       # Sorting & comparison utilities
 ├── constants/           # Định nghĩa màu sắc, hằng số
+│   └── colors.ts        # Color constants
+├── animations/          # Framer Motion animation variants
+│   └── variants.ts      # Animation configurations
+├── assets/              # Static assets (Lottie animations...)
+│   └── splashscreen.json # Splash screen animation
 ├── constants.ts         # Utility format tiền tệ, ngày tháng
 ├── types.ts             # Định nghĩa TypeScript Interface
 ├── firebase.ts          # Cấu hình Firebase SDK với validation

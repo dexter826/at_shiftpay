@@ -1,7 +1,7 @@
-import { useTheme } from '../contexts/ThemeContext';
+import { useThemeStore } from '../stores';
 
 export const useThemeStyles = () => {
-    const { theme, toggleTheme } = useTheme();
+    const { theme, toggleTheme } = useThemeStore();
 
     return {
         theme,
@@ -31,8 +31,8 @@ export const useThemeStyles = () => {
 
         // Skeleton
         skeletonBgClass: theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200',
-        shimmerClass: theme === 'dark' 
-            ? 'from-transparent via-slate-700/40 to-transparent' 
+        shimmerClass: theme === 'dark'
+            ? 'from-transparent via-slate-700/40 to-transparent'
             : 'from-transparent via-white/60 to-transparent',
     };
 };
