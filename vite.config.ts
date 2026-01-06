@@ -28,7 +28,8 @@ export default defineConfig(() => {
             'charts-vendor': ['recharts'],
             'icons-vendor': ['lucide-react'],
             'lottie-vendor': ['lottie-react'],
-            'styled-vendor': ['styled-components']
+            'styled-vendor': ['styled-components'],
+            'framer-motion-vendor': ['framer-motion']
           }
         }
       },
