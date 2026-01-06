@@ -10,6 +10,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
+  const [hoveredTabId, setHoveredTabId] = React.useState<string | null>(null);
 
   const navItems = [
     { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
@@ -89,27 +90,54 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}>
+      <div
+        className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          const element = document.elementFromPoint(touch.clientX, touch.clientY);
+          const tabButton = element?.closest('button[data-tab-id]');
+          if (tabButton) {
+            const tabId = tabButton.getAttribute('data-tab-id');
+            if (tabId && tabId !== hoveredTabId) {
+              setHoveredTabId(tabId);
+              if ('vibrate' in navigator) navigator.vibrate(5);
+            }
+          }
+        }}
+        onTouchEnd={() => {
+          if (hoveredTabId) {
+            setTab(hoveredTabId);
+            setHoveredTabId(null);
+          }
+        }}
+      >
         {navItems.map((item) => {
           const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
+          const isHovered = hoveredTabId === item.id;
+
           return (
             <button
               key={item.id}
+              data-tab-id={item.id}
               onClick={() => setTab(item.id)}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors rounded-xl ${isActive
-                ? 'text-primary bg-primary/5'
-                : textMuted
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${isActive
+                  ? 'text-primary bg-primary/10'
+                  : isHovered
+                    ? 'text-primary/70 bg-primary/5'
+                    : textMuted
                 }`}
             >
-              {isActive && (
+              {(isActive || isHovered) && (
                 <motion.div
                   layoutId="nav-indicator-mobile"
                   className="absolute top-0 w-8 h-[3px] bg-primary rounded-full z-20"
+                  initial={false}
+                  animate={{ opacity: isHovered && !isActive ? 0.5 : 1 }}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
               <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-              <span className="text-[10px]">{item.label}</span>
+              <span className="text-[10px] whitespace-nowrap">{item.label}</span>
             </button>
           );
         })}

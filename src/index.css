@@ -8,6 +8,22 @@
     html,
     body {
         @apply bg-slate-900 text-slate-200 antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button,
+    a,
+    [role="button"],
+    .no-select {
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+
+    input,
+    textarea,
+    [contenteditable="true"],
+    .selectable {
+        user-select: text;
     }
 
     .light,
