@@ -1,6 +1,6 @@
 import React, { useState, Suspense, lazy } from 'react';
 import Loader from './components/ui/Loading';
-import { Navbar, TopBar, OfflineIndicator } from './components/layout';
+import { Navbar, OfflineIndicator } from './components/layout';
 import { Login } from './components/auth';
 import { Splashscreen, AppRouter, PullToRefresh } from './components/common';
 import { ExportModal } from './components/modals';
@@ -175,11 +175,6 @@ function AppContent({
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <TopBar
-        user={user}
-        onNavigateToSettings={() => setActiveTab('settings')}
-        onLogout={onLogout}
-      />
       <Navbar
         currentTab={activeTab}
         setTab={(t) => setActiveTab(t as Tab)}
