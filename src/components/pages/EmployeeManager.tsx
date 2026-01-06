@@ -336,7 +336,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
       <div className="p-4 md:p-6">
         <AnimatePresence mode="wait">
           {loading ? (
-            <motion.div 
+            <motion.div
               key="loading"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -355,7 +355,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               ))}
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="content"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -369,75 +369,77 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                   onClick={() => openDetailModal(emp)}
                   className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 group shadow-sm hover:shadow-lg relative aspect-square cursor-pointer`}
                 >                {/* Ảnh cover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${highlightBgClass}`}>
-                  {emp.imageUrl ? (
-                    <img
-                      src={emp.imageUrl}
-                      alt={emp.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=random&color=fff&size=256`;
-                      }}
-                    />
-                  ) : (
-                    <div className={`w-full h-full flex items-center justify-center text-3xl font-bold ${textMutedClass} ${highlightBgClass}`}>
-                      {emp.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-
-                  {/* Gradient làm nền cho chữ */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
-
-                  {/* Nút thao tác (Hover/Touch) */}
-                  <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
-                      className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-primary hover:text-white transition-all duration-200"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(emp.id); }}
-                      className="p-2 rounded-full backdrop-blur-md bg-white/30 dark:bg-black/40 text-white shadow-sm hover:bg-red-500 hover:text-white transition-all duration-200"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-
-                  {/* Badge Ngân hàng */}
-                  <div className="absolute top-2 left-2 z-10">
-                    {emp.bankAccount ? (
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-green-500/90 text-white text-[10px] font-medium shadow-sm">
-                        <CheckCircle size={12} />
-                        <span>Ngân hàng</span>
-                      </div>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${highlightBgClass}`}>
+                    {emp.imageUrl ? (
+                      <img
+                        src={emp.imageUrl}
+                        alt={emp.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=random&color=fff&size=256`;
+                        }}
+                      />
                     ) : (
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-md bg-orange-500/90 text-white text-[10px] font-medium shadow-sm">
-                        <CircleAlert size={12} />
-                        <span>Ngân hàng</span>
+                      <div className={`w-full h-full flex items-center justify-center text-3xl font-bold ${textMutedClass} ${highlightBgClass}`}>
+                        {emp.name.charAt(0).toUpperCase()}
                       </div>
                     )}
-                  </div>
-                </div>
 
-                {/* Thông tin hiển thị */}
-                <div className="absolute bottom-0 left-0 right-0 p-3 z-10 text-white">
-                  <h3 className="text-sm font-bold truncate leading-tight mb-1 shadow-black/50 drop-shadow-sm">{emp.name}</h3>
+                    {/* Gradient làm nền cho chữ */}
+                    <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
 
-                  <div className="flex flex-col gap-0.5 text-[11px] text-slate-200">
-                    <div className="flex items-center gap-1.5 opacity-90">
-                      <Phone size={10} className="shrink-0" />
-                      <span className="truncate">{emp.phone || '---'}</span>
+                    {/* Nút thao tác (Hover/Touch) */}
+                    <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
+                        className="p-2 rounded-full bg-white/40 dark:bg-black/50 text-white shadow-sm hover:bg-primary hover:text-white transition-all duration-200"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(emp.id); }}
+                        className="p-2 rounded-full bg-white/40 dark:bg-black/50 text-white shadow-sm hover:bg-red-500 hover:text-white transition-all duration-200"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
 
-                    <div className="flex items-center gap-1.5 font-medium text-primary">
-                      <Briefcase size={10} className="shrink-0" />
-                      <span>{shiftCountByEmployee[emp.id] || 0} công</span>
+                    {/* Badge Ngân hàng */}
+                    <div className="absolute top-2 left-2 z-10">
+                      {emp.bankAccount ? (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/80 text-white text-[10px] font-medium shadow-sm">
+                          <CheckCircle size={12} />
+                          <span>Ngân hàng</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/80 text-white text-[10px] font-medium shadow-sm">
+                          <CircleAlert size={12} />
+                          <span>Ngân hàng</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Thông tin hiển thị */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 z-10 text-white">
+                    <h3 className="text-sm font-bold truncate leading-tight mb-1 shadow-black/50 drop-shadow-sm">{emp.name}</h3>
+
+                    <div className="flex flex-col gap-0.5 text-[11px] text-slate-200">
+                      <div className="flex items-center gap-1.5 opacity-90">
+                        <Phone size={10} className="shrink-0" />
+                        <span className="truncate">{emp.phone || '---'}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 font-medium text-primary">
+                        <Briefcase size={10} className="shrink-0" />
+                        <span>{shiftCountByEmployee[emp.id] || 0} công</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
