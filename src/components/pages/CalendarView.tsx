@@ -37,23 +37,26 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   loading = false
 }) => {
   const { showToast } = useToast();
-  const { theme } = useThemeStyles();
-
   const {
     bgClass,
     cardBgClass,
     borderClass,
     textPrimaryClass,
     textMutedClass,
-    hoverBgClass
+    hoverBgClass,
+    theme
   } = useThemeStyles();
-
-  React.useEffect(() => {
-    (window as any).allEvents = events;
-  }, [events]);
 
   const [localDate, setLocalDate] = useState(new Date());
   const displayDate = propDate || localDate;
+
+  // Đồng bộ localDate khi propDate thay đổi
+  React.useEffect(() => {
+    if (propDate) setLocalDate(propDate);
+  }, [propDate]);
+
+  const monthLabel = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(displayDate);
+  const showLoading = loading;
 
   const handleMonthChange = (newDate: Date) => {
     if (onDateChange) {
@@ -66,8 +69,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     const today = new Date();
     const offset = today.getTimezoneOffset();
-    const localDate = new Date(today.getTime() - (offset * 60 * 1000));
-    return localDate.toISOString().split('T')[0];
+    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+    return localToday.toISOString().split('T')[0];
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -101,8 +104,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     }
     return days;
   }, [displayDate]);
-
-  const monthLabel = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(displayDate);
 
   const prevMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() - 1, 1));
   const nextMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1));
@@ -221,72 +222,86 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
             <div className="grid grid-cols-7 p-2 gap-1 lg:flex-1 lg:auto-rows-fr overflow-hidden relative">
               <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={monthLabel}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
-                >
-                  {daysInMonth.map((date, idx) => {
-                    const offset = date.getTimezoneOffset();
-                    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-                    const dateStr = localDate.toISOString().split('T')[0];
+                {showLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
+                  >
+                    {Array.from({ length: 35 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-square lg:aspect-auto rounded" height="100%" />
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={monthLabel}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
+                  >
+                    {daysInMonth.map((date, idx) => {
+                      const offset = date.getTimezoneOffset();
+                      const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+                      const dateStr = localDate.toISOString().split('T')[0];
 
-                    const dayEvents = eventsByDate[dateStr] || [];
-                    const isSelected = selectedDate === dateStr;
-                    const isToday = new Date().toISOString().split('T')[0] === dateStr;
-                    const isCurrentMonth = date.getMonth() === displayDate.getMonth();
+                      const dayEvents = eventsByDate[dateStr] || [];
+                      const isSelected = selectedDate === dateStr;
+                      const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                      const isCurrentMonth = date.getMonth() === displayDate.getMonth();
 
-                    return (
-                      <motion.button
-                        key={dateStr}
-                        onClick={() => handleDateClick(date)}
-                        whileHover={{ zIndex: 10 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative overflow-hidden ${isSelected
-                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                          : isToday
-                            ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-bold ring-2 ring-primary/20`
-                            : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
-                          }`}
-                      >
-                        <span className="relative z-10">{date.getDate()}</span>
+                      return (
+                        <motion.button
+                          key={dateStr}
+                          onClick={() => handleDateClick(date)}
+                          whileHover={{ zIndex: 10 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative overflow-hidden ${isSelected
+                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                            : isToday
+                              ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-bold ring-2 ring-primary/20`
+                              : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
+                            }`}
+                        >
+                          <span className="relative z-10">{date.getDate()}</span>
 
-                        {dayEvents.length > 0 && (
-                          <div className="absolute top-1 right-1 flex flex-col gap-0.5 pointer-events-none">
-                            {dayEvents.length > 1 && (
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${isSelected ? 'bg-white text-primary' : 'bg-primary text-white shadow-sm'}`}>
-                                {dayEvents.length}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {dayEvents.length > 0 && (
-                          <div className="flex flex-wrap justify-center gap-1 mt-1 px-1">
-                            {dayEvents.slice(0, 3).map((evt, i) => {
-                              const loc = locations.find(l => l.id === evt.locationId);
-                              return (
-                                <div key={i} className="flex items-center">
-                                  {loc?.review === 'high' ? (
-                                    <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
-                                  ) : loc?.review === 'low' ? (
-                                    <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
-                                  ) : (
-                                    <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary/60'}`} />
-                                  )}
+                          {dayEvents.length > 0 && (
+                            <div className="absolute top-1 right-1 flex flex-col gap-0.5 pointer-events-none">
+                              {dayEvents.length > 1 && (
+                                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${isSelected ? 'bg-white text-primary' : 'bg-primary text-white shadow-sm'}`}>
+                                  {dayEvents.length}
                                 </div>
-                              );
-                            })}
-                            {dayEvents.length > 3 && <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/40' : 'bg-slate-400'}`} />}
-                          </div>
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </motion.div>
+                              )}
+                            </div>
+                          )}
+
+                          {dayEvents.length > 0 && (
+                            <div className="flex flex-wrap justify-center gap-1 mt-1 px-1">
+                              {dayEvents.slice(0, 3).map((evt, i) => {
+                                const loc = locations.find(l => l.id === evt.locationId);
+                                return (
+                                  <div key={i} className="flex items-center">
+                                    {loc?.review === 'high' ? (
+                                      <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
+                                    ) : loc?.review === 'low' ? (
+                                      <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
+                                    ) : (
+                                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary/60'}`} />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                              {dayEvents.length > 3 && <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/40' : 'bg-slate-400'}`} />}
+                            </div>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </div>
