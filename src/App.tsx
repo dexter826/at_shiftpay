@@ -164,7 +164,7 @@ function AppContent({
   viewDate: Date;
   setViewDate: (date: Date) => void;
   totalDebt: number;
-  refreshData: () => void;
+  refreshData: (userId: string) => void;
   onOpenExport: () => void;
   isExportModalOpen: boolean;
   setIsExportModalOpen: (open: boolean) => void;
@@ -183,7 +183,7 @@ function AppContent({
         onLogout={onLogout}
       />
       <main className="md:pl-60">
-        <PullToRefresh onRefresh={refreshData}>
+        <PullToRefresh onRefresh={() => refreshData(user.uid)}>
           <AppRouter
             activeTab={activeTab}
             setActiveTab={(t) => setActiveTab(t as any)}

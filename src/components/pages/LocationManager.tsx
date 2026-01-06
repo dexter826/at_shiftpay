@@ -46,7 +46,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [reviewNote, setReviewNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const observerTarget = useRef<HTMLDivElement>(null);
-    
+
     // State cho Modal Thêm/Sửa
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
@@ -170,7 +170,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
     const confirmDelete = async () => {
         if (!deleteConfirm) return;
-        
+
         try {
             await dbService.deleteLocation(deleteConfirm);
             showToast('Xóa địa điểm thành công', 'success');
@@ -216,7 +216,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <Button 
+                            <Button
                                 onClick={handleOpenAdd}
                                 variant="primary"
                                 className="flex items-center gap-2"
@@ -433,7 +433,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Ví dụ: Nhà hàng Diamond"
+                            placeholder="Nhập tên địa điểm"
                             className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
                         />
                     </div>
@@ -443,22 +443,20 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setReview(review === 'high' ? undefined : 'high')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                                    review === 'high' 
-                                    ? 'bg-green-500/10 border-green-500 text-green-600' 
-                                    : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'high'
+                                        ? 'bg-green-500/10 border-green-500 text-green-600'
+                                        : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                    }`}
                             >
                                 <ThumbsUp size={18} />
                                 <span className="font-medium">Tốt</span>
                             </button>
                             <button
                                 onClick={() => setReview(review === 'low' ? undefined : 'low')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                                    review === 'low' 
-                                    ? 'bg-red-500/10 border-red-500 text-red-600' 
-                                    : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'low'
+                                        ? 'bg-red-500/10 border-red-500 text-red-600'
+                                        : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                    }`}
                             >
                                 <ThumbsDown size={18} />
                                 <span className="font-medium">Kém</span>

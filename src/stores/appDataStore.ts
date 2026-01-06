@@ -36,7 +36,7 @@ interface AppDataState {
 
     initSubscriptions: (userId: string) => void;
     cleanupSubscriptions: () => void;
-    refreshData: () => void;
+    refreshData: (userId: string) => void;
 }
 
 export const useAppDataStore = create<AppDataState>((set, get) => ({
@@ -79,11 +79,11 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     _unpaidShifts: [],
     _extraEvents: [],
 
-    refreshData: () => {
+    refreshData: (userId) => {
         const state = get();
         state.cleanupSubscriptions();
         set({ isLoading: true });
-        // Re-init will be triggered by viewDate change effect
+        state.initSubscriptions(userId);
     },
 
     initSubscriptions: (userId) => {
