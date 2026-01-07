@@ -68,9 +68,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     const today = new Date();
-    const offset = today.getTimezoneOffset();
-    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
-    return localToday.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -109,7 +110,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const nextMonth = () => handleMonthChange(new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1));
   const goToToday = () => {
     const today = new Date();
-    const todayStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60 * 1000)).toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
 
     const isSameMonth = displayDate.getFullYear() === today.getFullYear() &&
       displayDate.getMonth() === today.getMonth();
@@ -250,7 +254,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
                       const dayEvents = eventsByDate[dateStr] || [];
                       const isSelected = selectedDate === dateStr;
-                      const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                      const isToday = (() => {
+                        const now = new Date();
+                        return now.getFullYear() === date.getFullYear() &&
+                          now.getMonth() === date.getMonth() &&
+                          now.getDate() === date.getDate();
+                      })();
                       const isCurrentMonth = date.getMonth() === displayDate.getMonth();
 
                       return (

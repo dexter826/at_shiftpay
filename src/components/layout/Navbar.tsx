@@ -30,6 +30,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     hoverBgClass: hoverBg
   } = useThemeStyles();
 
+  // Reset hover state khi mất focus hoặc đổi tab ứng dụng
+  React.useEffect(() => {
+    const handleReset = () => setHoveredTabId(null);
+    window.addEventListener('visibilitychange', handleReset);
+    window.addEventListener('blur', handleReset);
+    return () => {
+      window.removeEventListener('visibilitychange', handleReset);
+      window.removeEventListener('blur', handleReset);
+    };
+  }, []);
+
   const hoverText = `hover:${textSecondaryClass}`;
 
   return (
@@ -121,10 +132,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               data-tab-id={item.id}
               onClick={() => setTab(item.id)}
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${isActive
-                  ? 'text-primary bg-primary/10'
-                  : isHovered
-                    ? 'text-primary/70 bg-primary/5'
-                    : textMuted
+                ? 'text-primary bg-primary/10'
+                : isHovered
+                  ? 'text-primary/70 bg-primary/5'
+                  : textMuted
                 }`}
             >
               {(isActive || isHovered) && (

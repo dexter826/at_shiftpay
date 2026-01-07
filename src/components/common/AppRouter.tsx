@@ -48,88 +48,102 @@ export function AppRouter({
 }: AppRouterProps) {
   const theme = useThemeStore(state => state.theme);
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return (
-          <Dashboard
-            user={user}
-            employees={employees}
-            events={events}
-            shifts={shifts}
-            settings={settings}
-            loading={loading}
-            onLogout={onLogout}
-            onNavigateToSettings={() => setActiveTab('settings')}
-            onOpenExport={onOpenExport}
-          />
-        );
-      case 'calendar':
-        return (
-          <CalendarView
-            events={events}
-            shifts={shifts}
-            employees={employees}
-            locations={locations}
-            totalDebt={totalDebt}
-            settings={settings}
-            currentDate={viewDate}
-            onDateChange={setViewDate}
-            onNavigateToReviews={() => setActiveTab('locations')}
-            loading={loading}
-          />
-        );
-      case 'employees':
-        return (
-          <EmployeeManager
-            employees={employees}
-            shifts={shifts}
-            events={events}
-            loading={loading}
-          />
-        );
-      case 'payroll':
-        return (
-          <PayrollView
-            shifts={shifts}
-            employees={employees}
-            events={events}
-            locations={locations}
-            loading={loading}
-          />
-        );
-      case 'locations':
-        return (
-          <LocationManager
-            locations={locations}
-            loading={loading}
-            onBack={() => setActiveTab('calendar')}
-          />
-        );
-      case 'settings':
-        return (
-          <SettingsView
-            user={user}
-            settings={settings}
-            onLogout={onLogout}
-          />
-        );
-      default:
-        return null;
+  const tabs = [
+    {
+      id: 'dashboard',
+      component: (
+        <Dashboard
+          user={user}
+          employees={employees}
+          events={events}
+          shifts={shifts}
+          settings={settings}
+          loading={loading}
+          onLogout={onLogout}
+          onNavigateToSettings={() => setActiveTab('settings')}
+          onOpenExport={onOpenExport}
+        />
+      )
+    },
+    {
+      id: 'calendar',
+      component: (
+        <CalendarView
+          events={events}
+          shifts={shifts}
+          employees={employees}
+          locations={locations}
+          totalDebt={totalDebt}
+          settings={settings}
+          currentDate={viewDate}
+          onDateChange={setViewDate}
+          onNavigateToReviews={() => setActiveTab('locations')}
+          loading={loading}
+        />
+      )
+    },
+    {
+      id: 'employees',
+      component: (
+        <EmployeeManager
+          employees={employees}
+          shifts={shifts}
+          events={events}
+          loading={loading}
+        />
+      )
+    },
+    {
+      id: 'payroll',
+      component: (
+        <PayrollView
+          shifts={shifts}
+          employees={employees}
+          events={events}
+          locations={locations}
+          loading={loading}
+        />
+      )
+    },
+    {
+      id: 'locations',
+      component: (
+        <LocationManager
+          locations={locations}
+          loading={loading}
+          onBack={() => setActiveTab('calendar')}
+        />
+      )
+    },
+    {
+      id: 'settings',
+      component: (
+        <SettingsView
+          user={user}
+          settings={settings}
+          onLogout={onLogout}
+        />
+      )
     }
-  };
+  ];
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-      >
-        {renderContent()}
-      </motion.div>
-    </AnimatePresence>
+    <div className="relative">
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          className={activeTab === tab.id ? 'block' : 'hidden'}
+        >
+          {/* AnimatePresence chỉ bọc ngoài cùng hoặc từng tab nếu cần hiệu ứng riêng */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: activeTab === tab.id ? 1 : 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {tab.component}
+          </motion.div>
+        </div>
+      ))}
+    </div>
   );
-}
+};
