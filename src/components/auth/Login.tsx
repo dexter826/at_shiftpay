@@ -1,15 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { User, Lock, Eye, EyeOff, Heart } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Heart, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import Button from '../ui/Button';
+import { useAuthStore } from '../../stores/authStore';
 
 interface LoginProps {
   onLogin: () => void;
+}
+
+interface SavedUser {
+  email: string;
+  displayName: string;
 }
 
 const CORRECT_CODE = '2738';
@@ -29,7 +35,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  // Trạng thái mã OTP
+  const { savedUser, saveUserInfo, clearSavedUserInfo } = useAuthStore();
+
+  const [showQuickLogin, setShowQuickLogin] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (savedUser && !showQuickLogin && !password) {
+      setShowQuickLogin(true);
+    }
+  }, [savedUser]);
+
   const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -38,12 +53,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     useRef<HTMLInputElement>(null),
   ];
 
-  // Trạng thái lỗi form
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [fullNameError, setFullNameError] = useState('');
   const [codeError, setCodeError] = useState('');
+
+  useEffect(() => {
+    if (savedUser && showQuickLogin) {
+      setEmail(savedUser.email);
+    }
+  }, [savedUser, showQuickLogin]);
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -196,6 +216,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           setLoading(false);
           return;
         }
+
+        saveUserInfo({
+          email: userCredential.user.email!,
+          displayName: userCredential.user.displayName || 'Người dùng'
+        });
+
         onLogin();
       }
     } catch (error: any) {
@@ -230,6 +256,27 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setCodeError('');
     setCodeDigits(['', '', '', '']);
     setVerificationSent(false);
+  };
+
+  const handleSwitchAccount = () => {
+    setShowQuickLogin(false);
+    setEmail('');
+    setPassword('');
+    setError('');
+  };
+
+  const handleRemoveAccount = () => {
+    clearSavedUserInfo();
+    handleSwitchAccount();
+  };
+
+  const handleBackToQuickLogin = () => {
+    if (savedUser) {
+      setEmail(savedUser.email);
+      setShowQuickLogin(true);
+      setError('');
+      setPassword('');
+    }
   };
 
   const handleEmailChange = (value: string) => {
@@ -305,12 +352,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     MOB
                   </a>
                 </p>
-                <button
-                  onClick={handleSwitchMode}
-                  className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${borderClass} ${hoverBgClass} ${textSecondaryClass}`}
-                >
-                  {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
-                </button>
+                {(!savedUser || !showQuickLogin) && (
+                  <button
+                    onClick={handleSwitchMode}
+                    className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${borderClass} ${hoverBgClass} ${textSecondaryClass}`}
+                  >
+                    {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -327,252 +376,359 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
 
               <AnimatePresence mode="wait">
-                <motion.h2
-                  key={isSignUp ? 'signup-title' : 'login-title'}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-4xl font-retro text-primary mb-4 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide"
-                >
-                  {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
-                </motion.h2>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isSignUp ? 'signup-form' : 'login-form'}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {verificationSent && (
-                    <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-start gap-3">
-                      <div className="mt-0.5">✓</div>
-                      <div>
-                        <p className="font-semibold text-sm">Đăng ký thành công!</p>
-                        <p className="text-sm mt-1 opacity-90">Email xác thực đã được gửi đến <span className="font-bold">{verificationEmail}</span></p>
-                      </div>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                      <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
-                        Email
-                      </label>
-                      <div className="relative group">
-                        <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
-                          <User size={18} />
-                        </div>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => handleEmailChange(e.target.value)}
-                          onBlur={() => validateEmail(email)}
-                          className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
-                            ? 'border-red-500 focus:ring-red-500/20'
-                            : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                          focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
-                          placeholder="Nhập email của bạn"
+                {savedUser && showQuickLogin && !isSignUp ? (
+                  <motion.div
+                    key="quick-login"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center text-center space-y-6"
+                  >
+                    <div className="relative">
+                      <div className="w-24 h-24 rounded-full p-1 border-2 border-primary shadow-[0_0_20px_rgba(236,181,45,0.3)]">
+                        <img
+                          src="/avatar.png"
+                          alt={savedUser.displayName}
+                          className="w-full h-full rounded-full object-cover bg-slate-100"
                         />
                       </div>
-                      {emailError && <p className="text-red-500 text-xs ml-1 font-medium">{emailError}</p>}
+                      <div className="absolute bottom-0 right-0 bg-green-500 w-5 h-5 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+
+                      <button
+                        type="button"
+                        onClick={handleRemoveAccount}
+                        className="absolute -top-1 -right-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white p-1 rounded-full border border-red-500/20 transition-all duration-200"
+                        title="Gỡ tài khoản"
+                      >
+                        <X size={12} />
+                      </button>
                     </div>
 
-                    {/* Họ tên */}
-                    {isSignUp && (
+                    <div>
+                      <h2 className="text-2xl font-bold font-retro text-primary mb-1">Xin chào!</h2>
+                      <p className={`text-lg font-medium ${textSecondaryClass}`}>{savedUser.displayName}</p>
+                      <p className={`text-sm ${textMutedClass} mt-1`}>{savedUser.email}</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="w-full space-y-4">
+                      <div className="space-y-1.5 text-left">
+                        <div className="relative group">
+                          <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
+                            <Lock size={18} />
+                          </div>
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
+                            onChange={(e) => {
+                              setPassword(e.target.value);
+                              if (passwordError) validatePassword(e.target.value);
+                            }}
+                            className={`w-full bg-transparent pl-10 pr-11 py-3 rounded-xl border ${passwordError
+                              ? 'border-red-500 focus:ring-red-500/20'
+                              : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
+                                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                            placeholder="Nhập mật khẩu"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                        {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
+                      </div>
+
+                      {error && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse justify-center">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                          </svg>
+                          {error}
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        fullWidth
+                        className="h-12 text-base shadow-lg hover:shadow-primary/25"
+                      >
+                        {loading ? 'Đang đăng nhập...' : 'Tiếp tục'}
+                      </Button>
+
+                      <div className="flex flex-col gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={handleSwitchAccount}
+                          className={`text-sm ${textMutedClass} hover:${textSecondaryClass} hover:underline transition-colors flex items-center justify-center gap-1 mx-auto`}
+                        >
+                          <span>Đăng nhập tài khoản khác</span>
+                          <ChevronRight size={14} />
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={isSignUp ? 'signup-form' : 'login-form'}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative"
+                  >
+                    {/* Back button if saved user exists */}
+                    {!isSignUp && savedUser && !showQuickLogin && (
+                      <button
+                        onClick={handleBackToQuickLogin}
+                        className={`absolute top-0 left-0 z-20 p-2 rounded-full ${hoverBgClass} ${textMutedClass} hover:text-primary transition-colors`}
+                        title={`Quay lại đăng nhập với ${savedUser.displayName}`}
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                    )}
+
+                    <motion.h2
+                      initial={{ y: -10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="text-4xl font-retro text-primary mb-6 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide"
+                    >
+                      {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
+                    </motion.h2>
+
+                    {verificationSent && (
+                      <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-start gap-3">
+                        <div className="mt-0.5">✓</div>
+                        <div>
+                          <p className="font-semibold text-sm">Đăng ký thành công!</p>
+                          <p className="text-sm mt-1 opacity-90">Email xác thực đã được gửi đến <span className="font-bold">{verificationEmail}</span></p>
+                        </div>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      {/* Email */}
                       <div className="space-y-1.5">
                         <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
-                          Họ và tên
+                          Email
                         </label>
                         <div className="relative group">
                           <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                             <User size={18} />
                           </div>
                           <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => {
-                              setFullName(e.target.value);
-                              if (fullNameError) validateFullName(e.target.value);
-                            }}
-                            onBlur={() => validateFullName(fullName)}
-                            className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
+                            type="email"
+                            value={email}
+                            onChange={(e) => handleEmailChange(e.target.value)}
+                            onBlur={() => validateEmail(email)}
+                            className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
                               ? 'border-red-500 focus:ring-red-500/20'
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                            focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
-                            placeholder="Nhập họ tên của bạn"
+                              focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                            placeholder="Nhập email của bạn"
                           />
                         </div>
-                        {fullNameError && <p className="text-red-500 text-xs ml-1 font-medium">{fullNameError}</p>}
+                        {emailError && <p className="text-red-500 text-xs ml-1 font-medium">{emailError}</p>}
                       </div>
-                    )}
 
-                    {/* Mật khẩu */}
-                    <div className="space-y-1.5">
-                      <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
-                        Mật khẩu
-                      </label>
-                      <div className="relative group">
-                        <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
-                          <Lock size={18} />
+                      {/* Họ tên */}
+                      {isSignUp && (
+                        <div className="space-y-1.5">
+                          <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
+                            Họ và tên
+                          </label>
+                          <div className="relative group">
+                            <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
+                              <User size={18} />
+                            </div>
+                            <input
+                              type="text"
+                              value={fullName}
+                              onChange={(e) => {
+                                setFullName(e.target.value);
+                                if (fullNameError) validateFullName(e.target.value);
+                              }}
+                              onBlur={() => validateFullName(fullName)}
+                              className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
+                                ? 'border-red-500 focus:ring-red-500/20'
+                                : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
+                                focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                              placeholder="Nhập họ tên của bạn"
+                            />
+                          </div>
+                          {fullNameError && <p className="text-red-500 text-xs ml-1 font-medium">{fullNameError}</p>}
                         </div>
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={password}
-                          onChange={(e) => {
-                            setPassword(e.target.value);
-                            if (passwordError) validatePassword(e.target.value);
-                            if (isSignUp && confirmPassword && confirmPasswordError) {
-                              validateConfirmPassword(confirmPassword);
-                            }
-                          }}
-                          onBlur={() => validatePassword(password)}
-                          className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
-                            ? 'border-red-500 focus:ring-red-500/20'
-                            : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                          focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
-                          placeholder="Nhập mật khẩu"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                      {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
-                    </div>
+                      )}
 
-                    {/* Xác nhận mật khẩu */}
-                    {isSignUp && (
+                      {/* Mật khẩu */}
                       <div className="space-y-1.5">
                         <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
-                          Xác nhận mật khẩu
+                          Mật khẩu
                         </label>
                         <div className="relative group">
                           <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                             <Lock size={18} />
                           </div>
                           <input
-                            type={showConfirmPassword ? 'text' : 'password'}
-                            value={confirmPassword}
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
                             onChange={(e) => {
-                              setConfirmPassword(e.target.value);
-                              if (confirmPasswordError) validateConfirmPassword(e.target.value);
+                              setPassword(e.target.value);
+                              if (passwordError) validatePassword(e.target.value);
+                              if (isSignUp && confirmPassword && confirmPasswordError) {
+                                validateConfirmPassword(confirmPassword);
+                              }
                             }}
-                            onBlur={() => validateConfirmPassword(confirmPassword)}
-                            className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
+                            onBlur={() => validatePassword(password)}
+                            className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
                               ? 'border-red-500 focus:ring-red-500/20'
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                            focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
-                            placeholder="Nhập lại mật khẩu"
+                              focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                            placeholder="Nhập mật khẩu"
                           />
                           <button
                             type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            onClick={() => setShowPassword(!showPassword)}
                             className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                           >
-                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
                         </div>
-                        {confirmPasswordError && <p className="text-red-500 text-xs ml-1 font-medium">{confirmPasswordError}</p>}
+                        {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
                       </div>
-                    )}
 
-                    {/* Mã bếp */}
-                    {isSignUp && (
-                      <div className="space-y-2">
-                        <label className={`block text-sm font-medium ${textSecondaryClass} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
-                        <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
-                          {codeDigits.map((digit, index) => (
+                      {/* Xác nhận mật khẩu */}
+                      {isSignUp && (
+                        <div className="space-y-1.5">
+                          <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
+                            Xác nhận mật khẩu
+                          </label>
+                          <div className="relative group">
+                            <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
+                              <Lock size={18} />
+                            </div>
                             <input
-                              key={index}
-                              ref={inputRefs[index]}
-                              type="tel"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleCodeChange(index, e.target.value)}
-                              onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                              className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
-                          ${codeError
-                                  ? 'border-red-500 focus:ring-red-500/20'
-                                  : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                          focus:ring-2 focus:outline-none transition-all duration-200 ${textPrimaryClass}`}
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              value={confirmPassword}
+                              onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                if (confirmPasswordError) validateConfirmPassword(e.target.value);
+                              }}
+                              onBlur={() => validateConfirmPassword(confirmPassword)}
+                              className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
+                                ? 'border-red-500 focus:ring-red-500/20'
+                                : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
+                                focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                              placeholder="Nhập lại mật khẩu"
                             />
-                          ))}
-                        </div>
-                        {codeError && <p className="text-red-500 text-xs ml-1 font-medium">{codeError}</p>}
-                      </div>
-                    )}
-
-                    {/* Ghi nhớ & Quên mật khẩu */}
-                    {!isSignUp && (
-                      <div className="flex items-center justify-between pt-1">
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <div className="relative flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={rememberMe}
-                              onChange={(e) => setRememberMe(e.target.checked)}
-                              className={`peer h-4 w-4 cursor-pointer appearance-none rounded border ${borderClass} checked:border-primary checked:bg-primary transition-all`}
-                            />
-                            <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
-                              <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
+                            >
+                              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
                           </div>
-                          <span className={`text-sm ${textMutedClass} group-hover:${textSecondaryClass} transition-colors`}>
-                            Ghi nhớ đăng nhập
-                          </span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setForgotPasswordOpen(true)}
-                          className="text-sm text-primary hover:text-[#f0c654] font-medium transition-colors hover:underline"
-                        >
-                          Quên mật khẩu?
-                        </button>
-                      </div>
-                    )}
+                          {confirmPasswordError && <p className="text-red-500 text-xs ml-1 font-medium">{confirmPasswordError}</p>}
+                        </div>
+                      )}
 
-                    {error && (
-                      <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <line x1="12" y1="8" x2="12" y2="12"></line>
-                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        {error}
-                      </div>
-                    )}
+                      {/* Mã bếp */}
+                      {isSignUp && (
+                        <div className="space-y-2">
+                          <label className={`block text-sm font-medium ${textSecondaryClass} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
+                          <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
+                            {codeDigits.map((digit, index) => (
+                              <input
+                                key={index}
+                                ref={inputRefs[index]}
+                                type="tel"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleCodeChange(index, e.target.value)}
+                                onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                                className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
+                              ${codeError
+                                    ? 'border-red-500 focus:ring-red-500/20'
+                                    : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
+                              focus:ring-2 focus:outline-none transition-all duration-200 ${textPrimaryClass}`}
+                              />
+                            ))}
+                          </div>
+                          {codeError && <p className="text-red-500 text-xs ml-1 font-medium">{codeError}</p>}
+                        </div>
+                      )}
 
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      fullWidth
-                      className="mt-4"
-                    >
-                      {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
-                    </Button>
-                  </form>
+                      {/* Ghi nhớ & Quên mật khẩu */}
+                      {!isSignUp && (
+                        <div className="flex items-center justify-between pt-1">
+                          <label className="flex items-center gap-2 cursor-pointer group">
+                            <div className="relative flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className={`peer h-4 w-4 cursor-pointer appearance-none rounded border ${borderClass} checked:border-primary checked:bg-primary transition-all`}
+                              />
+                              <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
+                                <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </div>
+                            <span className={`text-sm ${textMutedClass} group-hover:${textSecondaryClass} transition-colors`}>
+                              Ghi nhớ đăng nhập
+                            </span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setForgotPasswordOpen(true)}
+                            className="text-sm text-primary hover:text-[#f0c654] font-medium transition-colors hover:underline"
+                          >
+                            Quên mật khẩu?
+                          </button>
+                        </div>
+                      )}
 
-                  {/* Đổi chế độ mobile */}
-                  <div className={`md:hidden mt-8 text-center border-t ${borderClass} pt-6`}>
-                    <p className={`text-sm ${textMutedClass} mb-3`}>
-                      {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
-                    </p>
-                    <button
-                      onClick={handleSwitchMode}
-                      className="text-primary hover:text-[#f0c654] text-sm font-semibold transition-colors"
-                    >
-                      {isSignUp ? 'Đăng nhập ngay' : 'Tạo tài khoản mới'}
-                    </button>
-                  </div>
-                </motion.div>
+                      {error && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                          </svg>
+                          {error}
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        fullWidth
+                        className="mt-4"
+                      >
+                        {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
+                      </Button>
+                    </form>
+
+                    {/* Đổi chế độ mobile */}
+                    <div className={`md:hidden mt-8 text-center border-t ${borderClass} pt-6`}>
+                      <p className={`text-sm ${textMutedClass} mb-3`}>
+                        {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
+                      </p>
+                      <button
+                        onClick={handleSwitchMode}
+                        className="text-primary hover:text-[#f0c654] text-sm font-semibold transition-colors"
+                      >
+                        {isSignUp ? 'Đăng nhập ngay' : 'Tạo tài khoản mới'}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </div>
