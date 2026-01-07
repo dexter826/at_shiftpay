@@ -35,9 +35,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     const handleReset = () => setHoveredTabId(null);
     window.addEventListener('visibilitychange', handleReset);
     window.addEventListener('blur', handleReset);
+    window.addEventListener('pagehide', handleReset);
     return () => {
       window.removeEventListener('visibilitychange', handleReset);
       window.removeEventListener('blur', handleReset);
+      window.removeEventListener('pagehide', handleReset);
     };
   }, []);
 
@@ -113,14 +115,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               setHoveredTabId(tabId);
               if ('vibrate' in navigator) navigator.vibrate(5);
             }
+          } else {
+            setHoveredTabId(null);
           }
         }}
         onTouchEnd={() => {
           if (hoveredTabId) {
             setTab(hoveredTabId);
-            setHoveredTabId(null);
           }
+          setHoveredTabId(null);
         }}
+        onTouchCancel={() => setHoveredTabId(null)}
       >
         {navItems.map((item) => {
           const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
