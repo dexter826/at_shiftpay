@@ -65,7 +65,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         };
     }, [employeeId, employeeName, shifts, paymentHistory]);
 
-    // Lấy khoản ứng chưa chốt
+    // Tiền ứng chưa chốt
     const unsettledAdvances = useMemo(() => {
         return paymentHistory.filter(p =>
             p.employeeId === employeeId &&
@@ -74,7 +74,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         );
     }, [paymentHistory, employeeId]);
 
-    // Lấy ca đã ứng
+    // Ca đã ứng
     const advancedShifts = useMemo(() => {
         return shifts.filter(s =>
             s.employeeId === employeeId &&
@@ -111,8 +111,6 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         }
     };
 
-    // Style consts replaced by hook
-
     return (
         <Modal
             title="Quyết toán tiền ứng"
@@ -120,7 +118,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             onClose={onClose}
         >
             <div className="space-y-6">
-                {/* Thông tin tổng quan */}
+                {/* Tổng quan */}
                 <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
                     <div className="flex items-center gap-2 mb-3">
                         <Calculator size={20} className="text-blue-500" />
@@ -180,7 +178,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                     </div>
                 </div>
 
-                {/* Lịch sử ứng tiền */}
+                {/* Lịch sử ứng */}
                 {unsettledAdvances.length > 0 && (
                     <div className="space-y-3">
                         <h4 className={`font-medium ${textPrimaryClass}`}>

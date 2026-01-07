@@ -47,12 +47,12 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const observerTarget = useRef<HTMLDivElement>(null);
 
-    // State cho Modal Thêm/Sửa
+    // Trạng thái Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-    // Tải tất cả sự kiện để đếm số lần làm việc chính xác
+    // Đếm số lần làm việc
     useEffect(() => {
         const fetchAllEvents = async () => {
             setLoadingEvents(true);
@@ -68,7 +68,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         fetchAllEvents();
     }, []);
 
-    // Reset số lượng hiển thị khi lọc hoặc tìm kiếm
+    // Reset danh sách hiển thị
     useEffect(() => {
         setVisibleCount(12);
     }, [searchTerm, filterType, sortBy]);
@@ -444,8 +444,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             <button
                                 onClick={() => setReview(review === 'high' ? undefined : 'high')}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'high'
-                                        ? 'bg-green-500/10 border-green-500 text-green-600'
-                                        : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                    ? 'bg-green-500/10 border-green-500 text-green-600'
+                                    : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
                                     }`}
                             >
                                 <ThumbsUp size={18} />
@@ -454,8 +454,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             <button
                                 onClick={() => setReview(review === 'low' ? undefined : 'low')}
                                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'low'
-                                        ? 'bg-red-500/10 border-red-500 text-red-600'
-                                        : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                    ? 'bg-red-500/10 border-red-500 text-red-600'
+                                    : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
                                     }`}
                             >
                                 <ThumbsDown size={18} />

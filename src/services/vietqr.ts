@@ -36,7 +36,7 @@ export class VietQRService {
   private cacheExpiry: number = 0;
   private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24h
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): VietQRService {
     if (!VietQRService.instance) {
@@ -57,7 +57,7 @@ export class VietQRService {
       }
 
       const result = await response.json();
-      
+
       if (result.code === '00' && result.data) {
         this.bankListCache = result.data;
         this.cacheExpiry = Date.now() + this.CACHE_DURATION;
@@ -67,8 +67,8 @@ export class VietQRService {
       throw new Error(result.desc || 'Unknown error');
     } catch (error) {
       console.error('VietQR getBankList error:', error);
-      
-      // Fallback: trả về list ngân hàng phổ biến
+
+      // Trả về danh sách dự phòng
       return this.getFallbackBanks();
     }
   }

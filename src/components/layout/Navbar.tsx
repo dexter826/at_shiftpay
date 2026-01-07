@@ -20,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
 
-  // Style theo theme
+  // Lấy style đồng bộ với theme
   const {
     theme,
     cardBgClass: sidebarBg,
@@ -47,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
 
   return (
     <>
-      {/* Sidebar Desktop */}
+      {/* Thanh điều hướng bên (Desktop) */}
       <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
         <div className={`p-5 border-b ${borderColor} flex flex-col items-center`}>
           <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
@@ -90,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           })}
         </nav>
 
-        {/* Footer Desktop */}
+        {/* Nhóm chức năng cuối trang (Desktop) */}
         <div className={`p-4 border-t ${borderColor}`}>
           <motion.button
             onClick={onLogout}
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Thanh điều hướng dưới (Mobile) */}
       <div
         className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
         onTouchMove={(e) => {

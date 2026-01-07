@@ -37,13 +37,13 @@ function App() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Init auth listener
+  // Lắng nghe auth
   useEffect(() => {
     const unsubscribe = initAuth();
     return () => unsubscribe();
   }, [initAuth]);
 
-  // Init data subscriptions when user changes
+  // Tải data user
   useEffect(() => {
     if (user) {
       initSubscriptions(user.uid);
@@ -53,7 +53,7 @@ function App() {
     return () => cleanupSubscriptions();
   }, [user, initSubscriptions, cleanupSubscriptions]);
 
-  // Re-init subscriptions when viewDate changes
+  // Sync khi đổi ngày
   useEffect(() => {
     if (user) {
       initSubscriptions(user.uid);

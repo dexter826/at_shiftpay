@@ -39,7 +39,7 @@ export const eventService = {
 
   async getEventsByIds(ids: string[]): Promise<Event[]> {
     if (ids.length === 0) return [];
-    // Firestore limits 'in' queries to 30 items
+    // Firestore giới hạn query 'in' tối đa 30 item
     const chunks = [];
     for (let i = 0; i < ids.length; i += 30) {
       chunks.push(ids.slice(i, i + 30));

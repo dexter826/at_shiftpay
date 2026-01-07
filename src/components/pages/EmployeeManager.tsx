@@ -22,7 +22,7 @@ interface EmployeeManagerProps {
 
 const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [], loading = false }) => {
   const { showToast } = useToast();
-  // Tách logic theme ra custom hook
+  // Hook style đồng bộ theme
   const {
     theme,
     bgClass,
@@ -36,7 +36,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     highlightBgClass
   } = useThemeStyles();
 
-  // Tính số công còn nợ trong tháng
+  // Tính công nợ trong tháng
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
@@ -51,17 +51,17 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     return counts;
   }, [shifts, currentMonth, currentYear]);
 
-  // Check điều kiện xóa nhân viên
+  // Điều kiện xóa nhân viên
   const canDeleteEmployee = (empId: string): { canDelete: boolean; reason?: string } => {
     const today = new Date().toISOString().split('T')[0];
 
-    // Check công chưa thanh toán
+    // Công chưa thanh toán
     const unpaidShifts = shifts.filter(s => s.employeeId === empId && s.status === 'unpaid');
     if (unpaidShifts.length > 0) {
       return { canDelete: false, reason: `Nhân viên còn ${unpaidShifts.length} công chưa thanh toán` };
     }
 
-    // Check lịch làm sắp tới
+    // Ca làm sắp tới
     const futureShifts = shifts.filter(s => s.employeeId === empId && s.date >= today);
     if (futureShifts.length > 0) {
       return { canDelete: false, reason: `Nhân viên đang có ${futureShifts.length} ca làm sắp tới` };
@@ -121,7 +121,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     setAccountName(emp.bankAccount?.accountName || '');
     setError('');
 
-    // Lưu trạng thái ban đầu để so sánh
+    // Lưu trạng thái so sánh
     setInitialState({
       name: emp.name,
       phone: emp.phone,
@@ -203,8 +203,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
       const isEditing = !!editingEmp;
       const empId = editingEmp?.id;
 
-      // Không cần kiểm tra areValuesEqual ở đây nữa vì nút đã bị disable nếu không có thay đổi
-      // Nhưng giữ lại safeguard nếu cần thiết hoặc chỉ đơn giản là thực hiện lưu
+      // Safeguard lưu dữ liệu
 
       setModalOpen(false);
 
@@ -268,9 +267,9 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         case 'shifts':
           const aShifts = shiftCountByEmployee[a.id] || 0;
           const bShifts = shiftCountByEmployee[b.id] || 0;
-          return bShifts - aShifts; // Nhiều công nhất lên đầu
+          return bShifts - aShifts;
         case 'recent':
-          // Mới nhất lên đầu
+          // Ưu tiên bản ghi mới
           const aCreatedAt = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const bCreatedAt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           return bCreatedAt - aCreatedAt;
@@ -390,7 +389,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                     {/* Gradient làm nền cho chữ */}
                     <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
 
-                    {/* Nút thao tác (Hover/Touch) */}
+                    {/* Thao tác nhanh */}
                     <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
                       <button
                         onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
@@ -406,7 +405,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                       </button>
                     </div>
 
-                    {/* Badge Ngân hàng */}
+                    {/* Badge ngân hàng */}
                     <div className="absolute top-2 left-2 z-10">
                       {emp.bankAccount ? (
                         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/80 text-white text-[10px] font-medium shadow-sm">
@@ -422,7 +421,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                     </div>
                   </div>
 
-                  {/* Thông tin hiển thị */}
+                  {/* Thông tin chính */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 z-10 text-white">
                     <h3 className="text-sm font-bold truncate leading-tight mb-1 shadow-black/50 drop-shadow-sm">{emp.name}</h3>
 
@@ -454,7 +453,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         )}
       </div>
 
-      {/* Modal Thêm/Sửa */}
+      {/* Form thêm/sửa */}
       <Modal
         title={editingEmp ? "Sửa thông tin" : "Thêm nhân viên"}
         isOpen={modalOpen}
@@ -591,7 +590,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         </form>
       </Modal>
 
-      {/* Xác nhận xóa */}
+      {/* Modal xóa */}
       <Modal
         title="Xác nhận xóa"
         isOpen={!!deleteConfirm}
@@ -618,7 +617,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         <p className={`text-sm ${textSecondaryClass}`}>Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
 
-      {/* Thông báo lỗi xóa */}
+      {/* Lỗi xóa */}
       <Modal
         title="Không thể xóa"
         isOpen={!!deleteError}
@@ -636,7 +635,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         <p className={`text-sm ${textSecondaryClass}`}>{deleteError}</p>
       </Modal>
 
-      {/* Modal Chi tiết nhân viên */}
+      {/* Chi tiết nhân viên */}
       <EmployeeDetailModal
         isOpen={detailModalOpen}
         onClose={() => {

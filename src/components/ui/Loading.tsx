@@ -224,7 +224,7 @@ const StyledWrapper = styled.div<{ $fullScreen?: boolean; $theme: string }>`
   padding-left: env(safe-area-inset-left, 0);
   padding-right: env(safe-area-inset-right, 0);
 
-  /* iOS PWA specific fixes */
+  /* Sửa lỗi hiển thị PWA iOS */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   ${props => props.$fullScreen && `

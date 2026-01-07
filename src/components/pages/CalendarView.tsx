@@ -98,7 +98,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       date.setDate(date.getDate() + 1);
     }
 
-    // Các ngày của tháng sau để lấp đầy lưới (6 hàng * 7 ngày = 42 ô)
+    // Lấp đầy lưới 42 ô
     const nextDaysCount = 42 - days.length;
     for (let i = 1; i <= nextDaysCount; i++) {
       days.push(new Date(year, month + 1, i));
@@ -134,6 +134,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }, [events]);
 
   const handleDateClick = (date: Date) => {
+    // Chống lệch ngày do múi giờ
     const offset = date.getTimezoneOffset();
     const localDate = new Date(date.getTime() - (offset * 60 * 1000));
     const dateStr = localDate.toISOString().split('T')[0];
@@ -248,6 +249,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
                   >
                     {daysInMonth.map((date, idx) => {
+                      // Chống lệch ngày khi hiển thị
                       const offset = date.getTimezoneOffset();
                       const localDate = new Date(date.getTime() - (offset * 60 * 1000));
                       const dateStr = localDate.toISOString().split('T')[0];

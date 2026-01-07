@@ -24,21 +24,21 @@ export const exportDetailedReport = (
         workerNames: string[];
     }>();
 
-    // Lọc ca theo tháng và công nợ
+    // Lọc theo tháng và công nợ
     const filteredShifts = shifts.filter(s => {
-        // Lọc theo tháng/năm
+        // Kiểm tra thời gian
         const d = new Date(s.date);
         let matchesTime = true;
-        
+
         if (month !== 0) {
             matchesTime = d.getMonth() + 1 === month && d.getFullYear() === year;
         } else if (year !== 0) {
             matchesTime = d.getFullYear() === year;
         }
-        
+
         if (!matchesTime) return false;
 
-        // Lọc theo công nợ nếu được yêu cầu
+        // Lọc theo công nợ
         if (onlyDebt) {
             return s.status !== 'paid';
         }
@@ -51,7 +51,7 @@ export const exportDetailedReport = (
 
         if (!groupedData.has(key)) {
             const event = events.find(e => e.id === shift.eventId);
-            const locationName = event?.locationId 
+            const locationName = event?.locationId
                 ? locations.find(l => l.id === event.locationId)?.name || ''
                 : '';
 
@@ -115,17 +115,17 @@ export const exportDetailedReport = (
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    
+
     let fileName = '';
     if (month === 0) {
         fileName = year === 0 ? 'Bao_Cao_Tat_Ca' : `Bao_Cao_Nam_${year}`;
     } else {
         fileName = `Bao_Cao_Thang_${month}_${year}`;
     }
-    
+
     if (onlyDebt) fileName += '_Cong_No';
     fileName += '.csv';
-    
+
     link.setAttribute('download', fileName);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);

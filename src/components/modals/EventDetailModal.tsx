@@ -30,11 +30,11 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     onDelete,
     settings
 }) => {
-    const { 
-        theme, 
-        borderClass, 
-        textPrimaryClass, 
-        textSecondaryClass, 
+    const {
+        theme,
+        borderClass,
+        textPrimaryClass,
+        textSecondaryClass,
         textMutedClass,
         highlightBgClass,
         cardBgClass
@@ -85,7 +85,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             }
         >
             <div className="space-y-4">
-                {/* 1. Nhóm Thời gian & Địa điểm */}
+                {/* 1. Thời gian & Địa điểm */}
                 <div className={`p-3 rounded-xl border ${borderClass} ${highlightBgClass} space-y-3`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     )}
                 </div>
 
-                {/* 2. Nhóm Tài chính (Tổng tiền & Chi tiết) */}
+                {/* 2. Tài chính */}
                 <div className={`p-3.5 ${highlightBgClass} border ${borderClass} rounded-xl flex items-center justify-between`}>
                     <div>
                         <p className={`text-[11px] ${textMutedClass} font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
@@ -139,7 +139,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     </div>
                 </div>
 
-                {/* 3. Nhóm Đánh giá & Ghi chú */}
+                {/* 3. Đánh giá & Ghi chú */}
                 {(locationInfo?.review || event.note) && (
                     <div className="space-y-3">
                         {locationInfo?.review && (

@@ -28,13 +28,13 @@ export interface Event {
   time?: string; // HH:mm
   title: string;
   note?: string;
-  amount?: number; // Mức lương sự kiện
-  surcharge?: number; // Phụ phí sự kiện (cố định, không nhân với số người)
+  amount?: number; // Lương sự kiện
+  surcharge?: number; // Phụ phí cố định
   surchargeDistribution?: {
     type: 'equal' | 'selected';
-    selectedEmployeeIds?: string[]; // chỉ có khi type = 'selected'
+    selectedEmployeeIds?: string[]; // Cho type = 'selected'
   };
-  locationId?: string; // Liên kết tới bảng Location
+  locationId?: string; // Link tới Location
 }
 
 export type ShiftSession = 'morning' | 'afternoon';
@@ -63,7 +63,7 @@ export interface PaymentTransaction {
   date: number; // timestamp
   shiftIds: string[];
   note?: string;
-  type: PaymentType; // Loại thanh toán
+  type: PaymentType;
   settledAt?: number; // Thời điểm hoàn ứng
   settledBy?: string; // ID giao dịch hoàn ứng
 }
@@ -76,7 +76,7 @@ export interface PayrollSummary {
   totalUnpaid: number;
   advancedCount: number; // Số ca đã ứng
   totalAdvanced: number; // Tổng tiền đã ứng
-  netAmount: number; // Thực nhận (unpaid - advanced)
+  netAmount: number; // Thực nhận
 }
 
 export interface AdvanceBalance {
@@ -84,7 +84,7 @@ export interface AdvanceBalance {
   employeeName: string;
   totalAdvanced: number; // Tổng tiền đã ứng
   totalEarned: number; // Tổng thu nhập (gồm chưa thanh toán)
-  balance: number; // Âm: nợ quản lý, Dương: quản lý nợ
+  balance: number; // Âm: nợ, Dương: dư
 }
 
 export interface UserSettings {

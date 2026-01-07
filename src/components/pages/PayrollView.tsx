@@ -83,15 +83,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     if (node) observer.current.observe(node);
   }, [isFetchingMore, hasMore, loadMorePayments]);
 
-  // Tải dữ liệu ban đầu cho lịch sử
+  // Tải thêm dữ liệu lịch sử
   useEffect(() => {
     if (activeTab === 'history' && paymentHistory.length === 0) {
       loadMorePayments(true);
     }
   }, [activeTab, paymentHistory.length, loadMorePayments]);
 
-  // Style theo theme
-  // Tách logic theme ra custom hook
+  // Hook style đồng bộ theme
   const {
     theme,
     bgClass,
@@ -127,7 +126,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         // Tìm event tương ứng với shift để lấy surcharge
         const event = events.find(e => e.id === s.eventId && e.date === s.date);
         let shiftFee = 0;
-        
+
         if (event?.surcharge && event.surcharge > 0) {
           // Kiểm tra phân bổ phụ phí
           if (!event.surchargeDistribution || event.surchargeDistribution.type === 'equal') {
@@ -159,7 +158,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       }
     });
 
-    // Net amount = chưa trả (không trừ tạm ứng)
+    // Net amount = chưa trả
     Object.values(map).forEach(emp => {
       emp.netAmount = emp.totalUnpaid;
     });
@@ -167,7 +166,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
   }, [shifts, employees, events]);
 
-  // Lọc và sắp xếp bảng lương
+  // Lọc và sắp xếp
   const filteredAndSortedSummary = useMemo(() => {
     const filtered = summary.filter(item => {
       const matchesSearch = item.employeeName.toLowerCase().includes(payrollSearchTerm.toLowerCase()) ||
@@ -178,9 +177,9 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     return filtered.sort((a, b) => {
       switch (payrollSortBy) {
         case 'amount':
-          return b.totalUnpaid - a.totalUnpaid; // Số tiền cao nhất lên đầu
+          return b.totalUnpaid - a.totalUnpaid;
         case 'shifts':
-          return b.unpaidCount - a.unpaidCount; // Nhiều công nhất lên đầu
+          return b.unpaidCount - a.unpaidCount;
         case 'name':
           return a.employeeName.localeCompare(b.employeeName, 'vi'); // Tên A-Z
         default:
@@ -215,7 +214,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     setPayConfirm(true);
   };
 
-  // Chọn/Bỏ chọn tất cả
+  // Chọn/Bỏ chọn
   const handleSelectAll = () => {
     if (selectedShiftIds.length === selectedUnpaidShifts.length) {
       setSelectedShiftIds([]);
@@ -258,7 +257,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       setSelectedEmpId(null);
       setPayConfirm(false);
       setSelectedShiftIds([]);
-      // Làm mới lịch sử
+      // Làm mới dữ liệu
       loadMorePayments(true);
     } catch (error) {
       console.error('Error:', error);
@@ -286,7 +285,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       .reduce((sum, shift) => sum + shift.amount, 0);
   }, [selectedUnpaidShifts, selectedShiftIds]);
 
-  // Reset khi đổi nhân viên
+  // Reset theo nhân viên
   React.useEffect(() => {
     if (selectedEmpId && selectedUnpaidShifts.length > 0) {
       // Mặc định chọn tất cả khi mở modal
@@ -322,7 +321,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           )}
         </div>
         <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-          {/* Giao diện Mobile */}
+          {/* Mobile UI */}
           <div className="block md:hidden">
             {/* Tổng đã làm - Lên trên */}
             <div className="text-center mb-4">
@@ -425,7 +424,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             </div>
           </div>
 
-          {/* Giao diện Desktop */}
+          {/* Desktop UI */}
           <div className="hidden md:flex justify-between items-start">
             <div className="flex-1">
               <div className="grid grid-cols-3 gap-6">
@@ -482,20 +481,20 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                      className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
-                    >
-                      {formatCurrency(totalAdvanced)}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-                <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
-                  {totalAdvancedShifts} công
-                </p>
-              </div>
+                        className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
+                      >
+                        {formatCurrency(totalAdvanced)}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                  <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
+                    {totalAdvancedShifts} công
+                  </p>
+                </div>
 
-              {/* Tổng đã làm */}
-              <div>
-                <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
+                {/* Tổng đã làm */}
+                <div>
+                  <p className="text-xs text-blue-500 uppercase tracking-wide">Tổng đã làm</p>
                   <AnimatePresence mode="wait">
                     {loading ? (
                       <motion.div

@@ -60,13 +60,13 @@ html.light {
     --scrollbar-thumb-hover: #ecb52d;
 }
 
-/* Tùy chỉnh thanh cuộn toàn cục */
+/* Scrollbar chung */
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-/* Webkit browsers (Chrome, Safari, Edge) */
+/* Webkit */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -88,7 +88,7 @@ html.light {
 
 ::-webkit-scrollbar-thumb:active {
     background: #d4a028;
-    /* Màu primary đậm hơn một chút */
+    /* Primary đậm */
 }
 
 @layer utilities {

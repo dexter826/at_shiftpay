@@ -80,11 +80,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
     }
 
     try {
-      // 1. Xác thực lại
+      // Xác thực lại tài khoản
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // 2. Cập nhật mật khẩu
+      // Ghi mật khẩu mới
       await updatePassword(user, newPassword);
 
       setSuccess('Đổi mật khẩu thành công!');
@@ -103,7 +103,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
         setError('Đã xảy ra lỗi: ' + (err.message || 'Vui lòng thử lại sau'));
       }
     } finally {
-      if (!success) { // Tránh ghi đè nếu đã thành công
+      if (!success) { // Giữ loading nếu thất bại
         setLoading(false);
       }
     }

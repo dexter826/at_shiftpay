@@ -29,7 +29,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  // Nhập mã OTP
+  // Trạng thái mã OTP
   const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -38,7 +38,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     useRef<HTMLInputElement>(null),
   ];
 
-  // Lỗi xác thực
+  // Trạng thái lỗi form
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');

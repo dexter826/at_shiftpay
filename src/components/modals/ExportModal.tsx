@@ -73,7 +73,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                     </button>
                 </div>
 
-                {/* Lựa chọn chỉ xuất công nợ */}
+                {/* Chỉ xuất công nợ */}
                 <div
                     onClick={() => setOnlyDebt(!onlyDebt)}
                     className={`

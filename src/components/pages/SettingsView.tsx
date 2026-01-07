@@ -39,11 +39,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [editedName, setEditedName] = useState(user?.displayName || '');
     const [savingName, setSavingName] = useState(false);
 
-    // Kiểm tra thay đổi
+    // Xử lý thay đổi cài đặt
     const handleChange = (key: keyof UserSettings, value: any) => {
         const newSettings = { ...editSettings, [key]: value };
         setEditSettings(newSettings);
-        setHasChanges(true); // Simple dirty check
+        setHasChanges(true);
     };
 
     const handleSaveSettings = async () => {
@@ -106,7 +106,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
         <div className={`pb-20 md:pb-0 ${bgClass} min-h-screen`}>
             <div className="max-w-3xl lg:max-w-5xl mx-auto p-4 md:p-6 space-y-5">
 
-                {/* Tiêu đề */}
+                {/* Tiêu đề trang */}
                 <div className="flex items-center justify-between">
                     <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
                     <div className="flex items-center gap-3">
@@ -124,7 +124,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                     </div>
                 </div>
 
-                {/* Bố cục cột đơn */}
+                {/* Danh sách cài đặt */}
                 <div className="space-y-5">
                     {/* Thông tin tài khoản */}
                     <section>
@@ -212,7 +212,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                 <p className={`text-xs ${textSub} mt-2`}>Áp dụng cho các ca làm việc mới</p>
                             </div>
 
-                            {/* Thời gian ca */}
+                            {/* Giờ trực */}
                             <div className="grid grid-cols-1 sm:grid-cols-2">
                                 <div className={`p-4 border-b sm:border-b-0 sm:border-r ${border}`}>
                                     <label className={`block font-medium ${textMain} mb-3`}>Giờ bắt đầu ca sáng</label>
@@ -260,7 +260,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                 onClose={() => setShowPasswordModal(false)}
             />
         </div>
-      );
-    };
-    
-    export default SettingsView;
+    );
+};
+
+export default SettingsView;

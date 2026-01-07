@@ -100,7 +100,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         );
     }, [shifts, employeeSummary]);
 
-    // Helper function để tính toán lương và phụ phí riêng biệt
+    // Tách lương cơ bản và phụ phí
     const getShiftBreakdown = (shift: Shift) => {
         const event = events.find(e => e.id === shift.eventId);
         if (!event || !event.surcharge || event.surcharge === 0) {
@@ -119,7 +119,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         };
     };
 
-    // Helper function để format ngày tháng
+    // Format ngày giờ ca làm
     const formatShiftDate = (dateStr: string, session: 'morning' | 'afternoon') => {
         const date = new Date(dateStr);
         const day = date.getDate().toString().padStart(2, '0');
@@ -176,12 +176,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 {/* Thông tin nhân viên & Ngân hàng */}
                 <div className={`p-4 ${cardBg} border ${border} rounded-2xl shadow-sm relative overflow-hidden`}>
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12" />
-                    
+
                     <div className="flex items-center gap-4 relative">
                         <div className="relative shrink-0">
                             {currentEmployee?.imageUrl ? (
-                                <img 
-                                    src={currentEmployee.imageUrl} 
+                                <img
+                                    src={currentEmployee.imageUrl}
                                     alt={employeeSummary.employeeName}
                                     className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-sm"
                                 />
@@ -192,7 +192,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             )}
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full" />
                         </div>
-                        
+
                         <div className="min-w-0 flex-1 space-y-0.5">
                             <h3 className={`text-lg font-black ${textPrimary} leading-tight truncate`}>
                                 {employeeSummary.employeeName}
@@ -219,7 +219,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 </div>
 
-                {/* Chọn loại thanh toán */}
+                {/* Loại thanh toán */}
                 <div className="space-y-3">
                     <h4 className={`text-sm font-bold ${textPrimary} px-1`}>Loại thanh toán:</h4>
                     <div className="grid grid-cols-2 gap-3">
@@ -267,7 +267,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 </div>
 
-                {/* QR Code Section */}
+                {/* Mã QR */}
                 {currentEmployee?.bankAccount && selectedTotal > 0 && (
                     <div className={`p-4 ${cardBg} border-2 border-primary/30 rounded-2xl flex flex-col items-center justify-center space-y-3`}>
                         <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 )}
 
-                {/* Cảnh báo thiếu thông tin ngân hàng */}
+                {/* Cảnh báo thiếu ngân hàng */}
                 {!currentEmployee?.bankAccount && selectedTotal > 0 && (
                     <div className={`p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-center justify-center`}>
                         <div className="flex items-center gap-2">
@@ -319,7 +319,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                 )}
 
-                {/* Danh sách ca được chọn */}
+                {/* Danh sách ca chọn */}
                 <div className="space-y-3">
                     <div className="flex justify-between items-center px-1">
                         <h4 className={`text-sm font-bold ${textPrimary}`}>
@@ -390,7 +390,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             {formatCurrency(employeeSummary.totalUnpaid)}
                         </span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
                         <div>
                             <span className={`text-xs ${textSecondary} block`}>Tổng đã ứng</span>

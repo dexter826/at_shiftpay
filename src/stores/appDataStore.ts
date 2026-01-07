@@ -108,7 +108,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             set({ isLoading: true });
         }
 
-        // Helper to update global state from cache
+        // Cập nhật state từ cache
         const updateGlobalState = () => {
             const currentState = get();
             const allEvents = new Map<string, Event>();
@@ -131,7 +131,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             });
         };
 
-        // Months to subscribe
+        // Các tháng cần subscribe
         const needed = [
             { m: month, y: year },
             { m: month === 0 ? 11 : month - 1, y: month === 0 ? year - 1 : year },
@@ -141,7 +141,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
 
         const neededKeys = new Set(needed.map(t => `${t.m}-${t.y}`));
 
-        // Cleanup old subscriptions
+        // Xóa subscription cũ
         _subscriptions.forEach((unsub, key) => {
             if (key === 'app-data') return;
             const [m, y] = key.split('-').map(Number);
@@ -161,7 +161,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             }
         };
 
-        // Subscribe to months
+        // Subscribe theo tháng
         needed.forEach(({ m, y }) => {
             const key = `${m}-${y}`;
             if (!_subscriptions.has(key)) {
@@ -186,7 +186,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             }
         });
 
-        // App-wide subscriptions
+        // Subscribe toàn app
         if (!_subscriptions.has('app-data')) {
             const unsubEmp = dbService.subscribeEmployees((data) => {
                 set({ employees: data });

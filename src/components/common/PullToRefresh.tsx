@@ -23,6 +23,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
     if (!container) return;
 
     const handleTouchMoveRaw = (e: TouchEvent) => {
+      // Chặn scroll mặc định để kéo refresh
       if (startYRef.current === 0 || isRefreshing || document.body.style.overflow === 'hidden') return;
 
       const currentY = e.touches[0].clientY;
@@ -58,7 +59,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     if (distance > 0 && scrollTop <= 0) {
-      // Resistance effect
+      // Giả lập lực cản vật lý
       const pull = Math.min(distance * 0.4, PULL_THRESHOLD + 20);
       setPullDistance(pull);
     }
@@ -68,7 +69,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
     if (pullDistance >= PULL_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
       setPullDistance(PULL_THRESHOLD);
-      
+
       try {
         await onRefresh();
       } finally {
@@ -92,17 +93,17 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
       className="relative"
       style={{ overscrollBehaviorY: pullDistance > 0 ? 'none' : 'auto' }}
     >
-      <div 
+      <div
         className="absolute left-0 right-0 flex justify-center pointer-events-none z-50"
-        style={{ 
+        style={{
           top: -40,
           transform: `translateY(${pullDistance}px)`,
           opacity: pullDistance / PULL_THRESHOLD
         }}
       >
         <div className={`${inputBgClass} p-2 rounded-full shadow-lg border ${borderClass}`}>
-          <RefreshCw 
-            size={20} 
+          <RefreshCw
+            size={20}
             className={`text-primary ${isRefreshing ? 'animate-spin' : ''}`}
             style={{ transform: `rotate(${pullDistance * 2}deg)` }}
           />

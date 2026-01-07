@@ -19,10 +19,10 @@ const firebaseConfig = {
   appId: validateEnvVar('VITE_FIREBASE_APP_ID', import.meta.env.VITE_FIREBASE_APP_ID),
 };
 
-// Khởi tạo Firebase app
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 
-// Khởi tạo Firestore với offline persistence
+// Init Firestore
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()

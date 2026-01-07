@@ -1,20 +1,19 @@
-// Framer Motion Animation Variants - Centralized configuration
 
-// Easing functions
+// Easing
 export const easings = {
   smooth: [0.16, 1, 0.3, 1],
   bounce: [0.68, -0.55, 0.265, 1.55],
   natural: [0.3, 0.7, 0.4, 1],
 } as const;
 
-// Fade animations
+// Fade
 export const fadeVariants = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   exit: { opacity: 0 },
 };
 
-// Slide animations
+// Slide
 export const slideVariants = {
   up: {
     initial: { opacity: 0, y: 20 },
@@ -38,14 +37,14 @@ export const slideVariants = {
   },
 };
 
-// Scale animations
+// Scale
 export const scaleVariants = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0.95 },
 };
 
-// Modal/Dialog animations
+// Modal
 export const modalVariants = {
   backdrop: fadeVariants,
   content: {
@@ -55,34 +54,34 @@ export const modalVariants = {
   },
 };
 
-// Dropdown animations
+// Dropdown
 export const dropdownVariants = {
   initial: { opacity: 0, y: -10, scale: 0.95 },
   animate: { opacity: 1, y: 0, scale: 1 },
   exit: { opacity: 0, y: -10, scale: 0.95 },
 };
 
-// Toast animations
+// Toast
 export const toastVariants = {
   initial: { opacity: 0, y: -20, scale: 0.95 },
   animate: { opacity: 1, y: 0, scale: 1 },
   exit: { opacity: 0, y: -20, scale: 0.95 },
 };
 
-// Page transition animations
+// Chuyển trang
 export const pageVariants = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -10 },
 };
 
-// Shimmer animation for skeleton
+// Shimmer
 export const shimmerVariants = {
   initial: { x: '-100%' },
   animate: { x: '100%' },
 };
 
-// Common transition configurations
+// Common Config
 export const transitions = {
   fast: { duration: 0.15, ease: easings.smooth },
   normal: { duration: 0.2, ease: easings.smooth },
@@ -93,20 +92,20 @@ export const transitions = {
   shimmer: { duration: 1.5, repeat: Infinity, ease: 'linear' } as const,
 };
 
-// Hover variants
+// Hover
 export const hoverVariants = {
   scale: { scale: 1.05 },
   lift: { y: -2, transition: transitions.fast },
   glow: { filter: 'brightness(1.1)', transition: transitions.fast },
 };
 
-// Tap/Active variants
+// Tap
 export const tapVariants = {
   scale: { scale: 0.95 },
   press: { scale: 0.98, y: 1 },
 };
 
-// Stagger children animation
+// Stagger
 export const staggerContainer = {
   animate: {
     transition: {

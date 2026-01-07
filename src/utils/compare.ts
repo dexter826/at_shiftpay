@@ -1,23 +1,21 @@
-/**
- * Kiểm tra xem một giá trị có phải là object và không phải null.
- */
+// Kiểm tra object
+
 const isObject = (item: any): boolean => {
     return (item && typeof item === 'object' && !Array.isArray(item));
 };
 
-/**
- * So sánh sâu hai giá trị, hỗ trợ trim() cho chuỗi và xử lý object/mảng.
- */
+// So sánh sâu (Deep compare)
+
 export const areValuesEqual = (val1: any, val2: any): boolean => {
-    // Trường hợp chuỗi: trim trước khi so sánh
+    // Trim chuỗi
     if (typeof val1 === 'string' && typeof val2 === 'string') {
         return val1.trim() === val2.trim();
     }
 
-    // Trường hợp primitive khác hoặc cùng reference
+    // So sánh trực tiếp
     if (val1 === val2) return true;
 
-    // Nếu một trong hai là null hoặc không thuộc cùng loại (object/array/primitive)
+    // Khác loại hoặc null
     if (val1 === null || val2 === null || typeof val1 !== typeof val2) return false;
 
     // So sánh mảng
@@ -43,6 +41,6 @@ export const areValuesEqual = (val1: any, val2: any): boolean => {
         return true;
     }
 
-    // Các trường hợp khác (undefined, number, boolean đã check ở val1 === val2)
+    // Không bằng
     return false;
 };

@@ -132,7 +132,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         };
     }, [initialEvents, initialShifts, employees]);
 
-    // ... (chartData logic remains same) ...
     const chartData = useMemo(() => {
         const { events, shifts } = monthlyData;
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();

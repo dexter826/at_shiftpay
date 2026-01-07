@@ -26,7 +26,7 @@ export const locationService = {
 
   async addLocation(data: { name: string; review?: 'high' | 'low'; reviewNote?: string }): Promise<string> {
     try {
-      // Loại bỏ các trường undefined để tránh lỗi Firestore
+      // Lọc bỏ field undefined
       const cleanData = Object.fromEntries(
         Object.entries(data).filter(([_, v]) => v !== undefined)
       );
@@ -45,7 +45,7 @@ export const locationService = {
   async updateLocation(id: string, data: Partial<Location>): Promise<void> {
     try {
       const docRef = doc(db, 'locations', id);
-      // Loại bỏ các trường undefined
+      // Lọc bỏ field undefined
       const cleanData = Object.fromEntries(
         Object.entries(data).filter(([_, v]) => v !== undefined)
       );
@@ -73,16 +73,16 @@ export const locationService = {
       if (!querySnapshot.empty) {
         const locationDoc = querySnapshot.docs[0];
         const locationId = locationDoc.id;
-        
-        // Nếu có dữ liệu review mới, cập nhật cho địa điểm hiện tại
+
+        // Cập nhật review nếu có
         if (reviewData && (reviewData.review || reviewData.reviewNote)) {
           await this.updateLocation(locationId, reviewData);
         }
-        
+
         return locationId;
       }
 
-      // Tạo mới nếu không tìm thấy
+      // Tạo mới nếu chưa có
       return await this.addLocation({
         name,
         ...reviewData

@@ -32,14 +32,14 @@ export const EventModal: React.FC<EventModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const { 
-    theme, 
-    textPrimaryClass, 
-    textSecondaryClass, 
-    textMutedClass, 
-    borderClass, 
+  const {
+    theme,
+    textPrimaryClass,
+    textSecondaryClass,
+    textMutedClass,
+    borderClass,
     divideClass,
-    cardBgClass, 
+    cardBgClass,
     hoverBgClass: hoverBg,
     inputBgClass,
     inputBorderClass,
@@ -70,15 +70,15 @@ export const EventModal: React.FC<EventModalProps> = ({
     if (isOpen) {
       if (existingEvent) {
         setTitle(existingEvent.title);
-        
-        // Tìm tên địa điểm từ locationId
+
+        // Tìm địa điểm từ ID
         const loc = locations.find(l => l.id === existingEvent.locationId);
         setLocation(loc ? loc.name : '');
-        
+
         setNote(existingEvent.note || '');
         setTime(existingEvent.time || '');
-        
-        // Lấy review từ location tương ứng
+
+        // Lấy đánh giá địa điểm
         if (loc) {
           setReview(loc.review);
           setReviewNote(loc.reviewNote || '');
@@ -90,7 +90,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         const newAssignments: Record<string, boolean> = {};
         let detectedSession: ShiftSession | null = null;
 
-        // Ưu tiên: Event > Shift cũ > Mặc định
+        // Ưu tiên: Sự kiện > Ca cũ > Mặc định
         let detectedAmount = existingEvent.amount;
         if (!detectedAmount && existingShifts.length > 0) {
           const firstShift = existingShifts[0];
@@ -126,7 +126,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           setSurchargeSelectedEmployees({});
         }
 
-        // Đặt giờ mặc định theo ca
+        // Đặt giờ theo ca
         if (!existingEvent.time && detectedSession) {
           setTime(detectedSession === 'morning' ? settings.morningTime : settings.afternoonTime);
         }
@@ -149,7 +149,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
       loadEmployeeShiftCounts();
 
-      // Lấy review từ location thay vì event
+      // Lấy đánh giá từ địa điểm
       if (existingEvent) {
         const loc = locations.find(l => l.id === existingEvent.locationId);
         if (loc) {
@@ -158,7 +158,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
       }
 
-      // Lưu trạng thái ban đầu để so sánh
+      // Lưu trạng thái gốc
       if (existingEvent) {
         const loc = locations.find(l => l.id === existingEvent.locationId);
         setInitialState({
@@ -209,7 +209,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       setSelectedSession(session);
       setAssignments({});
       setSearchTerm('');
-      // Đặt giờ mặc định theo cài đặt
+      // Đặt giờ mặc định
       setTime(session === 'morning' ? settings.morningTime : settings.afternoonTime);
     }
   };
@@ -257,29 +257,29 @@ export const EventModal: React.FC<EventModalProps> = ({
     );
 
     return filteredEmployees.sort((a, b) => {
-      // Ưu tiên 0: Nhân viên đã được chọn từ lúc mở modal
+      // Ưu tiên 0: Đã chọn ban đầu
       const aInitial = initialSelectedIds.has(a.id) ? 1 : 0;
       const bInitial = initialSelectedIds.has(b.id) ? 1 : 0;
       if (aInitial !== bInitial) return bInitial - aInitial;
 
-      // Ưu tiên 1: Sắp xếp theo số ca (giảm dần)
+      // Ưu tiên 1: Số ca giảm dần
       const aCount = employeeShiftCounts[a.id] || 0;
       const bCount = employeeShiftCounts[b.id] || 0;
       if (aCount !== bCount) return bCount - aCount;
 
-      // Ưu tiên 2: Sắp xếp theo tên
+      // Ưu tiên 2: Tên
       return a.name.localeCompare(b.name);
     });
   };
 
   const validateTitle = (value: string) => {
-    // Không còn bắt buộc nhập tên sự kiện
+    // Không bắt buộc tên
     setTitleError('');
     return true;
   };
 
   const hasChanged = useMemo(() => {
-    if (!existingEvent || !initialState) return true; // Luôn cho phép lưu nếu là tạo mới
+    if (!existingEvent || !initialState) return true; // Cho phép lưu nếu tạo mới
 
     const currentSurchargeDistribution = surcharge > 0 ? {
       type: surchargeDistributionType,
@@ -311,7 +311,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   ]);
 
   const handleSubmit = async () => {
-    // Tên sự kiện mặc định là "Tiệc" nếu để trống
+    // Tên mặc định là "Tiệc"
     const finalTitle = title.trim() || 'Tiệc';
     if (!selectedSession) {
       setError('Chọn một ca làm việc');
@@ -325,7 +325,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Xử lý Location và Review trước
+      // Xử lý Địa điểm & Đánh giá
       let locationId = '';
       if (location.trim()) {
         locationId = await dbService.findOrCreateLocation(location.trim(), {
@@ -342,13 +342,13 @@ export const EventModal: React.FC<EventModalProps> = ({
       const shiftsToUpdate: { id: string, data: Partial<Shift> }[] = [];
       const shiftIdsToDelete: string[] = [];
 
-      // 1. Xác định Thêm & Sửa
+      // 1. Thêm & Sửa
       Object.entries(assignments).forEach(([empId, isAssigned]) => {
         if (!isAssigned) return;
         const emp = employees.find(e => e.id === empId);
         if (!emp) return;
 
-        // Tính lương bao gồm phụ phí
+        // Tính lương kèm phụ phí
         let finalAmount = amount;
         if (surcharge > 0) {
           if (surchargeDistributionType === 'equal') {
@@ -363,7 +363,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         );
 
         if (prevShift) {
-          // Cập nhật số tiền và tên nhân viên (đồng bộ nếu có thay đổi)
+          // Cập nhật số tiền & tên
           shiftsToUpdate.push({
             id: prevShift.id,
             data: {
@@ -386,7 +386,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
       });
 
-      // 2. Xác định Xóa (ca không còn được chọn)
+      // 2. Xóa (ca bỏ chọn)
 
       existingShifts.forEach(s => {
         const kept = shiftsToUpdate.find(upd => upd.id === s.id);
@@ -395,7 +395,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
       });
 
-      // Đóng nhanh để UX mượt
+      // Đóng nhanh
       onSuccess();
 
       const surchargeDistribution = surcharge > 0 ? {
@@ -478,7 +478,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         )}
 
-        {/* Tên sự kiện và Thời gian */}
+        {/* Tên & Thời gian */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Tên sự kiện</label>
@@ -521,10 +521,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             />
           </div>
 
-          {/* Logic Cảnh báo Địa điểm */}
+          {/* Cảnh báo địa điểm */}
           {location.length >= 2 && (() => {
-            const suggestions = locations.filter(l => 
-              l.name.toLowerCase().includes(location.toLowerCase()) && 
+            const suggestions = locations.filter(l =>
+              l.name.toLowerCase().includes(location.toLowerCase()) &&
               l.name.toLowerCase() !== location.toLowerCase()
             );
 
@@ -638,7 +638,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         )}
 
-        {/* Chọn ca (Radio) */}
+        {/* Chọn ca */}
         <div>
           <label className={`block text-xs font-semibold mb-1.5 ${textMutedClass}`}>Ca làm việc</label>
           <div className="grid grid-cols-2 gap-2">
@@ -667,7 +667,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
         </div>
 
-        {/* Lương/người và Phụ phí */}
+        {/* Lương & Phụ phí */}
         {selectedSession && (
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -727,7 +727,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   checked={surchargeDistributionType === 'selected'}
                   onChange={() => {
                     setSurchargeDistributionType('selected');
-                    // Tự động chọn tất cả nhân viên đang tham gia khi chuyển sang chế độ "chọn người nhận"
+                    // Tự động chọn tất cả nhân viên
                     if (Object.keys(surchargeSelectedEmployees).length === 0) {
                       const allSelected: Record<string, boolean> = {};
                       Object.entries(assignments).forEach(([empId, isAssigned]) => {
@@ -744,7 +744,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               </label>
             </div>
 
-            {/* Danh sách chọn người nhận phụ phí */}
+            {/* Danh sách người nhận */}
             {surchargeDistributionType === 'selected' && (
               <div className={`border rounded-lg divide-y max-h-32 overflow-y-auto ${borderClass} ${divideClass}`}>
                 {Object.entries(assignments).filter(([_, isAssigned]) => isAssigned).map(([empId]) => {
