@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert, Upload, Camera, Loader2 } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert, Upload, Camera, Loader2, Plus } from 'lucide-react';
+import { LoadMore } from '../ui/LoadMore';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
 import { EmployeeDetailModal } from '../modals';
@@ -86,7 +87,17 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
+  const [visibleCount, setVisibleCount] = useState(18);
   const [initialState, setInitialState] = useState<any>(null);
+
+  // Reset danh sách khi tìm kiếm hoặc sắp xếp
+  useEffect(() => {
+    setVisibleCount(18);
+  }, [searchTerm, sortBy]);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => Math.min(prev + 18, filteredAndSortedEmployees.length));
+  };
 
   const [bankList, setBankList] = useState<VietQRBank[]>([]);
   const [bankId, setBankId] = useState('');
@@ -403,7 +414,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               transition={{ duration: 0.3 }}
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
             >
-              {filteredAndSortedEmployees.map((emp) => (
+              {filteredAndSortedEmployees.slice(0, visibleCount).map((emp) => (
                 <div
                   key={emp.id}
                   onClick={() => openDetailModal(emp)}
@@ -480,6 +491,14 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                   </div>
                 </div>
               ))}
+
+              <LoadMore
+                currentCount={visibleCount}
+                totalCount={filteredAndSortedEmployees.length}
+                onLoadMore={handleLoadMore}
+                unit="nhân viên"
+                className="pt-8 pb-4"
+              />
             </motion.div>
           )}
         </AnimatePresence>

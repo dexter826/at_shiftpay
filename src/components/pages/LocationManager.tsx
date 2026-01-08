@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Search, ThumbsUp, ThumbsDown, MapPin, ArrowLeft, Plus, Edit2, Trash2, MoreVertical, ArrowUpDown, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, Filter, MapPin, MoreVertical, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { LoadMore } from '../ui/LoadMore';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
@@ -45,7 +46,6 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
     const [reviewNote, setReviewNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const observerTarget = useRef<HTMLDivElement>(null);
 
     // Trạng thái Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,21 +109,10 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
     const hasMore = filteredLocations.length > visibleCount;
 
-    // Sử dụng Callback Ref cho IntersectionObserver ổn định hơn
-    const observer = useRef<IntersectionObserver | null>(null);
-    const lastElementRef = useCallback((node: HTMLDivElement | null) => {
-        if (observer.current) observer.current.disconnect();
-
-        if (!node || !hasMore) return;
-
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting) {
-                setVisibleCount(prev => Math.min(prev + 12, filteredLocations.length));
-            }
-        }, { threshold: 0.1, rootMargin: '200px' });
-
-        observer.current.observe(node);
-    }, [hasMore, filteredLocations.length]);
+    // Tăng số lượng hiển thị khi nhấn Xem thêm
+    const handleLoadMore = () => {
+        setVisibleCount(prev => Math.min(prev + 12, filteredLocations.length));
+    };
 
     const handleOpenAdd = () => {
         setEditingLocation(null);
@@ -189,7 +178,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen p-4 md:p-6`}>
+        <div className={`pb-24 md:pb-8 ${bgClass} min-h-screen p-4 md:p-6`}>
             <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -361,9 +350,13 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 })}
 
                                 {hasMore && (
-                                    <div ref={lastElementRef} className="col-span-full flex justify-center py-8">
-                                        <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-                                    </div>
+                                    <LoadMore
+                                        currentCount={visibleCount}
+                                        totalCount={filteredLocations.length}
+                                        onLoadMore={handleLoadMore}
+                                        unit="địa điểm"
+                                        className="pt-6 pb-2"
+                                    />
                                 )}
                             </>
                         )}

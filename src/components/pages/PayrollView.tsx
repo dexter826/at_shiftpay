@@ -5,7 +5,8 @@ import { Shift, PayrollSummary, PaymentTransaction, Event, Location } from '../.
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
 
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin, Loader2 } from 'lucide-react';
+import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin, Loader2, Plus } from 'lucide-react';
+import { LoadMore } from '../ui/LoadMore';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
@@ -41,6 +42,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
+  const [payrollVisibleCount, setPayrollVisibleCount] = useState(15);
+
+  // Reset phan trang khi doi tim kiem hoac tab
+  useEffect(() => {
+    if (activeTab === 'payroll') {
+      setPayrollVisibleCount(15);
+    }
+  }, [activeTab, payrollSearchTerm, payrollSortBy]);
 
   const loadMorePayments = useCallback(async (isInitial = false) => {
     if (isFetchingMore || (!hasMore && !isInitial)) return;
@@ -72,16 +81,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     }
   }, [isFetchingMore, hasMore, lastVisible]);
 
-  const lastElementRef = useCallback((node: HTMLDivElement) => {
-    if (isFetchingMore) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMorePayments();
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [isFetchingMore, hasMore, loadMorePayments]);
+  // Bo IntersectionObserver
 
   // Tải thêm dữ liệu lịch sử
   useEffect(() => {
@@ -171,7 +171,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     const filtered = summary.filter(item => {
       const matchesSearch = item.employeeName.toLowerCase().includes(payrollSearchTerm.toLowerCase()) ||
         item.phone.includes(payrollSearchTerm);
-      return matchesSearch;
+      const hasDebt = item.totalUnpaid > 0 || item.totalAdvanced > 0;
+      return matchesSearch && hasDebt;
     });
 
     return filtered.sort((a, b) => {
@@ -639,78 +640,87 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                   <p>{payrollSearchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
                 </div>
               ) : (
-                filteredAndSortedSummary.map((item) => {
-                  const employee = employees.find(e => e.id === item.employeeId);
-                  const employeeImage = employee?.imageUrl || employee?.avatar;
-                  const itemWithFees = item as typeof item & { totalFees?: number };
+                <>
+                  {filteredAndSortedSummary.slice(0, payrollVisibleCount).map((item) => {
+                    const employee = employees.find(e => e.id === item.employeeId);
+                    const employeeImage = employee?.imageUrl || employee?.avatar;
+                    const itemWithFees = item as typeof item & { totalFees?: number };
 
-                  return (
-                    <button
-                      key={item.employeeId}
-                      onClick={() => {
-                        setSelectedEmpId(item.employeeId);
-                        if (item.totalUnpaid > 0) {
-                          setShowPaymentModal(true);
-                        }
-                      }}
-                      className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {employeeImage ? (
-                          <img
-                            src={employeeImage}
-                            alt={item.employeeName}
-                            className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
-                          />
-                        ) : (
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${hoverBgClass} ${textMutedClass}`
-                            }`}>
-                            {item.employeeName.charAt(0)}
-                          </div>
-                        )}
-                        <div className="text-left">
-                          <div className="flex items-center gap-2">
-                            <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
-                            {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
-                              <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
-                                Có phụ phí
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs">
-                            {item.unpaidCount > 0 && (
-                              <span className="text-primary">
-                                {item.unpaidCount} công chưa trả
-                              </span>
-                            )}
-                            {item.advancedCount > 0 && (
-                              <span className="text-orange-500">
-                                {item.advancedCount} công đã ứng
-                              </span>
-                            )}
-                            {item.unpaidCount === 0 && item.advancedCount === 0 && (
-                              <span className={textMutedClass}>Không có công nợ</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="text-right">
-                          <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
-                            {formatCurrency(item.totalUnpaid)}
-                          </span>
-                          {item.totalAdvanced > 0 && (
-                            <p className="text-xs text-orange-500">
-                              Đã ứng: {formatCurrency(item.totalAdvanced)}
-                            </p>
+                    return (
+                      <button
+                        key={item.employeeId}
+                        onClick={() => {
+                          setSelectedEmpId(item.employeeId);
+                          if (item.totalUnpaid > 0) {
+                            setShowPaymentModal(true);
+                          }
+                        }}
+                        className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {employeeImage ? (
+                            <img
+                              src={employeeImage}
+                              alt={item.employeeName}
+                              className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
+                            />
+                          ) : (
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${hoverBgClass} ${textMutedClass}`
+                              }`}>
+                              {item.employeeName.charAt(0)}
+                            </div>
                           )}
+                          <div className="text-left">
+                            <div className="flex items-center gap-2">
+                              <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                              {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
+                                  Có phụ phí
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                              {item.unpaidCount > 0 && (
+                                <span className="text-primary">
+                                  {item.unpaidCount} công chưa trả
+                                </span>
+                              )}
+                              {item.advancedCount > 0 && (
+                                <span className="text-orange-500">
+                                  {item.advancedCount} công đã ứng
+                                </span>
+                              )}
+                              {item.unpaidCount === 0 && item.advancedCount === 0 && (
+                                <span className={textMutedClass}>Không có công nợ</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <ChevronRight size={16} className={textMutedClass} />
-                      </div>
-                    </button>
-                  );
-                })
+
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
+                              {formatCurrency(item.totalUnpaid)}
+                            </span>
+                            {item.totalAdvanced > 0 && (
+                              <p className="text-xs text-orange-500">
+                                Đã ứng: {formatCurrency(item.totalAdvanced)}
+                              </p>
+                            )}
+                          </div>
+                          <ChevronRight size={16} className={textMutedClass} />
+                        </div>
+                      </button>
+                    );
+                  })}
+                  <LoadMore
+                    currentCount={payrollVisibleCount}
+                    totalCount={filteredAndSortedSummary.length}
+                    onLoadMore={() => setPayrollVisibleCount(prev => prev + 15)}
+                    unit="nhân viên"
+                    className="mt-4"
+                  />
+                </>
               )}
             </motion.div>
           ) : (
@@ -729,10 +739,9 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                 </div>
               ) : (
                 <>
-                  {filteredHistory.map((item, index) => (
+                  {filteredHistory.map((item) => (
                     <button
                       key={item.id}
-                      ref={index === filteredHistory.length - 1 ? lastElementRef : null}
                       onClick={() => setSelectedTransactionId(item.id)}
                       className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
                     >
@@ -772,15 +781,23 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     </button>
                   ))}
 
-                  {isFetchingMore && (
+                  {isFetchingMore ? (
                     <div className="flex justify-center py-4">
                       <Loader2 className="w-6 h-6 text-primary animate-spin" />
                     </div>
+                  ) : hasMore && (
+                    <LoadMore
+                      currentCount={filteredHistory.length}
+                      totalCount={filteredHistory.length + (hasMore ? 1 : 0)} // Trick de hien nut vi hien tai k biet exact total
+                      onLoadMore={loadMorePayments}
+                      unit="giao dịch"
+                      className="mt-4"
+                    />
                   )}
 
                   {!hasMore && filteredHistory.length > 0 && (
-                    <p className={`text-center text-xs ${textMutedClass} py-4`}>
-                      Đã hiển thị tất cả lịch sử
+                    <p className={`text-center text-[11px] ${textMutedClass} tracking-wide uppercase font-medium mt-6`}>
+                      Đã hiển thị toàn bộ {filteredHistory.length} giao dịch
                     </p>
                   )}
                 </>
