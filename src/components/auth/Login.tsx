@@ -467,6 +467,32 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         {loading ? 'Đang đăng nhập...' : 'Tiếp tục'}
                       </Button>
 
+                      <div className="flex items-center justify-between pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                          <div className="relative flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={rememberMe}
+                              onChange={(e) => setRememberMe(e.target.checked)}
+                              className={`peer h-4 w-4 cursor-pointer appearance-none rounded border ${borderClass} checked:border-primary checked:bg-primary transition-all`}
+                            />
+                            <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-white transition-opacity" viewBox="0 0 12 12" fill="none">
+                              <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                          <span className={`text-sm ${textMutedClass} group-hover:${textSecondaryClass} transition-colors`}>
+                            Ghi nhớ đăng nhập
+                          </span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setForgotPasswordOpen(true)}
+                          className="text-sm text-primary hover:text-[#f0c654] font-medium transition-colors hover:underline"
+                        >
+                          Quên mật khẩu?
+                        </button>
+                      </div>
+
                       <div className="flex flex-col gap-2 pt-2">
                         <button
                           type="button"
