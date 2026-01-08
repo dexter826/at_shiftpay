@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { PAYMENT_COLORS } from '../../constants/colors';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, LogOut, Sun, Moon, Settings, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, TrendingDown, LogOut, Sun, Moon, Settings, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
@@ -26,9 +26,16 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialEvents, shifts: initialShifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [monthlyData, setMonthlyData] = useState<{ events: Event[], shifts: Shift[] }>({
+    const [monthlyData, setMonthlyData] = useState<{
+        events: Event[],
+        shifts: Shift[],
+        prevEvents: Event[],
+        prevShifts: Shift[]
+    }>({
         events: initialEvents,
-        shifts: initialShifts
+        shifts: initialShifts,
+        prevEvents: [],
+        prevShifts: []
     });
     const [isDataLoading, setIsDataLoading] = useState(false);
 
@@ -39,19 +46,45 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
     React.useEffect(() => {
         const fetchData = async () => {
             const now = new Date();
-            // Nếu là tháng hiện tại, dùng data từ props cho nhanh và realtime
-            if (currentMonth === now.getMonth() && currentYear === now.getFullYear()) {
-                setMonthlyData({ events: initialEvents, shifts: initialShifts });
-                return;
-            }
+            const prevMonthDate = new Date(currentYear, currentMonth - 1, 1);
+            const prevM = prevMonthDate.getMonth();
+            const prevY = prevMonthDate.getFullYear();
 
             setIsDataLoading(true);
             try {
-                const [fetchedEvents, fetchedShifts] = await Promise.all([
-                    dbService.getEventsByMonth(currentMonth + 1, currentYear),
-                    dbService.getShiftsByMonth(currentMonth + 1, currentYear)
+                const currentEvents = initialEvents.filter(e => {
+                    const d = new Date(e.date);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                });
+                const currentShifts = initialShifts.filter(s => {
+                    const d = new Date(s.date);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                });
+
+                let finalEvents = currentEvents;
+                let finalShifts = currentShifts;
+
+                if (currentMonth !== now.getMonth() || currentYear !== now.getFullYear()) {
+                    if (currentEvents.length === 0 && currentShifts.length === 0) {
+                        [finalEvents, finalShifts] = await Promise.all([
+                            dbService.getEventsByMonth(currentMonth + 1, currentYear),
+                            dbService.getShiftsByMonth(currentMonth + 1, currentYear)
+                        ]);
+                    }
+                }
+
+                // Fetch tháng trước
+                const [prevEvents, prevShifts] = await Promise.all([
+                    dbService.getEventsByMonth(prevM + 1, prevY),
+                    dbService.getShiftsByMonth(prevM + 1, prevY)
                 ]);
-                setMonthlyData({ events: fetchedEvents, shifts: fetchedShifts });
+
+                setMonthlyData({
+                    events: finalEvents,
+                    shifts: finalShifts,
+                    prevEvents,
+                    prevShifts
+                });
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
             } finally {
@@ -151,7 +184,24 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
             }
         }
         return data;
-    }, [monthlyData, currentMonth, currentYear]);
+    }, [monthlyData.events, monthlyData.shifts, currentMonth, currentYear]);
+
+    const growthStats = useMemo(() => {
+        const { events, shifts, prevEvents, prevShifts } = monthlyData;
+
+        const calculateGrowth = (current: number, previous: number) => {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return Math.round(((current - previous) / previous) * 100);
+        };
+
+        const eventGrowth = calculateGrowth(events.length, prevEvents.length);
+        const shiftGrowth = calculateGrowth(shifts.length, prevShifts.length);
+
+        return {
+            eventGrowth,
+            shiftGrowth
+        };
+    }, [monthlyData]);
 
     const paymentData = useMemo(() => {
         const unpaidShifts = initialShifts.filter(s => s.status === 'unpaid').length;
@@ -176,6 +226,43 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         inputBorderClass,
         hoverBgClass
     } = useThemeStyles();
+
+    const TrendIndicator = ({ value, label }: { value: number, label: string }) => {
+        const isPositive = value >= 0;
+        return (
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold ${isPositive
+                ? 'bg-emerald-500/10 text-emerald-500'
+                : 'bg-rose-500/10 text-rose-500'
+                }`}>
+                {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                <span>{isPositive ? '+' : ''}{value}%</span>
+                <span className="opacity-70 font-medium">{label}</span>
+            </div>
+        );
+    };
+
+    const CustomTooltip = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const isPieChart = !label;
+            return (
+                <div className={`${theme === 'dark' ? 'bg-slate-800/95 border-slate-700' : 'bg-white/95 border-slate-200'} border p-3 rounded-xl shadow-xl backdrop-blur-md z-50`}>
+                    {!isPieChart && <p className={`text-xs font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-500'} mb-2`}>Ngày {label}</p>}
+                    <div className="space-y-1.5">
+                        {payload.map((entry: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.payload.fill || entry.color || entry.fill }} />
+                                    <span className={`text-[11px] font-medium ${theme === 'dark' ? 'text-slate-100' : 'text-slate-900'}`}>{entry.name}</span>
+                                </div>
+                                <span className={`text-[11px] font-bold ${theme === 'dark' ? 'text-slate-100' : 'text-slate-900'}`}>{entry.value} {isPieChart ? 'công' : ''}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
 
     return (
         <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
@@ -384,126 +471,153 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                 {/* Biểu đồ */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                     {/* Biểu đồ cột */}
-                                    <div className={`relative p-4 ${cardBgClass} border ${borderClass} rounded-lg min-h-[300px]`}>
+                                    {/* Biểu đồ cột */}
+                                    <div className={`relative p-5 md:p-6 ${cardBgClass} border ${borderClass} rounded-2xl shadow-sm min-h-[380px] flex flex-col`}>
                                         <AnimatePresence>
                                             {isDataLoading && (
                                                 <motion.div
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className={`absolute inset-0 ${cardBgClass}/60 z-10 flex items-center justify-center backdrop-blur-[2px] rounded-lg`}
+                                                    className={`absolute inset-0 ${cardBgClass}/60 z-10 flex items-center justify-center backdrop-blur-[2px] rounded-2xl`}
                                                 >
-                                                    <motion.div
-                                                        initial={{ scale: 0.5, opacity: 0 }}
-                                                        animate={{ scale: 0.9, opacity: 1 }}
-                                                        exit={{ scale: 0.5, opacity: 0 }}
-                                                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                                                    >
-                                                        <Loader fullScreen={false} />
-                                                    </motion.div>
+                                                    <Loader fullScreen={false} />
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                                            <h3 className={`text-sm font-semibold ${textPrimaryClass} whitespace-nowrap`}>
-                                                Hoạt động trong tháng
-                                            </h3>
-                                            <div className={`flex items-center gap-1 sm:gap-2 ${inputBgClass} ${inputBorderClass} p-1 rounded-lg border w-full sm:w-auto justify-between sm:justify-start`}>
-                                                <button
-                                                    onClick={handleGoToToday}
-                                                    className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium rounded-md ${textSecondaryClass} ${hoverBgClass} hover:shadow-sm transition-all whitespace-nowrap`}
-                                                >
-                                                    Tháng này
-                                                </button>
-                                                <div className="flex items-center gap-1 px-1 sm:px-2">
+
+                                        <div className="flex flex-col gap-4 mb-6">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                <div>
+                                                    <h3 className={`text-base font-bold ${textPrimaryClass} mb-1`}>
+                                                        Hoạt động hàng ngày
+                                                    </h3>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <TrendIndicator value={growthStats.eventGrowth} label="Sự kiện" />
+                                                        <TrendIndicator value={growthStats.shiftGrowth} label="Số công" />
+                                                    </div>
+                                                </div>
+
+                                                <div className={`flex items-center justify-between sm:justify-start gap-1 p-1 w-full sm:w-auto ${inputBgClass} ${inputBorderClass} rounded-xl border`}>
                                                     <button
-                                                        onClick={handlePrevMonth}
-                                                        className={`p-1 sm:p-1.5 rounded-md ${hoverBgClass} ${textSecondaryClass} transition-all`}
+                                                        onClick={handleGoToToday}
+                                                        className={`flex-1 sm:flex-none px-3 py-1.5 text-[11px] font-bold rounded-lg ${textSecondaryClass} ${hoverBgClass} transition-all`}
                                                     >
-                                                        <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                                        Hiện tại
                                                     </button>
-                                                    <span className={`text-xs sm:text-sm font-semibold ${textPrimaryClass} min-w-[100px] sm:min-w-[120px] text-center capitalize`}>
-                                                        {monthName}
-                                                    </span>
-                                                    <button
-                                                        onClick={handleNextMonth}
-                                                        className={`p-1 sm:p-1.5 rounded-md ${hoverBgClass} ${textSecondaryClass} transition-all`}
-                                                    >
-                                                        <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
-                                                    </button>
+                                                    <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
+                                                    <div className="flex items-center gap-0.5">
+                                                        <button onClick={handlePrevMonth} className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}>
+                                                            <ChevronLeft size={16} />
+                                                        </button>
+                                                        <span className={`text-xs font-bold ${textPrimaryClass} min-w-[90px] text-center capitalize`}>
+                                                            {monthName}
+                                                        </span>
+                                                        <button onClick={handleNextMonth} className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}>
+                                                            <ChevronRight size={16} />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        {chartData.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0} debounce={1}>
-                                                <BarChart data={chartData}>
-                                                    <XAxis dataKey="day" tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                                    <YAxis tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                                    <Tooltip
-                                                        contentStyle={{
-                                                            backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
-                                                            border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
-                                                            borderRadius: 8
-                                                        }}
-                                                        labelStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
-                                                    />
-                                                    <Bar dataKey="events" name="Sự kiện" fill={PAYMENT_COLORS.SUCCESS} radius={[4, 4, 0, 0]} />
-                                                    <Bar dataKey="shifts" name="Công" fill={PAYMENT_COLORS.INFO} radius={[4, 4, 0, 0]} />
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <div className={`h-[200px] flex items-center justify-center ${textSecondaryClass} text-sm`}>
-                                                Chưa có dữ liệu
-                                            </div>
-                                        )}
+
+                                        <div className="flex-1 min-h-[220px]">
+                                            {chartData.length > 0 ? (
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                        <XAxis
+                                                            dataKey="day"
+                                                            tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 10, fontWeight: 600 }}
+                                                            axisLine={false}
+                                                            tickLine={false}
+                                                            dy={10}
+                                                        />
+                                                        <YAxis
+                                                            tick={{ fill: theme === 'dark' ? '#94a3b8' : '#64748b', fontSize: 10, fontWeight: 600 }}
+                                                            axisLine={false}
+                                                            tickLine={false}
+                                                        />
+                                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }} />
+                                                        <Bar dataKey="events" name="Sự kiện" fill={PAYMENT_COLORS.SUCCESS} radius={[4, 4, 0, 0]} barSize={12} />
+                                                        <Bar dataKey="shifts" name="Số công" fill={PAYMENT_COLORS.INFO} radius={[4, 4, 0, 0]} barSize={12} />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            ) : (
+                                                <div className={`h-full flex flex-col items-center justify-center gap-3 ${textMutedClass}`}>
+                                                    <div className="p-4 bg-slate-500/5 rounded-full">
+                                                        <CalendarRange size={32} strokeWidth={1.5} />
+                                                    </div>
+                                                    <p className="text-sm font-medium">Chưa có dữ liệu hoạt động</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Biểu đồ tròn */}
-                                    <div className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                                        <h3 className={`text-sm font-medium ${textPrimaryClass} mb-4`}>Trạng thái thanh toán</h3>
-                                        {paymentData.length > 0 ? (
-                                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-                                                <div className="relative w-[150px] h-[150px]">
-                                                    <PieChart width={150} height={150}>
-                                                        <Pie
-                                                            data={paymentData}
-                                                            cx="50%"
-                                                            cy="50%"
-                                                            innerRadius={40}
-                                                            outerRadius={60}
-                                                            dataKey="value"
-                                                        >
-                                                            {paymentData.map((entry, index) => (
-                                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                                            ))}
-                                                        </Pie>
-                                                        <Tooltip
-                                                            formatter={(value: number) => [`${value} công`, 'Số lượng']}
-                                                            contentStyle={{
-                                                                backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
-                                                                border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
-                                                                borderRadius: 8,
-                                                                fontSize: '12px'
-                                                            }}
-                                                            itemStyle={{ color: theme === 'dark' ? '#cbd5e1' : '#64748b' }}
-                                                        />
-                                                    </PieChart>
-                                                </div>
-                                                <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-4 gap-y-2">
-                                                    {paymentData.map((item, index) => (
-                                                        <div key={index} className="flex items-center gap-2">
-                                                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                                                            <span className={`text-xs ${textSecondaryClass} whitespace-nowrap`}>{item.name}: {item.value} công</span>
+                                    <div className={`p-5 md:p-6 ${cardBgClass} border ${borderClass} rounded-2xl shadow-sm min-h-[380px] flex flex-col`}>
+                                        <div className="mb-6">
+                                            <h3 className={`text-base font-bold ${textPrimaryClass} mb-1`}>Phân bổ thanh toán</h3>
+                                            <p className={`text-xs ${textSecondaryClass}`}>Tỷ lệ giữa công chưa trả và đã ứng</p>
+                                        </div>
+
+                                        <div className="flex-1 flex flex-col items-center justify-center">
+                                            {paymentData.length > 0 ? (
+                                                <div className="w-full flex flex-col items-center gap-8">
+                                                    <div className="relative w-[180px] h-[180px] z-0">
+                                                        <ResponsiveContainer width="100%" height="100%" className="relative z-10">
+                                                            <PieChart>
+                                                                <Pie
+                                                                    data={paymentData}
+                                                                    cx="50%"
+                                                                    cy="50%"
+                                                                    innerRadius={60}
+                                                                    outerRadius={80}
+                                                                    paddingAngle={5}
+                                                                    dataKey="value"
+                                                                >
+                                                                    {paymentData.map((entry, index) => (
+                                                                        <Cell
+                                                                            key={`cell-${index}`}
+                                                                            fill={entry.color}
+                                                                            stroke="transparent"
+                                                                        />
+                                                                    ))}
+                                                                </Pie>
+                                                                <Tooltip content={<CustomTooltip />} />
+                                                            </PieChart>
+                                                        </ResponsiveContainer>
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
+                                                            <span className={`text-xl font-black ${textPrimaryClass}`}>
+                                                                {paymentData.reduce((acc, curr) => acc + curr.value, 0)}
+                                                            </span>
+                                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${textMutedClass}`}>Tổng công</span>
                                                         </div>
-                                                    ))}
+                                                    </div>
+
+                                                    <div className="w-full grid grid-cols-1 gap-2">
+                                                        {paymentData.map((item, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={`flex items-center justify-between p-3 rounded-xl ${theme === 'dark' ? 'bg-slate-800/40' : 'bg-slate-50'} border ${borderClass}`}
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                                                                    <span className={`text-xs font-bold ${textSecondaryClass}`}>{item.name}</span>
+                                                                </div>
+                                                                <span className={`text-xs font-black ${textPrimaryClass}`}>{item.value}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            <div className={`h-[150px] flex items-center justify-center ${textSecondaryClass} text-sm`}>
-                                                Chưa có dữ liệu
-                                            </div>
-                                        )}
+                                            ) : (
+                                                <div className={`h-full flex flex-col items-center justify-center gap-3 ${textMutedClass}`}>
+                                                    <div className="p-4 bg-slate-500/5 rounded-full">
+                                                        <Wallet2 size={32} strokeWidth={1.5} />
+                                                    </div>
+                                                    <p className="text-sm font-medium">Chưa có dữ liệu thanh toán</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
