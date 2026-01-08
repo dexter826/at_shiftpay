@@ -583,6 +583,16 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>
+          <div>
+            <label className={`block text-xs ${textMutedClass} mb-1.5`}>URL Hình ảnh (tùy chọn)</label>
+            <input
+              type="text"
+              placeholder="Nhập link ảnh (nếu có)"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
+            />
+          </div>
 
           <div className={`pt-3 border-t ${borderClass}`}>
             <div className="flex items-center justify-between mb-3">
