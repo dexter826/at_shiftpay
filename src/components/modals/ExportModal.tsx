@@ -18,9 +18,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
         borderClass,
         hoverBgClass
     } = useThemeStyles();
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-    const [onlyDebt, setOnlyDebt] = useState(false);
+    const [selectedYear, setSelectedYear] = useState(0);
+    const [selectedMonth, setSelectedMonth] = useState(0);
+    const [onlyDebt, setOnlyDebt] = useState(true);
 
     const handleExport = () => {
         onExport(selectedMonth, selectedYear, onlyDebt);
@@ -64,7 +64,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                     >
                         <ChevronLeft size={20} className={textSecondaryClass} />
                     </button>
-                    <span className={`text-lg font-bold ${textPrimaryClass}`}>Năm {selectedYear}</span>
+                    <span className={`text-lg font-bold ${textPrimaryClass}`}>{selectedYear === 0 ? 'Tất cả các năm' : `Năm ${selectedYear}`}</span>
                     <button
                         onClick={() => setSelectedYear(prev => prev + 1)}
                         className={`p-1 rounded-full ${hoverBgClass}`}

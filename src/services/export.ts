@@ -89,13 +89,13 @@ export const exportDetailedReport = (
 
     sortedGroups.forEach(group => {
         const row = [
-            group.date,
+            group.date.split('-').reverse().join('/'),
             group.eventTitle,
             group.location,
             group.session,
             group.eventNote,
             group.workerNames.length.toString(),
-            group.workerNames.join('; '), // Dùng ; để tránh conflict với ,
+            group.workerNames.join('; '),
             group.eventAmount.toString(),
             group.surcharge.toString(),
             group.amount.toString()
