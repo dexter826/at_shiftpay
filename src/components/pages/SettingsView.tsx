@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UserSettings } from '../../types';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
@@ -40,7 +41,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
     const [saving, setSaving] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [hasChanges, setHasChanges] = useState(false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(user?.displayName || '');
     const [savingName, setSavingName] = useState(false);
@@ -49,11 +49,16 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [tempImage, setTempImage] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
+    // Kiểm tra thay đổi thực tế so với cài đặt gốc
+    const hasChanges = JSON.stringify(editSettings) !== JSON.stringify(settings);
+
     // Xử lý thay đổi cài đặt
     const handleChange = (key: keyof UserSettings, value: any) => {
-        const newSettings = { ...editSettings, [key]: value };
-        setEditSettings(newSettings);
-        setHasChanges(true);
+        setEditSettings(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleCancelSettings = () => {
+        setEditSettings(settings);
     };
 
     const handleSaveSettings = async () => {
@@ -61,7 +66,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
         try {
             await dbService.updateSettings(editSettings);
             showToast('Đã lưu cài đặt', 'success');
-            setHasChanges(false);
         } catch (err) {
             console.error(err);
             showToast('Có lỗi xảy ra', 'error');
@@ -162,16 +166,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                 <div className="flex items-center justify-between">
                     <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
                     <div className="flex items-center gap-3">
-                        {hasChanges && (
-                            <Button
-                                onClick={handleSaveSettings}
-                                disabled={saving}
-                                className=""
-                            >
-                                <Save size={18} className="text-white" />
-                                <span className="text-white">{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
-                            </Button>
-                        )}
                         <Switch />
                     </div>
                 </div>
@@ -311,6 +305,39 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                     />
                                 </div>
                             </div>
+
+                            {/* Nút thao tác khi có thay đổi */}
+                            <AnimatePresence>
+                                {hasChanges && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className={`p-4 border-t ${border} flex items-center justify-end gap-3`}>
+                                            <Button
+                                                onClick={handleCancelSettings}
+                                                disabled={saving}
+                                                variant="outline"
+                                            >
+                                                Hủy
+                                            </Button>
+                                            <Button
+                                                onClick={handleSaveSettings}
+                                                disabled={saving}
+                                            >
+                                                {saving ? (
+                                                    <Loader2 size={16} className="animate-spin mr-2" />
+                                                ) : (
+                                                    <Save size={16} className="mr-2" />
+                                                )}
+                                                {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </section>
 
