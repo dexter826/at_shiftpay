@@ -18,7 +18,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     image,
     onCropComplete
 }) => {
-    const { textMutedClass } = useThemeStyles();
+    const { textMutedClass, skeletonBgClass } = useThemeStyles();
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
@@ -65,7 +65,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
             }
         >
             <div className="space-y-4">
-                <div className="relative w-full h-64 bg-slate-200 rounded-lg overflow-hidden">
+                <div className={`relative w-full h-64 ${skeletonBgClass} rounded-lg overflow-hidden`}>
                     <Cropper
                         image={image}
                         crop={crop}
@@ -90,9 +90,9 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                         min={1}
                         max={3}
                         step={0.1}
-                        aria-labelledby="Zoom"
+                        aria-label="Phóng to"
                         onChange={(e) => setZoom(Number(e.target.value))}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                        className={`w-full h-2 ${skeletonBgClass} rounded-lg appearance-none cursor-pointer accent-primary`}
                     />
                 </div>
 

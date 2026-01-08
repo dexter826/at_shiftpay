@@ -328,7 +328,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   ];
 
   return (
-    <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen`}>
+    <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
@@ -580,16 +580,6 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs ${textMutedClass} mb-1.5`}>URL Hình ảnh (tùy chọn)</label>
-            <input
-              type="text"
-              placeholder="Nhập link ảnh (nếu có)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>

@@ -312,7 +312,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   }, [paymentHistory, searchTerm, filterDate]);
 
   return (
-    <div className={`pb-16 md:pb-0 ${bgClass} min-h-screen`}>
+    <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
       <div className={`p-4 md:p-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">

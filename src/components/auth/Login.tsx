@@ -392,7 +392,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <img
                           src={savedUser.photoURL || "/avatar.png"}
                           alt={savedUser.displayName}
-                          className="w-full h-full rounded-full object-cover bg-slate-100"
+                          className="w-full h-full rounded-full object-cover bg-slate-100 dark:bg-slate-800"
                           onError={(e) => {
                             e.currentTarget.src = "/avatar.png";
                           }}

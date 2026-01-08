@@ -1,8 +1,6 @@
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Employee, Event, Shift, UserSettings, Location } from '../../types';
-import { useThemeStore } from '../../stores';
-import styled from 'styled-components';
 
 import Dashboard from '../pages/Dashboard';
 import CalendarView from '../pages/CalendarView';
@@ -23,6 +21,7 @@ interface AppRouterProps {
   shifts: Shift[];
   settings: UserSettings;
   loading: boolean;
+  calendarLoading: boolean;
   viewDate: Date;
   setViewDate: (date: Date) => void;
   totalDebt: number;
@@ -40,14 +39,13 @@ export function AppRouter({
   shifts,
   settings,
   loading,
+  calendarLoading,
   viewDate,
   setViewDate,
   totalDebt,
   onLogout,
   onOpenExport
 }: AppRouterProps) {
-  const theme = useThemeStore(state => state.theme);
-
   const tabs = [
     {
       id: 'dashboard',
@@ -78,7 +76,7 @@ export function AppRouter({
           currentDate={viewDate}
           onDateChange={setViewDate}
           onNavigateToReviews={() => setActiveTab('locations')}
-          loading={loading}
+          loading={loading || calendarLoading}
         />
       )
     },

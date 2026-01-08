@@ -46,6 +46,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         borderClass: border,
         textPrimaryClass: textPrimary,
         textSecondaryClass: textSecondary,
+        inputBgClass,
         hoverBgClass,
         inputBorderClass
     } = useThemeStyles();
@@ -276,7 +277,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         </div>
 
                         {qrCodeUrl && !qrError ? (
-                            <div className="bg-white p-3 rounded-2xl shadow-sm">
+                            <div className={`${inputBgClass} p-3 rounded-2xl shadow-sm`}>
                                 <img
                                     src={qrCodeUrl}
                                     alt="Mã QR chuyển khoản"

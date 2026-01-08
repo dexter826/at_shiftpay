@@ -64,13 +64,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </span>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 relative">
+        <nav className="flex-1 p-3 space-y-1 relative" aria-label="Điều hướng chính">
           {navItems.map((item) => {
             const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
             return (
               <motion.button
                 key={item.id}
+                type="button"
                 onClick={() => setTab(item.id)}
+                aria-current={isActive ? 'page' : undefined}
+                aria-label={item.label}
                 className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors z-10 ${isActive
                   ? 'text-primary bg-primary/5'
                   : `${textMuted} ${hoverText} ${hoverBg}`
@@ -93,7 +96,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         {/* Nhóm chức năng cuối trang (Desktop) */}
         <div className={`p-4 border-t ${borderColor}`}>
           <motion.button
+            type="button"
             onClick={onLogout}
+            aria-label="Đăng xuất"
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
           >
             <LogOut size={18} />
@@ -103,8 +108,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Thanh điều hướng dưới (Mobile) */}
-      <div
+      <nav
         className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
+        aria-label="Điều hướng chính"
         onTouchMove={(e) => {
           const touch = e.touches[0];
           const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -135,7 +141,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
             <button
               key={item.id}
               data-tab-id={item.id}
+              type="button"
               onClick={() => setTab(item.id)}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={item.label}
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${isActive
                 ? 'text-primary bg-primary/10'
                 : isHovered
@@ -157,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
             </button>
           );
         })}
-      </div>
+      </nav>
     </>
   );
 };

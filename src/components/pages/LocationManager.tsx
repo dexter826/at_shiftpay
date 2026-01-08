@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
@@ -73,22 +73,33 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         setVisibleCount(12);
     }, [searchTerm, filterType, sortBy]);
 
+    // Tối ưu đếm số lần làm việc bằng Memo
+    const workCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        allEvents.forEach(e => {
+            if (e.locationId) {
+                counts[e.locationId] = (counts[e.locationId] || 0) + 1;
+            }
+        });
+        return counts;
+    }, [allEvents]);
+
     const filteredLocations = useMemo(() => {
         return locations.filter(loc => {
             const matchSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchFilter = filterType === 'all' || loc.review === filterType;
             return matchSearch && matchFilter;
         }).sort((a, b) => {
-            if (sortBy === 'name') return a.name.localeCompare(b.name);
+            if (sortBy === 'name') return a.name.localeCompare(b.name, 'vi');
             if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             if (sortBy === 'count') {
-                const countA = allEvents.filter(e => e.locationId === a.id).length;
-                const countB = allEvents.filter(e => e.locationId === b.id).length;
+                const countA = workCounts[a.id] || 0;
+                const countB = workCounts[b.id] || 0;
                 return countB - countA;
             }
             return 0;
         });
-    }, [locations, searchTerm, filterType, sortBy, allEvents]);
+    }, [locations, searchTerm, filterType, sortBy, workCounts]);
 
     const stats = useMemo(() => {
         const high = locations.filter(l => l.review === 'high').length;
@@ -96,26 +107,23 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         return { high, low, total: locations.length };
     }, [locations]);
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting && filteredLocations.length > visibleCount) {
-                    setVisibleCount(prev => prev + 10);
-                }
-            },
-            { threshold: 0.1 }
-        );
+    const hasMore = filteredLocations.length > visibleCount;
 
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
-        }
+    // Sử dụng Callback Ref cho IntersectionObserver ổn định hơn
+    const observer = useRef<IntersectionObserver | null>(null);
+    const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+        if (observer.current) observer.current.disconnect();
 
-        return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
+        if (!node || !hasMore) return;
+
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                setVisibleCount(prev => Math.min(prev + 12, filteredLocations.length));
             }
-        };
-    }, [filteredLocations.length, visibleCount]);
+        }, { threshold: 0.1, rootMargin: '200px' });
+
+        observer.current.observe(node);
+    }, [hasMore, filteredLocations.length]);
 
     const handleOpenAdd = () => {
         setEditingLocation(null);
@@ -181,7 +189,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-24 md:pb-12 ${bgClass} min-h-screen p-4 md:p-6`}>
+        <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen p-4 md:p-6`}>
             <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -269,69 +277,48 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <AnimatePresence mode="wait">
                         {loading ? (
-                            <motion.div
-                                key="loading"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                            >
-                                {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-b-2xl rounded-t-none overflow-hidden flex flex-col gap-3`}>
+                            <div className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {Array.from({ length: 8 }).map((_, i) => (
+                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl overflow-hidden flex flex-col gap-3 h-48`}>
                                         <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800" />
                                         <div className="p-5 space-y-4">
                                             <Skeleton width="70%" height={24} />
                                             <Skeleton width="100%" height={40} />
-                                            <div className="flex justify-between items-center pt-4">
-                                                <Skeleton variant="circular" width={24} height={24} />
-                                                <div className="flex gap-2">
-                                                    <Skeleton width={60} height={32} borderRadius={20} />
-                                                    <Skeleton width={60} height={32} borderRadius={20} />
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 ))}
-                            </motion.div>
+                            </div>
                         ) : filteredLocations.length === 0 ? (
                             <motion.div
                                 key="empty"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
                                 className={`col-span-full text-center py-20 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}
                             >
                                 <MapPin size={48} className="mx-auto mb-4 opacity-20" />
                                 <p className="text-lg">Không tìm thấy địa điểm nào</p>
                             </motion.div>
                         ) : (
-                            <motion.div
-                                key="list"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                            >
-                                {filteredLocations.slice(0, visibleCount).map(loc => {
-                                    const workCount = allEvents.filter(e => e.locationId === loc.id).length;
+                            <>
+                                {filteredLocations.slice(0, visibleCount).map((loc, idx) => {
+                                    const workCount = workCounts[loc.id] || 0;
                                     return (
-                                        <div
+                                        <motion.div
                                             key={loc.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.5) }}
                                             className={`${theme === 'dark' ? 'bg-slate-800/80' : 'bg-white'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} rounded-b-2xl rounded-t-none overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col group relative`}
                                         >
-                                            {/* 1. Viền ngang bên trên theo màu đánh giá */}
                                             <div className={`h-1.5 w-full ${loc.review === 'high' ? 'bg-green-500' :
                                                 loc.review === 'low' ? 'bg-red-500' : 'bg-slate-300 dark:bg-slate-700'
                                                 }`} />
 
                                             <div className="p-5 flex flex-col h-full">
-                                                {/* 2. Tên địa điểm (Premium) */}
                                                 <h3 className={`text-xl font-bold ${textPrimaryClass} mb-2 truncate`}>
                                                     {loc.name}
                                                 </h3>
 
-                                                {/* 3. Review note và số lần làm */}
                                                 <div className="flex-1">
                                                     <p className={`text-sm ${textSecondaryClass} line-clamp-2 mb-3 leading-relaxed min-h-[40px]`}>
                                                         {loc.reviewNote ? `"${loc.reviewNote}"` : "Chưa có ghi chú cho địa điểm này."}
@@ -343,7 +330,6 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                 </div>
 
                                                 <div className="flex items-center justify-between mt-auto pt-2">
-                                                    {/* 4. Icon đánh giá (Thay cho tia sét) */}
                                                     <div className={`${loc.review === 'high' ? 'text-green-500' :
                                                         loc.review === 'low' ? 'text-red-500' : textMutedClass
                                                         }`}>
@@ -352,7 +338,6 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                                 <MapPin size={22} />}
                                                     </div>
 
-                                                    {/* 5. Nút Edit/Delete (Vị trí glee/download) */}
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleOpenEdit(loc)}
@@ -371,16 +356,16 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     );
                                 })}
 
-                                {filteredLocations.length > visibleCount && (
-                                    <div ref={observerTarget} className="col-span-full flex justify-center py-8">
-                                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                {hasMore && (
+                                    <div ref={lastElementRef} className="col-span-full flex justify-center py-8">
+                                        <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
                                     </div>
                                 )}
-                            </motion.div>
+                            </>
                         )}
                     </AnimatePresence>
                 </div>

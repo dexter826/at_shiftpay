@@ -12,6 +12,7 @@ interface AppDataState {
 
     // UI State
     isLoading: boolean;
+    isCalendarLoading: boolean;
     viewDate: Date;
     activeTab: 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'locations';
 
@@ -25,12 +26,21 @@ interface AppDataState {
     setShifts: (shifts: Shift[]) => void;
     setSettings: (settings: UserSettings) => void;
     setIsLoading: (loading: boolean) => void;
+    setIsCalendarLoading: (loading: boolean) => void;
     setViewDate: (date: Date) => void;
     setActiveTab: (tab: AppDataState['activeTab']) => void;
 
     // Subscriptions
     _subscriptions: Map<string, () => void>;
     _dataCache: Map<string, { events: Event[], shifts: Shift[] }>;
+    _monthLoaded: Map<string, { events: boolean; shifts: boolean }>;
+    _loadedFlags: {
+        employees: boolean;
+        locations: boolean;
+        settings: boolean;
+        targetEvents: boolean;
+        targetShifts: boolean;
+    };
     _unpaidShifts: Shift[];
     _extraEvents: Event[];
 
@@ -49,6 +59,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
 
     // UI State
     isLoading: true,
+    isCalendarLoading: true,
     viewDate: new Date(),
     activeTab: (localStorage.getItem('activeTab') as AppDataState['activeTab']) || 'dashboard',
 
@@ -67,6 +78,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     },
     setSettings: (settings) => set({ settings }),
     setIsLoading: (isLoading) => set({ isLoading }),
+    setIsCalendarLoading: (isCalendarLoading) => set({ isCalendarLoading }),
     setViewDate: (viewDate) => set({ viewDate }),
     setActiveTab: (activeTab) => {
         localStorage.setItem('activeTab', activeTab);
@@ -76,13 +88,21 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     // Internal state for subscriptions
     _subscriptions: new Map(),
     _dataCache: new Map(),
+    _monthLoaded: new Map(),
+    _loadedFlags: {
+        employees: false,
+        locations: false,
+        settings: false,
+        targetEvents: false,
+        targetShifts: false
+    },
     _unpaidShifts: [],
     _extraEvents: [],
 
     refreshData: (userId) => {
         const state = get();
         state.cleanupSubscriptions();
-        set({ isLoading: true });
+        set({ isLoading: true, isCalendarLoading: true });
         state.initSubscriptions(userId);
     },
 
@@ -91,6 +111,14 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             set({ isLoading: false });
             return;
         }
+
+        const isBaseLoaded = (flags: AppDataState['_loadedFlags']) => {
+            return !!(flags.employees && flags.locations && flags.settings);
+        };
+
+        const isMonthLoaded = (flags: AppDataState['_loadedFlags']) => {
+            return !!(flags.targetEvents && flags.targetShifts);
+        };
 
         const state = get();
         const { viewDate, _subscriptions, _dataCache } = state;
@@ -104,9 +132,18 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
         const targetKey = `${month}-${year}`;
         const hasCache = _dataCache.has(targetKey);
 
-        if (!hasCache) {
-            set({ isLoading: true });
-        }
+        const monthLoaded = state._monthLoaded.get(targetKey);
+        const nextLoadedFlags: AppDataState['_loadedFlags'] = {
+            ...state._loadedFlags,
+            targetEvents: monthLoaded?.events ?? false,
+            targetShifts: monthLoaded?.shifts ?? false
+        };
+
+        set({
+            _loadedFlags: nextLoadedFlags,
+            isLoading: !isBaseLoaded(nextLoadedFlags),
+            isCalendarLoading: (!hasCache) && !isMonthLoaded(nextLoadedFlags)
+        });
 
         // Cập nhật state từ cache
         const updateGlobalState = () => {
@@ -153,12 +190,20 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             }
         });
 
-        let loadedCount = 0;
-        const checkLoaded = () => {
-            loadedCount++;
-            if (_dataCache.has(targetKey) || loadedCount >= 6) {
-                set({ isLoading: false });
-            }
+        const markLoadedBase = (key: 'employees' | 'locations' | 'settings') => {
+            const current = get()._loadedFlags;
+            if (current[key]) return;
+
+            const updated: AppDataState['_loadedFlags'] = { ...current, [key]: true };
+            set({ _loadedFlags: updated, isLoading: !isBaseLoaded(updated) });
+        };
+
+        const markLoadedMonth = (key: 'targetEvents' | 'targetShifts') => {
+            const current = get()._loadedFlags;
+            if (current[key]) return;
+
+            const updated: AppDataState['_loadedFlags'] = { ...current, [key]: true };
+            set({ _loadedFlags: updated, isCalendarLoading: !isMonthLoaded(updated) });
         };
 
         // Subscribe theo tháng
@@ -168,15 +213,23 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
                 const unsubEvt = dbService.subscribeEventsByMonth(m, y, (data) => {
                     const current = _dataCache.get(key) || { events: [], shifts: [] };
                     _dataCache.set(key, { ...current, events: data });
+
+                    const monthState = state._monthLoaded.get(key) || { events: false, shifts: false };
+                    state._monthLoaded.set(key, { ...monthState, events: true });
+
                     updateGlobalState();
-                    if (key === targetKey) checkLoaded();
+                    if (key === targetKey) markLoadedMonth('targetEvents');
                 });
 
                 const unsubShf = dbService.subscribeShiftsByMonth(m, y, (data) => {
                     const current = _dataCache.get(key) || { events: [], shifts: [] };
                     _dataCache.set(key, { ...current, shifts: data });
+
+                    const monthState = state._monthLoaded.get(key) || { events: false, shifts: false };
+                    state._monthLoaded.set(key, { ...monthState, shifts: true });
+
                     updateGlobalState();
-                    if (key === targetKey) checkLoaded();
+                    if (key === targetKey) markLoadedMonth('targetShifts');
                 });
 
                 _subscriptions.set(key, () => {
@@ -190,17 +243,17 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
         if (!_subscriptions.has('app-data')) {
             const unsubEmp = dbService.subscribeEmployees((data) => {
                 set({ employees: data });
-                checkLoaded();
+                markLoadedBase('employees');
             });
 
             const unsubLoc = dbService.subscribeLocations((data) => {
                 set({ locations: data });
-                checkLoaded();
+                markLoadedBase('locations');
             });
 
             const unsubSet = dbService.subscribeSettings((data) => {
                 if (data) set({ settings: data });
-                checkLoaded();
+                markLoadedBase('settings');
             });
 
             const unsubUnp = dbService.subscribeUnpaidShifts(async (data) => {
@@ -222,7 +275,6 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
                     }
                 }
                 updateGlobalState();
-                checkLoaded();
             });
 
             _subscriptions.set('app-data', () => {
@@ -237,10 +289,23 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
     },
 
     cleanupSubscriptions: () => {
-        const { _subscriptions, _dataCache } = get();
+        const { _subscriptions, _dataCache, _monthLoaded } = get();
         _subscriptions.forEach(unsub => unsub());
         _subscriptions.clear();
         _dataCache.clear();
-        set({ _unpaidShifts: [], _extraEvents: [] });
+        _monthLoaded.clear();
+        set({
+            _unpaidShifts: [],
+            _extraEvents: [],
+            _loadedFlags: {
+                employees: false,
+                locations: false,
+                settings: false,
+                targetEvents: false,
+                targetShifts: false
+            },
+            isLoading: false,
+            isCalendarLoading: false
+        });
     }
 }));

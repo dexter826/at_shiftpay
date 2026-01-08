@@ -23,6 +23,7 @@ function App() {
     shifts,
     settings,
     isLoading,
+    isCalendarLoading,
     viewDate,
     setViewDate,
     totalDebt,
@@ -111,6 +112,7 @@ function App() {
           shifts={shifts}
           settings={settings}
           isLoading={isLoading}
+          isCalendarLoading={isCalendarLoading}
           viewDate={viewDate}
           setViewDate={setViewDate}
           totalDebt={totalDebt}
@@ -139,6 +141,7 @@ function AppContent({
   shifts,
   settings,
   isLoading,
+  isCalendarLoading,
   viewDate,
   setViewDate,
   totalDebt,
@@ -161,6 +164,7 @@ function AppContent({
   shifts: any[];
   settings: any;
   isLoading: boolean;
+  isCalendarLoading: boolean;
   viewDate: Date;
   setViewDate: (date: Date) => void;
   totalDebt: number;
@@ -194,6 +198,7 @@ function AppContent({
             shifts={shifts}
             settings={settings}
             loading={isLoading}
+            calendarLoading={isCalendarLoading}
             viewDate={viewDate}
             setViewDate={setViewDate}
             totalDebt={totalDebt}
