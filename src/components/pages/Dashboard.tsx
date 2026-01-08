@@ -199,7 +199,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
         return {
             eventGrowth,
-            shiftGrowth
+            shiftGrowth,
+            eventCount: events.length,
+            shiftCount: shifts.length
         };
     }, [monthlyData]);
 
@@ -227,7 +229,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         hoverBgClass
     } = useThemeStyles();
 
-    const TrendIndicator = ({ value, label }: { value: number, label: string }) => {
+    const TrendIndicator = ({ value, count, label }: { value: number, count: number, label: string }) => {
         const isPositive = value >= 0;
         return (
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold ${isPositive
@@ -235,7 +237,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                 : 'bg-rose-500/10 text-rose-500'
                 }`}>
                 {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                <span>{isPositive ? '+' : ''}{value}%</span>
+                <span>{isPositive ? '+' : ''}{value}% ({count})</span>
                 <span className="opacity-70 font-medium">{label}</span>
             </div>
         );
@@ -488,13 +490,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
                                         <div className="flex flex-col gap-4 mb-6">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                                <div>
+                                                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                                                     <h3 className={`text-base font-bold ${textPrimaryClass} mb-1`}>
-                                                        Hoạt động hàng ngày
+                                                        Hoạt động tháng
                                                     </h3>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        <TrendIndicator value={growthStats.eventGrowth} label="Sự kiện" />
-                                                        <TrendIndicator value={growthStats.shiftGrowth} label="Số công" />
+                                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                                        <TrendIndicator value={growthStats.eventGrowth} count={growthStats.eventCount} label="Sự kiện" />
+                                                        <TrendIndicator value={growthStats.shiftGrowth} count={growthStats.shiftCount} label="Số công" />
                                                     </div>
                                                 </div>
 
@@ -555,7 +557,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
 
                                     {/* Biểu đồ tròn */}
                                     <div className={`p-5 md:p-6 ${cardBgClass} border ${borderClass} rounded-2xl shadow-sm min-h-[380px] flex flex-col`}>
-                                        <div className="mb-6">
+                                        <div className="mb-6 text-center sm:text-left flex flex-col items-center sm:items-start">
                                             <h3 className={`text-base font-bold ${textPrimaryClass} mb-1`}>Phân bổ thanh toán</h3>
                                             <p className={`text-xs ${textSecondaryClass}`}>Tỷ lệ giữa công chưa trả và đã ứng</p>
                                         </div>
