@@ -16,6 +16,7 @@ interface LoginProps {
 interface SavedUser {
   email: string;
   displayName: string;
+  photoURL?: string;
 }
 
 const CORRECT_CODE = '2738';
@@ -219,7 +220,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         saveUserInfo({
           email: userCredential.user.email!,
-          displayName: userCredential.user.displayName || 'Người dùng'
+          displayName: userCredential.user.displayName || 'Người dùng',
+          photoURL: userCredential.user.photoURL || undefined
         });
 
         onLogin();
@@ -388,9 +390,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <div className="relative">
                       <div className="w-24 h-24 rounded-full p-1 border-2 border-primary shadow-[0_0_20px_rgba(236,181,45,0.3)]">
                         <img
-                          src="/avatar.png"
+                          src={savedUser.photoURL || "/avatar.png"}
                           alt={savedUser.displayName}
                           className="w-full h-full rounded-full object-cover bg-slate-100"
+                          onError={(e) => {
+                            e.currentTarget.src = "/avatar.png";
+                          }}
                         />
                       </div>
                       <div className="absolute bottom-0 right-0 bg-green-500 w-5 h-5 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>

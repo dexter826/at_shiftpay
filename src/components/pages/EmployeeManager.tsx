@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
 import { vietQRService, VietQRBank } from '../../services/vietqr';
-import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert } from 'lucide-react';
+import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert, Upload, Camera, Loader2 } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
 import { EmployeeDetailModal } from '../modals';
@@ -12,6 +12,7 @@ import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { areValuesEqual } from '../../utils/compare';
+import { ImageCropperModal } from '../modals/ImageCropperModal';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -78,6 +79,10 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [tempImage, setTempImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'shifts' | 'recent'>('name');
   const [error, setError] = useState('');
@@ -166,6 +171,42 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
 
     return !areValuesEqual(currentState, initialState);
   }, [name, phone, imageUrl, bankId, bankName, accountNumber, accountName, initialState, editingEmp]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Kiểm tra định dạng
+    if (!file.type.startsWith('image/')) {
+      showToast('Vui lòng chọn file ảnh', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTempImage(reader.result as string);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    setIsUploading(true);
+    try {
+      const url = await dbService.uploadImage(croppedFile);
+      setImageUrl(url);
+      showToast('Đã tải ảnh lên thành công', 'success');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      showToast('Không thể tải ảnh lên', 'error');
+    } finally {
+      setIsUploading(false);
+      setTempImage(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -484,6 +525,43 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               {error}
             </div>
           )}
+          <div className="flex flex-col items-center justify-center pb-2">
+            <div
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              className={`relative w-24 h-24 rounded-full overflow-hidden border-2 ${borderClass} ${highlightBgClass} cursor-pointer group transition-all hover:border-primary`}
+            >
+              {imageUrl ? (
+                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center ${textMutedClass}`}>
+                  <Camera size={24} />
+                </div>
+              )}
+
+              {/* Overlay khi đang upload */}
+              {isUploading && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <Loader2 size={24} className="text-white animate-spin" />
+                </div>
+              )}
+
+              {/* Overlay hover */}
+              {!isUploading && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <Upload size={20} className="text-white" />
+                </div>
+              )}
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              accept="image/*"
+              className="hidden"
+            />
+            <p className={`text-[10px] ${textMutedClass} mt-2`}>Click để thay đổi ảnh</p>
+          </div>
+
           <div>
             <label className={`block text-xs ${textMutedClass} mb-1.5`}>Họ tên</label>
             <input
@@ -502,16 +580,6 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               value={phone}
               onChange={handlePhoneChange}
               maxLength={11}
-              className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs ${textMutedClass} mb-1.5`}>URL Hình ảnh (tùy chọn)</label>
-            <input
-              type="text"
-              placeholder="Nhập link ảnh (nếu có)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
               className={`w-full p-2.5 ${inputBgClass} border ${inputBorderClass} rounded-lg text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary`}
             />
           </div>
@@ -646,6 +714,19 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         shifts={shifts}
         onEditClick={(emp) => openEditModal(emp)}
       />
+
+      {/* Modal cắt ảnh */}
+      {tempImage && (
+        <ImageCropperModal
+          isOpen={cropperOpen}
+          onClose={() => {
+            setCropperOpen(false);
+            setTempImage(null);
+          }}
+          image={tempImage}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 };

@@ -52,6 +52,7 @@
   - `lottie-react`: Hiệu ứng Splash Screen
   - `zod`: Runtime validation cho Firestore data
   - `zustand`: State management hiện đại và nhẹ
+  - `react-easy-crop`: Công cụ cắt và canh chỉnh hình ảnh
 
 ## Cài đặt
 
@@ -77,6 +78,7 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
+VITE_IMGBB_API_KEY=your_imgbb_api_key
 ```
 
 4. Chạy ứng dụng:

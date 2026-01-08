@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { UserSettings } from '../../types';
 import { dbService } from '../../services';
@@ -9,6 +9,8 @@ import { ChangePasswordModal } from '../auth/ChangePasswordModal';
 import Switch from '../ui/Switch';
 import { auth } from '../../firebase';
 import { updateProfile } from 'firebase/auth';
+import { useAuthStore } from '../../stores/authStore';
+import { ImageCropperModal } from '../modals/ImageCropperModal';
 import {
     User,
     Briefcase,
@@ -18,7 +20,10 @@ import {
     Save,
     Edit2,
     Check,
-    X
+    X,
+    Upload,
+    Camera,
+    Loader2
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -30,6 +35,7 @@ interface SettingsViewProps {
 const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
     const { theme } = useThemeStyles();
     const { showToast } = useToast();
+    const saveUserInfo = useAuthStore(state => state.saveUserInfo);
 
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
     const [saving, setSaving] = useState(false);
@@ -38,6 +44,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(user?.displayName || '');
     const [savingName, setSavingName] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [cropperOpen, setCropperOpen] = useState(false);
+    const [tempImage, setTempImage] = useState<string | null>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     // Xử lý thay đổi cài đặt
     const handleChange = (key: keyof UserSettings, value: any) => {
@@ -81,6 +91,48 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const handleCancelEditName = () => {
         setEditedName(user?.displayName || '');
         setIsEditingName(false);
+    };
+
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showToast('Vui lòng chọn file ảnh', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setTempImage(reader.result as string);
+            setCropperOpen(true);
+        };
+        reader.readAsDataURL(file);
+
+        // Reset input để có thể chọn lại cùng 1 file
+        if (avatarInputRef.current) avatarInputRef.current.value = '';
+    };
+
+    const handleCropComplete = async (croppedFile: File) => {
+        setIsUploadingAvatar(true);
+        try {
+            const url = await dbService.uploadImage(croppedFile);
+            if (auth.currentUser) {
+                await updateProfile(auth.currentUser, { photoURL: url });
+                saveUserInfo({
+                    email: auth.currentUser.email!,
+                    displayName: auth.currentUser.displayName || 'Người dùng',
+                    photoURL: url
+                });
+                showToast('Đã cập nhật ảnh đại diện', 'success');
+            }
+        } catch (err) {
+            console.error('Avatar upload error:', err);
+            showToast('Không thể tải ảnh lên', 'error');
+        } finally {
+            setIsUploadingAvatar(false);
+            setTempImage(null);
+        }
     };
 
     const {
@@ -131,7 +183,37 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                         <SectionTitle icon={User} title="Tài khoản" />
                         <div className={`${cardBg} rounded-xl border ${border} overflow-hidden`}>
                             <div className={`p-4 flex items-center gap-4 border-b ${border}`}>
-                                <img src="/avatar.png" alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-primary flex-shrink-0" />
+                                <div
+                                    onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
+                                    className={`relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 cursor-pointer group`}
+                                >
+                                    {user?.photoURL ? (
+                                        <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <img src="/avatar.png" alt="Avatar" className="w-full h-full object-cover" />
+                                    )}
+
+                                    {/* Overlay loading */}
+                                    {isUploadingAvatar && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                            <Loader2 size={20} className="text-white animate-spin" />
+                                        </div>
+                                    )}
+
+                                    {/* Overlay hover */}
+                                    {!isUploadingAvatar && (
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                            <Camera size={18} className="text-white" />
+                                        </div>
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    ref={avatarInputRef}
+                                    onChange={handleAvatarUpload}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
                                 <div className="flex-1 min-w-0">
                                     {isEditingName ? (
                                         <div className="flex items-center gap-2">
@@ -259,6 +341,18 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                 isOpen={showPasswordModal}
                 onClose={() => setShowPasswordModal(false)}
             />
+            {/* Modal cắt ảnh */}
+            {tempImage && (
+                <ImageCropperModal
+                    isOpen={cropperOpen}
+                    onClose={() => {
+                        setCropperOpen(false);
+                        setTempImage(null);
+                    }}
+                    image={tempImage}
+                    onCropComplete={handleCropComplete}
+                />
+            )}
         </div>
     );
 };

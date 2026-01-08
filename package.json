@@ -15,6 +15,7 @@
     "lucide-react": "^0.561.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-easy-crop": "^5.5.6",
     "recharts": "^3.6.0",
     "styled-components": "^6.1.19",
     "zod": "^4.2.1",

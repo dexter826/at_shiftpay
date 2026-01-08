@@ -29,7 +29,9 @@ export default defineConfig(() => {
             'icons-vendor': ['lucide-react'],
             'lottie-vendor': ['lottie-react'],
             'styled-vendor': ['styled-components'],
-            'framer-motion-vendor': ['framer-motion']
+            'framer-motion-vendor': ['framer-motion'],
+            'cropper-vendor': ['react-easy-crop'],
+            'core-vendor': ['zod', 'zustand']
           }
         }
       },

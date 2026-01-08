@@ -5,6 +5,7 @@ import { auth } from '../firebase';
 interface SavedUser {
     email: string;
     displayName: string;
+    photoURL?: string;
 }
 
 interface AuthState {
