@@ -301,19 +301,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const isDark = theme === 'dark';
 
-  const bgClass = isDark
-    ? 'bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950'
-    : 'bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100';
+  const bgClass = isDark ? 'bg-slate-950' : 'bg-slate-50';
 
   const cardBgClass = isDark
-    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 shadow-[0_0_40px_-10px_rgba(236,181,45,0.1)]'
+    ? 'bg-slate-900 border border-slate-700 shadow-[0_0_40px_-10px_rgba(236,181,45,0.1)]'
     : 'bg-white border border-slate-200 shadow-[0_25px_60px_-15px_rgba(236,181,45,0.25)]';
 
   const illustrationBg = isDark ? 'bg-slate-900' : 'bg-slate-50';
 
   return (
-    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 transition-colors duration-300`}>
-      <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px] transition-all duration-300 relative`}>
+    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 relative overflow-hidden`}>
+      {/* Lớp gradient overlay để transition background vẫn hoạt động */}
+      <div className={`absolute inset-0 opacity-40 pointer-events-none ${isDark ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100'}`} />
+
+      <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px] relative`}>
         {/* Họa tiết trang trí */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />

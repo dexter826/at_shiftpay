@@ -95,7 +95,7 @@ function App() {
     <ToastProvider>
       <OfflineIndicator />
       {authLoading ? (
-        <div className={`flex items-center justify-center h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <div className={`flex items-center justify-center h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
           <Loader />
         </div>
       ) : !user ? (
@@ -180,7 +180,7 @@ function AppContent({
   const theme = useThemeStore(state => state.theme);
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <Navbar
         currentTab={activeTab}
         setTab={(t) => setActiveTab(t as Tab)}

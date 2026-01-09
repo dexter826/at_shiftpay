@@ -11,6 +11,21 @@
         -webkit-tap-highlight-color: transparent;
     }
 
+    /* Hiệu ứng chuyển theme toàn cục */
+    *,
+    *::before,
+    *::after {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-duration: 300ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Ưu tiên transition ngắn hơn cho hover để không cảm thấy lag */
+    *.hover\:*,
+    *:hover {
+        transition-duration: 150ms !important;
+    }
+
     button,
     a,
     [role="button"],
@@ -26,8 +41,6 @@
         user-select: text;
     }
 
-    .light,
-    .light body,
     html.light,
     html.light body {
         @apply bg-slate-50 text-slate-800;
