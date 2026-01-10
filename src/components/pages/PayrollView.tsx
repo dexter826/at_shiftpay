@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Shift, PayrollSummary, PaymentTransaction, Event, Location } from '../../types';
@@ -1182,4 +1182,4 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   );
 };
 
-export default PayrollView;
+export default memo(PayrollView);

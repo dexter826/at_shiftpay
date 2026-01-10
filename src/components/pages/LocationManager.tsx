@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
@@ -458,4 +458,4 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     );
 };
 
-export default LocationManager;
+export default memo(LocationManager);

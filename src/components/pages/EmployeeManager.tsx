@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
@@ -750,4 +750,4 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   );
 };
 
-export default EmployeeManager;
+export default memo(EmployeeManager);

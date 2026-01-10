@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, memo } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { PAYMENT_COLORS } from '../../constants/colors';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -26,73 +26,39 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialEvents, shifts: initialShifts, settings, loading = false, onLogout, onNavigateToSettings, onOpenExport }) => {
     const [logoutConfirm, setLogoutConfirm] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [monthlyData, setMonthlyData] = useState<{
-        events: Event[],
-        shifts: Shift[],
-        prevEvents: Event[],
-        prevShifts: Shift[]
-    }>({
-        events: initialEvents,
-        shifts: initialShifts,
-        prevEvents: [],
-        prevShifts: []
-    });
-    const [isDataLoading, setIsDataLoading] = useState(false);
-
     const currentMonth = selectedDate.getMonth();
     const currentYear = selectedDate.getFullYear();
 
-    // Tải dữ liệu khi đổi tháng
-    React.useEffect(() => {
-        const fetchData = async () => {
-            const now = new Date();
-            const prevMonthDate = new Date(currentYear, currentMonth - 1, 1);
-            const prevM = prevMonthDate.getMonth();
-            const prevY = prevMonthDate.getFullYear();
+    // Lọc dữ liệu tháng hiện tại và tháng trước trực tiếp từ props
+    const monthlyData = useMemo(() => {
+        const prevMonthDate = new Date(currentYear, currentMonth - 1, 1);
+        const prevM = prevMonthDate.getMonth();
+        const prevY = prevMonthDate.getFullYear();
 
-            setIsDataLoading(true);
-            try {
-                const currentEvents = initialEvents.filter(e => {
-                    const d = new Date(e.date);
-                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-                });
-                const currentShifts = initialShifts.filter(s => {
-                    const d = new Date(s.date);
-                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-                });
+        const currentEvents = initialEvents.filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
+        const currentShifts = initialShifts.filter(s => {
+            const d = new Date(s.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
 
-                let finalEvents = currentEvents;
-                let finalShifts = currentShifts;
+        const prevEvents = initialEvents.filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === prevM && d.getFullYear() === prevY;
+        });
+        const prevShifts = initialShifts.filter(s => {
+            const d = new Date(s.date);
+            return d.getMonth() === prevM && d.getFullYear() === prevY;
+        });
 
-                if (currentMonth !== now.getMonth() || currentYear !== now.getFullYear()) {
-                    if (currentEvents.length === 0 && currentShifts.length === 0) {
-                        [finalEvents, finalShifts] = await Promise.all([
-                            dbService.getEventsByMonth(currentMonth + 1, currentYear),
-                            dbService.getShiftsByMonth(currentMonth + 1, currentYear)
-                        ]);
-                    }
-                }
-
-                // Fetch tháng trước
-                const [prevEvents, prevShifts] = await Promise.all([
-                    dbService.getEventsByMonth(prevM + 1, prevY),
-                    dbService.getShiftsByMonth(prevM + 1, prevY)
-                ]);
-
-                setMonthlyData({
-                    events: finalEvents,
-                    shifts: finalShifts,
-                    prevEvents,
-                    prevShifts
-                });
-            } catch (error) {
-                console.error("Error fetching dashboard data:", error);
-            } finally {
-                setIsDataLoading(false);
-            }
+        return {
+            events: currentEvents,
+            shifts: currentShifts,
+            prevEvents,
+            prevShifts
         };
-
-        fetchData();
     }, [currentMonth, currentYear, initialEvents, initialShifts]);
 
     const handlePrevMonth = () => {
@@ -107,73 +73,76 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         setSelectedDate(new Date());
     };
 
-    // Tính toán thống kê tổng quan (không lọc theo tháng)
     const stats = useMemo(() => {
+        if (loading || employees.length === 0) return null;
+        
         const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const todayEnd = todayStart + 86400000;
 
-        // Sự kiện hôm nay
+        // Dùng getTime để so sánh nhanh hơn
         const todayEvents = initialEvents.filter(e => {
-            const d = new Date(e.date);
-            return d.getFullYear() === now.getFullYear() &&
-                d.getMonth() === now.getMonth() &&
-                d.getDate() === now.getDate();
+            const t = new Date(e.date).getTime();
+            return t >= todayStart && t < todayEnd;
         });
 
-        const weekStartDate = new Date(now);
-        weekStartDate.setHours(0, 0, 0, 0);
-        weekStartDate.setDate(now.getDate() - now.getDay());
-        const weekEndDate = new Date(weekStartDate);
-        weekEndDate.setDate(weekStartDate.getDate() + 6);
-        weekEndDate.setHours(23, 59, 59, 999);
+        const weekStart = new Date(now);
+        weekStart.setHours(0, 0, 0, 0);
+        weekStart.setDate(now.getDate() - now.getDay());
+        const weekStartTime = weekStart.getTime();
+        const weekEndTime = weekStartTime + (7 * 86400000);
 
-        // Sự kiện tuần này
         const weekEvents = initialEvents.filter(e => {
-            const d = new Date(e.date);
-            return d >= weekStartDate && d <= weekEndDate;
+            const t = new Date(e.date).getTime();
+            return t >= weekStartTime && t < weekEndTime;
         });
 
-        // Chỉ lấy shifts chưa trả lương
         const unpaidShifts = initialShifts.filter(s => s.status === 'unpaid');
-        const morningShifts = unpaidShifts.filter(s => s.session === 'morning');
-        const afternoonShifts = unpaidShifts.filter(s => s.session === 'afternoon');
+        const morningShiftsCount = unpaidShifts.filter(s => s.session === 'morning').length;
+        const afternoonShiftsCount = unpaidShifts.filter(s => s.session === 'afternoon').length;
 
-        // Nhân viên active (có shifts chưa trả lương)
         const activeEmployeeIds = new Set(unpaidShifts.map(s => s.employeeId));
-        const activeEmployees = employees.filter(e => activeEmployeeIds.has(e.id));
+        const activeEmployeesCount = employees.filter(e => activeEmployeeIds.has(e.id)).length;
 
-        // Sự kiện chưa hoàn tất lương (còn shifts unpaid)
         const unpaidEventIds = new Set(unpaidShifts.map(s => s.eventId));
-        const unpaidEvents = initialEvents.filter(e => unpaidEventIds.has(e.id));
+        const unpaidEventsCount = initialEvents.filter(e => unpaidEventIds.has(e.id)).length;
 
-        // Tổng lương
         const totalUnpaidAmount = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
-        const allAdvancedShifts = initialShifts.filter(s => s.status === 'advanced');
-        const totalAdvancedAmount = allAdvancedShifts.reduce((sum, s) => sum + s.amount, 0);
+        // Tối ưu: gom filter và reduce
+        const totalAdvancedAmount = initialShifts.reduce((sum, s) => s.status === 'advanced' ? sum + s.amount : sum, 0);
 
         return {
-            totalEvents: unpaidEvents.length,
+            totalEvents: unpaidEventsCount,
             todayEvents: todayEvents.length,
             weekEvents: weekEvents.length,
             totalShifts: unpaidShifts.length,
-            morningShifts: morningShifts.length,
-            afternoonShifts: afternoonShifts.length,
+            morningShifts: morningShiftsCount,
+            afternoonShifts: afternoonShiftsCount,
             totalEmployees: employees.length,
-            activeEmployees: activeEmployees.length,
+            activeEmployees: activeEmployeesCount,
             unpaidAmount: totalUnpaidAmount,
             advancedAmount: totalAdvancedAmount,
             totalEarned: totalUnpaidAmount + totalAdvancedAmount
         };
-    }, [initialEvents, initialShifts, employees]);
+    }, [initialEvents, initialShifts, employees, loading]);
 
     const chartData = useMemo(() => {
         const { events, shifts } = monthlyData;
+        
+        // Nhóm dữ liệu theo ngày để tra cứu O(1)
+        const eventMap: Record<string, number> = {};
+        events.forEach(e => eventMap[e.date] = (eventMap[e.date] || 0) + 1);
+        
+        const shiftMap: Record<string, number> = {};
+        shifts.forEach(s => shiftMap[s.date] = (shiftMap[s.date] || 0) + 1);
+
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const data = [];
 
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayEvents = events.filter(e => e.date === dateStr).length;
-            const dayShifts = shifts.filter(s => s.date === dateStr).length;
+            const dayEvents = eventMap[dateStr] || 0;
+            const dayShifts = shiftMap[dateStr] || 0;
 
             if (dayEvents > 0 || dayShifts > 0) {
                 data.push({
@@ -381,15 +350,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                             <span className="text-xs font-medium uppercase tracking-wider">Tổng sự kiện</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalEvents}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalEvents || 0}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Hôm nay</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.todayEvents}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats?.todayEvents || 0}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Tuần này</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.weekEvents}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats?.weekEvents || 0}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -404,15 +373,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                             <span className="text-xs font-medium uppercase tracking-wider">Tổng công</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalShifts}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalShifts || 0}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Sáng</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.morningShifts}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats?.morningShifts || 0}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Chiều</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.afternoonShifts}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats?.afternoonShifts || 0}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -427,15 +396,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                             <span className="text-xs font-medium uppercase tracking-wider">Tổng nhân viên</span>
                                         </div>
-                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats.totalEmployees}</p>
+                                        <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalEmployees || 0}</p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã làm</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.activeEmployees}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats?.activeEmployees || 0}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Chưa làm</span>
-                                                <span className={`font-semibold ${textPrimaryClass}`}>{stats.totalEmployees - stats.activeEmployees}</span>
+                                                <span className={`font-semibold ${textPrimaryClass}`}>{(stats?.totalEmployees || 0) - (stats?.activeEmployees || 0)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -451,19 +420,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             <span className="text-xs font-medium uppercase tracking-wider">Tổng lương</span>
                                         </div>
                                         <p className="text-2xl font-bold text-primary mb-3 truncate">
-                                            {stats.totalEarned.toLocaleString('vi-VN')}đ
+                                            {(stats?.totalEarned || 0).toLocaleString('vi-VN')}đ
                                         </p>
                                         <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Đã ứng</span>
                                                 <span className="font-semibold text-orange-500">
-                                                    {stats.advancedAmount.toLocaleString('vi-VN')}đ
+                                                    {(stats?.advancedAmount || 0).toLocaleString('vi-VN')}đ
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className={textSecondaryClass}>Cần trả</span>
                                                 <span className="font-semibold text-blue-500">
-                                                    {stats.unpaidAmount.toLocaleString('vi-VN')}đ
+                                                    {(stats?.unpaidAmount || 0).toLocaleString('vi-VN')}đ
                                                 </span>
                                             </div>
                                         </div>
@@ -475,19 +444,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                     {/* Biểu đồ cột */}
                                     {/* Biểu đồ cột */}
                                     <div className={`relative p-5 md:p-6 ${cardBgClass} border ${borderClass} rounded-2xl shadow-sm min-h-[380px] flex flex-col`}>
-                                        <AnimatePresence>
-                                            {isDataLoading && (
-                                                <motion.div
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    className={`absolute inset-0 ${cardBgClass}/60 z-10 flex items-center justify-center backdrop-blur-[2px] rounded-2xl`}
-                                                >
-                                                    <Loader fullScreen={false} />
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-
                                         <div className="flex flex-col gap-4 mb-6">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                                 <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
@@ -631,4 +587,4 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
     );
 };
 
-export default Dashboard;
+export default memo(Dashboard);

@@ -49,6 +49,8 @@ interface AppDataState {
     refreshData: (userId: string) => void;
 }
 
+let updateTimer: any = null;
+
 export const useAppDataStore = create<AppDataState>((set, get) => ({
     // Initial data
     employees: [],
@@ -145,8 +147,7 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             isCalendarLoading: (!hasCache) && !isMonthLoaded(nextLoadedFlags)
         });
 
-        // Cập nhật state từ cache
-        const updateGlobalState = () => {
+        const executeUpdate = () => {
             const currentState = get();
             const allEvents = new Map<string, Event>();
             currentState._dataCache.forEach(cache => cache.events.forEach(e => allEvents.set(e.id, e)));
@@ -157,18 +158,29 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             currentState._unpaidShifts.forEach(s => allShifts.set(s.id, s));
 
             const shiftsArray = Array.from(allShifts.values());
+            const eventsArray = Array.from(allEvents.values());
             const totalDebt = shiftsArray
                 .filter(s => s.status === 'unpaid')
                 .reduce((sum, s) => sum + s.amount, 0);
 
-            set({
-                events: Array.from(allEvents.values()),
-                shifts: shiftsArray,
-                totalDebt
-            });
+            // Kiểm tra tối giản để tránh re-render khi DB subscription bắn data cũ
+            const prev = get();
+            if (prev.events.length !== eventsArray.length || 
+                prev.shifts.length !== shiftsArray.length || 
+                prev.totalDebt !== totalDebt) {
+                set({
+                    events: eventsArray,
+                    shifts: shiftsArray,
+                    totalDebt
+                });
+            }
         };
 
-        // Các tháng cần subscribe
+        const updateGlobalState = () => {
+            if (updateTimer) clearTimeout(updateTimer);
+            updateTimer = setTimeout(executeUpdate, 50);
+        };
+
         const needed = [
             { m: month, y: year },
             { m: month === 0 ? 11 : month - 1, y: month === 0 ? year - 1 : year },
@@ -206,7 +218,6 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             set({ _loadedFlags: updated, isCalendarLoading: !isMonthLoaded(updated) });
         };
 
-        // Subscribe theo tháng
         needed.forEach(({ m, y }) => {
             const key = `${m}-${y}`;
             if (!_subscriptions.has(key)) {
@@ -239,7 +250,6 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
             }
         });
 
-        // Subscribe toàn app
         if (!_subscriptions.has('app-data')) {
             const unsubEmp = dbService.subscribeEmployees((data) => {
                 set({ employees: data });

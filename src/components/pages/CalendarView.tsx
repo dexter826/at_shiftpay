@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, Location } from '../../types';
@@ -460,4 +460,4 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   );
 };
 
-export default CalendarView;
+export default memo(CalendarView);

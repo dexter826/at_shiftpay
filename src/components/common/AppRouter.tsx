@@ -127,15 +127,14 @@ export function AppRouter({
 
   return (
     <div className="relative">
-      {tabs.map((tab) => (
+      {tabs.filter(tab => activeTab === tab.id).map((tab) => (
         <div
           key={tab.id}
-          className={activeTab === tab.id ? 'block' : 'hidden'}
+          className="block"
         >
-          {/* AnimatePresence chỉ bọc ngoài cùng hoặc từng tab nếu cần hiệu ứng riêng */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: activeTab === tab.id ? 1 : 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.15 }}
           >
             {tab.component}
