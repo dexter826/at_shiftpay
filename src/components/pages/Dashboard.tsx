@@ -523,9 +523,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                             </div>
                                         </div>
 
-                                        <div className="flex-1 min-h-[220px]">
+                                        <div className="flex-1 w-full relative overflow-hidden">
                                             {chartData.length > 0 ? (
-                                                <ResponsiveContainer width="100%" height="100%">
+                                                <ResponsiveContainer width="100%" height={300} minWidth={0} debounce={100}>
                                                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                                         <XAxis
                                                             dataKey="day"
@@ -565,8 +565,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         <div className="flex-1 flex flex-col items-center justify-center">
                                             {paymentData.length > 0 ? (
                                                 <div className="w-full flex flex-col items-center gap-8">
-                                                    <div className="relative w-[180px] h-[180px] z-0">
-                                                        <ResponsiveContainer width="100%" height="100%" className="relative z-10">
+                                                    <div className="relative w-full z-0 overflow-hidden">
+                                                        <ResponsiveContainer width="100%" height={220} minWidth={0} debounce={100} className="relative z-10">
                                                             <PieChart>
                                                                 <Pie
                                                                     data={paymentData}
