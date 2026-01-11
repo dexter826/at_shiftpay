@@ -3,7 +3,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Loader2 } from 'lucide-react';
 
 
-type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline' | 'success';
+type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline' | 'success' | 'warning';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
@@ -48,6 +48,11 @@ const Button: React.FC<ButtonProps> = ({
             back: theme === 'dark' ? "from-slate-700 via-slate-800 to-slate-700" : "from-slate-300 via-slate-200 to-slate-300",
             front: theme === 'dark' ? "from-slate-800 via-slate-900 to-slate-800" : "from-slate-100 via-white to-slate-50",
             text: theme === 'dark' ? "text-slate-300" : "text-slate-700"
+        },
+        warning: {
+            back: "from-orange-700 via-orange-600 to-orange-700",
+            front: "from-orange-500 via-orange-400 to-orange-300",
+            text: "text-white"
         }
     };
 

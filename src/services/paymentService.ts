@@ -153,4 +153,27 @@ export const paymentService = {
       throw new Error(`Không thể quyết toán tiền ứng: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`);
     }
   },
+
+  async getUnsettledAdvances(employeeId: string, userId: string): Promise<PaymentTransaction[]> {
+    try {
+      const q = query(
+        collection(db, 'payments'),
+        where('userId', '==', userId),
+        where('employeeId', '==', employeeId),
+        where('type', '==', 'advance'),
+        orderBy('date', 'desc')
+      );
+
+      const snapshot = await getDocs(q);
+      const payments = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as PaymentTransaction[];
+
+      return payments.filter(p => !p.settledAt);
+    } catch (error) {
+      console.error('getUnsettledAdvances error:', error);
+      return [];
+    }
+  },
 };
