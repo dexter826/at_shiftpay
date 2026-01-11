@@ -7,6 +7,7 @@ import { Shift, PaymentTransaction, AdvanceBalance, Event, Location } from '../.
 import { formatCurrency, formatDate } from '../../constants';
 import { dbService } from '../../services';
 import { Calculator, AlertCircle, CheckCircle2, Calendar, MapPin } from 'lucide-react';
+import { useAuthStore } from '../../stores';
 
 interface SettlementModalProps {
     isOpen: boolean;
@@ -40,6 +41,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
         textPrimaryClass,
         textSecondaryClass
     } = useThemeStyles();
+    const { user } = useAuthStore();
+    const userId = user?.uid || '';
 
     // Tính số dư nợ
     const advanceBalance = useMemo((): AdvanceBalance => {
@@ -97,7 +100,8 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                 employeeName,
                 unsettledAdvances.map(p => p.id),
                 advancedShifts.map(s => s.id),
-                totalAmount
+                totalAmount,
+                userId
             );
 
             showToast('Quyết toán tiền ứng thành công', 'success');

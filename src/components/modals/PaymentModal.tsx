@@ -8,6 +8,7 @@ import { formatCurrency } from '../../constants';
 import { dbService } from '../../services';
 import { vietQRService } from '../../services/vietqr';
 import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User, MapPin, Wallet } from 'lucide-react';
+import { useAuthStore } from '../../stores';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -50,6 +51,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         hoverBgClass,
         inputBorderClass
     } = useThemeStyles();
+    const { user } = useAuthStore();
+    const userId = user?.uid || '';
     const { showToast } = useToast();
 
     const selectedShifts = useMemo(() => {
@@ -144,7 +147,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 type: paymentType as 'regular' | 'advance',
                 note: paymentType === 'advance'
                     ? `Ứng tiền ${selectedShiftIds.length} ca làm việc`
-                    : `Thanh toán ${selectedShiftIds.length} ca làm việc`
+                    : `Thanh toán ${selectedShiftIds.length} ca làm việc`,
+                userId: userId
             };
 
             if (paymentType === 'advance') {

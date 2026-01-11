@@ -19,12 +19,16 @@ import { createRealtimeSubscription } from './firebase-helpers';
 import { LocationSchema } from '../utils/validation';
 
 export const locationService = {
-  subscribeLocations(callback: (locations: Location[]) => void): Unsubscribe {
-    const q = query(collection(db, 'locations'), orderBy('name', 'asc'));
+  subscribeLocations(userId: string, callback: (locations: Location[]) => void): Unsubscribe {
+    const q = query(
+      collection(db, 'locations'),
+      where('userId', '==', userId),
+      orderBy('name', 'asc')
+    );
     return createRealtimeSubscription<Location>(q, callback, 'subscribeLocations', LocationSchema);
   },
 
-  async addLocation(data: { name: string; review?: 'high' | 'low'; reviewNote?: string }): Promise<string> {
+  async addLocation(data: { name: string; review?: 'high' | 'low'; reviewNote?: string }, userId: string): Promise<string> {
     try {
       // Lọc bỏ field undefined
       const cleanData = Object.fromEntries(
@@ -34,6 +38,7 @@ export const locationService = {
       const docRef = await addDoc(collection(db, 'locations'), {
         ...cleanData,
         createdAt: new Date().toISOString(),
+        userId,
       });
       return docRef.id;
     } catch (error) {
@@ -65,9 +70,14 @@ export const locationService = {
     }
   },
 
-  async findOrCreateLocation(name: string, reviewData?: { review?: 'high' | 'low'; reviewNote?: string }): Promise<string> {
+  async findOrCreateLocation(userId: string, name: string, reviewData?: { review?: 'high' | 'low'; reviewNote?: string }): Promise<string> {
     try {
-      const q = query(collection(db, 'locations'), where('name', '==', name), limit(1));
+      const q = query(
+        collection(db, 'locations'),
+        where('userId', '==', userId),
+        where('name', '==', name),
+        limit(1)
+      );
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -86,7 +96,7 @@ export const locationService = {
       return await this.addLocation({
         name,
         ...reviewData
-      });
+      }, userId);
     } catch (error) {
       console.error('findOrCreateLocation error:', error);
       throw error;

@@ -12,6 +12,7 @@ export interface Employee {
   imageUrl?: string;
   bankAccount?: BankAccount;
   createdAt: string; // Chuỗi ISO 8601
+  userId: string;
 }
 
 export interface Location {
@@ -20,6 +21,7 @@ export interface Location {
   review?: 'high' | 'low';
   reviewNote?: string;
   createdAt: string;
+  userId: string;
 }
 
 export interface Event {
@@ -35,6 +37,7 @@ export interface Event {
     selectedEmployeeIds?: string[]; // Cho type = 'selected'
   };
   locationId?: string; // Link tới Location
+  userId: string;
 }
 
 export type ShiftSession = 'morning' | 'afternoon';
@@ -51,6 +54,7 @@ export interface Shift {
   status: ShiftStatus;
   paidAt?: number | null;
   paymentId?: string;
+  userId: string;
 }
 
 export type PaymentType = 'regular' | 'advance' | 'settlement';
@@ -66,6 +70,7 @@ export interface PaymentTransaction {
   type: PaymentType;
   settledAt?: number; // Thời điểm hoàn ứng
   settledBy?: string; // ID giao dịch hoàn ứng
+  userId: string;
 }
 
 export interface PayrollSummary {
@@ -91,10 +96,12 @@ export interface UserSettings {
   shiftRate: number;
   morningTime: string;
   afternoonTime: string;
+  userId: string;
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
   shiftRate: 250000,
   morningTime: '07:30',
   afternoonTime: '13:30',
+  userId: '',
 };

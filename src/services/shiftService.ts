@@ -16,29 +16,32 @@ import { buildMonthRangeQuery, createRealtimeSubscription, executeBatchQuery } f
 import { ShiftSchema } from '../utils/validation';
 
 export const shiftService = {
-  subscribeShiftsByMonth(month: number, year: number, callback: (shifts: Shift[]) => void): Unsubscribe {
+  subscribeShiftsByMonth(userId: string, month: number, year: number, callback: (shifts: Shift[]) => void): Unsubscribe {
     const q = buildMonthRangeQuery({
       collectionName: 'shifts',
       dateField: 'date',
       month,
-      year
+      year,
+      userId
     });
     return createRealtimeSubscription<Shift>(q, callback, 'subscribeShiftsByMonth', ShiftSchema);
   },
 
-  async getShiftsByMonth(month: number, year: number): Promise<Shift[]> {
+  async getShiftsByMonth(userId: string, month: number, year: number): Promise<Shift[]> {
     const q = buildMonthRangeQuery({
       collectionName: 'shifts',
       dateField: 'date',
       month: month - 1,
-      year
+      year,
+      userId
     });
     return executeBatchQuery<Shift>(q, ShiftSchema);
   },
 
-  subscribeUnpaidShifts(callback: (shifts: Shift[]) => void): Unsubscribe {
+  subscribeUnpaidShifts(userId: string, callback: (shifts: Shift[]) => void): Unsubscribe {
     const q = query(
       collection(db, 'shifts'),
+      where('userId', '==', userId),
       where('status', 'in', ['unpaid', 'advanced']),
       orderBy('date', 'asc')
     );

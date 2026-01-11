@@ -4,6 +4,7 @@ import {
   doc,
   writeBatch,
   query,
+  where,
   orderBy,
   limit,
   startAfter,
@@ -16,18 +17,24 @@ import { createRealtimeSubscription, executeBatchWithRetry } from './firebase-he
 import { PaymentTransactionSchema } from '../utils/validation';
 
 export const paymentService = {
-  subscribePayments(callback: (payments: PaymentTransaction[]) => void): Unsubscribe {
-    const q = query(collection(db, 'payments'), orderBy('date', 'desc'));
+  subscribePayments(userId: string, callback: (payments: PaymentTransaction[]) => void): Unsubscribe {
+    const q = query(
+      collection(db, 'payments'),
+      where('userId', '==', userId),
+      orderBy('date', 'desc')
+    );
     return createRealtimeSubscription<PaymentTransaction>(q, callback, 'subscribePayments', PaymentTransactionSchema);
   },
 
   async getPaymentsPaginated(
+    userId: string,
     pageSize: number,
     lastVisibleDoc?: QueryDocumentSnapshot
   ): Promise<{ payments: PaymentTransaction[]; lastVisible: QueryDocumentSnapshot | null }> {
     try {
       let q = query(
         collection(db, 'payments'),
+        where('userId', '==', userId),
         orderBy('date', 'desc'),
         limit(pageSize)
       );
@@ -102,7 +109,8 @@ export const paymentService = {
     employeeName: string,
     advancePaymentIds: string[],
     shiftIds: string[],
-    totalAmount: number
+    totalAmount: number,
+    userId: string
   ): Promise<void> {
     try {
       await executeBatchWithRetry(async () => {
@@ -117,7 +125,8 @@ export const paymentService = {
           date: now,
           shiftIds,
           type: 'settlement',
-          note: 'Quyết toán tiền ứng'
+          note: 'Quyết toán tiền ứng',
+          userId: userId
         });
 
         advancePaymentIds.forEach(paymentId => {

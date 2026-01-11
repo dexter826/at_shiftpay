@@ -29,6 +29,7 @@ import Button from "../ui/Button";
 import { TimePicker } from "../ui/TimePicker";
 import { useToast } from "../ui/Toast";
 import { areValuesEqual } from "../../utils/compare";
+import { useAuthStore } from "../../stores";
 
 interface EventModalProps {
   date: string;
@@ -66,6 +67,8 @@ export const EventModal: React.FC<EventModalProps> = ({
     inputBorderClass,
     highlightBgClass,
   } = useThemeStyles();
+  const { user } = useAuthStore();
+  const userId = user?.uid || '';
   const { showToast } = useToast();
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -231,6 +234,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       const currentYear = currentDate.getFullYear();
 
       const shifts = await dbService.getShiftsByMonth(
+        userId,
         currentMonth + 1,
         currentYear
       );
@@ -398,7 +402,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       // Xử lý Địa điểm & Đánh giá
       let locationId = "";
       if (location.trim()) {
-        locationId = await dbService.findOrCreateLocation(location.trim(), {
+        locationId = await dbService.findOrCreateLocation(userId, location.trim(), {
           review,
           reviewNote: reviewNote.trim(),
         });
@@ -454,6 +458,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             session: selectedSession!,
             amount: finalAmount,
             status: "unpaid",
+            userId: userId,
           };
           shiftsToCreate.push(shiftData);
         }
@@ -494,6 +499,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         time,
         amount,
         surcharge,
+        userId: userId,
       };
 
       if (surchargeDistribution) {

@@ -70,8 +70,8 @@ function App() {
       setIsExporting(true);
       const queryYear = month === 0 ? 0 : year;
       const [fetchedEvents, fetchedShifts] = await Promise.all([
-        dbService.getEventsByMonth(month, queryYear),
-        dbService.getShiftsByMonth(month, queryYear)
+        dbService.getEventsByMonth(user.uid, month, queryYear),
+        dbService.getShiftsByMonth(user.uid, month, queryYear)
       ]);
       await exportDetailedReport(month, queryYear, fetchedEvents, fetchedShifts, employees, locations, settings, onlyDebt);
       setIsExportModalOpen(false);

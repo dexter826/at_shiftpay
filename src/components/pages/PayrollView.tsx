@@ -14,6 +14,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { PaymentModal } from '../modals/PaymentModal';
 import { SettlementModal } from '../modals/SettlementModal';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
+import { useAuthStore } from '../../stores';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -43,6 +44,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSettlementModal, setShowSettlementModal] = useState(false);
   const [payrollVisibleCount, setPayrollVisibleCount] = useState(15);
+  const { user } = useAuthStore();
+  const userId = user?.uid || '';
 
   // Reset phan trang khi doi tim kiem hoac tab
   useEffect(() => {
@@ -57,6 +60,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     setIsFetchingMore(true);
     try {
       const { payments, lastVisible: nextLastVisible } = await dbService.getPaymentsPaginated(
+        userId,
         20,
         isInitial ? undefined : lastVisible
       );
@@ -249,7 +253,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         date: Date.now(),
         shiftIds: selectedShiftIds,
         type: 'regular' as const,
-        note: `Thanh toán ${selectedShiftIds.length} ca làm việc`
+        note: `Thanh toán ${selectedShiftIds.length} ca làm việc`,
+        userId: userId
       };
 
       await dbService.createPaymentTransaction(paymentData, selectedShiftIds);

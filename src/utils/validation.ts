@@ -14,6 +14,7 @@ export const EmployeeSchema = z.object({
   imageUrl: z.string().optional(),
   bankAccount: BankAccountSchema.optional(),
   createdAt: z.string(),
+  userId: z.string(),
 });
 
 export const LocationSchema = z.object({
@@ -22,6 +23,7 @@ export const LocationSchema = z.object({
   review: z.enum(['high', 'low']).optional(),
   reviewNote: z.string().optional(),
   createdAt: z.string(),
+  userId: z.string(),
 });
 
 export const EventSchema = z.object({
@@ -37,6 +39,7 @@ export const EventSchema = z.object({
     selectedEmployeeIds: z.array(z.string()).optional(),
   }).optional(),
   locationId: z.string().optional(),
+  userId: z.string(),
 });
 
 export const ShiftSchema = z.object({
@@ -50,6 +53,7 @@ export const ShiftSchema = z.object({
   status: z.enum(['unpaid', 'paid', 'advanced']),
   paidAt: z.number().nullable().optional(),
   paymentId: z.string().optional(),
+  userId: z.string(),
 });
 
 export const PaymentTransactionSchema = z.object({
@@ -63,12 +67,14 @@ export const PaymentTransactionSchema = z.object({
   type: z.enum(['regular', 'advance', 'settlement']),
   settledAt: z.number().optional(),
   settledBy: z.string().optional(),
+  userId: z.string(),
 });
 
 export const UserSettingsSchema = z.object({
   shiftRate: z.number().min(0, 'Mức lương phải lớn hơn 0'),
   morningTime: z.string(),
   afternoonTime: z.string(),
+  userId: z.string(),
 });
 
 export function validateEmployee(data: unknown) {

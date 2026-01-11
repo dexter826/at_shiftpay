@@ -64,7 +64,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const handleSaveSettings = async () => {
         setSaving(true);
         try {
-            await dbService.updateSettings(editSettings);
+            await dbService.updateSettings(user.uid, editSettings);
             showToast('Đã lưu cài đặt', 'success');
         } catch (err) {
             console.error(err);

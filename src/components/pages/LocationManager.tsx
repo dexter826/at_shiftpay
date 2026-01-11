@@ -10,6 +10,7 @@ import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
+import { useAuthStore } from '../../stores';
 
 interface LocationManagerProps {
     locations: Location[];
@@ -34,6 +35,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         inputBgClass,
         inputBorderClass
     } = useThemeStyles();
+    const { user } = useAuthStore();
+    const userId = user?.uid || '';
 
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,7 +60,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         const fetchAllEvents = async () => {
             setLoadingEvents(true);
             try {
-                const data = await dbService.getAllEvents();
+                const data = await dbService.getAllEvents(userId);
                 setAllEvents(data);
             } catch (error) {
                 console.error("Error fetching all events:", error);
@@ -150,7 +153,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     name: name.trim(),
                     review,
                     reviewNote: reviewNote.trim()
-                });
+                }, userId);
                 showToast('Thêm địa điểm thành công', 'success');
             }
             setIsModalOpen(false);

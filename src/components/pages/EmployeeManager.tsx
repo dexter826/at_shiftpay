@@ -14,6 +14,7 @@ import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { areValuesEqual } from '../../utils/compare';
 import { ImageCropperModal } from '../modals/ImageCropperModal';
+import { useAuthStore } from '../../stores';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -37,6 +38,8 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     inputBorderClass,
     highlightBgClass
   } = useThemeStyles();
+  const { user } = useAuthStore();
+  const userId = user?.uid || '';
 
   // Tính công nợ trong tháng
   const currentMonth = new Date().getMonth();
@@ -276,7 +279,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         await dbService.updateEmployee(empId, employeeData);
         showToast('Đã cập nhật nhân viên', 'success');
       } else {
-        await dbService.addEmployee(employeeData);
+        await dbService.addEmployee(employeeData, userId);
         showToast('Đã thêm nhân viên mới', 'success');
       }
     } catch (err) {

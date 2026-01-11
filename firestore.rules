@@ -5,6 +5,18 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isDataOwner() {
+      return isOwner(resource.data.userId);
+    }
+
+    function isIncomingOwner() {
+      return isOwner(request.resource.data.userId);
+    }
     
     function isValidString(value) {
       return value is string && value.size() > 0;
@@ -20,87 +32,54 @@ service cloud.firestore {
     
     // Employees Collection
     match /employees/{employeeId} {
-      allow read: if isAuthenticated();
-
-      allow create: if isAuthenticated()
+      allow read, delete: if isAuthenticated() && isDataOwner();
+      allow create: if isAuthenticated() && isIncomingOwner()
         && isValidString(request.resource.data.name)
         && isValidOptionalString(request.resource.data.phone)
         && request.resource.data.createdAt is string;
-      
-      allow update: if isAuthenticated()
-        && (request.resource.data.name is string || !('name' in request.resource.data))
-        && (request.resource.data.phone is string || !('phone' in request.resource.data));
-      
-      allow delete: if isAuthenticated();
+      allow update: if isAuthenticated() && isDataOwner() && isIncomingOwner();
     }
 
     // Locations Collection
     match /locations/{locationId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated()
+      allow read, delete: if isAuthenticated() && isDataOwner();
+      allow create: if isAuthenticated() && isIncomingOwner()
         && isValidString(request.resource.data.name)
         && request.resource.data.createdAt is string;
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow update: if isAuthenticated() && isDataOwner() && isIncomingOwner();
     }
     
     // Events Collection
     match /events/{eventId} {
-      allow read: if isAuthenticated();
-      
-      allow create: if isAuthenticated()
+      allow read, delete: if isAuthenticated() && isDataOwner();
+      allow create: if isAuthenticated() && isIncomingOwner()
         && isValidString(request.resource.data.date)
         && isValidString(request.resource.data.title);
-      
-      allow update: if isAuthenticated();
-      
-      allow delete: if isAuthenticated();
+      allow update: if isAuthenticated() && isDataOwner() && isIncomingOwner();
     }
     
     // Shifts Collection
     match /shifts/{shiftId} {
-      allow read: if isAuthenticated();
-      
-      allow create: if isAuthenticated()
+      allow read, delete: if isAuthenticated() && isDataOwner();
+      allow create: if isAuthenticated() && isIncomingOwner()
         && isValidString(request.resource.data.eventId)
         && isValidString(request.resource.data.date)
-        && isValidString(request.resource.data.employeeId)
-        && isValidString(request.resource.data.employeeName)
-        && request.resource.data.session in ['morning', 'afternoon']
-        && isValidNumber(request.resource.data.amount)
-        && request.resource.data.status in ['unpaid', 'paid', 'advanced'];
-      
-      allow update: if isAuthenticated()
-        && (request.resource.data.status in ['unpaid', 'paid', 'advanced'] || !('status' in request.resource.data));
-      
-      allow delete: if isAuthenticated();
+        && isValidString(request.resource.data.employeeId);
+      allow update: if isAuthenticated() && isDataOwner() && isIncomingOwner();
     }
     
     // Payments Collection
     match /payments/{paymentId} {
-      allow read: if isAuthenticated();
-      
-      allow create: if isAuthenticated()
-        && isValidString(request.resource.data.employeeId)
-        && isValidString(request.resource.data.employeeName)
-        && isValidNumber(request.resource.data.amount)
-        && request.resource.data.date is number
-        && request.resource.data.shiftIds is list
-        && request.resource.data.type in ['regular', 'advance', 'settlement'];
-      
-      allow update: if isAuthenticated();
-      
-      allow delete: if isAuthenticated();
+      allow read, delete: if isAuthenticated() && isDataOwner();
+      allow create: if isAuthenticated() && isIncomingOwner();
+      allow update: if isAuthenticated() && isDataOwner() && isIncomingOwner();
     }
     
     // Settings Collection
-    match /settings/{settingId} {
-      allow read: if isAuthenticated();
-      
-      allow write: if isAuthenticated()
-        && isValidNumber(request.resource.data.shiftRate)
-        && isValidString(request.resource.data.morningTime)
-        && isValidString(request.resource.data.afternoonTime);
+    match /settings/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId
+        && isIncomingOwner();
     }
   }
 }

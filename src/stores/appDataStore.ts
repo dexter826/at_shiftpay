@@ -221,24 +221,24 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
         needed.forEach(({ m, y }) => {
             const key = `${m}-${y}`;
             if (!_subscriptions.has(key)) {
-                const unsubEvt = dbService.subscribeEventsByMonth(m, y, (data) => {
+                const unsubEvt = dbService.subscribeEventsByMonth(userId, m, y, (data) => {
                     const current = _dataCache.get(key) || { events: [], shifts: [] };
                     _dataCache.set(key, { ...current, events: data });
-
+ 
                     const monthState = state._monthLoaded.get(key) || { events: false, shifts: false };
                     state._monthLoaded.set(key, { ...monthState, events: true });
-
+ 
                     updateGlobalState();
                     if (key === targetKey) markLoadedMonth('targetEvents');
                 });
-
-                const unsubShf = dbService.subscribeShiftsByMonth(m, y, (data) => {
+ 
+                const unsubShf = dbService.subscribeShiftsByMonth(userId, m, y, (data) => {
                     const current = _dataCache.get(key) || { events: [], shifts: [] };
                     _dataCache.set(key, { ...current, shifts: data });
-
+ 
                     const monthState = state._monthLoaded.get(key) || { events: false, shifts: false };
                     state._monthLoaded.set(key, { ...monthState, shifts: true });
-
+ 
                     updateGlobalState();
                     if (key === targetKey) markLoadedMonth('targetShifts');
                 });
@@ -251,35 +251,35 @@ export const useAppDataStore = create<AppDataState>((set, get) => ({
         });
 
         if (!_subscriptions.has('app-data')) {
-            const unsubEmp = dbService.subscribeEmployees((data) => {
+            const unsubEmp = dbService.subscribeEmployees(userId, (data) => {
                 set({ employees: data });
                 markLoadedBase('employees');
             });
-
-            const unsubLoc = dbService.subscribeLocations((data) => {
+ 
+            const unsubLoc = dbService.subscribeLocations(userId, (data) => {
                 set({ locations: data });
                 markLoadedBase('locations');
             });
-
-            const unsubSet = dbService.subscribeSettings((data) => {
+ 
+            const unsubSet = dbService.subscribeSettings(userId, (data) => {
                 if (data) set({ settings: data });
                 markLoadedBase('settings');
             });
-
-            const unsubUnp = dbService.subscribeUnpaidShifts(async (data) => {
+ 
+            const unsubUnp = dbService.subscribeUnpaidShifts(userId, async (data) => {
                 const currentState = get();
                 currentState._unpaidShifts = data;
-
+ 
                 const eventIds = Array.from(new Set(data.filter(s => s.eventId).map(s => s.eventId)));
                 const existingIds = new Set(
                     Array.from(currentState._dataCache.values())
                         .flatMap(c => c.events.map(e => e.id))
                 );
                 const missing = eventIds.filter(id => id && !existingIds.has(id));
-
+ 
                 if (missing.length > 0) {
                     try {
-                        currentState._extraEvents = await dbService.getEventsByIds(missing);
+                        currentState._extraEvents = await dbService.getEventsByIds(userId, missing);
                     } catch (e) {
                         console.error(e);
                     }

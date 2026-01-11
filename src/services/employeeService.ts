@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   query,
+  where,
   orderBy,
   Unsubscribe
 } from 'firebase/firestore';
@@ -14,16 +15,21 @@ import { createRealtimeSubscription } from './firebase-helpers';
 import { EmployeeSchema } from '../utils/validation';
 
 export const employeeService = {
-  subscribeEmployees(callback: (employees: Employee[]) => void): Unsubscribe {
-    const q = query(collection(db, 'employees'), orderBy('createdAt', 'desc'));
+  subscribeEmployees(userId: string, callback: (employees: Employee[]) => void): Unsubscribe {
+    const q = query(
+      collection(db, 'employees'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
     return createRealtimeSubscription<Employee>(q, callback, 'subscribeEmployees', EmployeeSchema);
   },
 
-  async addEmployee(data: { name: string; phone: string; imageUrl?: string; bankAccount?: BankAccount }): Promise<void> {
+  async addEmployee(data: { name: string; phone: string; imageUrl?: string; bankAccount?: BankAccount }, userId: string): Promise<void> {
     try {
       await addDoc(collection(db, 'employees'), {
         ...data,
         createdAt: new Date().toISOString(),
+        userId,
       });
     } catch (error) {
       console.error('addEmployee error:', error);

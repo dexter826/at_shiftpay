@@ -8,6 +8,7 @@ interface DateRangeQuery {
   dateField: string;
   month: number;
   year: number;
+  userId: string;
   orderByField?: string;
   orderDirection?: 'asc' | 'desc';
 }
@@ -17,6 +18,7 @@ export function buildMonthRangeQuery({
   dateField,
   month,
   year,
+  userId,
   orderByField,
   orderDirection = 'desc'
 }: DateRangeQuery): Query {
@@ -27,6 +29,7 @@ export function buildMonthRangeQuery({
     // Tất cả thời gian
     return query(
       collection(db, collectionName),
+      where('userId', '==', userId),
       orderBy(orderByField || dateField, orderDirection)
     );
   }
@@ -43,6 +46,7 @@ export function buildMonthRangeQuery({
 
   return query(
     collection(db, collectionName),
+    where('userId', '==', userId),
     where(dateField, '>=', startDate),
     where(dateField, '<=', endDate),
     orderBy(orderByField || dateField, orderDirection)
