@@ -164,6 +164,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             />
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
@@ -186,6 +187,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             />
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => setShowNewPassword(!showNewPassword)}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
@@ -208,6 +210,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
             />
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
