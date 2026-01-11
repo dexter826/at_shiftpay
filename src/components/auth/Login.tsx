@@ -23,6 +23,22 @@ interface SavedUser {
 
 const CORRECT_CODE = '2738';
 
+const ValidationError: React.FC<{ message: string }> = ({ message }) => (
+  <AnimatePresence>
+    {message && (
+      <motion.div
+        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+        animate={{ height: 'auto', opacity: 1, marginTop: 4 }}
+        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+        transition={{ duration: 0.2 }}
+        className="overflow-hidden"
+      >
+        <p className="text-red-500 text-xs ml-1 font-medium leading-tight">{message}</p>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -341,25 +357,25 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       {/* Lớp gradient overlay để transition background vẫn hoạt động */}
       <div className={`absolute inset-0 opacity-40 pointer-events-none ${isDark ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100'}`} />
 
-      <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px] relative`}>
+      <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col relative my-auto`}>
         {/* Họa tiết trang trí */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         {/* Logo tiêu đề */}
-        <div className="w-full pt-8 pb-2 flex justify-center z-10 relative">
-          <img src="/logo_text.png" alt="AT ShiftPay" className="h-12 object-contain" />
+        <div className="w-full pt-6 pb-0 flex justify-center z-10 relative">
+          <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
         </div>
 
         <div className="flex flex-col md:flex-row flex-1">
           {/* Cột trái: Minh họa */}
-          <div className={`hidden md:flex md:w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden`}>
+          <div className={`hidden md:flex md:w-1/2 flex-col items-center justify-center p-6 relative overflow-hidden`}>
 
             <div className="w-full relative z-10 text-center flex flex-col items-center justify-center">
               <img
                 src="/background.png"
                 alt="Illustration"
-                className="max-w-xs mx-auto mb-6 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+                className="max-w-[180px] mx-auto mb-4 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
@@ -398,8 +414,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className={`hidden md:block w-px ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200/50'} my-12 self-stretch`} />
 
           {/* Cột phải: Form */}
-          <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
-            <div className="max-w-md mx-auto w-full">
+          <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col justify-center">
+            <div className="max-w-md mx-auto w-full min-h-[550px] flex flex-col justify-center">
               {/* Logo mobile (đã ẩn) */}
               <div className="md:hidden text-center mb-4 hidden">
                 <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
@@ -445,7 +461,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         onClick={handleCheckVerification}
                         fullWidth
                         disabled={loading}
-                        className="h-12 flex items-center justify-center gap-2"
+                        className="h-12 flex items-center justify-center gap-2 mt-4"
                       >
                         {loading ? <RefreshCw className="animate-spin" size={18} /> : null}
                         Tôi đã xác thực
@@ -507,8 +523,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       <p className={`text-sm ${textMutedClass} mt-1`}>{savedUser.email}</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="w-full space-y-4">
-                      <div className="space-y-1.5 text-left">
+                     <form onSubmit={handleSubmit} className="w-full space-y-2">
+                      <div className="space-y-2 text-left">
                         <div className="relative group">
                           <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
                             <Lock size={18} />
@@ -523,7 +539,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             className={`w-full bg-transparent pl-10 pr-11 py-3 rounded-xl border ${passwordError
                               ? 'border-red-500 focus:ring-red-500/20'
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
-                                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
+                                       focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                             placeholder="Nhập mật khẩu"
                             autoFocus
                           />
@@ -535,30 +551,30 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
                         </div>
-                        {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
+                        <ValidationError message={passwordError} />
                       </div>
 
-                      {error && (
-                        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse justify-center">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                          </svg>
-                          {error}
-                        </div>
-                      )}
+                      <AnimatePresence>
+                        {error && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0, scale: 0.95 }}
+                            animate={{ height: 'auto', opacity: 1, scale: 1 }}
+                            exit={{ height: 0, opacity: 0, scale: 0.95 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse justify-center">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                              </svg>
+                              {error}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
-                      <Button
-                        type="submit"
-                        disabled={loading}
-                        fullWidth
-                        className="h-12 text-base shadow-lg hover:shadow-primary/25"
-                      >
-                        {loading ? 'Đang đăng nhập...' : 'Tiếp tục'}
-                      </Button>
-
-                      <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center justify-between pt-2">
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <div className="relative flex items-center">
                             <input
@@ -578,10 +594,21 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         <button
                           type="button"
                           onClick={() => setForgotPasswordOpen(true)}
-                          className="text-sm text-primary hover:text-[#f0c654] font-medium transition-colors hover:underline"
+                          className="text-sm font-medium text-primary hover:text-[#f0c654] transition-colors"
                         >
                           Quên mật khẩu?
                         </button>
+                      </div>
+
+                      <div className="pt-2">
+                        <Button
+                          type="submit"
+                          disabled={loading}
+                          fullWidth
+                          className="h-11 text-sm"
+                        >
+                          {loading ? 'Đăng nhập...' : 'Tiếp tục'}
+                        </Button>
                       </div>
 
                       <div className="flex flex-col gap-2 pt-2">
@@ -619,7 +646,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <motion.h2
                       initial={{ y: -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      className="text-4xl font-retro text-primary mb-6 text-center drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] tracking-wide"
+                      className="text-3xl font-retro text-primary mb-4 text-center drop-shadow-[3px_3px_0px_rgba(0,0,0,1)] tracking-wide"
                     >
                       {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
                     </motion.h2>
@@ -634,9 +661,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-2">
                       {/* Email */}
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                           Email
                         </label>
@@ -649,19 +676,19 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             value={email}
                             onChange={(e) => handleEmailChange(e.target.value)}
                             onBlur={() => validateEmail(email)}
-                            className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${emailError
+                            className={`w-full bg-transparent pl-10 pr-4 py-2 rounded-xl border ${emailError
                               ? 'border-red-500 focus:ring-red-500/20'
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                               focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                             placeholder="Nhập email của bạn"
                           />
                         </div>
-                        {emailError && <p className="text-red-500 text-xs ml-1 font-medium">{emailError}</p>}
+                        <ValidationError message={emailError} />
                       </div>
 
                       {/* Họ tên */}
                       {isSignUp && (
-                        <div className="space-y-1.5">
+                        <div className="space-y-1">
                           <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                             Họ và tên
                           </label>
@@ -677,19 +704,19 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 if (fullNameError) validateFullName(e.target.value);
                               }}
                               onBlur={() => validateFullName(fullName)}
-                              className={`w-full bg-transparent pl-10 pr-4 py-2.5 rounded-xl border ${fullNameError
+                              className={`w-full bg-transparent pl-10 pr-4 py-2 rounded-xl border ${fullNameError
                                 ? 'border-red-500 focus:ring-red-500/20'
                                 : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                                 focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                               placeholder="Nhập họ tên của bạn"
-                            />
+                             />
                           </div>
-                          {fullNameError && <p className="text-red-500 text-xs ml-1 font-medium">{fullNameError}</p>}
+                          <ValidationError message={fullNameError} />
                         </div>
                       )}
 
                       {/* Mật khẩu */}
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                           Mật khẩu
                         </label>
@@ -708,7 +735,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               }
                             }}
                             onBlur={() => validatePassword(password)}
-                            className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${passwordError
+                            className={`w-full bg-transparent pl-10 pr-11 py-2 rounded-xl border ${passwordError
                               ? 'border-red-500 focus:ring-red-500/20'
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                               focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
@@ -722,12 +749,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
                         </div>
-                        {passwordError && <p className="text-red-500 text-xs ml-1 font-medium">{passwordError}</p>}
+                        <ValidationError message={passwordError} />
                       </div>
 
                       {/* Xác nhận mật khẩu */}
                       {isSignUp && (
-                        <div className="space-y-1.5">
+                        <div className="space-y-1">
                           <label className={`text-sm font-medium ${textSecondaryClass} ml-1`}>
                             Xác nhận mật khẩu
                           </label>
@@ -743,7 +770,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 if (confirmPasswordError) validateConfirmPassword(e.target.value);
                               }}
                               onBlur={() => validateConfirmPassword(confirmPassword)}
-                              className={`w-full bg-transparent pl-10 pr-11 py-2.5 rounded-xl border ${confirmPasswordError
+                              className={`w-full bg-transparent pl-10 pr-11 py-2 rounded-xl border ${confirmPasswordError
                                 ? 'border-red-500 focus:ring-red-500/20'
                                 : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                                 focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
@@ -755,17 +782,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                             >
                               {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                            </button>
+                             </button>
                           </div>
-                          {confirmPasswordError && <p className="text-red-500 text-xs ml-1 font-medium">{confirmPasswordError}</p>}
+                          <ValidationError message={confirmPasswordError} />
                         </div>
                       )}
 
                       {/* Mã bếp */}
                       {isSignUp && (
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <label className={`block text-sm font-medium ${textSecondaryClass} ml-1`}>Nhập 4 số là địa chỉ "Bếp"</label>
-                          <div className="flex gap-3 justify-center" onPaste={handleCodePaste}>
+                          <div className="flex gap-2 justify-center" onPaste={handleCodePaste}>
                             {codeDigits.map((digit, index) => (
                               <input
                                 key={index}
@@ -775,21 +802,21 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 value={digit}
                                 onChange={(e) => handleCodeChange(index, e.target.value)}
                                 onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                                className={`w-12 h-10 text-center text-lg font-bold bg-transparent border rounded-xl
+                                className={`w-10 h-9 text-center text-base font-bold bg-transparent border rounded-xl
                               ${codeError
                                     ? 'border-red-500 focus:ring-red-500/20'
                                     : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                               focus:ring-2 focus:outline-none transition-all duration-200 ${textPrimaryClass}`}
                               />
-                            ))}
+                             ))}
                           </div>
-                          {codeError && <p className="text-red-500 text-xs ml-1 font-medium">{codeError}</p>}
+                          <ValidationError message={codeError} />
                         </div>
                       )}
 
                       {/* Ghi nhớ & Quên mật khẩu */}
                       {!isSignUp && (
-                        <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center justify-between pt-2">
                           <label className="flex items-center gap-2 cursor-pointer group">
                             <div className="relative flex items-center">
                               <input
@@ -816,25 +843,36 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         </div>
                       )}
 
-                      {error && (
-                        <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl flex items-center gap-2 animate-pulse">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                          </svg>
-                          {error}
-                        </div>
-                      )}
+                       <AnimatePresence>
+                        {error && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0, scale: 0.95 }}
+                            animate={{ height: 'auto', opacity: 1, scale: 1 }}
+                            exit={{ height: 0, opacity: 0, scale: 0.95 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-xl flex items-center gap-2 animate-pulse mt-2">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                              </svg>
+                              {error}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
-                      <Button
-                        type="submit"
-                        disabled={loading}
-                        fullWidth
-                        className="mt-4"
-                      >
-                        {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
-                      </Button>
+                      <div className="pt-2">
+                        <Button
+                          type="submit"
+                          disabled={loading}
+                          fullWidth
+                          className="h-11 text-sm"
+                        >
+                          {loading ? 'Đang xử lý...' : (isSignUp ? 'Đăng ký' : 'Đăng nhập')}
+                        </Button>
+                      </div>
                     </form>
 
                     {/* Đổi chế độ mobile */}
