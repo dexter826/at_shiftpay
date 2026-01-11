@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import Button from '../ui/Button';
 import { useAuthStore } from '../../stores/authStore';
+import { useToast } from '../ui/Toast';
+import { Mail, RefreshCw, LogOut, CheckCircle2 } from 'lucide-react';
 
 interface LoginProps {
   onLogin: () => void;
@@ -36,7 +38,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  const { savedUser, saveUserInfo, clearSavedUserInfo } = useAuthStore();
+  const { savedUser, saveUserInfo, clearSavedUserInfo, user: currentUser, refreshUser, logout } = useAuthStore();
+  const { showToast } = useToast();
 
   const [showQuickLogin, setShowQuickLogin] = useState<boolean>(false);
 
@@ -192,28 +195,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: fullName.trim() });
         await sendEmailVerification(userCredential.user);
+        
+        showToast('Email xác thực đã được gửi!', 'success');
+        
         setVerificationEmail(email);
-        await auth.signOut();
         setVerificationSent(true);
         setError('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setFullName('');
-        setCodeDigits(['', '', '', '']);
-        setEmailError('');
-        setPasswordError('');
-        setConfirmPasswordError('');
-        setFullNameError('');
-        setCodeError('');
-        setIsSignUp(false);
+        setLoading(false);
         return;
       } else {
         await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
         if (!userCredential.user.emailVerified) {
-          await auth.signOut();
-          setError('Vui lòng xác thực email trước khi đăng nhập.');
+          showToast('Tài khoản chưa được xác thực email.', 'warning');
           setLoading(false);
           return;
         }
@@ -309,6 +304,38 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const illustrationBg = isDark ? 'bg-slate-900' : 'bg-slate-50';
 
+  const handleResendEmail = async () => {
+    if (!currentUser) return;
+    try {
+      setLoading(true);
+      await sendEmailVerification(currentUser);
+      showToast('Đã gửi lại email xác thực.', 'success');
+    } catch (err: any) {
+      showToast('Gửi lại email thất bại. Vui lòng thử lại sau.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckVerification = async () => {
+    try {
+      setLoading(true);
+      await refreshUser();
+      if (auth.currentUser?.emailVerified) {
+        showToast('Xác thực thành công!', 'success');
+        onLogin();
+      } else {
+        showToast('Email vẫn chưa được xác thực. Vui lòng kiểm tra hộp thư của bạn.', 'warning');
+      }
+    } catch (err) {
+      showToast('Lỗi khi kiểm tra xác thực.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isUnverified = currentUser && !currentUser.emailVerified;
+
   return (
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 relative overflow-hidden`}>
       {/* Lớp gradient overlay để transition background vẫn hoạt động */}
@@ -379,7 +406,70 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </div>
 
               <AnimatePresence mode="wait">
-                {savedUser && showQuickLogin && !isSignUp ? (
+                {isUnverified ? (
+                  <motion.div
+                    key="unverified-view"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex flex-col items-center text-center space-y-6"
+                  >
+                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary relative">
+                      <Mail size={40} />
+                      <div className="absolute -top-1 -right-1 bg-amber-500 w-6 h-6 rounded-full border-4 border-slate-900 flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h2 className="text-2xl font-bold font-retro text-primary mb-2">Xác thực Email</h2>
+                      <p className={`text-sm ${textSecondaryClass} max-w-xs mx-auto`}>
+                        Chúng tôi đã gửi email xác thực đến:
+                        <span className="block font-bold text-primary mt-1">{currentUser.email}</span>
+                      </p>
+                    </div>
+
+                    <div className={`p-4 ${isDark ? 'bg-slate-800/50' : 'bg-slate-50'} rounded-2xl border ${borderClass} w-full space-y-3`}>
+                      <div className="flex items-start gap-3 text-left">
+                        <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                        <p className={`text-xs ${textMutedClass}`}>Kiểm tra hộp thư đến (hoặc thư rác).</p>
+                      </div>
+                      <div className="flex items-start gap-3 text-left">
+                        <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                        <p className={`text-xs ${textMutedClass}`}>Nhấn vào đường link trong email để xác nhận.</p>
+                      </div>
+                    </div>
+
+                    <div className="w-full space-y-3">
+                      <Button
+                        onClick={handleCheckVerification}
+                        fullWidth
+                        disabled={loading}
+                        className="h-12 flex items-center justify-center gap-2"
+                      >
+                        {loading ? <RefreshCw className="animate-spin" size={18} /> : null}
+                        Tôi đã xác thực
+                      </Button>
+
+                      <button
+                        onClick={handleResendEmail}
+                        disabled={loading}
+                        className={`w-full py-2.5 text-sm font-medium ${textSecondaryClass} hover:text-primary transition-colors flex items-center justify-center gap-2`}
+                      >
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        Gửi lại email xác thực
+                      </button>
+
+                      <button
+                        onClick={() => logout()}
+                        className={`w-full py-2.5 text-sm font-medium text-red-500 hover:text-red-400 transition-colors flex items-center justify-center gap-2 border-t ${borderClass} mt-2 pt-4`}
+                      >
+                        <LogOut size={14} />
+                        Quay lại đăng nhập
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : savedUser && showQuickLogin && !isSignUp ? (
                   <motion.div
                     key="quick-login"
                     initial={{ opacity: 0, scale: 0.95 }}

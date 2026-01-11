@@ -98,7 +98,7 @@ function App() {
         <div className={`flex items-center justify-center h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
           <Loader />
         </div>
-      ) : !user ? (
+      ) : (!user || !user.emailVerified) ? (
         <Login onLogin={() => { }} />
       ) : (
         <AppContent
