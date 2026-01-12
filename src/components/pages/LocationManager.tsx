@@ -133,6 +133,13 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         setIsModalOpen(true);
     };
 
+    const isChanged = useMemo(() => {
+        if (!editingLocation) return !!name.trim(); // Add mode: require name
+        return name.trim() !== editingLocation.name ||
+            review !== editingLocation.review ||
+            reviewNote.trim() !== (editingLocation.reviewNote || '');
+    }, [name, review, reviewNote, editingLocation]);
+
     const handleSubmit = async () => {
         if (!name.trim()) {
             showToast('Vui lòng nhập tên địa điểm', 'error');
@@ -400,6 +407,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             variant="primary"
                             onClick={handleSubmit}
                             loading={isSubmitting}
+                            disabled={!isChanged || isSubmitting}
                             className="flex-1"
                         >
                             {editingLocation ? 'Cập nhật' : 'Lưu lại'}
