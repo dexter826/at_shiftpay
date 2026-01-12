@@ -28,7 +28,7 @@ export const locationService = {
     return createRealtimeSubscription<Location>(q, callback, 'subscribeLocations', LocationSchema);
   },
 
-  async addLocation(data: { name: string; review?: 'high' | 'low'; reviewNote?: string }, userId: string): Promise<string> {
+  async addLocation(data: { name: string; address?: string; latitude?: number; longitude?: number; review?: 'high' | 'low'; reviewNote?: string }, userId: string): Promise<string> {
     try {
       // Lọc bỏ field undefined
       const cleanData = Object.fromEntries(

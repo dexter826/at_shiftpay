@@ -20,6 +20,9 @@ export const EmployeeSchema = z.object({
 export const LocationSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'Tên địa điểm không được để trống'),
+  address: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   review: z.enum(['high', 'low']).optional(),
   reviewNote: z.string().optional(),
   createdAt: z.string(),

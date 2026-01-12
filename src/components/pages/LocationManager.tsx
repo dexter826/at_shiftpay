@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, Filter, MapPin, MoreVertical, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, Filter, MapPin, MoreVertical, Plus, Search, Share2, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { LoadMore } from '../ui/LoadMore';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
@@ -11,6 +11,9 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useAuthStore } from '../../stores';
+
+// Tạm thời để trống, người dùng sẽ điền vào .env sau
+const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY || 'free_key_placeholder';
 
 interface LocationManagerProps {
     locations: Location[];
@@ -48,6 +51,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [name, setName] = useState('');
     const [review, setReview] = useState<'high' | 'low' | undefined>(undefined);
     const [reviewNote, setReviewNote] = useState('');
+    const [address, setAddress] = useState('');
+    const [lat, setLat] = useState('');
+    const [lng, setLng] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Trạng thái Modal
@@ -120,6 +126,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const handleOpenAdd = () => {
         setEditingLocation(null);
         setName('');
+        setAddress('');
+        setLat('');
+        setLng('');
         setReview(undefined);
         setReviewNote('');
         setIsModalOpen(true);
@@ -128,6 +137,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const handleOpenEdit = (loc: Location) => {
         setEditingLocation(loc);
         setName(loc.name);
+        setAddress(loc.address || '');
+        setLat(loc.latitude?.toString() || '');
+        setLng(loc.longitude?.toString() || '');
         setReview(loc.review);
         setReviewNote(loc.reviewNote || '');
         setIsModalOpen(true);
@@ -136,9 +148,12 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const isChanged = useMemo(() => {
         if (!editingLocation) return !!name.trim(); // Add mode: require name
         return name.trim() !== editingLocation.name ||
+            address.trim() !== (editingLocation.address || '') ||
+            lat.trim() !== (editingLocation.latitude?.toString() || '') ||
+            lng.trim() !== (editingLocation.longitude?.toString() || '') ||
             review !== editingLocation.review ||
             reviewNote.trim() !== (editingLocation.reviewNote || '');
-    }, [name, review, reviewNote, editingLocation]);
+    }, [name, address, lat, lng, review, reviewNote, editingLocation]);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
@@ -151,6 +166,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             if (editingLocation) {
                 await dbService.updateLocation(editingLocation.id, {
                     name: name.trim(),
+                    address: address.trim() || undefined,
+                    latitude: lat ? parseFloat(lat) : undefined,
+                    longitude: lng ? parseFloat(lng) : undefined,
                     review,
                     reviewNote: reviewNote.trim()
                 });
@@ -158,6 +176,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             } else {
                 await dbService.addLocation({
                     name: name.trim(),
+                    address: address.trim() || undefined,
+                    latitude: lat ? parseFloat(lat) : undefined,
+                    longitude: lng ? parseFloat(lng) : undefined,
                     review,
                     reviewNote: reviewNote.trim()
                 }, userId);
@@ -301,59 +322,72 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             <>
                                 {filteredLocations.slice(0, visibleCount).map((loc, idx) => {
                                     const workCount = workCounts[loc.id] || 0;
+                                    const hasCoords = loc.latitude && loc.longitude;
+                                    const mapUrl = hasCoords
+                                        ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${loc.longitude},${loc.latitude}&zoom=15&marker=lonlat:${loc.longitude},${loc.latitude};color:%2300b4d8;size:medium&apiKey=${GEOAPIFY_API_KEY}`
+                                        : `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:105.83416,21.02776&zoom=10&apiKey=${GEOAPIFY_API_KEY}`;
+
                                     return (
                                         <motion.div
                                             key={loc.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.5) }}
-                                            className={`${theme === 'dark' ? 'bg-slate-800/80' : 'bg-white'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} rounded-b-2xl rounded-t-none overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col group relative`}
+                                            transition={{ duration: 0.5, delay: idx * 0.05 }}
+                                            className="group relative h-[360px] rounded-[32px] overflow-hidden shadow-lg bg-white dark:bg-slate-900"
                                         >
-                                            <div className={`h-1.5 w-full ${loc.review === 'high' ? 'bg-green-500' :
-                                                loc.review === 'low' ? 'bg-red-500' : 'bg-slate-300 dark:bg-slate-700'
-                                                }`} />
+                                            <img 
+                                                src={mapUrl} 
+                                                alt={loc.name}
+                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
+                                            
+                                            <div className="absolute inset-x-0 bottom-0 h-2/3 p-6 flex flex-col justify-end">
+                                                <div className={`absolute inset-0 backdrop-blur-2xl ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-white/60'}`} 
+                                                     style={{ maskImage: 'linear-gradient(to top, black 25%, transparent)' }} />
+                                                
+                                                <div className="relative z-10 space-y-1">
+                                                    <h3 className={`text-xl font-bold ${textPrimaryClass} leading-tight line-clamp-1`}>
+                                                        {loc.name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-1 opacity-90">
+                                                        <MapPin size={12} className="text-blue-500 shrink-0" />
+                                                        <span className={`text-[11px] font-medium ${textSecondaryClass} line-clamp-1`}>
+                                                            {loc.address || "Địa chỉ chưa xác định"}
+                                                        </span>
+                                                    </div>
 
-                                            <div className="p-5 flex flex-col h-full">
-                                                <h3 className={`text-xl font-bold ${textPrimaryClass} mb-2 truncate`}>
-                                                    {loc.name}
-                                                </h3>
-
-                                                <div className="flex-1">
-                                                    <p className={`text-sm ${textSecondaryClass} line-clamp-2 mb-3 leading-relaxed min-h-[40px]`}>
-                                                        {loc.reviewNote ? `"${loc.reviewNote}"` : "Chưa có ghi chú cho địa điểm này."}
-                                                    </p>
-                                                    <div className={`flex items-center gap-1.5 text-[11px] ${textMutedClass} mb-4`}>
-                                                        <Calendar size={12} />
-                                                        <span>{loadingEvents ? "..." : `${workCount} lần làm việc tại đây`}</span>
+                                                    <div className={`flex items-center gap-4 pt-2 mt-1 border-t ${borderClass}`}>
+                                                        <div className="flex flex-col">
+                                                            <span className={`text-[8px] uppercase tracking-wider ${textMutedClass} font-extrabold`}>Lịch sử</span>
+                                                            <span className={`text-[10px] font-bold ${textPrimaryClass}`}>{workCount} ca làm</span>
+                                                        </div>
+                                                        {loc.review && (
+                                                            <div className="flex flex-col">
+                                                                <span className={`text-[8px] uppercase tracking-wider ${textMutedClass} font-extrabold`}>Đánh giá</span>
+                                                                <span className={`text-[10px] font-bold ${loc.review === 'high' ? 'text-green-500' : 'text-red-500'}`}>
+                                                                    {loc.review === 'high' ? 'Tốt' : 'Kém'}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                                <div className="flex items-center justify-between mt-auto pt-2">
-                                                    <div className={`${loc.review === 'high' ? 'text-green-500' :
-                                                        loc.review === 'low' ? 'text-red-500' : textMutedClass
-                                                        }`}>
-                                                        {loc.review === 'high' ? <ThumbsUp size={22} /> :
-                                                            loc.review === 'low' ? <ThumbsDown size={22} /> :
-                                                                <MapPin size={22} />}
-                                                    </div>
-
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => handleOpenEdit(loc)}
-                                                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
-                                                                } ${textPrimaryClass} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200/50'}`}
-                                                        >
-                                                            Sửa
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(loc.id)}
-                                                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${theme === 'dark' ? 'bg-red-900/20 hover:bg-red-900/30' : 'bg-red-50 hover:bg-red-100'
-                                                                } text-red-500 border ${theme === 'dark' ? 'border-red-900/30' : 'border-red-100'}`}
-                                                        >
-                                                            Xóa
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                            <div className="absolute top-4 right-4 flex gap-2">
+                                                <button
+                                                    onClick={() => handleOpenEdit(loc)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-500 backdrop-blur-md text-white hover:bg-blue-600 transition-all shadow-lg"
+                                                    title="Sửa"
+                                                >
+                                                    <Edit2 size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(loc.id)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/80 backdrop-blur-md text-white hover:bg-red-500 transition-all shadow-lg"
+                                                    title="Xóa"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
                                             </div>
                                         </motion.div>
                                     );
@@ -425,6 +459,40 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             placeholder="Nhập tên địa điểm"
                             className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
                         />
+                    </div>
+
+                    <div>
+                        <label className={`block text-sm font-medium ${textSecondaryClass} mb-1.5`}>Địa chỉ & Tọa độ</label>
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder="Nhập địa lý (Ví dụ: 401 West Springfield Ave...)"
+                                className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                            />
+                            <div className="flex gap-3">
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={lat}
+                                    onChange={(e) => setLat(e.target.value)}
+                                    placeholder="Vĩ độ (Latitude)"
+                                    className={`flex-1 px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                                />
+                                <input
+                                    type="number"
+                                    step="any"
+                                    value={lng}
+                                    onChange={(e) => setLng(e.target.value)}
+                                    placeholder="Kinh độ (Longitude)"
+                                    className={`flex-1 px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                                />
+                            </div>
+                            <p className="text-[10px] text-blue-500 px-1 italic">
+                                * Lấy tọa độ từ Google Maps để hiển thị bản đồ chính xác.
+                            </p>
+                        </div>
                     </div>
 
                     <div>

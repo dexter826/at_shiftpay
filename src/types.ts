@@ -18,6 +18,9 @@ export interface Employee {
 export interface Location {
   id: string;
   name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   review?: 'high' | 'low';
   reviewNote?: string;
   createdAt: string;
