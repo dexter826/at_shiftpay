@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, Filter, MapPin, MessageSquare, MoreVertical, Plus, Search, Share2, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, ExternalLink, Filter, MapPin, MessageSquare, MoreVertical, Plus, Search, Share2, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
 import { LoadMore } from '../ui/LoadMore';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
@@ -212,9 +212,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             if (editingLocation) {
                 await dbService.updateLocation(editingLocation.id, {
                     name: name.trim(),
-                    address: address.trim() || undefined,
-                    latitude: lat ? parseFloat(lat) : undefined,
-                    longitude: lng ? parseFloat(lng) : undefined,
+                    address: address.trim() || null,
+                    latitude: lat ? parseFloat(lat) : null,
+                    longitude: lng ? parseFloat(lng) : null,
                     review,
                     reviewNote: reviewNote.trim()
                 });
@@ -222,9 +222,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             } else {
                 await dbService.addLocation({
                     name: name.trim(),
-                    address: address.trim() || undefined,
-                    latitude: lat ? parseFloat(lat) : undefined,
-                    longitude: lng ? parseFloat(lng) : undefined,
+                    address: address.trim() || null,
+                    latitude: lat ? parseFloat(lat) : null,
+                    longitude: lng ? parseFloat(lng) : null,
                     review,
                     reviewNote: reviewNote.trim()
                 }, userId);
@@ -251,6 +251,23 @@ const LocationManager: React.FC<LocationManagerProps> = ({
             setDeleteConfirm(null);
         } catch (error) {
             showToast('Không thể xóa địa điểm', 'error');
+        }
+    };
+
+    const handleOpenInGoogleMaps = (loc: Location) => {
+        const { latitude, longitude, address } = loc;
+        let url = '';
+
+        if (latitude && longitude) {
+            url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+        } else if (address && address.trim()) {
+            url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.trim())}`;
+        }
+
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            showToast('Địa điểm này chưa có thông tin vị trí', 'error');
         }
     };
 
@@ -345,11 +362,23 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                         {loading ? (
                             <div className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {Array.from({ length: 8 }).map((_, i) => (
-                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl overflow-hidden flex flex-col gap-3 h-48`}>
-                                        <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800" />
-                                        <div className="p-5 space-y-4">
-                                            <Skeleton width="70%" height={24} />
-                                            <Skeleton width="100%" height={40} />
+                                    <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl overflow-hidden flex flex-col shadow-sm`}>
+                                        <Skeleton width="100%" height={200} />
+                                        <div className="p-5 space-y-4 flex-1">
+                                            <div className="space-y-2">
+                                                <Skeleton width="80%" height={24} />
+                                                <Skeleton width="60%" height={16} />
+                                            </div>
+                                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-4">
+                                                <div className="flex-1 space-y-2">
+                                                    <Skeleton width="40%" height={12} />
+                                                    <Skeleton width="70%" height={16} />
+                                                </div>
+                                                <div className="flex-1 space-y-2">
+                                                    <Skeleton width="40%" height={12} />
+                                                    <Skeleton width="70%" height={16} />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -370,7 +399,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                     const workCount = workCounts[loc.id] || 0;
                                     const hasCoords = loc.latitude && loc.longitude;
                                     const mapUrl = hasCoords
-                                        ? `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=${loc.latitude},${loc.longitude}&zoom=18&size=600x400&markers=icon:large-blue-cutout|${loc.latitude},${loc.longitude}`
+                                        ? `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=${loc.latitude},${loc.longitude}&zoom=17&size=600x400&markers=icon:large-blue-cutout|${loc.latitude},${loc.longitude}`
                                         : `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=21.02776,105.83416&zoom=12&size=600x400`;
 
                                     return (
@@ -387,11 +416,26 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                     src={mapUrl} 
                                                     alt={loc.name}
                                                     loading="lazy"
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    className={`w-full h-full object-cover transition-all duration-500 ${hasCoords ? 'group-hover:scale-105' : 'blur-[2px] opacity-60'}`}
                                                 />
+                                                
+                                                {!hasCoords && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/20">
+                                                        <span className={`${cardBgClass} bg-opacity-90 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold ${textPrimaryClass} shadow-sm border ${borderClass}`}>
+                                                            Chưa có địa chỉ chính xác
+                                                        </span>
+                                                    </div>
+                                                )}
                                                 
                                                 {/* Buttons */}
                                                 <div className="absolute top-3 right-3 flex gap-2">
+                                                    <button
+                                                        onClick={() => handleOpenInGoogleMaps(loc)}
+                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm text-slate-700 hover:bg-white hover:text-blue-600 transition-all shadow-lg border border-slate-200"
+                                                        title="Xem trên Google Maps"
+                                                    >
+                                                        <ExternalLink size={16} />
+                                                    </button>
                                                     <button
                                                         onClick={() => handleOpenEdit(loc)}
                                                         className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-all shadow-lg"
@@ -412,7 +456,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                             {/* Phần thông tin */}
                                             <div className="flex-1 p-5">
                                                 <div className="space-y-1.5">
-                                                    <h3 className={`text-xl font-bold ${textPrimaryClass} leading-tight line-clamp-1`}>
+                                                    <h3 className={`text-lg font-bold ${textPrimaryClass} leading-tight line-clamp-1`}>
                                                         {loc.name}
                                                     </h3>
                                                     <div className="flex items-center gap-1.5">
