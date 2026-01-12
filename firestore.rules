@@ -74,8 +74,9 @@ service cloud.firestore {
     // Settings Collection
     match /settings/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;
-      allow write: if isAuthenticated() && request.auth.uid == userId
+      allow create, update: if isAuthenticated() && request.auth.uid == userId
         && isIncomingOwner();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserSettings } from '../../types';
@@ -7,6 +7,7 @@ import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { TimePicker } from '../ui/TimePicker';
 import { ChangePasswordModal } from '../auth/ChangePasswordModal';
+import { DeleteAccountModal } from '../modals/DeleteAccountModal';
 import Switch from '../ui/Switch';
 import { auth } from '../../firebase';
 import { updateProfile } from 'firebase/auth';
@@ -24,7 +25,9 @@ import {
     X,
     Upload,
     Camera,
-    Loader2
+    Loader2,
+    Trash2,
+    AlertTriangle
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -41,6 +44,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
     const [saving, setSaving] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editedName, setEditedName] = useState(user?.displayName || '');
     const [savingName, setSavingName] = useState(false);
@@ -48,6 +52,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [cropperOpen, setCropperOpen] = useState(false);
     const [tempImage, setTempImage] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // Đồng bộ state khi cài đặt từ server thay đổi
+    useEffect(() => {
+        setEditSettings(settings);
+    }, [settings]);
 
     // Kiểm tra thay đổi thực tế so với cài đặt gốc
     const hasChanges = JSON.stringify(editSettings) !== JSON.stringify(settings);
@@ -253,7 +262,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 
                             <button
                                 onClick={() => setShowPasswordModal(true)}
-                                className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left`}
+                                className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left border-b ${border}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -262,6 +271,22 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                     <div>
                                         <p className={`font-medium ${textMain}`}>Đổi mật khẩu</p>
                                         <p className={`text-xs ${textSub}`}>Cập nhật mật khẩu đăng nhập</p>
+                                    </div>
+                                </div>
+                                <ChevronRight size={18} className={textSub} />
+                            </button>
+
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                                        <Trash2 size={20} />
+                                    </div>
+                                    <div>
+                                        <p className={`font-medium ${textMain}`}>Xóa tài khoản</p>
+                                        <p className={`text-xs ${textSub}`}>Xóa vĩnh viễn toàn bộ dữ liệu của bạn</p>
                                     </div>
                                 </div>
                                 <ChevronRight size={18} className={textSub} />
@@ -367,6 +392,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
             <ChangePasswordModal
                 isOpen={showPasswordModal}
                 onClose={() => setShowPasswordModal(false)}
+            />
+            <DeleteAccountModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
             />
             {/* Modal cắt ảnh */}
             {tempImage && (
