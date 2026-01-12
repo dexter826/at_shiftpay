@@ -1,7 +1,16 @@
-import React from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import React from "react";
+import {
+  LayoutDashboard,
+  CalendarRange,
+  Users,
+  Wallet2,
+  Settings,
+  LogOut,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
 interface NavbarProps {
   currentTab: string;
@@ -9,15 +18,19 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currentTab,
+  setTab,
+  onLogout,
+}) => {
   const [hoveredTabId, setHoveredTabId] = React.useState<string | null>(null);
 
   const navItems = [
-    { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-    { id: 'calendar', label: 'Lịch Tiệc', icon: CalendarRange },
-    { id: 'employees', label: 'Nhân Sự', icon: Users },
-    { id: 'payroll', label: 'Thanh Toán', icon: Wallet2 },
-    { id: 'settings', label: 'Cài đặt', icon: Settings },
+    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+    { id: "calendar", label: "Lịch Tiệc", icon: CalendarRange },
+    { id: "employees", label: "Nhân Sự", icon: Users },
+    { id: "payroll", label: "Thanh Toán", icon: Wallet2 },
+    { id: "settings", label: "Cài đặt", icon: Settings },
   ];
 
   // Lấy style đồng bộ với theme
@@ -28,19 +41,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
     borderClass: borderColor,
     textMutedClass: textMuted,
     textSecondaryClass,
-    hoverBgClass: hoverBg
+    hoverBgClass: hoverBg,
   } = useThemeStyles();
 
   // Reset hover state khi mất focus hoặc đổi tab ứng dụng
   React.useEffect(() => {
     const handleReset = () => setHoveredTabId(null);
-    window.addEventListener('visibilitychange', handleReset);
-    window.addEventListener('blur', handleReset);
-    window.addEventListener('pagehide', handleReset);
+    window.addEventListener("visibilitychange", handleReset);
+    window.addEventListener("blur", handleReset);
+    window.addEventListener("pagehide", handleReset);
     return () => {
-      window.removeEventListener('visibilitychange', handleReset);
-      window.removeEventListener('blur', handleReset);
-      window.removeEventListener('pagehide', handleReset);
+      window.removeEventListener("visibilitychange", handleReset);
+      window.removeEventListener("blur", handleReset);
+      window.removeEventListener("pagehide", handleReset);
     };
   }, []);
 
@@ -49,11 +62,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
   return (
     <>
       {/* Thanh điều hướng bên (Desktop) */}
-      <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
-        <div className={`p-5 border-b ${borderColor} flex flex-col items-center`}>
-          <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
+      <div
+        className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}
+      >
+        <div
+          className={`p-5 border-b ${borderColor} flex flex-col items-center`}
+        >
+          <img
+            src="/logo_text.png"
+            alt="AT ShiftPay"
+            className="h-8 object-contain"
+          />
           <span className={`text-[11px] ${textMuted} mt-0.5 block`}>
-            Made by{' '}
+            Made by{" "}
             <a
               href="https://github.com/dexter826/dexter826"
               target="_blank"
@@ -66,9 +87,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           <button
             onClick={toggleTheme}
             className={`mt-4 p-2 rounded-xl ${hoverBg} ${textMuted} transition-all border ${borderColor} flex items-center justify-center gap-2 w-full`}
-            title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            title={
+              theme === "dark"
+                ? "Chuyển sang giao diện sáng"
+                : "Chuyển sang giao diện tối"
+            }
           >
-            {theme === 'dark' ? (
+            {theme === "dark" ? (
               <>
                 <Sun size={18} className="text-amber-400" />
                 <span className="text-xs font-medium">Giao diện sáng</span>
@@ -82,20 +107,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
           </button>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 relative" aria-label="Điều hướng chính">
+        <nav
+          className="flex-1 p-3 space-y-1 relative"
+          aria-label="Điều hướng chính"
+        >
           {navItems.map((item) => {
-            const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
+            const isActive =
+              currentTab === item.id ||
+              (item.id === "calendar" && currentTab === "locations");
             return (
               <motion.button
                 key={item.id}
                 type="button"
                 onClick={() => setTab(item.id)}
-                aria-current={isActive ? 'page' : undefined}
+                aria-current={isActive ? "page" : undefined}
                 aria-label={item.label}
-                className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors z-10 ${isActive
-                  ? 'text-primary bg-primary/5'
-                  : `${textMuted} ${hoverText} ${hoverBg}`
-                  }`}
+                className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors z-10 ${
+                  isActive
+                    ? "text-primary bg-primary/5"
+                    : `${textMuted} ${hoverText} ${hoverBg}`
+                }`}
               >
                 {isActive && (
                   <motion.div
@@ -126,29 +157,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Thanh điều hướng dưới (Mobile) */}
-      <div className={`md:hidden fixed top-0 left-0 right-0 h-14 ${sidebarBg}/80 backdrop-blur-xl border-b ${borderColor} flex items-center justify-between px-4 z-40`}>
-        <img src="/logo_text.png" alt="AT ShiftPay" className="h-6 object-contain" />
-        <button
-          onClick={toggleTheme}
-          className={`p-2 rounded-lg ${hoverBg} ${textMuted} transition-all border ${borderColor}`}
-          title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-        >
-          {theme === 'dark' ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-slate-600" />}
-        </button>
-      </div>
-
       <nav
         className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
         aria-label="Điều hướng chính"
         onTouchMove={(e) => {
           const touch = e.touches[0];
-          const element = document.elementFromPoint(touch.clientX, touch.clientY);
-          const tabButton = element?.closest('button[data-tab-id]');
+          const element = document.elementFromPoint(
+            touch.clientX,
+            touch.clientY
+          );
+          const tabButton = element?.closest("button[data-tab-id]");
           if (tabButton) {
-            const tabId = tabButton.getAttribute('data-tab-id');
+            const tabId = tabButton.getAttribute("data-tab-id");
             if (tabId && tabId !== hoveredTabId) {
               setHoveredTabId(tabId);
-              if ('vibrate' in navigator) navigator.vibrate(5);
+              if ("vibrate" in navigator) navigator.vibrate(5);
             }
           } else {
             setHoveredTabId(null);
@@ -163,7 +186,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
         onTouchCancel={() => setHoveredTabId(null)}
       >
         {navItems.map((item) => {
-          const isActive = currentTab === item.id || (item.id === 'calendar' && currentTab === 'locations');
+          const isActive =
+            currentTab === item.id ||
+            (item.id === "calendar" && currentTab === "locations");
           const isHovered = hoveredTabId === item.id;
 
           return (
@@ -172,14 +197,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               data-tab-id={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
               aria-label={item.label}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${isActive
-                ? 'text-primary bg-primary/10'
-                : isHovered
-                  ? 'text-primary/70 bg-primary/5'
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${
+                isActive
+                  ? "text-primary bg-primary/10"
+                  : isHovered
+                  ? "text-primary/70 bg-primary/5"
                   : textMuted
-                }`}
+              }`}
             >
               {(isActive || isHovered) && (
                 <motion.div
@@ -191,7 +217,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
                 />
               )}
               <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-              <span className="text-[10px] whitespace-nowrap">{item.label}</span>
+              <span className="text-[10px] whitespace-nowrap">
+                {item.label}
+              </span>
             </button>
           );
         })}

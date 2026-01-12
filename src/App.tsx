@@ -186,7 +186,7 @@ function AppContent({
         setTab={(t) => setActiveTab(t as Tab)}
         onLogout={onLogout}
       />
-      <main className="md:pl-60 pt-14 md:pt-0">
+      <main className="md:pl-60">
         <PullToRefresh onRefresh={() => refreshData(user.uid)}>
           <AppRouter
             activeTab={activeTab}

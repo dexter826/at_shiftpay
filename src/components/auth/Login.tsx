@@ -541,6 +541,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                                        focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                             placeholder="Nhập mật khẩu"
+                            autoComplete="current-password"
                             autoFocus
                           />
                           <button
@@ -682,6 +683,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                               focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                             placeholder="Nhập email của bạn"
+                            autoComplete="email"
                           />
                         </div>
                         <ValidationError message={emailError} />
@@ -710,6 +712,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                                 focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                               placeholder="Nhập họ tên của bạn"
+                              autoComplete="name"
                              />
                           </div>
                           <ValidationError message={fullNameError} />
@@ -741,6 +744,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                               focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                             placeholder="Nhập mật khẩu"
+                            autoComplete={isSignUp ? "new-password" : "current-password"}
                           />
                           <button
                             type="button"
@@ -777,6 +781,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 : `${inputBorderClass} focus:border-primary focus:ring-primary/20`}
                                 focus:ring-2 focus:outline-none transition-all duration-200 text-sm ${textPrimaryClass}`}
                               placeholder="Nhập lại mật khẩu"
+                              autoComplete="new-password"
                             />
                             <button
                               type="button"
