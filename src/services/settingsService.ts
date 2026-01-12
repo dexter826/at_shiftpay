@@ -39,10 +39,8 @@ export const settingsService = {
     try {
       const batch = writeBatch(db);
 
-      // Xóa cài đặt người dùng
       batch.delete(doc(db, 'settings', userId));
 
-      // Các collection cần xóa theo userId
       const collections = ['employees', 'locations', 'events', 'shifts', 'payments'];
 
       for (const collName of collections) {

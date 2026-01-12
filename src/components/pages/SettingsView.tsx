@@ -53,12 +53,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [tempImage, setTempImage] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
-    // Đồng bộ state khi cài đặt từ server thay đổi
     useEffect(() => {
         setEditSettings(settings);
     }, [settings]);
 
-    // Kiểm tra thay đổi thực tế so với cài đặt gốc
     const hasChanges = JSON.stringify(editSettings) !== JSON.stringify(settings);
 
     // Xử lý thay đổi cài đặt

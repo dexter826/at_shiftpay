@@ -7,6 +7,7 @@ import { deleteUser } from 'firebase/auth';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import { Modal } from '../ui/Modal';
+import { useAuthStore } from '../../stores/authStore';
 
 interface DeleteAccountModalProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ interface DeleteAccountModalProps {
 export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, onClose }) => {
     const { textPrimaryClass: textMain, textMutedClass: textSub, borderClass: border } = useThemeStyles();
     const { showToast } = useToast();
+    const clearSavedUserInfo = useAuthStore(state => state.clearSavedUserInfo);
     const [confirmText, setConfirmText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -31,6 +33,8 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
 
             await dbService.deleteUserAccountData(user.uid);
             await deleteUser(user);
+            clearSavedUserInfo();
+
             showToast('Tài khoản đã được xóa vĩnh viễn', 'success');
         } catch (error: any) {
             console.error('Delete account error:', error);
