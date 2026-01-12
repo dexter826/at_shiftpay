@@ -342,7 +342,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   ];
 
   return (
-    <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
+    <div className={`pb-20 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
       <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
@@ -500,7 +500,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                 totalCount={filteredAndSortedEmployees.length}
                 onLoadMore={handleLoadMore}
                 unit="nhân viên"
-                className="pt-8 pb-4"
+                className="pt-2 pb-4"
               />
             </motion.div>
           )}

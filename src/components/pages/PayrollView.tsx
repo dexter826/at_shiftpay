@@ -325,7 +325,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   }, [paymentHistory, searchTerm, filterDate]);
 
   return (
-    <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
+    <div className={`pb-20 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
       <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
@@ -731,7 +731,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                     totalCount={filteredAndSortedSummary.length}
                     onLoadMore={() => setPayrollVisibleCount(prev => prev + 15)}
                     unit="nhân viên"
-                    className="mt-4"
+                    className="pt-2 pb-4"
                   />
                 </>
               )}
@@ -804,7 +804,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                       totalCount={filteredHistory.length + (hasMore ? 1 : 0)} // Trick de hien nut vi hien tai k biet exact total
                       onLoadMore={loadMorePayments}
                       unit="giao dịch"
-                      className="mt-4"
+                      className="pt-2 pb-4"
                     />
                   )}
 

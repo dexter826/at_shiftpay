@@ -272,7 +272,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-24 md:pb-8 ${bgClass} min-h-screen px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6`}>
+        <div className={`pb-20 ${bgClass} min-h-screen px-4 pt-5 md:px-6 md:pt-6 md:pb-8`}>
             <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -427,28 +427,44 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                     </div>
                                                 )}
                                                 
-                                                {/* Buttons */}
-                                                <div className="absolute top-3 right-3 flex gap-2">
+                                                {/* Action Buttons */}
+                                                <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                     <button
                                                         onClick={() => handleOpenInGoogleMaps(loc)}
-                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm text-slate-700 hover:bg-white hover:text-blue-600 transition-all shadow-lg border border-slate-200"
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/60 dark:bg-black/40 backdrop-blur-md text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-black transition-all border border-black/5 dark:border-white/10"
                                                         title="Xem trên Google Maps"
                                                     >
-                                                        <ExternalLink size={16} />
+                                                        <ExternalLink size={14} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleOpenEdit(loc)}
-                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-all shadow-lg"
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary/80 backdrop-blur-md text-white hover:bg-primary transition-all shadow-sm"
                                                         title="Sửa"
                                                     >
-                                                        <Edit2 size={16} />
+                                                        <Edit2 size={14} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(loc.id)}
-                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-500 text-white hover:bg-red-600 transition-all shadow-lg"
+                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/80 backdrop-blur-md text-white hover:bg-red-500 transition-all shadow-sm"
                                                         title="Xóa"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                                
+                                                {/* Mobile Always Show Mini Actions */}
+                                                <div className="md:hidden absolute top-2 right-2 flex gap-1.5">
+                                                    <button 
+                                                        onClick={() => handleOpenEdit(loc)}
+                                                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-primary/90 text-white shadow-lg"
+                                                    >
+                                                        <Edit2 size={12} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(loc.id)}
+                                                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/90 text-white shadow-lg"
+                                                    >
+                                                        <Trash2 size={12} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -512,7 +528,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                         totalCount={filteredLocations.length}
                                         onLoadMore={handleLoadMore}
                                         unit="địa điểm"
-                                        className="pt-6 pb-2"
+                                        className="pt-2 pb-4"
                                     />
                                 )}
                             </>

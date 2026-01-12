@@ -236,7 +236,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
     };
 
     return (
-        <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
+        <div className={`pb-20 md:pb-0 ${bgClass} min-h-screen`}>
             <AnimatePresence mode="wait">
                 {loading ? (
                     <motion.div
