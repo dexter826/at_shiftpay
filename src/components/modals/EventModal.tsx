@@ -241,7 +241,9 @@ export const EventModal: React.FC<EventModalProps> = ({
       const counts: Record<string, number> = {};
 
       shifts.forEach((shift) => {
-        counts[shift.employeeId] = (counts[shift.employeeId] || 0) + 1;
+        if (shift.status === 'unpaid') {
+          counts[shift.employeeId] = (counts[shift.employeeId] || 0) + 1;
+        }
       });
 
       setEmployeeShiftCounts(counts);
