@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, Users, Wallet2, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
@@ -23,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
   // Lấy style đồng bộ với theme
   const {
     theme,
+    toggleTheme,
     cardBgClass: sidebarBg,
     borderClass: borderColor,
     textMutedClass: textMuted,
@@ -62,6 +63,23 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
               MOB
             </a>
           </span>
+          <button
+            onClick={toggleTheme}
+            className={`mt-4 p-2 rounded-xl ${hoverBg} ${textMuted} transition-all border ${borderColor} flex items-center justify-center gap-2 w-full`}
+            title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun size={18} className="text-amber-400" />
+                <span className="text-xs font-medium">Giao diện sáng</span>
+              </>
+            ) : (
+              <>
+                <Moon size={18} className="text-slate-600" />
+                <span className="text-xs font-medium">Giao diện tối</span>
+              </>
+            )}
+          </button>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 relative" aria-label="Điều hướng chính">
@@ -108,6 +126,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab, onLogout }) 
       </div>
 
       {/* Thanh điều hướng dưới (Mobile) */}
+      <div className={`md:hidden fixed top-0 left-0 right-0 h-14 ${sidebarBg}/80 backdrop-blur-xl border-b ${borderColor} flex items-center justify-between px-4 z-40`}>
+        <img src="/logo_text.png" alt="AT ShiftPay" className="h-6 object-contain" />
+        <button
+          onClick={toggleTheme}
+          className={`p-2 rounded-lg ${hoverBg} ${textMuted} transition-all border ${borderColor}`}
+          title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+        >
+          {theme === 'dark' ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-slate-600" />}
+        </button>
+      </div>
+
       <nav
         className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
         aria-label="Điều hướng chính"
