@@ -344,7 +344,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   return (
     <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
-      <div className={`p-4 md:p-6 border-b ${borderClass}`}>
+      <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           <div>
             <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>
@@ -387,7 +387,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
       </div>
 
       {/* Danh sách nhân viên */}
-      <div className="p-4 md:p-6">
+      <div className="px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div

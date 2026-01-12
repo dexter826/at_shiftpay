@@ -186,7 +186,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen relative`}>
-      <div className="p-4 md:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
+      <div className="px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
         {/* Calendar */}
         <div className="flex-1">
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>

@@ -327,7 +327,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   return (
     <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
       {/* Tiêu đề */}
-      <div className={`p-4 md:p-6 border-b ${borderClass}`}>
+      <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
         <div className="flex justify-between items-center">
           {activeTab === 'payroll' && summary.length > 0 && (
             null
@@ -545,7 +545,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       </div>
 
       {/* Tabs chuyển đổi */}
-      <div className="flex px-4 md:px-6 pt-4 md:pt-6 pb-2 gap-4">
+      <div className="flex px-4 md:px-6 pt-5 md:pt-6 pb-2 gap-4">
         <button
           onClick={() => setActiveTab('payroll')}
           className={`pb-2 text-sm font-medium transition-colors border-b-2 ${activeTab === 'payroll' ? 'border-primary text-primary' : `border-transparent ${textMutedClass} hover:${textSecondaryClass}`}`}

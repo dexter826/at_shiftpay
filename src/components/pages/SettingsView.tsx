@@ -167,15 +167,18 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 
     return (
         <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
-            <div className="max-w-3xl lg:max-w-5xl mx-auto p-4 md:p-6 space-y-5">
-
-                {/* Tiêu đề trang */}
-                <div className="flex items-center justify-between">
-                    <h1 className={`text-2xl font-bold ${textMain}`}>Cài đặt</h1>
-                    <div className="flex items-center gap-3">
-                        <Switch />
+                {/* Header Section */}
+                <div className={`py-4 px-4 md:px-6 border-b ${border}`}>
+                    <div className="flex items-center justify-between">
+                        <h1 className={`text-lg font-semibold ${textMain}`}>Cài đặt</h1>
+                        <div className="flex items-center gap-3">
+                            <Switch />
+                        </div>
                     </div>
                 </div>
+
+                {/* Content Section */}
+                <div className={`px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6 space-y-5`}>
 
                 {/* Danh sách cài đặt */}
                 <div className="space-y-5">
@@ -296,30 +299,32 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                     <section>
                         <SectionTitle icon={Briefcase} title="Cấu hình công việc" />
                         <div className={`${cardBg} rounded-xl border ${border}`}>
-                            {/* Mức lương */}
-                            <div className={`p-4 border-b ${border}`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className={`font-medium ${textMain}`}>Mức lương / ca</label>
-                                    <span className={`text-xs ${textSub} px-2 py-1 rounded ${highlightBgClass}`}>VNĐ</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                                {/* Mức lương */}
+                                <div className={`p-4 border-b sm:border-r lg:border-b-0 ${border}`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className={`font-medium ${textMain}`}>Mức lương / ca</label>
+                                        <span className={`text-xs ${textSub} px-2 py-1 rounded ${highlightBgClass}`}>VNĐ</span>
+                                    </div>
+                                    <input
+                                        type="number"
+                                        value={editSettings.shiftRate}
+                                        onChange={(e) => handleChange('shiftRate', Number(e.target.value))}
+                                        className={`w-full p-3 rounded-lg border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary transition-colors`}
+                                    />
+                                    <p className={`text-xs ${textSub} mt-2`}>Áp dụng cho các ca làm việc mới</p>
                                 </div>
-                                <input
-                                    type="number"
-                                    value={editSettings.shiftRate}
-                                    onChange={(e) => handleChange('shiftRate', Number(e.target.value))}
-                                    className={`w-full p-3 rounded-lg border ${border} bg-transparent ${textMain} focus:outline-none focus:border-primary transition-colors`}
-                                />
-                                <p className={`text-xs ${textSub} mt-2`}>Áp dụng cho các ca làm việc mới</p>
-                            </div>
 
-                            {/* Giờ trực */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2">
-                                <div className={`p-4 border-b sm:border-b-0 sm:border-r ${border}`}>
+                                {/* Giờ trực - Sáng */}
+                                <div className={`p-4 border-b lg:border-r lg:border-b-0 ${border}`}>
                                     <label className={`block font-medium ${textMain} mb-3`}>Giờ bắt đầu ca sáng</label>
                                     <TimePicker
                                         value={editSettings.morningTime}
                                         onChange={(v) => handleChange('morningTime', v)}
                                     />
                                 </div>
+
+                                {/* Giờ trực - Chiều */}
                                 <div className="p-4">
                                     <label className={`block font-medium ${textMain} mb-3`}>Giờ bắt đầu ca chiều</label>
                                     <TimePicker

@@ -246,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <div className={`hidden md:block p-6 border-b ${borderClass}`}>
+                        <div className={`hidden md:block py-4 px-6 border-b ${borderClass}`}>
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <Skeleton variant="circular" width={40} height={40} />
@@ -291,7 +291,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                     >
                         {/* Header section removed - moved to global TopBar */}
                         {/* Greeting Header (Desktop) */}
-                        <div className={`hidden md:block p-6 border-b ${borderClass}`}>
+                        <div className={`hidden md:block py-4 px-6 border-b ${borderClass}`}>
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <img
@@ -324,7 +324,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                         </div>
 
                         <div className="relative min-h-[calc(100vh-120px)]">
-                            <div className={`px-4 pt-4 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-4 md:space-y-6 transition-all duration-300`}>
+                            <div className={`px-4 pt-5 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-4 md:space-y-6 transition-all duration-300`}>
                                 {/* Xuất báo cáo (Mobile) */}
                                 <div className="md:hidden">
                                     <Button
