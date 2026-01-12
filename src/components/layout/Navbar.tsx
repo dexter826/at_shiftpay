@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Thanh điều hướng dưới (Mobile) */}
       <nav
-        className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl border ${borderColor} flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
+        className={`md:hidden fixed bottom-1 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
         aria-label="Điều hướng chính"
         onTouchMove={(e) => {
           const touch = e.touches[0];
