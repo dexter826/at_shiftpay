@@ -19,7 +19,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
     const [confirmText, setConfirmText] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const REQUIRED_CONFIRM_TEXT = 'XOÁ TÀI KHOẢN';
+    const REQUIRED_CONFIRM_TEXT = 'XÓA TÀI KHOẢN';
 
     const handleDelete = async () => {
         if (confirmText !== REQUIRED_CONFIRM_TEXT) return;
@@ -35,7 +35,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
         } catch (error: any) {
             console.error('Delete account error:', error);
             if (error.code === 'auth/requires-recent-login') {
-                showToast('Vui lòng đăng nhập lại để thực hiện thao tác này', 'error');
+                showToast('Để bảo mật, vui lòng Đăng xuất và Đăng nhập lại để thực hiện thao tác này', 'error', 6000);
             } else {
                 showToast('Có lỗi xảy ra khi xóa tài khoản', 'error');
             }
