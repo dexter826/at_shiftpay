@@ -9,7 +9,7 @@ import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
 import { useThemeStore, useAuthStore, useAppDataStore } from './stores';
 import { dbService } from './services';
-import { exportDetailedReport } from './services/export';
+import { exportDetailedReport } from './services/exportService';
 
 type Tab = 'dashboard' | 'calendar' | 'employees' | 'payroll' | 'settings' | 'locations';
 

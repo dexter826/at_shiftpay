@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
-import { vietQRService, VietQRBank } from '../../services/vietqr';
+import { vietQRService, VietQRBank } from '../../services/vietqrService';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert, Upload, Camera, Loader2, Plus } from 'lucide-react';
 import { LoadMore } from '../ui/LoadMore';
 import { Skeleton } from '../ui/Skeleton';

@@ -15,7 +15,7 @@ import {
   deleteField
 } from 'firebase/firestore';
 import { Location } from '../types';
-import { createRealtimeSubscription } from './firebase-helpers';
+import { createRealtimeSubscription } from './firebaseService';
 import { LocationSchema } from '../utils/validation';
 
 export const locationService = {

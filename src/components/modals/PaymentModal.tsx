@@ -6,7 +6,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Shift, PayrollSummary, Event, Employee, Location } from '../../types';
 import { formatCurrency } from '../../constants';
 import { dbService } from '../../services';
-import { vietQRService } from '../../services/vietqr';
+import { vietQRService } from '../../services/vietqrService';
 import { Banknote, AlertTriangle, Check, QrCode, Building2, IdCard, User, MapPin, Wallet } from 'lucide-react';
 import { useAuthStore } from '../../stores';
 

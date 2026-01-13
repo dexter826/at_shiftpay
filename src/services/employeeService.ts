@@ -11,7 +11,7 @@ import {
   Unsubscribe
 } from 'firebase/firestore';
 import { Employee, BankAccount } from '../types';
-import { createRealtimeSubscription } from './firebase-helpers';
+import { createRealtimeSubscription } from './firebaseService';
 import { EmployeeSchema } from '../utils/validation';
 
 export const employeeService = {
