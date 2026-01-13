@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { Event, Shift, UserSettings, Location } from '../../types';
-import { formatDate, formatCurrency } from '../../constants';
+import { formatDate, formatCurrency } from '../../utils/format';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import {
     MapPin, Edit2, Trash2, Clock, Calendar,

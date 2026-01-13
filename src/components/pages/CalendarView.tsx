@@ -2,7 +2,7 @@ import React, { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, Location } from '../../types';
-import { formatDate } from '../../constants';
+import { formatDate } from '../../utils/format';
 import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Calendar, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { EventModal } from '../modals/EventModal';
 import { EventDetailModal } from '../modals/EventDetailModal';

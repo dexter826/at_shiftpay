@@ -3,7 +3,7 @@ import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { Employee, Shift } from '../../types';
-import { formatCurrency } from '../../constants';
+import { formatCurrency } from '../../utils/format';
 import { Phone, Building2, DollarSign, Briefcase, Wallet, AlertCircle, Edit2 } from 'lucide-react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 

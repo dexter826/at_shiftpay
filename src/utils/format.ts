@@ -14,5 +14,3 @@ export const formatDate = (dateStr: string): string => {
     month: 'numeric',
   }).format(date);
 };
-
-
