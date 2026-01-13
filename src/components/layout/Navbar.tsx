@@ -158,8 +158,20 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       <nav
-        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-[9999] rounded-2xl shadow-lg px-2 overflow-hidden`}
+        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-[9999] rounded-2xl shadow-lg px-2 overflow-hidden touch-none select-none`}
         aria-label="Điều hướng chính"
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          const element = document.elementFromPoint(touch.clientX, touch.clientY);
+          const tabButton = element?.closest("button[data-tab-id]");
+          if (tabButton) {
+            const tabId = tabButton.getAttribute("data-tab-id");
+            if (tabId) {
+              touchTabIdRef.current = tabId;
+              setHoveredTabId(tabId);
+            }
+          }
+        }}
         onTouchMove={(e) => {
           const touch = e.touches[0];
           const element = document.elementFromPoint(
@@ -179,8 +191,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             setHoveredTabId(null);
           }
         }}
-        onTouchEnd={() => {
+        onTouchEnd={(e) => {
           if (touchTabIdRef.current) {
+            if (e.cancelable) e.preventDefault();
             setTab(touchTabIdRef.current);
           }
           touchTabIdRef.current = null;
@@ -205,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setTab(item.id)}
               aria-current={isActive ? "page" : undefined}
               aria-label={item.label}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl touch-none ${
                 isActive
                   ? "text-primary bg-primary/10"
                   : isHovered
