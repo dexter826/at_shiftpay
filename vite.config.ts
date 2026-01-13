@@ -29,9 +29,10 @@ export default defineConfig(() => {
             'icons-vendor': ['lucide-react'],
             'lottie-vendor': ['lottie-react'],
             'styled-vendor': ['styled-components'],
+            'picker-vendor': ['@ncdai/react-wheel-picker'],
             'framer-motion-vendor': ['framer-motion'],
             'cropper-vendor': ['react-easy-crop'],
-            'core-vendor': ['zod', 'zustand']
+            'core-vendor': ['zod', 'zustand', 'clsx', 'tailwind-merge']
           }
         }
       },

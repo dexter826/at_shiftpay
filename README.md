@@ -52,7 +52,10 @@
   - `lottie-react`: Hiệu ứng Splash Screen
   - `zod`: Runtime validation cho Firestore data
   - `zustand`: State management hiện đại và nhẹ
+  - `styled-components`: Giải pháp CSS-in-JS cho các component phức tạp
+  - `clsx` & `tailwind-merge`: Tiện ích tối ưu hóa và quản lý Class CSS
   - `react-easy-crop`: Công cụ cắt và canh chỉnh hình ảnh
+  - `@ncdai/react-wheel-picker`: Bộ chọn vòng xoay (TimePicker) phong cách iOS
 
 ## Cài đặt
 
