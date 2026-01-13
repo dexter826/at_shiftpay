@@ -155,6 +155,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         return data;
     }, [monthlyData.events, monthlyData.shifts, currentMonth, currentYear]);
 
+    // Preload avatar người dùng
+    React.useEffect(() => {
+        if (user?.photoURL) {
+            const img = new Image();
+            img.src = user.photoURL;
+        }
+    }, [user?.photoURL]);
+
     const growthStats = useMemo(() => {
         const { events, shifts, prevEvents, prevShifts } = monthlyData;
 

@@ -128,6 +128,20 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         setVisibleCount(12);
     }, [searchTerm, filterType, sortBy]);
 
+    // Preload ảnh bản đồ tĩnh
+    useEffect(() => {
+        if (locations.length > 0) {
+            locations.forEach(loc => {
+                const hasCoords = loc.latitude && loc.longitude;
+                const mapUrl = hasCoords
+                    ? `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=${loc.latitude},${loc.longitude}&zoom=17&size=600x400&markers=icon:large-blue-cutout|${loc.latitude},${loc.longitude}`
+                    : `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=21.02776,105.83416&zoom=12&size=600x400`;
+                const img = new Image();
+                img.src = mapUrl;
+            });
+        }
+    }, [locations]);
+
     // Tối ưu đếm số lần làm việc bằng Memo
     const workCounts = useMemo(() => {
         const counts: Record<string, number> = {};
@@ -415,7 +429,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                 <img 
                                                     src={mapUrl} 
                                                     alt={loc.name}
-                                                    loading="lazy"
+                                                    decoding="async"
                                                     className={`w-full h-full object-cover transition-all duration-500 ${hasCoords ? 'group-hover:scale-105' : 'blur-[2px] opacity-60'}`}
                                                 />
                                                 

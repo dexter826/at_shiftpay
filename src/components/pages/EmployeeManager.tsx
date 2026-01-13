@@ -116,6 +116,18 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
     loadBanks();
   }, []);
 
+  // Preload ảnh nhân viên
+  useEffect(() => {
+    if (employees.length > 0) {
+      employees.forEach(emp => {
+        if (emp.imageUrl) {
+          const img = new Image();
+          img.src = emp.imageUrl;
+        }
+      });
+    }
+  }, [employees]);
+
   const openAddModal = () => {
     setEditingEmp(null);
     setName('');
@@ -428,7 +440,6 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                       <img
                         src={emp.imageUrl}
                         alt={emp.name}
-                        loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         onError={(e) => {

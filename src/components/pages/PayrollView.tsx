@@ -109,6 +109,19 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     highlightBgClass
   } = useThemeStyles();
 
+  // Preload avatar nhân viên
+  useEffect(() => {
+    if (employees.length > 0) {
+      employees.forEach(emp => {
+        const empImage = emp.imageUrl || emp.avatar;
+        if (empImage) {
+          const img = new Image();
+          img.src = empImage;
+        }
+      });
+    }
+  }, [employees]);
+
   const summary: PayrollSummary[] = useMemo(() => {
     const map: Record<string, PayrollSummary & { totalFees?: number }> = {};
 
@@ -675,6 +688,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                             <img
                               src={employeeImage}
                               alt={item.employeeName}
+                              decoding="async"
                               className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
                             />
                           ) : (
