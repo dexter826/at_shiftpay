@@ -46,6 +46,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
 
 
+  // Dùng ref xử lý swipe tránh stale state
+  const [hoveredTabId, setHoveredTabId] = React.useState<string | null>(null);
+  const touchTabIdRef = React.useRef<string | null>(null);
+
+  // Xóa state khi app mất focus
+  React.useEffect(() => {
+    const handleReset = () => {
+      setHoveredTabId(null);
+      touchTabIdRef.current = null;
+    };
+    window.addEventListener("blur", handleReset);
+    return () => window.removeEventListener("blur", handleReset);
+  }, []);
+
   const hoverText = `hover:${textSecondaryClass}`;
 
   return (
@@ -143,15 +157,45 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Thanh điều hướng dưới (Mobile) */}
       <nav
-        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-50 rounded-2xl shadow-lg px-2 overflow-hidden`}
+        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-[9999] rounded-2xl shadow-lg px-2 overflow-hidden`}
         aria-label="Điều hướng chính"
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          const element = document.elementFromPoint(
+            touch.clientX,
+            touch.clientY
+          );
+          const tabButton = element?.closest("button[data-tab-id]");
+          if (tabButton) {
+            const tabId = tabButton.getAttribute("data-tab-id");
+            if (tabId && tabId !== touchTabIdRef.current) {
+              touchTabIdRef.current = tabId;
+              setHoveredTabId(tabId);
+              if ("vibrate" in navigator) navigator.vibrate(5);
+            }
+          } else {
+            touchTabIdRef.current = null;
+            setHoveredTabId(null);
+          }
+        }}
+        onTouchEnd={() => {
+          if (touchTabIdRef.current) {
+            setTab(touchTabIdRef.current);
+          }
+          touchTabIdRef.current = null;
+          setHoveredTabId(null);
+        }}
+        onTouchCancel={() => {
+          touchTabIdRef.current = null;
+          setHoveredTabId(null);
+        }}
       >
         {navItems.map((item) => {
           const isActive =
             currentTab === item.id ||
             (item.id === "calendar" && currentTab === "locations");
+          const isHovered = hoveredTabId === item.id;
             
           return (
             <button
@@ -164,14 +208,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl ${
                 isActive
                   ? "text-primary bg-primary/10"
+                  : isHovered
+                  ? "text-primary/70 bg-primary/5"
                   : textMuted
               }`}
             >
-              {isActive && (
+              {(isActive || isHovered) && (
                 <motion.div
                   layoutId="nav-indicator-mobile"
                   className="absolute top-0 w-8 h-[3px] bg-primary rounded-full z-20"
                   initial={false}
+                  animate={{ opacity: isHovered && !isActive ? 0.5 : 1 }}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
