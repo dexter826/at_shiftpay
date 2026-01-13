@@ -118,20 +118,20 @@ src/
 │   ├── shiftService.ts       # CRUD operations cho ca làm
 │   ├── paymentService.ts     # CRUD operations cho thanh toán
 │   ├── settingsService.ts    # CRUD operations cho cài đặt
-│   ├── firebase-helpers.ts   # Helper functions (DRY, retry logic)
+│   ├── firebaseService.ts    # Helper functions (DRY, retry logic)
 │   ├── index.ts              # Unified dbService export
-│   ├── export.ts             # CSV export service
-│   └── vietqr.ts             # VietQR API integration
+│   ├── exportService.ts      # CSV export service
+│   └── vietqrService.ts      # VietQR API integration
 ├── utils/               # Utility functions
 │   ├── validation.ts    # Zod schemas & validation utilities
-│   └── compare.ts       # Sorting & comparison utilities
+│   ├── compare.ts       # Sorting & comparison utilities
+│   └── format.ts        # Utility format tiền tệ, ngày tháng
 ├── constants/           # Định nghĩa màu sắc, hằng số
 │   └── colors.ts        # Color constants
 ├── animations/          # Framer Motion animation variants
 │   └── variants.ts      # Animation configurations
 ├── assets/              # Static assets (Lottie animations...)
 │   └── splashscreen.json # Splash screen animation
-├── constants.ts         # Utility format tiền tệ, ngày tháng
 ├── types.ts             # Định nghĩa TypeScript Interface
 ├── firebase.ts          # Cấu hình Firebase SDK với validation
 └── App.tsx              # Component chính & Layout
