@@ -1,143 +1,176 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import React, { useState, useRef, useEffect } from "react";
+import "@ncdai/react-wheel-picker/style.css";
+import * as WheelPickerPrimitive from "@ncdai/react-wheel-picker";
+import { cn } from "@/lib/utils";
+import { Clock, ChevronDown } from "lucide-react";
+import { useThemeStyles } from "../../hooks/useThemeStyles";
 
-interface TimePickerProps {
-    value: string; // Định dạng HH:mm
-    onChange: (value: string) => void;
-    className?: string;
+type WheelPickerOption = WheelPickerPrimitive.WheelPickerOption;
+type WheelPickerClassNames = WheelPickerPrimitive.WheelPickerClassNames;
+
+/**
+ * Wrapper cho bộ chọn vòng xoay.
+ */
+function WheelPickerWrapper({
+  className,
+  ...props
+}: React.ComponentProps<typeof WheelPickerPrimitive.WheelPickerWrapper>) {
+  const { cardBgClass } = useThemeStyles();
+  return (
+    <WheelPickerPrimitive.WheelPickerWrapper
+      className={cn(
+        "rounded-lg px-1 shadow-sm ring-1 ring-black/5 dark:ring-white/10",
+        cardBgClass,
+        "[&>[data-rwp]]:first:[&>[data-rwp-highlight-wrapper]]:rounded-s-md",
+        "[&>[data-rwp]]:last:[&>[data-rwp-highlight-wrapper]]:rounded-e-md",
+        className
+      )}
+      {...props}
+    />
+  );
 }
 
-export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = '' }) => {
-    const { 
-        theme, 
-        inputBgClass, 
-        inputBorderClass, 
-        textPrimaryClass, 
-        textMutedClass,
-        cardBgClass,
-        borderClass,
-        hoverBgClass
-    } = useThemeStyles();
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+/**
+ * Component bộ chọn vòng xoay đơn lẻ.
+ */
+function WheelPicker({
+  classNames,
+  ...props
+}: React.ComponentProps<typeof WheelPickerPrimitive.WheelPicker>) {
+  const { textMutedClass, textPrimaryClass, highlightBgClass } = useThemeStyles();
+  return (
+    <WheelPickerPrimitive.WheelPicker
+      classNames={{
+        container: "flex-1",
+        optionItem: cn("text-base", textMutedClass),
+        highlightWrapper: cn(
+          "font-bold text-lg",
+          highlightBgClass,
+          textPrimaryClass
+        ),
+        ...classNames,
+      }}
+      {...props}
+    />
+  );
+}
 
-    // Phân tích giá trị
-    const [hours, minutes] = value ? value.split(':').map(Number) : [7, 30];
+interface TimePickerProps {
+  value: string; // Định dạng HH:mm
+  onChange: (value: string) => void;
+  className?: string;
+}
 
-    const formatNumber = (n: number) => n.toString().padStart(2, '0');
+const hoursOptions = Array.from({ length: 24 }, (_, i) => ({
+  label: i.toString().padStart(2, "0"),
+  value: i,
+}));
 
-    const updateTime = (newHours: number, newMinutes: number) => {
-        // Giới hạn giá trị
-        if (newHours < 0) newHours = 23;
-        if (newHours > 23) newHours = 0;
-        if (newMinutes < 0) newMinutes = 55;
-        if (newMinutes > 59) newMinutes = 0;
+const minutesOptions = Array.from({ length: 60 }, (_, i) => ({
+  label: i.toString().padStart(2, "0"),
+  value: i,
+}));
 
-        onChange(`${formatNumber(newHours)}:${formatNumber(newMinutes)}`);
+/**
+ * Component chọn giờ chính.
+ */
+export const TimePicker: React.FC<TimePickerProps> = ({
+  value,
+  onChange,
+  className = "",
+}) => {
+  const {
+    inputBgClass,
+    inputBorderClass,
+    textPrimaryClass,
+    textMutedClass,
+    cardBgClass,
+    borderClass,
+  } = useThemeStyles();
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [hours, minutes] = value ? value.split(":").map(Number) : [7, 30];
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    const incrementHours = () => updateTime(hours + 1, minutes);
-    const decrementHours = () => updateTime(hours - 1, minutes);
-    const incrementMinutes = () => updateTime(hours, minutes + 5);
-    const decrementMinutes = () => updateTime(hours, minutes - 5);
+  const formatNumber = (n: number) => n.toString().padStart(2, "0");
 
-    // Đóng khi click ngoài
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+  const handleHourChange = (newHour: any) => {
+    onChange(`${formatNumber(newHour as number)}:${formatNumber(minutes)}`);
+  };
 
-    return (
-        <div ref={containerRef} className={`relative ${className}`}>
-            {/* Nút hiển thị */}
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-full p-2.5 border rounded-lg text-sm focus:outline-none flex items-center justify-between ${inputBgClass} ${inputBorderClass} ${textPrimaryClass} focus:border-primary/50`}
-            >
-                <span className="flex items-center gap-2">
-                    <Clock size={14} className={textMutedClass} />
-                    {formatNumber(hours)}:{formatNumber(minutes)}
-                </span>
-                <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''} ${textMutedClass}`} />
-            </button>
+  const handleMinuteChange = (newMinute: any) => {
+    onChange(`${formatNumber(hours)}:${formatNumber(newMinute as number)}`);
+  };
 
-            {/* Menu thả xuống */}
-            {isOpen && (
-                <div className={`absolute top-full left-0 right-0 mt-1 border rounded-lg p-3 z-50 shadow-lg ${cardBgClass} ${borderClass}`}>
-                    <div className="flex items-center justify-center gap-4">
-                        {/* Giờ */}
-                        <div className="flex flex-col items-center">
-                            <button
-                                type="button"
-                                onClick={incrementHours}
-                                className={`p-1 transition-colors ${textMutedClass} hover:text-primary`}
-                            >
-                                <ChevronUp size={18} />
-                            </button>
-                            <div className={`w-12 h-10 flex items-center justify-center rounded-lg text-lg font-medium ${hoverBgClass} ${textPrimaryClass}`}>
-                                {formatNumber(hours)}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={decrementHours}
-                                className={`p-1 transition-colors ${textMutedClass} hover:text-primary`}
-                            >
-                                <ChevronDown size={18} />
-                            </button>
-                            <span className={`text-[10px] mt-1 ${textMutedClass}`}>Giờ</span>
-                        </div>
+  return (
+    <div ref={containerRef} className={cn("relative", className)}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "w-full p-2.5 border rounded-lg text-sm focus:outline-none flex items-center justify-between transition-all",
+          inputBgClass,
+          inputBorderClass,
+          textPrimaryClass,
+          "focus:border-primary/50"
+        )}
+      >
+        <span className="flex items-center gap-2">
+          <Clock size={14} className={textMutedClass} />
+          {formatNumber(hours)}:{formatNumber(minutes)}
+        </span>
+        <ChevronDown
+          size={14}
+          className={cn(
+            "transition-transform duration-200",
+            isOpen ? "rotate-180" : "",
+            textMutedClass
+          )}
+        />
+      </button>
 
-                        <span className={`text-xl font-medium ${textMutedClass}`}>:</span>
-
-                        {/* Phút */}
-                        <div className="flex flex-col items-center">
-                            <button
-                                type="button"
-                                onClick={incrementMinutes}
-                                className={`p-1 transition-colors ${textMutedClass} hover:text-primary`}
-                            >
-                                <ChevronUp size={18} />
-                            </button>
-                            <div className={`w-12 h-10 flex items-center justify-center rounded-lg text-lg font-medium ${hoverBgClass} ${textPrimaryClass}`}>
-                                {formatNumber(minutes)}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={decrementMinutes}
-                                className={`p-1 transition-colors ${textMutedClass} hover:text-primary`}
-                            >
-                                <ChevronDown size={18} />
-                            </button>
-                            <span className={`text-[10px] mt-1 ${textMutedClass}`}>Phút</span>
-                        </div>
-                    </div>
-
-                    {/* Chọn nhanh */}
-                    <div className={`flex gap-2 mt-3 pt-3 border-t ${borderClass}`}>
-                        <button
-                            type="button"
-                            onClick={() => { onChange('07:30'); setIsOpen(false); }}
-                            className="flex-1 py-1.5 text-xs bg-orange-500/10 text-orange-500 rounded hover:bg-orange-500/20 transition-colors border border-transparent"
-                        >
-                            7:30
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => { onChange('13:30'); setIsOpen(false); }}
-                            className="flex-1 py-1.5 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors border border-transparent"
-                        >
-                            13:30
-                        </button>
-                    </div>
-                </div>
-            )}
+      {isOpen && (
+        <div
+          className={cn(
+            "absolute top-full left-0 right-0 mt-1 p-3 border rounded-xl z-50 shadow-2xl",
+            cardBgClass,
+            borderClass,
+            "animate-in fade-in zoom-in-95 duration-200"
+          )}
+        >
+            <div className="flex justify-center">
+              <WheelPickerWrapper className="w-full h-40">
+                <WheelPicker
+                  options={hoursOptions}
+                  value={hours}
+                  onValueChange={handleHourChange}
+                />
+                <div className={cn("flex items-center px-1 font-bold", textMutedClass)}>:</div>
+                <WheelPicker
+                  options={minutesOptions}
+                  value={minutes}
+                  onValueChange={handleMinuteChange}
+                />
+              </WheelPickerWrapper>
+            </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
+
+export { WheelPicker, WheelPickerWrapper };
+export type { WheelPickerClassNames, WheelPickerOption };
