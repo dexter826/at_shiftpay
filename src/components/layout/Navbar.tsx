@@ -24,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
 }) => {
   const [hoveredTabId, setHoveredTabId] = React.useState<string | null>(null);
+  const touchTabIdRef = React.useRef<string | null>(null);
 
   const navItems = [
     { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
@@ -167,21 +168,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           const tabButton = element?.closest("button[data-tab-id]");
           if (tabButton) {
             const tabId = tabButton.getAttribute("data-tab-id");
-            if (tabId && tabId !== hoveredTabId) {
+            if (tabId && tabId !== touchTabIdRef.current) {
+              touchTabIdRef.current = tabId;
               setHoveredTabId(tabId);
               if ("vibrate" in navigator) navigator.vibrate(5);
             }
           } else {
+            touchTabIdRef.current = null;
             setHoveredTabId(null);
           }
         }}
         onTouchEnd={() => {
-          if (hoveredTabId) {
-            setTab(hoveredTabId);
+          if (touchTabIdRef.current) {
+            setTab(touchTabIdRef.current);
           }
+          touchTabIdRef.current = null;
           setHoveredTabId(null);
         }}
-        onTouchCancel={() => setHoveredTabId(null)}
+        onTouchCancel={() => {
+          touchTabIdRef.current = null;
+          setHoveredTabId(null);
+        }}
       >
         {navItems.map((item) => {
           const isActive =

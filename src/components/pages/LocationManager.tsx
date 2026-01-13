@@ -310,8 +310,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             <p className={`text-sm ${textSecondaryClass} mt-0.5`}>Danh sách các địa điểm và đánh giá chất lượng.</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="flex gap-2">
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="flex gap-2 shrink-0">
                             <div className={`${cardBgClass} border ${borderClass} px-3 py-1.5 rounded-lg flex items-center gap-2`} title="Tổng địa điểm">
                                 <MapPin size={14} className="text-primary" />
                                 <span className={`text-xs font-medium ${textPrimaryClass}`}>{stats.total}</span>
@@ -325,14 +325,15 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 <span className={`text-xs font-medium ${textPrimaryClass}`}>{stats.low}</span>
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-1 md:w-auto md:flex-none">
                             <Button
                                 onClick={handleOpenAdd}
                                 variant="primary"
-                                className="flex items-center gap-2"
+                                fullWidth
+                                className="md:w-auto flex items-center justify-center gap-2"
                             >
                                 <Plus size={16} />
-                                <span>Thêm mới</span>
+                                <span className="whitespace-nowrap">Thêm mới</span>
                             </Button>
                         </div>
                     </div>
