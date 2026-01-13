@@ -14,6 +14,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { PaymentModal } from '../modals/PaymentModal';
 import { SettlementModal } from '../modals/SettlementModal';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
+import SearchInput from '../ui/SearchInput';
 import { useAuthStore } from '../../stores';
 
 interface PayrollViewProps {
@@ -576,16 +577,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Bộ lọc lương */}
       {activeTab === 'payroll' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
-          <div className={`flex-1 flex items-center px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass}`}>
-            <Search size={16} className={textMutedClass} />
-            <input
-              type="text"
-              placeholder="Nhập tên nhân viên"
-              value={payrollSearchTerm}
-              onChange={(e) => setPayrollSearchTerm(e.target.value)}
-              className={`ml-2 w-full bg-transparent outline-none text-sm ${textPrimaryClass} placeholder:text-slate-500`}
-            />
-          </div>
+          <SearchInput
+            placeholder="Nhập tên nhân viên"
+            value={payrollSearchTerm}
+            onChange={(e) => setPayrollSearchTerm(e.target.value)}
+            onClear={() => setPayrollSearchTerm('')}
+            className="h-[42px]"
+            containerClassName="flex-1"
+          />
 
           <Dropdown
             options={payrollSortOptions}
@@ -600,16 +599,14 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Bộ lọc lịch sử */}
       {activeTab === 'history' && (
         <div className="px-4 md:px-6 pb-2 flex gap-2">
-          <div className={`flex-1 flex items-center px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass}`}>
-            <Search size={16} className={textMutedClass} />
-            <input
-              type="text"
-              placeholder="Nhập tên nhân viên"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={`ml-2 w-full bg-transparent outline-none text-sm ${textPrimaryClass} placeholder:text-slate-500`}
-            />
-          </div>
+          <SearchInput
+            placeholder="Nhập tên nhân viên"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClear={() => setSearchTerm('')}
+            className="!h-[42px]"
+            containerClassName="flex-1"
+          />
           <button
             onClick={() => {
               setViewYear(filterDate ? parseInt(filterDate.split('-')[0]) : new Date().getFullYear());

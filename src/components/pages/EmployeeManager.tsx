@@ -10,6 +10,7 @@ import { Modal } from '../ui/Modal';
 import { EmployeeDetailModal } from '../modals';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
+import SearchInput from '../ui/SearchInput';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { areValuesEqual } from '../../utils/compare';
@@ -375,17 +376,14 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
 
         {/* Tìm kiếm & Sắp xếp */}
         <div className="mt-4 flex gap-2">
-          <div className="relative flex-1">
-            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
-            <input
-              type="text"
-              placeholder="Nhập từ khóa tìm kiếm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              disabled={loading}
-              className={`w-full pl-9 pr-4 h-[42px] ${cardBgClass} border ${borderClass} rounded-xl text-sm ${textSecondaryClass} placeholder-slate-500 focus:outline-none focus:border-primary disabled:opacity-50`}
-            />
-          </div>
+          <SearchInput
+            placeholder="Nhập từ khóa tìm kiếm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClear={() => setSearchTerm('')}
+            disabled={loading}
+            containerClassName="flex-1"
+          />
 
           <Dropdown
             options={sortOptions}

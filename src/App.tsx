@@ -38,9 +38,9 @@ function App() {
   useEffect(() => {
     const tabNames: Record<Tab, string> = {
       dashboard: 'Tổng quan',
-      calendar: 'Lịch làm việc',
+      calendar: 'Lịch tiệc',
       employees: 'Nhân sự',
-      payroll: 'Bảng lương',
+      payroll: 'Thanh toán',
       locations: 'Địa điểm',
       settings: 'Cài đặt'
     };

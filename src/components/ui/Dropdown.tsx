@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronDown, Check, Search } from 'lucide-react';
+import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
@@ -139,17 +139,26 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     >
                         {searchable && (
                             <div className={`p-2 border-b ${borderClass}`}>
-                                <div className="relative">
-                                    <Search size={14} className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
-                                    <input
-                                        ref={searchInputRef}
-                                        type="text"
-                                        placeholder={searchPlaceholder}
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className={`w-full pl-8 pr-3 py-1.5 ${inputBgClass} border ${inputBorderClass} rounded-md text-xs ${textSecondaryClass} focus:outline-none focus:border-primary`}
-                                    />
-                                </div>
+                                    <div className="relative">
+                                        <Search size={14} className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
+                                        <input
+                                            ref={searchInputRef}
+                                            type="text"
+                                            placeholder={searchPlaceholder}
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className={`w-full pl-8 pr-8 py-1.5 ${inputBgClass} border ${inputBorderClass} rounded-md text-xs ${textSecondaryClass} focus:outline-none focus:border-primary`}
+                                        />
+                                        {searchTerm && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSearchTerm('')}
+                                                className={`absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 ${textMutedClass}`}
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
                             </div>
                         )}
                         

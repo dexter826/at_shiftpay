@@ -28,6 +28,7 @@ import { Modal } from "../ui/Modal";
 import Button from "../ui/Button";
 import { TimePicker } from "../ui/TimePicker";
 import { useToast } from "../ui/Toast";
+import SearchInput from "../ui/SearchInput";
 import { areValuesEqual } from "../../utils/compare";
 import { useAuthStore } from "../../stores";
 
@@ -1004,19 +1005,13 @@ export const EventModal: React.FC<EventModalProps> = ({
             </label>
 
             {/* Search Bar */}
-            <div className="mb-3 relative">
-              <Search
-                className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`}
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Tìm kiếm nhân viên..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`}
-              />
-            </div>
+            <SearchInput
+              placeholder="Tìm kiếm nhân viên..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClear={() => setSearchTerm('')}
+              containerClassName="mb-3"
+            />
 
             {/* Filtered Employees List */}
             <div

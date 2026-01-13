@@ -9,6 +9,7 @@ import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
+import SearchInput from '../ui/SearchInput';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useAuthStore } from '../../stores';
 
@@ -341,17 +342,13 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
                 {/* Filters */}
                 <div className="flex flex-col md:flex-row gap-3 mb-6">
-                    <div className="relative flex-1">
-                        <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} size={18} />
-                        <input
-                            type="text"
-                            placeholder="Tìm tên địa điểm..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={`w-full pl-10 pr-4 h-[42px] border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${cardBgClass
-                                } ${borderClass} ${textPrimaryClass}`}
-                        />
-                    </div>
+                    <SearchInput
+                        placeholder="Tìm tên địa điểm..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onClear={() => setSearchTerm('')}
+                        containerClassName="flex-1"
+                    />
                     <div className="flex gap-2">
                         <Dropdown
                             options={[
