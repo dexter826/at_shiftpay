@@ -60,6 +60,10 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener("blur", handleReset);
   }, []);
 
+  const activeTabId = currentTab === "locations" ? "calendar" : currentTab;
+  const displayTabId = hoveredTabId || activeTabId;
+  const activeIndex = navItems.findIndex((item) => item.id === displayTabId);
+  const isHoverOnly = !!hoveredTabId && hoveredTabId !== activeTabId;
   const hoverText = `hover:${textSecondaryClass}`;
 
   return (
@@ -204,6 +208,24 @@ export const Navbar: React.FC<NavbarProps> = ({
           setHoveredTabId(null);
         }}
       >
+        <div className="absolute inset-x-2 top-0 pointer-events-none">
+          {activeIndex !== -1 && (
+            <motion.div
+              className="flex justify-center"
+              style={{ width: `${100 / navItems.length}%` }}
+              initial={false}
+              animate={{ 
+                x: `${activeIndex * 100}%`,
+                y: 0,
+                opacity: isHoverOnly ? 0.5 : 1
+              }}
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+            >
+              <div className="w-8 h-[3px] bg-primary rounded-full shadow-[0_0_8px_rgba(var(--color-primary),0.5)]" />
+            </motion.div>
+          )}
+        </div>
+
         {navItems.map((item) => {
           const isActive =
             currentTab === item.id ||
@@ -218,7 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setTab(item.id)}
               aria-current={isActive ? "page" : undefined}
               aria-label={item.label}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all rounded-xl touch-none ${
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors rounded-xl touch-none ${
                 isActive
                   ? "text-primary bg-primary/10"
                   : isHovered
@@ -226,15 +248,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : textMuted
               }`}
             >
-              {(isActive || isHovered) && (
-                <motion.div
-                  layoutId="nav-indicator-mobile"
-                  className="absolute top-0 w-8 h-[3px] bg-primary rounded-full z-20"
-                  initial={false}
-                  animate={{ opacity: isHovered && !isActive ? 0.5 : 1 }}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
               <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
               <span className="text-[10px] whitespace-nowrap">
                 {item.label}
