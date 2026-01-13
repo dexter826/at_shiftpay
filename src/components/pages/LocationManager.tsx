@@ -286,7 +286,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-20 ${bgClass} min-h-screen px-4 pt-5 md:px-6 md:pt-6 md:pb-8`}>
+        <div className={`pb-28 ${bgClass} min-h-screen px-4 pt-5 md:px-6 md:pt-6 md:pb-8`}>
             <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
