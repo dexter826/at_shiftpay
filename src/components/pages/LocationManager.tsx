@@ -155,7 +155,12 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
     const filteredLocations = useMemo(() => {
         return locations.filter(loc => {
-            const matchSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase());
+            const searchLower = searchTerm.toLowerCase();
+            const matchSearch = 
+                loc.name.toLowerCase().includes(searchLower) ||
+                (loc.address || '').toLowerCase().includes(searchLower) ||
+                (loc.reviewNote || '').toLowerCase().includes(searchLower);
+            
             const matchFilter = filterType === 'all' || loc.review === filterType;
             return matchSearch && matchFilter;
         }).sort((a, b) => {
