@@ -56,6 +56,7 @@
     --scrollbar-track: transparent;
     --scrollbar-thumb: #334155;
     --scrollbar-thumb-hover: #ecb52d;
+    --tile: #ecb52d;
 }
 
 html.light {
@@ -69,6 +70,7 @@ html.light {
     --scrollbar-track: transparent;
     --scrollbar-thumb: #cbd5e1;
     --scrollbar-thumb-hover: #ecb52d;
+    --tile: #facc15;
 }
 
 /* Scrollbar chung */

@@ -10,6 +10,7 @@ import Button from '../ui/Button';
 import { useAuthStore } from '../../stores/authStore';
 import { useToast } from '../ui/Toast';
 import { Mail, RefreshCw, LogOut, CheckCircle2 } from 'lucide-react';
+import { Tiles } from '../ui/Tiles';
 
 interface LoginProps {
   onLogin: () => void;
@@ -353,9 +354,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const isUnverified = currentUser && !currentUser.emailVerified;
 
   return (
-    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 relative overflow-hidden`}>
+    <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 relative overflow-hidden bg-slate-50 dark:bg-slate-950`}>
+      {/* Background Tiles */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-80">
+        <Tiles />
+      </div>
+      
       {/* Lớp gradient overlay để transition background vẫn hoạt động */}
-      <div className={`absolute inset-0 opacity-40 pointer-events-none ${isDark ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 to-slate-950' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white to-slate-100'}`} />
+      <div className={`absolute inset-0 opacity-40 pointer-events-none z-[1] ${isDark ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900/50 to-slate-950' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/50 to-slate-100'}`} />
 
       <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col relative my-auto`}>
         {/* Họa tiết trang trí */}
