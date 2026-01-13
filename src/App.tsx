@@ -34,6 +34,19 @@ function App() {
     refreshData
   } = useAppDataStore();
 
+  // Cập nhật tiêu đề trang theo Tab
+  useEffect(() => {
+    const tabNames: Record<Tab, string> = {
+      dashboard: 'Tổng quan',
+      calendar: 'Lịch làm việc',
+      employees: 'Nhân sự',
+      payroll: 'Bảng lương',
+      locations: 'Địa điểm',
+      settings: 'Cài đặt'
+    };
+    document.title = `${tabNames[activeTab]} - ShiftPay`;
+  }, [activeTab]);
+
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isExporting, setIsExporting] = useState(false);

@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <img
             src="/logo_text.png"
-            alt="AT ShiftPay"
+            alt="ShiftPay"
             className="h-8 object-contain"
           />
           <span className={`text-[11px] ${textMuted} mt-0.5 block`}>

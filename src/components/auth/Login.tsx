@@ -370,7 +370,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         {/* Logo tiêu đề */}
         <div className="w-full pt-6 pb-0 flex justify-center z-10 relative">
-          <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 object-contain" />
+          <img src="/logo_text.png" alt="ShiftPay" className="h-8 object-contain" />
         </div>
 
         <div className="flex flex-col md:flex-row flex-1">
@@ -424,7 +424,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <div className="max-w-md mx-auto w-full min-h-[550px] flex flex-col justify-center">
               {/* Logo mobile (đã ẩn) */}
               <div className="md:hidden text-center mb-4 hidden">
-                <img src="/logo_text.png" alt="AT ShiftPay" className="h-8 mx-auto object-contain" />
+                <img src="/logo_text.png" alt="ShiftPay" className="h-8 mx-auto object-contain" />
               </div>
 
               <AnimatePresence mode="wait">
