@@ -215,7 +215,6 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
           setSelectedEmployee(null);
         }}
         employee={selectedEmployee}
-        shifts={shifts}
         onEditClick={(emp) => openEditModal(emp)}
       />
     </div>

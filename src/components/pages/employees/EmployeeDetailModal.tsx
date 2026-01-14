@@ -1,11 +1,8 @@
-import React, { useMemo, memo } from 'react';
+import React, { memo } from 'react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
-import { useToast } from '../../ui/Toast';
-import { Employee, Shift } from '../../../types';
-import { formatCurrency } from '../../../utils/format';
-import { Phone, Building2, DollarSign, Briefcase, AlertCircle, Wallet } from 'lucide-react';
-import WalletIcon from '../../ui/icons/wallet-icon';
+import { Employee } from '../../../types';
+import { Phone, CreditCard, Calendar } from 'lucide-react';
 import PenIcon from '../../ui/icons/pen-icon';
 import { AnimatedIconHandle } from '../../ui/icons/types';
 import { useThemeStyles } from '../../../hooks/useThemeStyles';
@@ -14,7 +11,6 @@ interface EmployeeDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
     employee: Employee | null;
-    shifts: Shift[];
     onEditClick: (employee: Employee) => void;
 }
 
@@ -22,13 +18,10 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     isOpen,
     onClose,
     employee,
-    shifts,
     onEditClick
 }) => {
-    const { showToast } = useToast();
     const {
         theme,
-        cardBgClass,
         borderClass,
         textPrimaryClass,
         textSecondaryClass,
@@ -37,178 +30,99 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     } = useThemeStyles();
 
     const editIconRef = React.useRef<AnimatedIconHandle>(null);
-    const walletIconRef = React.useRef<AnimatedIconHandle>(null);
 
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    if (!employee) return null;
 
-    const employeeStats = useMemo(() => {
-        if (!employee) return null;
-
-        const empShifts = shifts.filter(s => s.employeeId === employee.id);
-        const currentMonthShifts = empShifts.filter(s => {
-            const d = new Date(s.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        });
-
-        const unpaidShifts = currentMonthShifts.filter(s => s.status === 'unpaid');
-        const advancedShifts = currentMonthShifts.filter(s => s.status === 'advanced');
-
-        const totalUnpaid = unpaidShifts.reduce((sum, s) => sum + s.amount, 0);
-        const totalAdvanced = advancedShifts.reduce((sum, s) => sum + s.amount, 0);
-
-        return {
-            totalShifts: currentMonthShifts.length,
-            unpaidCount: unpaidShifts.length,
-            advancedCount: advancedShifts.length,
-            totalUnpaid,
-            totalAdvanced,
-            netAmount: totalUnpaid - totalAdvanced
-        };
-    }, [employee, shifts, currentMonth, currentYear]);
-
-    if (!employee || !employeeStats) return null;
+    const joinedDate = employee.createdAt 
+        ? new Date(employee.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : '---';
 
     return (
         <Modal
-            title="Thông tin nhân viên"
+            title="Hồ sơ nhân viên"
             isOpen={isOpen}
             onClose={onClose}
             footer={
-                <div className="flex gap-2">
-                    <Button
-                        variant="secondary"
-                        onClick={() => {
-                            onClose();
-                            onEditClick(employee);
-                        }}
-                        onMouseEnter={() => editIconRef.current?.startAnimation()}
-                        onMouseLeave={() => editIconRef.current?.stopAnimation()}
-                        className="flex-1"
-                    >
-                        <PenIcon ref={editIconRef} size={16} />
-                        Sửa thông tin
-                    </Button>
-                    {employeeStats.unpaidCount > 0 && (
-                        <Button
-                            onClick={() => {
-                                onClose();
-                                showToast('Chuyển đến trang Lương để thanh toán', 'success');
-                            }}
-                            onMouseEnter={() => walletIconRef.current?.startAnimation()}
-                            onMouseLeave={() => walletIconRef.current?.stopAnimation()}
-                            className="flex-1"
-                        >
-                            <WalletIcon ref={walletIconRef} size={16} />
-                            Thanh toán
-                        </Button>
-                    )}
-                </div>
+                <Button
+                    variant="primary"
+                    onClick={() => {
+                        onClose();
+                        onEditClick(employee);
+                    }}
+                    onMouseEnter={() => editIconRef.current?.startAnimation()}
+                    onMouseLeave={() => editIconRef.current?.stopAnimation()}
+                    fullWidth
+                    className="flex justify-center items-center gap-2"
+                >
+                    <PenIcon ref={editIconRef} size={18} color="currentColor" />
+                    Chỉnh sửa hồ sơ
+                </Button>
             }
         >
-            <div className="space-y-4">
-                {/* Ảnh và thông tin cơ bản */}
-                <div className="flex flex-col items-center gap-3">
-                    {employee.imageUrl ? (
-                        <img
-                            src={employee.imageUrl}
-                            alt={employee.name}
-                            className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=random&color=fff&size=256`;
-                            }}
-                        />
-                    ) : (
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-3xl font-bold text-white border-4 border-primary/20">
-                            {employee.name.charAt(0).toUpperCase()}
-                        </div>
-                    )}
-                    <div className="text-center">
-                        <h3 className={`text-xl font-bold ${textPrimaryClass}`}>{employee.name}</h3>
-                        {employee.phone && (
-                            <div className="flex items-center justify-center gap-1.5 mt-1">
-                                <Phone size={14} className={textMutedClass} />
-                                <p className={textSecondaryClass}>{employee.phone}</p>
+            <div className="space-y-6 pt-2">
+                {/* Minimal Header */}
+                <div className="flex flex-col items-center">
+                    <div className="relative mb-3">
+                        {employee.imageUrl ? (
+                            <img
+                                src={employee.imageUrl}
+                                alt={employee.name}
+                                className={`w-24 h-24 rounded-full object-cover border-4 ${theme === 'dark' ? 'border-primary' : 'border-primary'} shadow-sm`}
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=random&color=fff&size=256`;
+                                }}
+                            />
+                        ) : (
+                            <div className={`w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-4 ${theme === 'dark' ? 'border-primary' : 'border-primary'} shadow-sm`}>
+                                {employee.name.charAt(0).toUpperCase()}
                             </div>
                         )}
                     </div>
+                    
+                    <div className="text-center">
+                        <h3 className={`text-2xl font-bold ${textPrimaryClass} mb-1`}>{employee.name}</h3>
+                        <div className={`flex items-center justify-center gap-1.5 text-sm ${textMutedClass}`}>
+                            <Calendar size={14} />
+                            <span>Ngày gia nhập: {joinedDate}</span>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Thông tin ngân hàng */}
-                {employee.bankAccount && (
-                    <div className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Building2 size={16} className="text-primary" />
-                            <h4 className={`font-medium ${textPrimaryClass}`}>Thông tin ngân hàng</h4>
-                        </div>
-                        <div className="space-y-1.5 text-sm">
-                            <div className="flex justify-between">
-                                <span className={textMutedClass}>Ngân hàng:</span>
-                                <span className={`font-medium ${textSecondaryClass}`}>{employee.bankAccount.bankName}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className={textMutedClass}>Số TK:</span>
-                                <span className={`font-medium ${textSecondaryClass}`}>{employee.bankAccount.accountNumber}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className={textMutedClass}>Chủ TK:</span>
-                                <span className={`font-medium ${textSecondaryClass}`}>{employee.bankAccount.accountName}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <div className={`border-t ${borderClass}`} />
 
-                {/* Thống kê tháng này */}
-                <div className={`p-3 ${cardBgClass} border ${borderClass} rounded-lg`}>
-                    <div className="flex items-center gap-2 mb-3">
-                        <DollarSign size={16} className="text-primary" />
-                        <h4 className={`font-medium ${textPrimaryClass}`}>Thống kê tháng {currentMonth + 1}/{currentYear}</h4>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className={`text-center p-3 ${highlightBgClass} rounded-lg`}>
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <Briefcase size={14} className="text-primary" />
-                                <p className={`text-xs ${textMutedClass}`}>Tổng công</p>
-                            </div>
-                            <p className={`text-2xl font-bold ${textPrimaryClass}`}>{employeeStats.totalShifts}</p>
+                {/* Info List */}
+                <div className="space-y-5 px-1">
+                    {/* Phone Row */}
+                    <div className="flex gap-4">
+                        <div className={`mt-1 bg-slate-100 dark:bg-slate-800 p-2 rounded-full h-fit text-primary`}>
+                            <Phone size={18} />
                         </div>
-
-                        <div className={`text-center p-3 ${highlightBgClass} rounded-lg`}>
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <AlertCircle size={14} className="text-blue-500" />
-                                <p className={`text-xs ${textMutedClass}`}>Chưa trả</p>
-                            </div>
-                            <p className="text-2xl font-bold text-blue-500">{employeeStats.unpaidCount}</p>
-                        </div>
-
-                        <div className={`text-center p-3 ${highlightBgClass} rounded-lg`}>
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <Wallet size={14} className="text-orange-500" />
-                                <p className={`text-xs ${textMutedClass}`}>Đã ứng</p>
-                            </div>
-                            <p className="text-2xl font-bold text-orange-500">{employeeStats.advancedCount}</p>
-                        </div>
-
-                        <div className={`text-center p-3 ${highlightBgClass} rounded-lg`}>
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <DollarSign size={14} className="text-green-500" />
-                                <p className={`text-xs ${textMutedClass}`}>Thực nhận</p>
-                            </div>
-                            <p className={`text-lg font-bold ${employeeStats.netAmount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                {formatCurrency(Math.abs(employeeStats.netAmount))}
-                            </p>
+                        <div className="flex-1">
+                            <p className={`text-sm font-medium ${textMutedClass} mb-1`}>Số điện thoại</p>
+                            {employee.phone ? (
+                                <p className={`text-lg font-medium ${textSecondaryClass}`}>{employee.phone}</p>
+                            ) : (
+                                <p className="text-base italic text-slate-400">Chưa cập nhật</p>
+                            )}
                         </div>
                     </div>
 
-                    <div className={`mt-3 p-2.5 ${cardBgClass} border ${borderClass} rounded text-xs ${textMutedClass} space-y-1`}>
-                        <div className="flex justify-between">
-                            <span>Tổng chưa thanh toán:</span>
-                            <span className="font-medium text-blue-500">{formatCurrency(employeeStats.totalUnpaid)}</span>
+                    {/* Bank Row */}
+                    <div className="flex gap-4">
+                        <div className={`mt-1 bg-slate-100 dark:bg-slate-800 p-2 rounded-full h-fit text-primary`}>
+                            <CreditCard size={18} />
                         </div>
-                        <div className="flex justify-between">
-                            <span>Tổng đã ứng:</span>
-                            <span className="font-medium text-orange-500">{formatCurrency(employeeStats.totalAdvanced)}</span>
+                        <div className="flex-1">
+                            <p className={`text-sm font-medium ${textMutedClass} mb-1`}>Tài khoản ngân hàng</p>
+                            {employee.bankAccount ? (
+                                <div className="space-y-1">
+                                    <p className={`text-lg font-bold ${textPrimaryClass}`}>{employee.bankAccount.bankName}</p>
+                                    <p className={`font-mono text-base ${textSecondaryClass} tracking-wide`}>{employee.bankAccount.accountNumber}</p>
+                                    <p className={`text-sm ${textMutedClass} uppercase`}>{employee.bankAccount.accountName}</p>
+                                </div>
+                            ) : (
+                                <p className="text-base italic text-slate-400">Chưa cập nhật</p>
+                            )}
                         </div>
                     </div>
                 </div>
