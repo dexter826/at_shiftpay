@@ -23,10 +23,10 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     const {
         theme,
         borderClass,
+        cardBgClass,
         textPrimaryClass,
         textSecondaryClass,
-        textMutedClass,
-        highlightBgClass
+        textMutedClass
     } = useThemeStyles();
 
     const editIconRef = React.useRef<AnimatedIconHandle>(null);
@@ -59,70 +59,92 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                 </Button>
             }
         >
-            <div className="space-y-6 pt-2">
-                {/* Minimal Header */}
+            <div className="space-y-4">
+                {/* Header với Avatar và Tên */}
                 <div className="flex flex-col items-center">
                     <div className="relative mb-3">
                         {employee.imageUrl ? (
                             <img
                                 src={employee.imageUrl}
                                 alt={employee.name}
-                                className={`w-24 h-24 rounded-full object-cover border-4 ${theme === 'dark' ? 'border-primary' : 'border-primary'} shadow-sm`}
+                                className={`w-24 h-24 rounded-2xl object-cover border-4 ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} shadow-lg`}
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=random&color=fff&size=256`;
                                 }}
                             />
                         ) : (
-                            <div className={`w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-4 ${theme === 'dark' ? 'border-primary' : 'border-primary'} shadow-sm`}>
+                            <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-4 ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} shadow-lg`}>
                                 {employee.name.charAt(0).toUpperCase()}
                             </div>
                         )}
                     </div>
                     
                     <div className="text-center">
-                        <h3 className={`text-2xl font-bold ${textPrimaryClass} mb-1`}>{employee.name}</h3>
-                        <div className={`flex items-center justify-center gap-1.5 text-sm ${textMutedClass}`}>
-                            <Calendar size={14} />
-                            <span>Ngày gia nhập: {joinedDate}</span>
+                        <h3 className={`text-xl font-bold ${textPrimaryClass} mb-2`}>{employee.name}</h3>
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+                            <Calendar size={12} />
+                            <span>Tham gia từ {joinedDate}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className={`border-t ${borderClass}`} />
-
-                {/* Info List */}
-                <div className="space-y-5 px-1">
-                    {/* Phone Row */}
-                    <div className="flex gap-4">
-                        <div className={`mt-1 bg-slate-100 dark:bg-slate-800 p-2 rounded-full h-fit text-primary`}>
-                            <Phone size={18} />
-                        </div>
-                        <div className="flex-1">
-                            <p className={`text-sm font-medium ${textMutedClass} mb-1`}>Số điện thoại</p>
-                            {employee.phone ? (
-                                <p className={`text-lg font-medium ${textSecondaryClass}`}>{employee.phone}</p>
-                            ) : (
-                                <p className="text-base italic text-slate-400">Chưa cập nhật</p>
-                            )}
+                {/* Thông tin liên hệ */}
+                <div className="space-y-3">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${textMutedClass}`}>Thông tin liên hệ</h4>
+                    
+                    {/* Số điện thoại */}
+                    <div className={`${cardBgClass} border ${borderClass} rounded-xl p-3.5`}>
+                        <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <Phone size={18} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-xs font-medium ${textMutedClass} mb-1.5`}>Số điện thoại</p>
+                                {employee.phone ? (
+                                    <a 
+                                        href={`tel:${employee.phone}`}
+                                        className={`text-base font-semibold ${textPrimaryClass} hover:text-primary transition-colors`}
+                                    >
+                                        {employee.phone}
+                                    </a>
+                                ) : (
+                                    <p className={`text-sm italic ${textMutedClass}`}>Chưa cập nhật</p>
+                                )}
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Bank Row */}
-                    <div className="flex gap-4">
-                        <div className={`mt-1 bg-slate-100 dark:bg-slate-800 p-2 rounded-full h-fit text-primary`}>
-                            <CreditCard size={18} />
-                        </div>
-                        <div className="flex-1">
-                            <p className={`text-sm font-medium ${textMutedClass} mb-1`}>Tài khoản ngân hàng</p>
-                            {employee.bankAccount ? (
-                                <div className="space-y-1">
-                                    <p className={`text-lg font-bold ${textPrimaryClass}`}>{employee.bankAccount.bankName}</p>
-                                    <p className={`font-mono text-base ${textSecondaryClass} tracking-wide`}>{employee.bankAccount.accountNumber}</p>
-                                    <p className={`text-sm ${textMutedClass} uppercase`}>{employee.bankAccount.accountName}</p>
-                                </div>
-                            ) : (
-                                <p className="text-base italic text-slate-400">Chưa cập nhật</p>
-                            )}
+                {/* Thông tin ngân hàng */}
+                <div className="space-y-3">
+                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${textMutedClass}`}>Thông tin thanh toán</h4>
+                    
+                    {/* Tài khoản ngân hàng */}
+                    <div className={`${cardBgClass} border ${borderClass} rounded-xl p-3.5`}>
+                        <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <CreditCard size={18} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-xs font-medium ${textMutedClass} mb-1.5`}>Tài khoản ngân hàng</p>
+                                {employee.bankAccount ? (
+                                    <div className="space-y-2">
+                                        <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                                            {employee.bankAccount.bankName}
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className={`font-mono text-base font-semibold ${textPrimaryClass} tracking-wider`}>
+                                                {employee.bankAccount.accountNumber}
+                                            </p>
+                                            <p className={`text-sm ${textSecondaryClass}`}>
+                                                {employee.bankAccount.accountName}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className={`text-sm italic ${textMutedClass}`}>Chưa cập nhật</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

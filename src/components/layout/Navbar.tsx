@@ -58,7 +58,7 @@ const NavItem: React.FC<{
         />
       )}
       <Icon ref={iconRef} size={isMobile ? 20 : 18} />
-      <span>{item.label}</span>
+      <span className={isMobile ? "text-[10px] leading-tight" : ""}>{item.label}</span>
     </motion.button>
   );
 };
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Điều hướng dưới (Mobile) */}
       <nav
-        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-[9999] rounded-2xl shadow-lg px-2 overflow-hidden touch-none select-none`}
+        className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-40 rounded-2xl shadow-lg px-2 overflow-hidden touch-none select-none`}
         aria-label="Điều hướng chính"
         onTouchStart={(e) => {
           const touch = e.touches[0];
@@ -240,7 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setTab(item.id)}
               isMobile
               isHovered={hoveredTabId === item.id}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors rounded-xl touch-none ${
+              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors rounded-xl touch-none ${
                 isActive ? "text-primary bg-primary/10" : hoveredTabId === item.id ? "text-primary/70 bg-primary/5" : textMuted
               }`}
             />
