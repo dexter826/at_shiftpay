@@ -9,8 +9,8 @@ import XIcon from '../ui/icons/x-icon';
 import TrashIcon from '../ui/icons/trash-icon';
 
 // Modals
-import { EventModal } from '../modals/EventModal';
-import { EventDetailModal } from '../modals/EventDetailModal';
+import { EventModal } from './calendar/EventModal';
+import { EventDetailModal } from './calendar/EventDetailModal';
 
 // New Components
 import CalendarHeader from './calendar/CalendarHeader';

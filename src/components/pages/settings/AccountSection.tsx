@@ -8,7 +8,7 @@ import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { useToast } from '../../ui/Toast';
 import { ImageCropperModal } from '../../modals/ImageCropperModal';
 import { ChangePasswordModal } from '../../auth/ChangePasswordModal';
-import { DeleteAccountModal } from '../../modals/DeleteAccountModal';
+import { DeleteAccountModal } from './DeleteAccountModal';
 import KeyIcon from '../../ui/icons/key-icon';
 import TrashIcon from '../../ui/icons/trash-icon';
 import { AnimatedIconHandle } from '../../ui/icons/types';
