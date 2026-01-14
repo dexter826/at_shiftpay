@@ -4,6 +4,7 @@ import * as WheelPickerPrimitive from "@ncdai/react-wheel-picker";
 import { cn } from "@/lib/utils";
 import { Clock, ChevronDown } from "lucide-react";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import { motion, AnimatePresence } from "framer-motion";
 
 type WheelPickerOption = WheelPickerPrimitive.WheelPickerOption;
 type WheelPickerClassNames = WheelPickerPrimitive.WheelPickerClassNames;
@@ -132,42 +133,48 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           <Clock size={14} className={textMutedClass} />
           {formatNumber(hours)}:{formatNumber(minutes)}
         </span>
-        <ChevronDown
-          size={14}
-          className={cn(
-            "transition-transform duration-200",
-            isOpen ? "rotate-180" : "",
-            textMutedClass
-          )}
-        />
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown
+            size={14}
+            className={textMutedClass}
+          />
+        </motion.div>
       </button>
 
-      {isOpen && (
-        <div
-          className={cn(
-            "absolute top-full left-0 right-0 mt-1 p-3 border rounded-xl z-50 shadow-2xl",
-            cardBgClass,
-            borderClass,
-            "animate-in fade-in zoom-in-95 duration-200"
-          )}
-        >
-            <div className="flex justify-center">
-              <WheelPickerWrapper className="w-full h-40">
-                <WheelPicker
-                  options={hoursOptions}
-                  value={hours}
-                  onValueChange={handleHourChange}
-                />
-                <div className={cn("flex items-center px-1 font-bold", textMutedClass)}>:</div>
-                <WheelPicker
-                  options={minutesOptions}
-                  value={minutes}
-                  onValueChange={handleMinuteChange}
-                />
-              </WheelPickerWrapper>
-            </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className={cn(
+              "absolute top-full left-0 right-0 mt-1 p-3 border rounded-xl z-50 shadow-2xl",
+              cardBgClass,
+              borderClass
+            )}
+          >
+              <div className="flex justify-center">
+                <WheelPickerWrapper className="w-full h-40">
+                  <WheelPicker
+                    options={hoursOptions}
+                    value={hours}
+                    onValueChange={handleHourChange}
+                  />
+                  <div className={cn("flex items-center px-1 font-bold", textMutedClass)}>:</div>
+                  <WheelPicker
+                    options={minutesOptions}
+                    value={minutes}
+                    onValueChange={handleMinuteChange}
+                  />
+                </WheelPickerWrapper>
+              </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

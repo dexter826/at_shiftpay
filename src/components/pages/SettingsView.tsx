@@ -57,8 +57,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                                 className="w-full flex items-center justify-between p-4 hover:bg-red-500/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
-                                        <LogoutIcon ref={logoutIconRef} size={20} />
+                                    <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
+                                        <LogoutIcon ref={logoutIconRef} size={24} strokeWidth={2.2} />
                                     </div>
                                     <div>
                                         <p className="font-medium text-red-500 group-hover:text-red-600">Đăng xuất</p>
