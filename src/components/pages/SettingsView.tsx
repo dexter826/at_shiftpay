@@ -16,7 +16,6 @@ import { ImageCropperModal } from '../modals/ImageCropperModal';
 import {
     User,
     Briefcase,
-    KeyRound,
     LogOut,
     ChevronRight,
     Save,
@@ -29,6 +28,11 @@ import {
     Trash2,
     AlertTriangle
 } from 'lucide-react';
+import KeyIcon from '../ui/icons/key-icon';
+import LogoutIcon from '../ui/icons/logout-icon';
+import PenIcon from '../ui/icons/pen-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 
 interface SettingsViewProps {
     user: any;
@@ -52,6 +56,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
     const [cropperOpen, setCropperOpen] = useState(false);
     const [tempImage, setTempImage] = useState<string | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+    const logoutIconRef = useRef<AnimatedIconHandle>(null);
+    const editNameIconRef = useRef<AnimatedIconHandle>(null);
+    const deleteIconRef = useRef<AnimatedIconHandle>(null);
+    const passwordIconRef = useRef<AnimatedIconHandle>(null);
 
     useEffect(() => {
         setEditSettings(settings);
@@ -263,11 +271,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 
                             <button
                                 onClick={() => setShowPasswordModal(true)}
+                                onMouseEnter={() => passwordIconRef.current?.startAnimation()}
+                                onMouseLeave={() => passwordIconRef.current?.stopAnimation()}
                                 className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left border-b ${border}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                        <KeyRound size={20} />
+                                        <KeyIcon ref={passwordIconRef} size={20} />
                                     </div>
                                     <div>
                                         <p className={`font-medium ${textMain}`}>Đổi mật khẩu</p>
@@ -279,14 +289,16 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 
                             <button
                                 onClick={() => setShowDeleteModal(true)}
-                                className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left`}
+                                onMouseEnter={() => deleteIconRef.current?.startAnimation()}
+                                onMouseLeave={() => deleteIconRef.current?.stopAnimation()}
+                                className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left group`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
-                                        <Trash2 size={20} />
+                                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
+                                        <TrashIcon ref={deleteIconRef} size={20} />
                                     </div>
                                     <div>
-                                        <p className={`font-medium ${textMain}`}>Xóa tài khoản</p>
+                                        <p className={`font-medium ${textMain} group-hover:text-red-600`}>Xóa tài khoản</p>
                                         <p className={`text-xs ${textSub}`}>Xóa vĩnh viễn toàn bộ dữ liệu của bạn</p>
                                     </div>
                                 </div>
@@ -374,11 +386,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                         <div className={`${cardBg} rounded-xl border border-red-500/20 overflow-hidden`}>
                             <button
                                 onClick={onLogout}
+                                onMouseEnter={() => logoutIconRef.current?.startAnimation()}
+                                onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
                                 className="w-full flex items-center justify-between p-4 hover:bg-red-500/5 transition-colors text-left group"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
-                                        <LogOut size={20} />
+                                        <LogoutIcon ref={logoutIconRef} size={20} />
                                     </div>
                                     <div>
                                         <p className="font-medium text-red-500 group-hover:text-red-600">Đăng xuất</p>

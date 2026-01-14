@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Loader2 } from 'lucide-react';
+import { AnimatedIconHandle } from './icons/types';
 
 
 type ButtonVariant = 'primary' | 'danger' | 'secondary' | 'outline' | 'success' | 'warning';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    icon?: React.ReactNode;
     fullWidth?: boolean;
     variant?: ButtonVariant;
     loading?: boolean;
@@ -14,6 +16,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button: React.FC<ButtonProps> = ({
     children,
+    icon,
     className = '',
     fullWidth = false,
     variant = 'primary',
@@ -22,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     ...props
 }) => {
     const { theme } = useThemeStyles();
+    const iconRef = useRef<AnimatedIconHandle>(null);
 
     const variants = {
         primary: {
@@ -58,10 +62,22 @@ const Button: React.FC<ButtonProps> = ({
 
     const variantStyles = variants[variant];
 
+    const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+        iconRef.current?.startAnimation?.();
+        props.onMouseEnter?.(e);
+    };
+
+    const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+        iconRef.current?.stopAnimation?.();
+        props.onMouseLeave?.(e);
+    };
+
     return (
         <button
             className={`relative group border-none bg-transparent p-0 outline-none font-medium text-sm min-h-[44px] ${fullWidth ? 'w-full' : ''} ${disabled || loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}
             disabled={disabled || loading}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             {...props}
         >
             <span className={`absolute top-0 left-0 w-full h-full bg-black bg-opacity-25 rounded-lg transform translate-y-0.5 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] ${disabled || loading ? '' : 'group-hover:translate-y-1 group-hover:duration-[250ms] group-active:translate-y-px'}`} />
@@ -69,7 +85,14 @@ const Button: React.FC<ButtonProps> = ({
             <div className={`relative flex items-center justify-center py-2.5 px-4 text-sm ${variantStyles.text} rounded-lg transform -translate-y-1 bg-gradient-to-r ${variantStyles.front} gap-2 transition duration-[600ms] ease-[cubic-bezier(0.3,0.7,0.4,1)] ${disabled || loading ? '' : 'group-hover:-translate-y-1.5 group-hover:duration-[250ms] group-active:-translate-y-0.5 brightness-100 group-hover:brightness-110'} ${fullWidth ? 'w-full' : ''}`}>
                 {loading ? (
                     <Loader2 size={18} className="animate-spin" />
-                ) : children}
+                ) : (
+                    <>
+                        {icon && React.isValidElement(icon) 
+                            ? React.cloneElement(icon as React.ReactElement, { ref: iconRef } as any)
+                            : icon}
+                        {children}
+                    </>
+                )}
             </div>
         </button>
     );

@@ -3,7 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Location, Event, Shift, Employee } from '../../types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { ArrowLeft, ArrowUpDown, Calendar, ChevronLeft, ChevronRight, Edit2, ExternalLink, Filter, MapPin, MessageSquare, MoreVertical, Plus, Search, Share2, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react';
+import { MapPin, MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
+import ExternalLinkIcon from '../ui/icons/external-link-icon';
+import PenIcon from '../ui/icons/pen-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+import PlusIcon from '../ui/icons/plus-icon';
+import ArrowNarrowLeftIcon from '../ui/icons/arrow-narrow-left-icon';
+import SimpleCheckedIcon from '../ui/icons/simple-checked-icon';
+import XIcon from '../ui/icons/x-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 import { LoadMore } from '../ui/LoadMore';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
@@ -41,6 +49,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     } = useThemeStyles();
     const { user } = useAuthStore();
     const userId = user?.uid || '';
+    
+    const backIconRef = useRef<AnimatedIconHandle>(null);
 
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
@@ -301,10 +311,12 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                         {onBack && (
                             <button
                                 onClick={onBack}
-                                className={`p-2 rounded-full transition-colors ${hoverBgClass}`}
+                                onMouseEnter={() => backIconRef.current?.startAnimation()}
+                                onMouseLeave={() => backIconRef.current?.stopAnimation()}
+                                className={`p-2 rounded-full transition-colors ${hoverBgClass} flex items-center justify-center`}
                                 title="Quay lại"
                             >
-                                <ArrowLeft size={20} className={textPrimaryClass} />
+                                <ArrowNarrowLeftIcon ref={backIconRef} size={20} className={textPrimaryClass} />
                             </button>
                         )}
                         <div>
@@ -333,8 +345,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 variant="primary"
                                 fullWidth
                                 className="md:w-auto flex items-center justify-center gap-2"
+                                icon={<PlusIcon size={16} />}
                             >
-                                <Plus size={16} />
                                 <span className="whitespace-nowrap">Thêm mới</span>
                             </Button>
                         </div>
@@ -450,18 +462,18 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                     <CardActionButton
                                                         onClick={() => handleOpenInGoogleMaps(loc)}
                                                         variant="info"
-                                                        icon={<ExternalLink />}
+                                                        icon={<ExternalLinkIcon />}
                                                         title="Xem trên Google Maps"
                                                     />
                                                     <CardActionButton
                                                         onClick={() => handleOpenEdit(loc)}
-                                                        icon={<Edit2 />}
+                                                        icon={<PenIcon />}
                                                         title="Sửa địa điểm"
                                                     />
                                                     <CardActionButton
                                                         onClick={() => handleDelete(loc.id)}
                                                         variant="danger"
-                                                        icon={<Trash2 />}
+                                                        icon={<TrashIcon />}
                                                         title="Xóa địa điểm"
                                                     />
                                                 </div>
@@ -542,8 +554,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 onClose={() => setDeleteConfirm(null)}
                 footer={
                     <div className="flex gap-2">
-                        <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1">Hủy</Button>
-                        <Button variant="danger" onClick={confirmDelete} className="flex-1">Xóa</Button>
+                        <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1" icon={<XIcon size={16} />}>Hủy</Button>
+                        <Button variant="danger" onClick={confirmDelete} className="flex-1" icon={<TrashIcon size={16} />}>Xóa</Button>
                     </div>
                 }
             >
@@ -561,6 +573,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             variant="secondary"
                             onClick={() => setIsModalOpen(false)}
                             className="flex-1"
+                            icon={<XIcon size={16} />}
                         >
                             Hủy
                         </Button>
@@ -570,6 +583,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                             loading={isSubmitting}
                             disabled={!isChanged || isSubmitting}
                             className="flex-1"
+                            icon={<SimpleCheckedIcon size={16} />}
                         >
                             {editingLocation ? 'Cập nhật' : 'Lưu lại'}
                         </Button>

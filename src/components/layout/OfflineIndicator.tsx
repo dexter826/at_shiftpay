@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
+import WifiIcon from '../ui/icons/wifi-icon';
+import PlugConnectedIcon from '../ui/icons/plug-connected-icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
@@ -44,12 +46,12 @@ export const OfflineIndicator: React.FC = () => {
                 >
                     {isOnline ? (
                         <>
-                            <Wifi size={16} />
+                            <WifiIcon size={16} />
                             <span>Đã kết nối internet</span>
                         </>
                     ) : (
                         <>
-                            <WifiOff size={16} />
+                            <PlugConnectedIcon size={16} />
                             <span>Không có kết nối - Chế độ offline</span>
                         </>
                     )}

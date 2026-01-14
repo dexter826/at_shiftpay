@@ -1,6 +1,8 @@
-import React from 'react';
-import { Search, X } from 'lucide-react';
+import React, { useRef } from 'react';
+import MagnifierIcon from './icons/magnifier-icon';
+import XIcon from './icons/x-icon';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { AnimatedIconHandle } from './icons/types';
 
 interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onClear?: () => void;
@@ -22,6 +24,9 @@ const SearchInput: React.FC<SearchInputProps> = ({
     textMutedClass 
   } = useThemeStyles();
 
+  const iconRef = useRef<AnimatedIconHandle>(null);
+  const xIconRef = useRef<AnimatedIconHandle>(null);
+
   // Xử lý xóa nội dung
   const handleClear = () => {
     if (onClear) {
@@ -32,10 +37,15 @@ const SearchInput: React.FC<SearchInputProps> = ({
   const hasValue = value && String(value).length > 0;
 
   return (
-    <div className={`relative ${containerClassName}`}>
-      <Search 
+    <div 
+      className={`relative ${containerClassName}`}
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onMouseLeave={() => iconRef.current?.stopAnimation()}
+    >
+      <MagnifierIcon 
+        ref={iconRef}
         size={18} 
-        className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass}`} 
+        className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMutedClass} pointer-events-none`} 
       />
       <input
         value={value}
@@ -47,9 +57,11 @@ const SearchInput: React.FC<SearchInputProps> = ({
         <button
           type="button"
           onClick={handleClear}
+          onMouseEnter={() => xIconRef.current?.startAnimation()}
+          onMouseLeave={() => xIconRef.current?.stopAnimation()}
           className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 ${textMutedClass} transition-colors`}
         >
-          <X size={14} />
+          <XIcon ref={xIconRef} size={14} />
         </button>
       )}
     </div>

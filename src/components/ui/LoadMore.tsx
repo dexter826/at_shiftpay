@@ -1,5 +1,6 @@
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React, { useRef } from 'react';
+import PlusIcon from './icons/plus-icon';
+import { AnimatedIconHandle } from './icons/types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface LoadMoreProps {
@@ -30,10 +31,14 @@ export const LoadMore: React.FC<LoadMoreProps> = ({
 
     if (currentCount >= totalCount) return null;
 
+    const plusIconRef = useRef<AnimatedIconHandle>(null);
+
     return (
         <div className={`col-span-full flex flex-col items-center justify-center gap-2 ${className}`}>
             <button
                 onClick={onLoadMore}
+                onMouseEnter={() => plusIconRef.current?.startAnimation()}
+                onMouseLeave={() => plusIconRef.current?.stopAnimation()}
                 className={`
           flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all
           border ${borderClass} ${cardBgClass}
@@ -42,7 +47,7 @@ export const LoadMore: React.FC<LoadMoreProps> = ({
         `}
             >
                 <span>Xem thêm</span>
-                <Plus size={14} />
+                <PlusIcon ref={plusIconRef} size={14} />
             </button>
             <div className={`text-[11px] ${textMutedClass} tracking-wide uppercase font-medium`}>
                 {Math.min(currentCount, totalCount)} / {totalCount} {unit}

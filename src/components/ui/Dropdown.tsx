@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import ChevronIcon from './icons/chevron-icon';
+import SimpleCheckedIcon from './icons/simple-checked-icon';
+import MagnifierIcon from './icons/magnifier-icon';
+import XIcon from './icons/x-icon';
+import { AnimatedIconHandle } from './icons/types';
 
 export interface DropdownOption {
     value: string;
@@ -38,6 +42,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const dropdownRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const chevronRef = useRef<AnimatedIconHandle>(null);
+    const searchIconRef = useRef<AnimatedIconHandle>(null);
+    const xIconRef = useRef<AnimatedIconHandle>(null);
 
     const {
         cardBgClass,
@@ -113,6 +120,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
+                onMouseEnter={() => chevronRef.current?.startAnimation()}
+                onMouseLeave={() => chevronRef.current?.stopAnimation()}
                 disabled={disabled}
                 className={`w-full h-full flex items-center gap-2 px-3 py-2 ${cardBgClass} border ${borderClass} rounded-xl text-sm ${textSecondaryClass} hover:border-primary/50 focus:outline-none focus:border-primary disabled:opacity-50 transition-colors ${minWidth}`}
             >
@@ -124,7 +133,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <ChevronDown size={16} className={textMutedClass} />
+                    <ChevronIcon ref={chevronRef} size={16} className={textMutedClass} />
                 </motion.div>
             </button>
 
@@ -139,8 +148,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     >
                         {searchable && (
                             <div className={`p-2 border-b ${borderClass}`}>
-                                    <div className="relative">
-                                        <Search size={14} className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
+                                    <div 
+                                        className="relative"
+                                        onMouseEnter={() => searchIconRef.current?.startAnimation()}
+                                        onMouseLeave={() => searchIconRef.current?.stopAnimation()}
+                                    >
+                                        <MagnifierIcon ref={searchIconRef} size={14} className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${textMutedClass}`} />
                                         <input
                                             ref={searchInputRef}
                                             type="text"
@@ -153,9 +166,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
                                             <button
                                                 type="button"
                                                 onClick={() => setSearchTerm('')}
+                                                onMouseEnter={() => xIconRef.current?.startAnimation()}
+                                                onMouseLeave={() => xIconRef.current?.stopAnimation()}
                                                 className={`absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 ${textMutedClass}`}
                                             >
-                                                <X size={12} />
+                                                <XIcon ref={xIconRef} size={12} />
                                             </button>
                                         )}
                                     </div>
@@ -171,10 +186,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                                         onClick={() => handleSelect(option.value)}
                                         className={`w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-primary/10 ${value === option.value ? `bg-primary/10 text-primary font-medium` : textSecondaryClass}`}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 group/opt">
                                             {option.icon && <span className="text-current">{option.icon}</span>}
                                             <span className="flex-1 truncate">{option.label}</span>
-                                            {value === option.value && <Check size={14} className="text-primary" />}
+                                            {value === option.value && <SimpleCheckedIcon size={14} className="text-primary" />}
                                         </div>
                                     </button>
                                 ))

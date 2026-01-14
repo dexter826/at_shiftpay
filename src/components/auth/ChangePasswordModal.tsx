@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
+import { Lock, AlertCircle, Check } from 'lucide-react';
+import EyeIcon from '../ui/icons/eye-icon';
+import EyeOffIcon from '../ui/icons/eye-off-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 import { auth } from '../../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
@@ -21,6 +24,13 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const currentEyeRef = useRef<AnimatedIconHandle>(null);
+  const currentEyeOffRef = useRef<AnimatedIconHandle>(null);
+  const newEyeRef = useRef<AnimatedIconHandle>(null);
+  const newEyeOffRef = useRef<AnimatedIconHandle>(null);
+  const confirmEyeRef = useRef<AnimatedIconHandle>(null);
+  const confirmEyeOffRef = useRef<AnimatedIconHandle>(null);
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -166,9 +176,17 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
               type="button"
               tabIndex={-1}
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              onMouseEnter={() => {
+                  if (showCurrentPassword) currentEyeOffRef.current?.startAnimation();
+                  else currentEyeRef.current?.startAnimation();
+              }}
+              onMouseLeave={() => {
+                  if (showCurrentPassword) currentEyeOffRef.current?.stopAnimation();
+                  else currentEyeRef.current?.stopAnimation();
+              }}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
-              {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showCurrentPassword ? <EyeOffIcon ref={currentEyeOffRef} size={18} /> : <EyeIcon ref={currentEyeRef} size={18} />}
             </button>
           </div>
         </div>
@@ -189,9 +207,17 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
               type="button"
               tabIndex={-1}
               onClick={() => setShowNewPassword(!showNewPassword)}
+              onMouseEnter={() => {
+                  if (showNewPassword) newEyeOffRef.current?.startAnimation();
+                  else newEyeRef.current?.startAnimation();
+              }}
+              onMouseLeave={() => {
+                  if (showNewPassword) newEyeOffRef.current?.stopAnimation();
+                  else newEyeRef.current?.stopAnimation();
+              }}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
-              {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showNewPassword ? <EyeOffIcon ref={newEyeOffRef} size={18} /> : <EyeIcon ref={newEyeRef} size={18} />}
             </button>
           </div>
         </div>
@@ -212,9 +238,17 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
               type="button"
               tabIndex={-1}
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              onMouseEnter={() => {
+                  if (showConfirmPassword) confirmEyeOffRef.current?.startAnimation();
+                  else confirmEyeRef.current?.startAnimation();
+              }}
+              onMouseLeave={() => {
+                  if (showConfirmPassword) confirmEyeOffRef.current?.stopAnimation();
+                  else confirmEyeRef.current?.stopAnimation();
+              }}
               className={`${textMutedClass} hover:text-primary transition-colors`}
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showConfirmPassword ? <EyeOffIcon ref={confirmEyeOffRef} size={18} /> : <EyeIcon ref={confirmEyeRef} size={18} />}
             </button>
           </div>
         </div>

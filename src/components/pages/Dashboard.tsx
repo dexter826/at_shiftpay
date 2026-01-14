@@ -1,9 +1,16 @@
-import React, { useMemo, useState, memo } from 'react';
+import React, { useMemo, useState, useRef, memo } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { PAYMENT_COLORS } from '../../constants/colors';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CalendarRange, Users, Wallet2, TrendingUp, TrendingDown, LogOut, Sun, Moon, Settings, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarRange, Users, Wallet2, TrendingUp, TrendingDown, LogOut, Settings, FileDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CalendarIcon from '../ui/icons/calendar-icon';
+import ChevronLeftIcon from '../ui/icons/chevron-left-icon';
+import ChevronRightIcon from '../ui/icons/chevron-right-icon';
+import ExportIcon from '../ui/icons/export-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
+import BrightnessDownIcon from '../ui/icons/brightness-down-icon';
+import MoonIcon from '../ui/icons/moon-icon';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Modal } from '../ui/Modal';
 import { Skeleton } from '../ui/Skeleton';
@@ -206,6 +213,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
         hoverBgClass
     } = useThemeStyles();
 
+    const prevMonthRef = useRef<AnimatedIconHandle>(null);
+    const nextMonthRef = useRef<AnimatedIconHandle>(null);
+    const calendarRef = useRef<AnimatedIconHandle>(null);
+
     const TrendIndicator = ({ value, count, label }: { value: number, count: number, label: string }) => {
         const isPositive = value >= 0;
         return (
@@ -323,8 +334,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         onClick={onOpenExport}
                                         variant="primary"
                                         className="flex items-center gap-2"
+                                        icon={<ExportIcon size={18} />}
                                     >
-                                        <FileDown size={18} />
                                         <span>Xuất báo cáo</span>
                                     </Button>
                                 </div>
@@ -340,8 +351,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                         variant="primary"
                                         fullWidth={true}
                                         className="flex items-center justify-center gap-2"
+                                        icon={<ExportIcon size={18} />}
                                     >
-                                        <FileDown size={18} />
                                         <span>Xuất báo cáo</span>
                                     </Button>
                                 </div>
@@ -350,11 +361,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 min-h-[260px] md:min-h-[130px]">
                                     {/* Tổng sự kiện */}
                                     <div
-                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-blue-50 to-white'} border ${borderClass} rounded-2xl`}
+                                        className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-blue-50 to-white'} border ${borderClass} rounded-2xl group/cal`}
+                                        onMouseEnter={() => calendarRef.current?.startAnimation()}
+                                        onMouseLeave={() => calendarRef.current?.stopAnimation()}
                                     >
                                         <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
                                             <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                                                <CalendarRange size={16} />
+                                                <CalendarIcon ref={calendarRef} size={16} />
                                             </div>
                                             <span className="text-xs font-medium uppercase tracking-wider">Tổng sự kiện</span>
                                         </div>
@@ -473,14 +486,24 @@ const Dashboard: React.FC<DashboardProps> = ({ user, employees, events: initialE
                                                     </button>
                                                     <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
                                                     <div className="flex items-center gap-0.5">
-                                                        <button onClick={handlePrevMonth} className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}>
-                                                            <ChevronLeft size={16} />
+                                                        <button 
+                                                            onClick={handlePrevMonth} 
+                                                            onMouseEnter={() => prevMonthRef.current?.startAnimation()}
+                                                            onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
+                                                            className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}
+                                                        >
+                                                            <ChevronLeftIcon ref={prevMonthRef} size={16} />
                                                         </button>
                                                         <span className={`text-xs font-bold ${textPrimaryClass} min-w-[90px] text-center capitalize`}>
                                                             {monthName}
                                                         </span>
-                                                        <button onClick={handleNextMonth} className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}>
-                                                            <ChevronRight size={16} />
+                                                        <button 
+                                                            onClick={handleNextMonth} 
+                                                            onMouseEnter={() => nextMonthRef.current?.startAnimation()}
+                                                            onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
+                                                            className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}
+                                                        >
+                                                            <ChevronRightIcon ref={nextMonthRef} size={16} />
                                                         </button>
                                                     </div>
                                                 </div>

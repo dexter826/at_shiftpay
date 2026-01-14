@@ -1,16 +1,16 @@
-import React from "react";
-import {
-  LayoutDashboard,
-  CalendarRange,
-  Users,
-  Wallet2,
-  Settings,
-  LogOut,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { CalendarRange } from "lucide-react";
 import { motion } from "framer-motion";
+import React, { useRef } from "react";
 import { useThemeStyles } from "../../hooks/useThemeStyles";
+import LayoutDashboardIcon from "../ui/icons/layout-dashboard-icon";
+import UsersIcon from "../ui/icons/users-icon";
+import WalletIcon from "../ui/icons/wallet-icon";
+import GearIcon from "../ui/icons/gear-icon";
+import LogoutIcon from "../ui/icons/logout-icon";
+import BrightnessDownIcon from "../ui/icons/brightness-down-icon";
+import MoonIcon from "../ui/icons/moon-icon";
+import CalendarIcon from "../ui/icons/calendar-icon";
+import { AnimatedIconHandle } from "../ui/icons/types";
 
 interface NavbarProps {
   currentTab: string;
@@ -18,22 +18,64 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
+// Component nội bộ để xử lý hover từ vùng chứa (button)
+const NavItem: React.FC<{
+  item: { id: string; label: string; icon: any };
+  isActive: boolean;
+  onClick: () => void;
+  isMobile?: boolean;
+  className?: string;
+  isHovered?: boolean;
+}> = ({ item, isActive, onClick, isMobile, className, isHovered }) => {
+  const iconRef = useRef<AnimatedIconHandle>(null);
+  const Icon = item.icon;
+
+  const handleMouseEnter = () => {
+    if (iconRef.current?.startAnimation) {
+      iconRef.current.startAnimation();
+    }
+  };
+  const handleMouseLeave = () => {
+    if (iconRef.current?.stopAnimation) {
+      iconRef.current.stopAnimation();
+    }
+  };
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      data-tab-id={isMobile ? item.id : undefined}
+      className={className}
+    >
+      {isActive && !isMobile && (
+        <motion.div
+          layoutId="nav-indicator-desktop"
+          className="absolute left-0 top-2 bottom-2 w-[3px] bg-primary rounded-full z-20"
+          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+        />
+      )}
+      <Icon ref={iconRef} size={isMobile ? 20 : 18} />
+      <span>{item.label}</span>
+    </motion.button>
+  );
+};
+
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setTab,
   onLogout,
 }) => {
-
-
   const navItems = [
-    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-    { id: "calendar", label: "Lịch Tiệc", icon: CalendarRange },
-    { id: "employees", label: "Nhân Sự", icon: Users },
-    { id: "payroll", label: "Thanh Toán", icon: Wallet2 },
-    { id: "settings", label: "Cài đặt", icon: Settings },
+    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboardIcon },
+    { id: "calendar", label: "Lịch Tiệc", icon: CalendarIcon },
+    { id: "employees", label: "Nhân Sự", icon: UsersIcon },
+    { id: "payroll", label: "Thanh Toán", icon: WalletIcon },
+    { id: "settings", label: "Cài đặt", icon: GearIcon },
   ];
 
-  // Lấy style đồng bộ với theme
   const {
     theme,
     toggleTheme,
@@ -44,13 +86,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     hoverBgClass: hoverBg,
   } = useThemeStyles();
 
-
-
-  // Dùng ref xử lý swipe tránh stale state
   const [hoveredTabId, setHoveredTabId] = React.useState<string | null>(null);
   const touchTabIdRef = React.useRef<string | null>(null);
 
-  // Xóa state khi app mất focus
+  // Thêm ref cho Logout và Theme buttons
+  const logoutIconRef = useRef<AnimatedIconHandle>(null);
+  const themeIconRef = useRef<AnimatedIconHandle>(null);
+
   React.useEffect(() => {
     const handleReset = () => {
       setHoveredTabId(null);
@@ -69,98 +111,63 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* Thanh điều hướng bên (Desktop) */}
-      <div
-        className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}
-      >
-        <div
-          className={`p-5 border-b ${borderColor} flex flex-col items-center`}
-        >
-          <img
-            src="/logo_text.png"
-            alt="ShiftPay"
-            className="h-8 object-contain"
-          />
+      <div className={`hidden md:flex flex-col w-60 h-screen ${sidebarBg} border-r ${borderColor} fixed left-0 top-0 z-30`}>
+        <div className={`p-5 border-b ${borderColor} flex flex-col items-center`}>
+          <img src="/logo_text.png" alt="ShiftPay" className="h-8 object-contain" />
           <span className={`text-[11px] ${textMuted} mt-0.5 block`}>
-            Made by{" "}
-            <a
-              href="https://github.com/dexter826/dexter826"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors"
-            >
-              MOB
-            </a>
+            Made by <a href="https://github.com/dexter826/dexter826" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">MOB</a>
           </span>
         </div>
 
-        <nav
-          className="flex-1 p-3 space-y-1 relative"
-          aria-label="Điều hướng chính"
-        >
+        <nav className="flex-1 p-3 space-y-1 relative" aria-label="Điều hướng chính">
           {navItems.map((item) => {
-            const isActive =
-              currentTab === item.id ||
-              (item.id === "calendar" && currentTab === "locations");
+            const isActive = currentTab === item.id || (item.id === "calendar" && currentTab === "locations");
             return (
-              <motion.button
+              <NavItem
                 key={item.id}
-                type="button"
+                item={item}
+                isActive={isActive}
                 onClick={() => setTab(item.id)}
-                aria-current={isActive ? "page" : undefined}
-                aria-label={item.label}
                 className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors z-10 ${
-                  isActive
-                    ? "text-primary bg-primary/5"
-                    : `${textMuted} ${hoverText} ${hoverBg}`
+                  isActive ? "text-primary bg-primary/5" : `${textMuted} ${hoverText} ${hoverBg}`
                 }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-indicator-desktop"
-                    className="absolute left-0 top-2 bottom-2 w-[3px] bg-primary rounded-full z-20"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} />
-                <span>{item.label}</span>
-              </motion.button>
+              />
             );
           })}
         </nav>
 
-        {/* Nhóm chức năng cuối trang (Desktop) */}
         <div className={`p-4 border-t ${borderColor} flex items-center gap-1`}>
           <motion.button
             type="button"
             onClick={onLogout}
-            aria-label="Đăng xuất"
+            onMouseEnter={() => logoutIconRef.current?.startAnimation()}
+            onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
             className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
           >
-            <LogOut size={18} />
+            <LogoutIcon ref={logoutIconRef} size={18} />
             <span>Đăng xuất</span>
           </motion.button>
 
-          <div
-            className={`w-[1px] h-6 ${
-              theme === "dark" ? "bg-slate-800" : "bg-slate-200"
-            }`}
-          />
+          <div className={`w-[1px] h-6 ${theme === "dark" ? "bg-slate-800" : "bg-slate-200"}`} />
 
           <motion.button
             type="button"
             onClick={toggleTheme}
+            onMouseEnter={() => themeIconRef.current?.startAnimation()}
+            onMouseLeave={() => themeIconRef.current?.stopAnimation()}
             className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${textMuted} ${hoverText} ${hoverBg}`}
             title={theme === "dark" ? "Giao diện sáng" : "Giao diện tối"}
           >
             {theme === "dark" ? (
-              <Sun size={18} className="text-amber-400" />
+              <BrightnessDownIcon ref={themeIconRef} size={18} className="text-amber-400" />
             ) : (
-              <Moon size={18} className="text-slate-600" />
+              <MoonIcon ref={themeIconRef} size={18} className="text-slate-600" />
             )}
           </motion.button>
         </div>
       </div>
 
+      {/* Điều hướng dưới (Mobile) */}
       <nav
         className={`md:hidden fixed bottom-5 left-4 right-4 h-16 ${sidebarBg}/80 backdrop-blur-xl flex z-[9999] rounded-2xl shadow-lg px-2 overflow-hidden touch-none select-none`}
         aria-label="Điều hướng chính"
@@ -178,10 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         }}
         onTouchMove={(e) => {
           const touch = e.touches[0];
-          const element = document.elementFromPoint(
-            touch.clientX,
-            touch.clientY
-          );
+          const element = document.elementFromPoint(touch.clientX, touch.clientY);
           const tabButton = element?.closest("button[data-tab-id]");
           if (tabButton) {
             const tabId = tabButton.getAttribute("data-tab-id");
@@ -227,32 +231,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {navItems.map((item) => {
-          const isActive =
-            currentTab === item.id ||
-            (item.id === "calendar" && currentTab === "locations");
-          const isHovered = hoveredTabId === item.id;
-            
+          const isActive = currentTab === item.id || (item.id === "calendar" && currentTab === "locations");
           return (
-            <button
+            <NavItem
               key={item.id}
-              data-tab-id={item.id}
-              type="button"
+              item={item}
+              isActive={isActive}
               onClick={() => setTab(item.id)}
-              aria-current={isActive ? "page" : undefined}
-              aria-label={item.label}
+              isMobile
+              isHovered={hoveredTabId === item.id}
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors rounded-xl touch-none ${
-                isActive
-                  ? "text-primary bg-primary/10"
-                  : isHovered
-                  ? "text-primary/70 bg-primary/5"
-                  : textMuted
+                isActive ? "text-primary bg-primary/10" : hoveredTabId === item.id ? "text-primary/70 bg-primary/5" : textMuted
               }`}
-            >
-              <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-              <span className="text-[10px] whitespace-nowrap">
-                {item.label}
-              </span>
-            </button>
+            />
           );
         })}
       </nav>

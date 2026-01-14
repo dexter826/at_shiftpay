@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { AnimatedIconHandle } from './icons/types';
 
 type ActionButtonVariant = 'primary' | 'danger' | 'info' | 'success' | 'warning';
 
@@ -9,6 +10,8 @@ interface CardActionButtonProps {
     variant?: ActionButtonVariant;
     title?: string;
     className?: string;
+    iconSize?: number;
+    iconStrokeWidth?: number;
 }
 
 export const CardActionButton: React.FC<CardActionButtonProps> = ({
@@ -16,9 +19,12 @@ export const CardActionButton: React.FC<CardActionButtonProps> = ({
     onClick,
     variant = 'primary',
     title,
-    className = ''
+    className = '',
+    iconSize = 16,
+    iconStrokeWidth = 2.5
 }) => {
     const { theme } = useThemeStyles();
+    const iconRef = useRef<AnimatedIconHandle>(null);
 
     const variants = {
         primary: 'bg-primary/20 text-primary hover:bg-primary hover:text-white',
@@ -28,13 +34,24 @@ export const CardActionButton: React.FC<CardActionButtonProps> = ({
         warning: 'bg-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white'
     };
 
+    const handleMouseEnter = () => iconRef.current?.startAnimation();
+    const handleMouseLeave = () => iconRef.current?.stopAnimation();
+
     return (
         <button
             onClick={onClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             title={title}
             className={`w-8 h-8 flex items-center justify-center rounded-lg backdrop-blur-xl border border-white/10 dark:border-white/5 transition-all duration-300 shadow-sm active:scale-95 ${variants[variant]} ${className}`}
         >
-            {React.cloneElement(icon as React.ReactElement, { size: 16, strokeWidth: 2.5 })}
+            {React.isValidElement(icon) 
+                ? React.cloneElement(icon as React.ReactElement, { 
+                    ref: iconRef,
+                    size: iconSize, 
+                    strokeWidth: iconStrokeWidth 
+                  } as any)
+                : icon}
         </button>
     );
 };

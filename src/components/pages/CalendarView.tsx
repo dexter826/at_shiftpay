@@ -3,7 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, Location } from '../../types';
 import { formatDate } from '../../utils/format';
-import { ChevronLeft, ChevronRight, Plus, MapPin, Edit2, Trash2, Calendar, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MapPin, Calendar, ThumbsUp, ThumbsDown } from 'lucide-react';
+import PlusIcon from '../ui/icons/plus-icon';
+import ChevronLeftIcon from '../ui/icons/chevron-left-icon';
+import ChevronRightIcon from '../ui/icons/chevron-right-icon';
+import SimpleCheckedIcon from '../ui/icons/simple-checked-icon';
+import XIcon from '../ui/icons/x-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+import PenIcon from '../ui/icons/pen-icon';
+import CalendarIcon from '../ui/icons/calendar-icon';
+import MapPinIcon from '../ui/icons/map-pin-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 import { EventModal } from '../modals/EventModal';
 import { EventDetailModal } from '../modals/EventDetailModal';
 import { dbService } from '../../services';
@@ -50,6 +60,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   const [localDate, setLocalDate] = useState(new Date());
   const displayDate = propDate || localDate;
+
+  const prevMonthRef = React.useRef<AnimatedIconHandle>(null);
+  const nextMonthRef = React.useRef<AnimatedIconHandle>(null);
+  const todayIconRef = React.useRef<AnimatedIconHandle>(null);
+  const headerAddRef = React.useRef<AnimatedIconHandle>(null);
+  const emptyAddRef = React.useRef<AnimatedIconHandle>(null);
+  const locationManagerRef = React.useRef<AnimatedIconHandle>(null);
 
   // Đồng bộ localDate khi propDate thay đổi
   React.useEffect(() => {
@@ -193,17 +210,30 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
             <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
               <div className="flex items-center gap-1">
-                <button
+                <button 
                   onClick={goToToday}
-                  className={`px-2 py-1 text-[10px] font-medium rounded border ${borderClass} ${hoverBgClass} transition-colors mr-1`}
+                  onMouseEnter={() => todayIconRef.current?.startAnimation()}
+                  onMouseLeave={() => todayIconRef.current?.stopAnimation()}
+                  className={`px-2 py-1 text-[10px] font-medium rounded border ${borderClass} ${hoverBgClass} transition-colors mr-1 flex items-center gap-1`}
                 >
+                  <CalendarIcon ref={todayIconRef} size={12} />
                   Hôm nay
                 </button>
-                <button onClick={prevMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
-                  <ChevronLeft size={18} />
+                <button 
+                  onClick={prevMonth} 
+                  onMouseEnter={() => prevMonthRef.current?.startAnimation()}
+                  onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
+                  className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}
+                >
+                  <ChevronLeftIcon ref={prevMonthRef} size={18} />
                 </button>
-                <button onClick={nextMonth} className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}>
-                  <ChevronRight size={18} />
+                <button 
+                  onClick={nextMonth} 
+                  onMouseEnter={() => nextMonthRef.current?.startAnimation()}
+                  onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
+                  className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}
+                >
+                  <ChevronRightIcon ref={nextMonthRef} size={18} />
                 </button>
               </div>
               <h3 className={`text-sm font-medium ${textPrimaryClass} capitalize`}>{monthLabel}</h3>
@@ -212,9 +242,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                   <button
                     onClick={onNavigateToReviews}
                     title="Quản lý địa điểm"
-                    className={`p-1.5 ${hoverBgClass} rounded transition-colors text-primary`}
+                    onMouseEnter={() => locationManagerRef.current?.startAnimation()}
+                    onMouseLeave={() => locationManagerRef.current?.stopAnimation()}
+                    className={`h-8 w-8 flex items-center justify-center ${hoverBgClass} rounded transition-colors text-primary`}
                   >
-                    <MapPin size={18} />
+                    <MapPinIcon ref={locationManagerRef} size={18} />
                   </button>
                 )}
               </div>
@@ -329,8 +361,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     <p className={`text-[11px] ${textMutedClass} uppercase tracking-wide`}>Ngày chọn</p>
                     <h3 className={`text-sm font-medium ${textPrimaryClass} mt-0.5`}>{formatDate(selectedDate)}</h3>
                   </div>
-                  <button onClick={handleAddEvent} className="p-2 bg-primary text-white rounded-lg hover:bg-yellow-600 transition-colors">
-                    <Plus size={16} />
+                  <button 
+                    onClick={handleAddEvent} 
+                    onMouseEnter={() => headerAddRef.current?.startAnimation()}
+                    onMouseLeave={() => headerAddRef.current?.stopAnimation()}
+                    className={`p-2 rounded-lg bg-primary hover:bg-primary/90 text-white shadow-sm shadow-primary/30 transition-all active:scale-95`}
+                  >
+                    <PlusIcon ref={headerAddRef} size={16} className="text-white" />
                   </button>
                 </div>
 
@@ -354,7 +391,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     ) : selectedEvents.length === 0 ? (
                       <motion.div key="empty-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
                         <p>Chưa có sự kiện</p>
-                        <button onClick={handleAddEvent} className="text-primary mt-1 hover:underline text-xs">Tạo mới</button>
+                        <button 
+                          onClick={handleAddEvent} 
+                          onMouseEnter={() => emptyAddRef.current?.startAnimation()}
+                          onMouseLeave={() => emptyAddRef.current?.stopAnimation()}
+                          className="text-primary mt-1 hover:underline text-xs flex items-center justify-center gap-1"
+                        >
+                          <PlusIcon ref={emptyAddRef} size={12} />
+                          Tạo mới
+                        </button>
                       </motion.div>
                     ) : (
                       <motion.div key="content-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
@@ -377,7 +422,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                     </div>
                                     {loc && (
                                       <p className={`text-[11px] text-blue-500 mt-0.5 flex items-center gap-1 min-w-0`}>
-                                        <MapPin size={12} className="flex-shrink-0" />
+                                        <MapPinIcon size={12} className="flex-shrink-0" />
                                         <span className="truncate">{loc.name}</span>
                                       </p>
                                     )}
@@ -387,16 +432,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                 <div className="flex gap-1.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                                   <CardActionButton
                                     onClick={() => handleEditEvent(evt)}
-                                    icon={<Edit2 />}
+                                    icon={<PenIcon />}
                                     title="Sửa sự kiện"
-                                    className="!w-7 !h-7"
+                                    className="!w-6 !h-6"
+                                    iconSize={13}
                                   />
                                   <CardActionButton
                                     onClick={() => handleDeleteEvent(evt.id)}
                                     variant="danger"
-                                    icon={<Trash2 />}
+                                    icon={<TrashIcon />}
                                     title="Xóa sự kiện"
-                                    className="!w-7 !h-7"
+                                    className="!w-6 !h-6"
+                                    iconSize={13}
                                   />
                                 </div>
                               </div>
@@ -446,8 +493,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         onClose={() => setDeleteConfirm(null)}
         footer={
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1">Hủy</Button>
-            <Button variant="danger" onClick={confirmDeleteEvent} className="flex-1">Xóa</Button>
+            <Button variant="secondary" onClick={() => setDeleteConfirm(null)} className="flex-1" icon={<XIcon size={16} />}>Hủy</Button>
+            <Button variant="danger" onClick={confirmDeleteEvent} className="flex-1" icon={<TrashIcon size={16} />}>Xóa</Button>
           </div>
         }
       >

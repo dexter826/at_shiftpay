@@ -5,9 +5,12 @@ import { Event, Shift, UserSettings, Location } from '../../types';
 import { formatDate, formatCurrency } from '../../utils/format';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import {
-    MapPin, Edit2, Trash2, Clock, Calendar,
+    MapPin, Clock, Calendar,
     ThumbsUp, ThumbsDown, StickyNote
 } from 'lucide-react';
+import PenIcon from '../ui/icons/pen-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 
 interface EventDetailModalProps {
     event: Event | null;
@@ -40,6 +43,9 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         cardBgClass
     } = useThemeStyles();
 
+    const editIconRef = React.useRef<AnimatedIconHandle>(null);
+    const deleteIconRef = React.useRef<AnimatedIconHandle>(null);
+
     const eventShifts = useMemo(() => {
         if (!event) return [];
         return shifts.filter(s => s.eventId === event.id);
@@ -65,9 +71,11 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                             onEdit(event);
                             onClose();
                         }}
-                        className="flex-1"
+                        onMouseEnter={() => editIconRef.current?.startAnimation()}
+                        onMouseLeave={() => editIconRef.current?.stopAnimation()}
+                        className="flex-1 hover:text-blue-500"
                     >
-                        <Edit2 size={14} />
+                        <PenIcon ref={editIconRef} size={14} />
                         Sửa
                     </Button>
                     <Button
@@ -76,9 +84,11 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                             onDelete(event.id);
                             onClose();
                         }}
+                        onMouseEnter={() => deleteIconRef.current?.startAnimation()}
+                        onMouseLeave={() => deleteIconRef.current?.stopAnimation()}
                         className="flex-1"
                     >
-                        <Trash2 size={14} />
+                        <TrashIcon ref={deleteIconRef} size={14} />
                         Xóa
                     </Button>
                 </div>

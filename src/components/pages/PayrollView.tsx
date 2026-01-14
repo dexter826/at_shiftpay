@@ -5,7 +5,7 @@ import { Shift, PayrollSummary, PaymentTransaction, Event, Location } from '../.
 import { formatCurrency, formatDate } from '../../utils/format';
 import { dbService } from '../../services';
 
-import { Wallet2, ChevronRight, Banknote, Calendar, CheckCircle2, History, Clock, Search, Filter, ChevronLeft, X, CalendarDays, FileDown, Check, AlertTriangle, Calculator, ArrowUpDown, MapPin, Loader2, Plus } from 'lucide-react';
+import { Wallet2, Banknote, Calendar, CheckCircle2, History, Clock, Filter, CalendarDays, AlertTriangle, Calculator, ArrowUpDown, MapPin, Loader2 } from 'lucide-react';
 import { LoadMore } from '../ui/LoadMore';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
@@ -16,6 +16,10 @@ import { SettlementModal } from '../modals/SettlementModal';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import SearchInput from '../ui/SearchInput';
 import { useAuthStore } from '../../stores';
+import SimpleCheckedIcon from '../ui/icons/simple-checked-icon';
+import ChevronLeftIcon from '../ui/icons/chevron-left-icon';
+import ChevronRightIcon from '../ui/icons/chevron-right-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -47,6 +51,10 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [payrollVisibleCount, setPayrollVisibleCount] = useState(15);
   const { user } = useAuthStore();
   const userId = user?.uid || '';
+
+  const prevMonthRef = useRef<AnimatedIconHandle>(null);
+  const nextMonthRef = useRef<AnimatedIconHandle>(null);
+  const confirmPayRef = useRef<AnimatedIconHandle>(null);
 
   // Reset phan trang khi doi tim kiem hoac tab
   useEffect(() => {
@@ -732,7 +740,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                               </p>
                             )}
                           </div>
-                          <ChevronRight size={16} className={textMutedClass} />
+                          <ChevronRightIcon size={16} className={textMutedClass} />
                         </div>
                       </button>
                     );
@@ -800,7 +808,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
                         <span className={`text-sm font-medium ${textSecondaryClass}`}>
                           {formatCurrency(item.amount)}
                         </span>
-                        <ChevronRight size={16} className={textMutedClass} />
+                        <ChevronRightIcon size={16} className={textMutedClass} />
                       </div>
                     </button>
                   ))}
@@ -1060,8 +1068,10 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             <Button
               onClick={confirmPay}
               className="flex-1"
+              icon={<SimpleCheckedIcon ref={confirmPayRef} size={16} />}
+              onMouseEnter={() => confirmPayRef.current?.startAnimation()}
+              onMouseLeave={() => confirmPayRef.current?.stopAnimation()}
             >
-              <Check size={16} />
               Xác nhận
             </Button>
           </div>
@@ -1101,16 +1111,20 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           <div className="flex justify-between items-center px-2">
             <button
               onClick={() => setViewYear(prev => prev - 1)}
+              onMouseEnter={() => prevMonthRef.current?.startAnimation()}
+              onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
               className={`p-1 rounded-full ${hoverBgClass}`}
             >
-              <ChevronLeft size={20} className={textSecondaryClass} />
+              <ChevronLeftIcon ref={prevMonthRef} size={20} className={textSecondaryClass} />
             </button>
             <span className={`text-lg font-bold ${textPrimaryClass}`}>{viewYear}</span>
             <button
               onClick={() => setViewYear(prev => prev + 1)}
+              onMouseEnter={() => nextMonthRef.current?.startAnimation()}
+              onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
               className={`p-1 rounded-full ${hoverBgClass}`}
             >
-              <ChevronRight size={20} className={textSecondaryClass} />
+              <ChevronRightIcon ref={nextMonthRef} size={20} className={textSecondaryClass} />
             </button>
           </div>
 

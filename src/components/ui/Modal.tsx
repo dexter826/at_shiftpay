@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import XIcon from './icons/x-icon';
+import { AnimatedIconHandle } from './icons/types';
 
 interface ModalProps {
   title: string;
@@ -25,6 +26,8 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
     textMutedClass,
     hoverBgClass
   } = useThemeStyles();
+
+  const closeIconRef = React.useRef<AnimatedIconHandle>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,9 +65,11 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children, 
               <h3 className={`text-base font-semibold ${textClass}`}>{title}</h3>
               <button
                 onClick={onClose}
+                onMouseEnter={() => closeIconRef.current?.startAnimation()}
+                onMouseLeave={() => closeIconRef.current?.stopAnimation()}
                 className={`p-1.5 ${textMutedClass} hover:${textSecondaryClass} rounded-md ${hoverBgClass} transition-colors`}
               >
-                <X size={18} />
+                <XIcon ref={closeIconRef} size={18} />
               </button>
             </div>
 

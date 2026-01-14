@@ -4,6 +4,10 @@ import { Employee, Shift } from '../../types';
 import { dbService, deleteField } from '../../services';
 import { vietQRService, VietQRBank } from '../../services/vietqrService';
 import { UserPlus, Trash2, Phone, Edit2, Search, Users, Briefcase, Check, ArrowUpDown, Building2, CheckCircle, RotateCcw, CircleAlert, Upload, Camera, Loader2, Plus } from 'lucide-react';
+import PenIcon from '../ui/icons/pen-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+import PlusIcon from '../ui/icons/plus-icon';
+import SimpleCheckedIcon from '../ui/icons/simple-checked-icon';
 import { LoadMore } from '../ui/LoadMore';
 import { Skeleton } from '../ui/Skeleton';
 import { Modal } from '../ui/Modal';
@@ -369,8 +373,8 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
             onClick={openAddModal}
             disabled={loading}
             className=""
+            icon={<PlusIcon size={16} />}
           >
-            <UserPlus size={16} />
             <span className="hidden sm:inline">Thêm mới</span>
           </Button>
         </div>
@@ -458,13 +462,13 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
                     <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
                       <CardActionButton
                         onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
-                        icon={<Edit2 />}
+                        icon={<PenIcon />}
                         title="Sửa thông tin"
                       />
                       <CardActionButton
                         onClick={(e) => { e.stopPropagation(); handleDelete(emp.id); }}
                         variant="danger"
-                        icon={<Trash2 />}
+                        icon={<TrashIcon />}
                         title="Xóa nhân viên"
                       />
                     </div>
@@ -544,7 +548,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
               className="flex-1"
               disabled={!hasChanged}
             >
-              <Check size={16} />
+              <SimpleCheckedIcon size={16} />
               Lưu
             </Button>
           </div>

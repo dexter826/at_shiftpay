@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, sendEmailVerification } from 'firebase/auth';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { User, Lock, Eye, EyeOff, Heart, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { User, Lock, Heart, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { ForgotPasswordModal } from './ForgotPasswordModal';
@@ -11,6 +11,9 @@ import { useAuthStore } from '../../stores/authStore';
 import { useToast } from '../ui/Toast';
 import { Mail, RefreshCw, LogOut, CheckCircle2 } from 'lucide-react';
 import { Tiles } from '../ui/Tiles';
+import EyeIcon from '../ui/icons/eye-icon';
+import EyeOffIcon from '../ui/icons/eye-off-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 
 interface LoginProps {
   onLogin: () => void;
@@ -73,6 +76,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
   ];
+
+  const eyeIconRef = useRef<AnimatedIconHandle>(null);
+  const eyeOffIconRef = useRef<AnimatedIconHandle>(null);
+  const confirmEyeIconRef = useRef<AnimatedIconHandle>(null);
+  const confirmEyeOffIconRef = useRef<AnimatedIconHandle>(null);
 
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -554,9 +562,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             type="button"
                             tabIndex={-1}
                             onClick={() => setShowPassword(!showPassword)}
+                            onMouseEnter={() => {
+                                if (showPassword) eyeOffIconRef.current?.startAnimation();
+                                else eyeIconRef.current?.startAnimation();
+                            }}
+                            onMouseLeave={() => {
+                                if (showPassword) eyeOffIconRef.current?.stopAnimation();
+                                else eyeIconRef.current?.stopAnimation();
+                            }}
                             className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                           >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {showPassword ? <EyeOffIcon ref={eyeOffIconRef} size={16} /> : <EyeIcon ref={eyeIconRef} size={16} />}
                           </button>
                         </div>
                         <ValidationError message={passwordError} />
@@ -756,9 +772,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             type="button"
                             tabIndex={-1}
                             onClick={() => setShowPassword(!showPassword)}
+                            onMouseEnter={() => {
+                                if (showPassword) eyeOffIconRef.current?.startAnimation();
+                                else eyeIconRef.current?.startAnimation();
+                            }}
+                            onMouseLeave={() => {
+                                if (showPassword) eyeOffIconRef.current?.stopAnimation();
+                                else eyeIconRef.current?.stopAnimation();
+                            }}
                             className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                           >
-                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {showPassword ? <EyeOffIcon ref={eyeOffIconRef} size={16} /> : <EyeIcon ref={eyeIconRef} size={16} />}
                           </button>
                         </div>
                         <ValidationError message={passwordError} />
@@ -793,9 +817,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                               type="button"
                               tabIndex={-1}
                               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              onMouseEnter={() => {
+                                  if (showConfirmPassword) confirmEyeOffIconRef.current?.startAnimation();
+                                  else confirmEyeIconRef.current?.startAnimation();
+                              }}
+                              onMouseLeave={() => {
+                                  if (showConfirmPassword) confirmEyeOffIconRef.current?.stopAnimation();
+                                  else confirmEyeIconRef.current?.stopAnimation();
+                              }}
                               className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${hoverBgClass} ${textMutedClass} transition-colors`}
                             >
-                              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                              {showConfirmPassword ? <EyeOffIcon ref={confirmEyeOffIconRef} size={16} /> : <EyeIcon ref={confirmEyeIconRef} size={16} />}
                              </button>
                           </div>
                           <ValidationError message={confirmPasswordError} />

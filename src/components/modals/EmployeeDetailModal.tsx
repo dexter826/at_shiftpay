@@ -4,7 +4,10 @@ import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { Employee, Shift } from '../../types';
 import { formatCurrency } from '../../utils/format';
-import { Phone, Building2, DollarSign, Briefcase, Wallet, AlertCircle, Edit2 } from 'lucide-react';
+import { Phone, Building2, DollarSign, Briefcase, AlertCircle, Wallet } from 'lucide-react';
+import WalletIcon from '../ui/icons/wallet-icon';
+import PenIcon from '../ui/icons/pen-icon';
+import { AnimatedIconHandle } from '../ui/icons/types';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface EmployeeDetailModalProps {
@@ -32,6 +35,9 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
         textMutedClass,
         highlightBgClass
     } = useThemeStyles();
+
+    const editIconRef = React.useRef<AnimatedIconHandle>(null);
+    const walletIconRef = React.useRef<AnimatedIconHandle>(null);
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -76,9 +82,11 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                             onClose();
                             onEditClick(employee);
                         }}
+                        onMouseEnter={() => editIconRef.current?.startAnimation()}
+                        onMouseLeave={() => editIconRef.current?.stopAnimation()}
                         className="flex-1"
                     >
-                        <Edit2 size={16} />
+                        <PenIcon ref={editIconRef} size={16} />
                         Sửa thông tin
                     </Button>
                     {employeeStats.unpaidCount > 0 && (
@@ -87,9 +95,11 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                                 onClose();
                                 showToast('Chuyển đến trang Lương để thanh toán', 'success');
                             }}
+                            onMouseEnter={() => walletIconRef.current?.startAnimation()}
+                            onMouseLeave={() => walletIconRef.current?.stopAnimation()}
                             className="flex-1"
                         >
-                            <Wallet size={16} />
+                            <WalletIcon ref={walletIconRef} size={16} />
                             Thanh toán
                         </Button>
                     )}
