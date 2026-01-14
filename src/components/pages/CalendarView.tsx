@@ -1,27 +1,21 @@
 import React, { useState, useMemo, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Skeleton } from '../ui/Skeleton';
 import { Event, Shift, Employee, UserSettings, Location } from '../../types';
-import { formatDate } from '../../utils/format';
-import { MapPin, Calendar, ThumbsUp, ThumbsDown } from 'lucide-react';
-import PlusIcon from '../ui/icons/plus-icon';
-import ChevronLeftIcon from '../ui/icons/chevron-left-icon';
-import ChevronRightIcon from '../ui/icons/chevron-right-icon';
-import SimpleCheckedIcon from '../ui/icons/simple-checked-icon';
-import XIcon from '../ui/icons/x-icon';
-import TrashIcon from '../ui/icons/trash-icon';
-import PenIcon from '../ui/icons/pen-icon';
-import CalendarIcon from '../ui/icons/calendar-icon';
-import MapPinIcon from '../ui/icons/map-pin-icon';
-import { AnimatedIconHandle } from '../ui/icons/types';
-import { EventModal } from '../modals/EventModal';
-import { EventDetailModal } from '../modals/EventDetailModal';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { CardActionButton } from '../ui/CardActionButton';
+import XIcon from '../ui/icons/x-icon';
+import TrashIcon from '../ui/icons/trash-icon';
+
+// Modals
+import { EventModal } from '../modals/EventModal';
+import { EventDetailModal } from '../modals/EventDetailModal';
+
+// New Components
+import CalendarHeader from './calendar/CalendarHeader';
+import CalendarGrid from './calendar/CalendarGrid';
+import CalendarSidebar from './calendar/CalendarSidebar';
 
 interface CalendarViewProps {
   events: Event[];
@@ -48,33 +42,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   loading = false
 }) => {
   const { showToast } = useToast();
-  const {
-    bgClass,
-    cardBgClass,
-    borderClass,
-    textPrimaryClass,
-    textMutedClass,
-    hoverBgClass,
-    theme
-  } = useThemeStyles();
+  const { bgClass, cardBgClass, borderClass, theme } = useThemeStyles();
 
   const [localDate, setLocalDate] = useState(new Date());
   const displayDate = propDate || localDate;
-
-  const prevMonthRef = React.useRef<AnimatedIconHandle>(null);
-  const nextMonthRef = React.useRef<AnimatedIconHandle>(null);
-  const todayIconRef = React.useRef<AnimatedIconHandle>(null);
-  const headerAddRef = React.useRef<AnimatedIconHandle>(null);
-  const emptyAddRef = React.useRef<AnimatedIconHandle>(null);
-  const locationManagerRef = React.useRef<AnimatedIconHandle>(null);
 
   // Đồng bộ localDate khi propDate thay đổi
   React.useEffect(() => {
     if (propDate) setLocalDate(propDate);
   }, [propDate]);
-
-  const monthLabel = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(displayDate);
-  const showLoading = loading;
 
   const handleMonthChange = (newDate: Date) => {
     if (onDateChange) {
@@ -163,6 +139,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     }
   };
 
+  const [shiftsForEditing, setShiftsForEditing] = useState<Shift[]>([]);
+
   const handleAddEvent = () => {
     setShiftsForEditing([]);
     setEditingEvent(null);
@@ -194,9 +172,18 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
-
-  const [shiftsForEditing, setShiftsForEditing] = useState<Shift[]>([]);
-
+  
+  // Shifts for sidebar display logic (only needed if logic was complex, but Sidebar does it simply)
+  // Sidebar takes "shifts" (all shifts) and filters mainly by eventId, 
+  // but originally CalendarView calculated "shiftsForDisplay" just for day count in sidebar. 
+  // `CalendarSidebar` now receives full `shifts` array and filters by eventId/session inside map.
+  // Wait, `CalendarSidebar` loops through `selectedEvents`, then for each event filters `shifts`.
+  // So passing `shifts` (all shifts) is fine, but maybe inefficient if `shifts` is huge.
+  // Or I can filter `shiftsForDisplay` here and pass it.
+  // Original `CalendarView`: `shiftsForDisplay` = `shifts.filter(s => s.date === selectedDate)`.
+  // Sidebar logic: `shiftsForDisplay.filter(...)`
+  // So I should pass `shiftsForDisplay` to `CalendarSidebar` as `shifts`.
+  
   const shiftsForDisplay = useMemo(() => {
     if (!selectedDate) return [];
     return shifts.filter((s: Shift) => s.date === selectedDate);
@@ -205,273 +192,42 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   return (
     <div className={`pb-28 md:pb-0 ${bgClass} min-h-screen relative`}>
       <div className="px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-3rem)]">
-        {/* Calendar */}
+        {/* Calendar Main */}
         <div className="flex-1">
           <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
-            <div className={`flex items-center justify-between px-4 py-3 border-b ${borderClass}`}>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={goToToday}
-                  onMouseEnter={() => todayIconRef.current?.startAnimation()}
-                  onMouseLeave={() => todayIconRef.current?.stopAnimation()}
-                  className={`px-2 py-1 text-[10px] font-medium rounded border ${borderClass} ${hoverBgClass} transition-colors mr-1 flex items-center gap-1`}
-                >
-                  <CalendarIcon ref={todayIconRef} size={12} />
-                  Hôm nay
-                </button>
-                <button 
-                  onClick={prevMonth} 
-                  onMouseEnter={() => prevMonthRef.current?.startAnimation()}
-                  onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
-                  className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}
-                >
-                  <ChevronLeftIcon ref={prevMonthRef} size={18} />
-                </button>
-                <button 
-                  onClick={nextMonth} 
-                  onMouseEnter={() => nextMonthRef.current?.startAnimation()}
-                  onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
-                  className={`p-1.5 ${textMutedClass} ${hoverBgClass} rounded transition-colors`}
-                >
-                  <ChevronRightIcon ref={nextMonthRef} size={18} />
-                </button>
-              </div>
-              <h3 className={`text-sm font-medium ${textPrimaryClass} capitalize`}>{monthLabel}</h3>
-              <div className="flex items-center gap-1">
-                {onNavigateToReviews && (
-                  <button
-                    onClick={onNavigateToReviews}
-                    title="Quản lý địa điểm"
-                    onMouseEnter={() => locationManagerRef.current?.startAnimation()}
-                    onMouseLeave={() => locationManagerRef.current?.stopAnimation()}
-                    className={`h-8 w-8 flex items-center justify-center ${hoverBgClass} rounded transition-colors text-primary`}
-                  >
-                    <MapPinIcon ref={locationManagerRef} size={18} />
-                  </button>
-                )}
-              </div>
-            </div>
+             <CalendarHeader 
+                displayDate={displayDate}
+                onPrevMonth={prevMonth}
+                onNextMonth={nextMonth}
+                onGoToToday={goToToday}
+                onNavigateToReviews={onNavigateToReviews}
+             />
 
-            <div className={`grid grid-cols-7 border-b ${borderClass}`}>
-              {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => (
-                <div key={d} className={`py-2 text-center text-[11px] font-medium ${textMutedClass}`}>{d}</div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7 p-2 gap-1 lg:flex-1 lg:auto-rows-fr overflow-hidden relative">
-              <AnimatePresence mode="popLayout">
-                {showLoading ? (
-                  <motion.div
-                    key="loading"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
-                  >
-                    {Array.from({ length: 35 }).map((_, i) => (
-                      <Skeleton key={i} className="aspect-square lg:aspect-auto rounded" height="100%" />
-                    ))}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key={monthLabel}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="grid grid-cols-7 gap-1 col-span-7 h-full w-full"
-                  >
-                    {daysInMonth.map((date, idx) => {
-                      // Chống lệch ngày khi hiển thị
-                      const offset = date.getTimezoneOffset();
-                      const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-                      const dateStr = localDate.toISOString().split('T')[0];
-
-                      const dayEvents = eventsByDate[dateStr] || [];
-                      const isSelected = selectedDate === dateStr;
-                      const isToday = (() => {
-                        const now = new Date();
-                        return now.getFullYear() === date.getFullYear() &&
-                          now.getMonth() === date.getMonth() &&
-                          now.getDate() === date.getDate();
-                      })();
-                      const isCurrentMonth = date.getMonth() === displayDate.getMonth();
-
-                      return (
-                        <motion.button
-                          key={dateStr}
-                          onClick={() => handleDateClick(date)}
-                          whileHover={{ zIndex: 10 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative overflow-hidden ${isSelected
-                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                            : isToday
-                              ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-bold ring-2 ring-primary/20`
-                              : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
-                            }`}
-                        >
-                          <span className="relative z-10">{date.getDate()}</span>
-
-                          {dayEvents.length > 0 && (
-                            <div className="absolute top-1 right-1 flex flex-col gap-0.5 pointer-events-none">
-                              {dayEvents.length > 1 && (
-                                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${isSelected ? 'bg-white text-primary' : 'bg-primary text-white shadow-sm'}`}>
-                                  {dayEvents.length}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {dayEvents.length > 0 && (
-                            <div className="flex flex-wrap justify-center gap-1 mt-1 px-1">
-                              {dayEvents.slice(0, 3).map((evt, i) => {
-                                const loc = locations.find(l => l.id === evt.locationId);
-                                return (
-                                  <div key={i} className="flex items-center">
-                                    {loc?.review === 'high' ? (
-                                      <ThumbsUp size={10} className={isSelected ? 'text-white' : 'text-green-500'} />
-                                    ) : loc?.review === 'low' ? (
-                                      <ThumbsDown size={10} className={isSelected ? 'text-white' : 'text-red-500'} />
-                                    ) : (
-                                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white/60' : 'bg-primary/60'}`} />
-                                    )}
-                                  </div>
-                                );
-                              })}
-                              {dayEvents.length > 3 && <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white/40' : 'bg-slate-400'}`} />}
-                            </div>
-                          )}
-                        </motion.button>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+             <CalendarGrid 
+                daysInMonth={daysInMonth}
+                displayDate={displayDate}
+                eventsByDate={eventsByDate}
+                selectedDate={selectedDate}
+                locations={locations}
+                loading={loading}
+                onDateClick={handleDateClick}
+             />
           </div>
         </div>
 
-        {/* Chi tiết bên phải */}
+        {/* Sidebar */}
         <div className="w-full lg:w-72">
-          <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
-            {selectedDate ? (
-              <div className="flex flex-col h-full">
-                <div className={`px-4 py-3 border-b ${borderClass} flex justify-between items-center`}>
-                  <div>
-                    <p className={`text-[11px] ${textMutedClass} uppercase tracking-wide`}>Ngày chọn</p>
-                    <h3 className={`text-sm font-medium ${textPrimaryClass} mt-0.5`}>{formatDate(selectedDate)}</h3>
-                  </div>
-                  <button 
-                    onClick={handleAddEvent} 
-                    onMouseEnter={() => headerAddRef.current?.startAnimation()}
-                    onMouseLeave={() => headerAddRef.current?.stopAnimation()}
-                    className={`p-2 rounded-lg bg-primary hover:bg-primary/90 text-white shadow-sm shadow-primary/30 transition-all active:scale-95`}
-                  >
-                    <PlusIcon ref={headerAddRef} size={16} className="text-white" />
-                  </button>
-                </div>
-
-                <div className="flex-1 p-3 space-y-2 overflow-y-auto">
-                  <AnimatePresence mode="wait">
-                    {loading ? (
-                      <motion.div key="loading-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className={`p-3 border ${borderClass} rounded-lg ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-                            <div className="flex justify-between items-start gap-2 mb-2">
-                              <Skeleton variant="circular" width={14} height={14} />
-                              <div className="flex-1">
-                                <Skeleton width="60%" height={16} className="mb-2" />
-                                <Skeleton width="90%" height={12} />
-                              </div>
-                            </div>
-                            <Skeleton width="30%" height={20} className="ml-5" />
-                          </div>
-                        ))}
-                      </motion.div>
-                    ) : selectedEvents.length === 0 ? (
-                      <motion.div key="empty-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
-                        <p>Chưa có sự kiện</p>
-                        <button 
-                          onClick={handleAddEvent} 
-                          onMouseEnter={() => emptyAddRef.current?.startAnimation()}
-                          onMouseLeave={() => emptyAddRef.current?.stopAnimation()}
-                          className="text-primary mt-1 hover:underline text-xs flex items-center justify-center gap-1"
-                        >
-                          <PlusIcon ref={emptyAddRef} size={12} />
-                          Tạo mới
-                        </button>
-                      </motion.div>
-                    ) : (
-                      <motion.div key="content-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
-                        {selectedEvents.map(evt => {
-                          const loc = locations.find(l => l.id === evt.locationId);
-                          return (
-                            <div
-                              key={evt.id}
-                              onClick={() => handleViewEvent(evt)}
-                              className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
-                            >
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex items-start gap-2 flex-1 min-w-0">
-                                  <Calendar size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5 min-w-0">
-                                      <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
-                                      {loc?.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
-                                      {loc?.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
-                                    </div>
-                                    {loc && (
-                                      <p className={`text-[11px] text-blue-500 mt-0.5 flex items-center gap-1 min-w-0`}>
-                                        <MapPinIcon size={12} className="flex-shrink-0" />
-                                        <span className="truncate">{loc.name}</span>
-                                      </p>
-                                    )}
-                                    {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
-                                  </div>
-                                </div>
-                                <div className="flex gap-1.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                  <CardActionButton
-                                    onClick={() => handleEditEvent(evt)}
-                                    icon={<PenIcon />}
-                                    title="Sửa sự kiện"
-                                    className="!w-6 !h-6"
-                                    iconSize={13}
-                                  />
-                                  <CardActionButton
-                                    onClick={() => handleDeleteEvent(evt.id)}
-                                    variant="danger"
-                                    icon={<TrashIcon />}
-                                    title="Xóa sự kiện"
-                                    className="!w-6 !h-6"
-                                    iconSize={13}
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex gap-2 mt-2 ml-5">
-                                {(['morning', 'afternoon'] as const).map(session => {
-                                  const count = shiftsForDisplay.filter((s: Shift) => s.eventId === evt.id && s.session === session).length;
-                                  if (count === 0) return null;
-                                  return (
-                                    <span key={session} className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${session === 'morning' ? 'bg-orange-500/10 text-orange-500' : 'bg-primary/10 text-primary'}`}>
-                                      {session === 'morning' ? 'Sáng' : 'Chiều'}: {count} công
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            ) : (
-              <div className={`flex flex-col items-center justify-center h-64 ${textMutedClass} text-sm`}>
-                <p>Chọn ngày để xem</p>
-              </div>
-            )}
-          </div>
+           <CalendarSidebar 
+              selectedDate={selectedDate}
+              events={selectedEvents}
+              shifts={shiftsForDisplay}
+              locations={locations}
+              loading={loading}
+              onAddEvent={handleAddEvent}
+              onEditEvent={handleEditEvent}
+              onDeleteEvent={handleDeleteEvent}
+              onViewEvent={handleViewEvent}
+           />
         </div>
       </div>
 
