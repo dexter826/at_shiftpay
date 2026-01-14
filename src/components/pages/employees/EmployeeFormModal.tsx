@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import { Camera, Upload, Loader2, Building2, RotateCcw } from 'lucide-react';
-import SimpleCheckedIcon from '../../ui/icons/simple-checked-icon';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import { Dropdown } from '../../ui/Dropdown';
@@ -236,14 +235,13 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             >
               Hủy
             </Button>
-            <Button
-              onClick={handleSubmit}
-              className="flex-1"
-              disabled={!hasChanged}
-            >
-              <SimpleCheckedIcon size={16} />
-              Lưu
-            </Button>
+              <Button
+                onClick={handleSubmit}
+                className="flex-1"
+                disabled={!hasChanged}
+              >
+                Lưu
+              </Button>
           </div>
         }
       >

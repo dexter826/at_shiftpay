@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
-import SimpleCheckedIcon from '../../ui/icons/simple-checked-icon';
-import XIcon from '../../ui/icons/x-icon';
+
 import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { Location } from '../../../types';
 
@@ -156,7 +155,6 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                         variant="secondary"
                         onClick={onClose}
                         className="flex-1"
-                        icon={<XIcon size={16} />}
                     >
                         Hủy
                     </Button>
@@ -166,7 +164,6 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                         loading={isSubmitting}
                         disabled={!isChanged || isSubmitting}
                         className="flex-1"
-                        icon={<SimpleCheckedIcon size={16} />}
                     >
                         {editingLocation ? 'Cập nhật' : 'Lưu lại'}
                     </Button>
