@@ -4,8 +4,8 @@ import { dbService } from '../../services';
 
 import { useToast } from '../ui/Toast';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { PaymentModal } from '../modals/PaymentModal';
-import { SettlementModal } from '../modals/SettlementModal';
+import { PaymentModal } from './payroll/PaymentModal';
+import { SettlementModal } from './payroll/SettlementModal';
 import { useAuthStore } from '../../stores';
 import { DropdownOption } from '../ui/Dropdown';
 

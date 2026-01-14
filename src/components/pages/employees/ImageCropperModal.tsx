@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Cropper from 'react-easy-crop';
-import { Modal } from '../ui/Modal';
-import Button from '../ui/Button';
-import { getCroppedImg } from '../../utils/cropImage';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { Modal } from '../../ui/Modal';
+import Button from '../../ui/Button';
+import { getCroppedImg } from '../../../utils/cropImage';
+import { useThemeStyles } from '../../../hooks/useThemeStyles';
 
 interface ImageCropperModalProps {
     isOpen: boolean;
@@ -12,7 +12,7 @@ interface ImageCropperModalProps {
     onCropComplete: (file: File) => void;
 }
 
-export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
+const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     isOpen,
     onClose,
     image,
@@ -103,3 +103,5 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         </Modal>
     );
 };
+
+export default ImageCropperModal;

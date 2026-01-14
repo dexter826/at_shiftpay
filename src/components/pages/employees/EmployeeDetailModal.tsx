@@ -1,14 +1,14 @@
-import React, { useMemo } from 'react';
-import { Modal } from '../ui/Modal';
-import Button from '../ui/Button';
-import { useToast } from '../ui/Toast';
-import { Employee, Shift } from '../../types';
-import { formatCurrency } from '../../utils/format';
+import React, { useMemo, memo } from 'react';
+import { Modal } from '../../ui/Modal';
+import Button from '../../ui/Button';
+import { useToast } from '../../ui/Toast';
+import { Employee, Shift } from '../../../types';
+import { formatCurrency } from '../../../utils/format';
 import { Phone, Building2, DollarSign, Briefcase, AlertCircle, Wallet } from 'lucide-react';
-import WalletIcon from '../ui/icons/wallet-icon';
-import PenIcon from '../ui/icons/pen-icon';
-import { AnimatedIconHandle } from '../ui/icons/types';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import WalletIcon from '../../ui/icons/wallet-icon';
+import PenIcon from '../../ui/icons/pen-icon';
+import { AnimatedIconHandle } from '../../ui/icons/types';
+import { useThemeStyles } from '../../../hooks/useThemeStyles';
 
 interface EmployeeDetailModalProps {
     isOpen: boolean;
@@ -18,7 +18,7 @@ interface EmployeeDetailModalProps {
     onEditClick: (employee: Employee) => void;
 }
 
-export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
+const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     isOpen,
     onClose,
     employee,
@@ -216,3 +216,5 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
         </Modal>
     );
 };
+
+export default memo(EmployeeDetailModal);
