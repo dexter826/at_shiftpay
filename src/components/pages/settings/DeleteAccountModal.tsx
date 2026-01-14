@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Trash2, Loader2 } from 'lucide-react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
-import { dbService } from '../../services';
-import { auth } from '../../firebase';
+import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { dbService } from '../../../services';
+import { auth } from '../../../firebase';
 import { deleteUser } from 'firebase/auth';
-import { useToast } from '../ui/Toast';
-import Button from '../ui/Button';
-import { Modal } from '../ui/Modal';
-import { useAuthStore } from '../../stores/authStore';
+import { useToast } from '../../ui/Toast';
+import Button from '../../ui/Button';
+import { Modal } from '../../ui/Modal';
+import { useAuthStore } from '../../../stores/authStore';
 
 interface DeleteAccountModalProps {
     isOpen: boolean;

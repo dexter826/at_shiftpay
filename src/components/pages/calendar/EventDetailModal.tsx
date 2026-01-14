@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
-import { Modal } from '../ui/Modal';
-import Button from '../ui/Button';
-import { Event, Shift, UserSettings, Location } from '../../types';
-import { formatDate, formatCurrency } from '../../utils/format';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { Modal } from '../../ui/Modal';
+import Button from '../../ui/Button';
+import { Event, Shift, UserSettings, Location } from '../../../types';
+import { formatDate, formatCurrency } from '../../../utils/format';
+import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import {
     MapPin, Clock, Calendar,
     ThumbsUp, ThumbsDown, StickyNote
 } from 'lucide-react';
-import PenIcon from '../ui/icons/pen-icon';
-import TrashIcon from '../ui/icons/trash-icon';
-import { AnimatedIconHandle } from '../ui/icons/types';
+import PenIcon from '../../ui/icons/pen-icon';
+import TrashIcon from '../../ui/icons/trash-icon';
+import { AnimatedIconHandle } from '../../ui/icons/types';
 
 interface EventDetailModalProps {
     event: Event | null;
