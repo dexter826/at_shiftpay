@@ -18,6 +18,7 @@ import EmployeeDetailModal from './payroll/PayrollEmployeeDetailModal';
 import TransactionDetailModal from './payroll/TransactionDetailModal';
 import ConfirmPaymentModal from './payroll/ConfirmPaymentModal';
 import MonthPickerModal from './payroll/MonthPickerModal';
+import { usePayrollData } from './payroll/hooks/usePayrollData';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -28,6 +29,7 @@ interface PayrollViewProps {
 }
 
 const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, locations, loading = false }) => {
+
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
   const [lastVisible, setLastVisible] = useState<any>(null);
@@ -37,9 +39,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [payrollSearchTerm, setPayrollSearchTerm] = useState('');
-  const [payrollSortBy, setPayrollSortBy] = useState<'amount' | 'shifts' | 'name'>('amount');
-  const [filterDate, setFilterDate] = useState(''); // YYYY-MM
+  const [filterDate, setFilterDate] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
@@ -49,6 +49,25 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const { user } = useAuthStore();
   const userId = user?.uid || '';
 
+  const {
+      summary,
+      filteredAndSortedSummary,
+      stats,
+      searchTerm: payrollSearchTerm,
+      setSearchTerm: setPayrollSearchTerm,
+      sortBy: payrollSortBy,
+      setSortBy: setPayrollSortBy
+  } = usePayrollData({ shifts, employees, events });
+
+  const {
+      totalDebt,
+      totalAdvanced,
+      totalEarned,
+      totalShifts,
+      totalUnpaidShifts,
+      totalAdvancedShifts,
+      totalFees
+  } = stats;
 
   // Reset phan trang khi doi tim kiem hoac tab
   useEffect(() => {
@@ -71,7 +90,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       if (isInitial) {
         setPaymentHistory(payments);
       } else {
-        // Tránh trùng lặp nếu có real-time update hoặc fetch song song
         setPaymentHistory(prev => {
           const existingIds = new Set(prev.map(p => p.id));
           const newPayments = payments.filter(p => !existingIds.has(p.id));
@@ -118,97 +136,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     }
   }, [employees]);
 
-  const summary: PayrollSummary[] = useMemo(() => {
-    const map: Record<string, PayrollSummary & { totalFees?: number }> = {};
-
-    employees.forEach(emp => {
-      map[emp.id] = {
-        employeeId: emp.id,
-        employeeName: emp.name,
-        phone: emp.phone,
-        unpaidCount: 0,
-        totalUnpaid: 0,
-        advancedCount: 0,
-        totalAdvanced: 0,
-        netAmount: 0
-      };
-    });
-
-    shifts.forEach(s => {
-      if (map[s.employeeId]) {
-        // Tìm event tương ứng với shift để lấy surcharge
-        const event = events.find(e => e.id === s.eventId && e.date === s.date);
-        let shiftFee = 0;
-
-        if (event?.surcharge && event.surcharge > 0) {
-          // Kiểm tra phân bổ phụ phí
-          if (!event.surchargeDistribution || event.surchargeDistribution.type === 'equal') {
-            // Chia đều cho tất cả nhân viên trong event
-            const shiftsInEvent = shifts.filter(sh => sh.eventId === event.id && sh.date === event.date);
-            const uniqueEmployees = new Set(shiftsInEvent.map(sh => sh.employeeId));
-            shiftFee = event.surcharge / uniqueEmployees.size;
-          } else if (event.surchargeDistribution.type === 'selected') {
-            // Chỉ chia cho nhân viên được chọn
-            if (event.surchargeDistribution.selectedEmployeeIds?.includes(s.employeeId)) {
-              shiftFee = event.surcharge / event.surchargeDistribution.selectedEmployeeIds.length;
-            }
-          }
-        }
-
-        if (s.status === 'unpaid') {
-          map[s.employeeId].unpaidCount += 1;
-          map[s.employeeId].totalUnpaid += s.amount;
-          if (shiftFee > 0) {
-            map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
-          }
-        } else if (s.status === 'advanced') {
-          map[s.employeeId].advancedCount += 1;
-          map[s.employeeId].totalAdvanced += s.amount;
-          if (shiftFee > 0) {
-            map[s.employeeId].totalFees = (map[s.employeeId].totalFees || 0) + shiftFee;
-          }
-        }
-      }
-    });
-
-    // Net amount = chưa trả
-    Object.values(map).forEach(emp => {
-      emp.netAmount = emp.totalUnpaid;
-    });
-
-    return Object.values(map).sort((a, b) => b.netAmount - a.netAmount);
-  }, [shifts, employees, events]);
-
-  // Lọc và sắp xếp
-  const filteredAndSortedSummary = useMemo(() => {
-    const filtered = summary.filter(item => {
-      const matchesSearch = item.employeeName.toLowerCase().includes(payrollSearchTerm.toLowerCase()) ||
-        item.phone.includes(payrollSearchTerm);
-      const hasDebt = item.totalUnpaid > 0 || item.totalAdvanced > 0;
-      return matchesSearch && hasDebt;
-    });
-
-    return filtered.sort((a, b) => {
-      switch (payrollSortBy) {
-        case 'amount':
-          return b.totalUnpaid - a.totalUnpaid;
-        case 'shifts':
-          return b.unpaidCount - a.unpaidCount;
-        case 'name':
-          return a.employeeName.localeCompare(b.employeeName, 'vi'); // Tên A-Z
-        default:
-          return 0;
-      }
-    });
-  }, [summary, payrollSearchTerm, payrollSortBy]);
-
-  const totalDebt = summary.reduce((acc, curr) => acc + curr.totalUnpaid, 0);
-  const totalAdvanced = summary.reduce((acc, curr) => acc + curr.totalAdvanced, 0);
-  const totalEarned = totalDebt + totalAdvanced;
-  const totalUnpaidShifts = summary.reduce((acc, curr) => acc + curr.unpaidCount, 0);
-  const totalAdvancedShifts = summary.reduce((acc, curr) => acc + curr.advancedCount, 0);
-  const totalShifts = totalUnpaidShifts + totalAdvancedShifts;
-  const totalFees = summary.reduce((acc, curr) => acc + ((curr as any).totalFees || 0), 0);
 
   const [payConfirm, setPayConfirm] = useState(false);
   const { showToast } = useToast();
@@ -455,15 +382,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         isOpen={showPaymentModal}
         onClose={() => {
           setShowPaymentModal(false);
-          // Only clear emp if we are not in detail view? 
-          // Previous logic: setSelectedEmpId(null);
-          // But wait, if we are in detail modal, payment modal sits on top.
-          // If we close payment modal, we might want to return to detail modal or list.
-          // In original code: 
-          // onClose={() => { setShowPaymentModal(false); setSelectedEmpId(null); setSelectedShiftIds([]); }}
-          // This implies it closes everything.
-          // However, if we clicked "Thanh toán" from inside the EmployeeDetailModal, we might want to stay there?
-          // But the original code was closing everything. I will keep original behavior for safety.
           setShowPaymentModal(false);
           setSelectedEmpId(null);
           setSelectedShiftIds([]);
