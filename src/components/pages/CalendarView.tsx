@@ -11,6 +11,7 @@ import { useToast } from '../ui/Toast';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { CardActionButton } from '../ui/CardActionButton';
 
 interface CalendarViewProps {
   events: Event[];
@@ -383,13 +384,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                     {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                                   </div>
                                 </div>
-                                <div className="flex gap-1 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                  <button onClick={() => handleEditEvent(evt)} className={`p-1 ${textMutedClass} hover:text-primary transition-colors`}>
-                                    <Edit2 size={14} />
-                                  </button>
-                                  <button onClick={() => handleDeleteEvent(evt.id)} className={`p-1 ${textMutedClass} hover:text-red-500 transition-colors`}>
-                                    <Trash2 size={14} />
-                                  </button>
+                                <div className="flex gap-1.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                  <CardActionButton
+                                    onClick={() => handleEditEvent(evt)}
+                                    icon={<Edit2 />}
+                                    title="Sửa sự kiện"
+                                    className="!w-7 !h-7"
+                                  />
+                                  <CardActionButton
+                                    onClick={() => handleDeleteEvent(evt.id)}
+                                    variant="danger"
+                                    icon={<Trash2 />}
+                                    title="Xóa sự kiện"
+                                    className="!w-7 !h-7"
+                                  />
                                 </div>
                               </div>
                               <div className="flex gap-2 mt-2 ml-5">

@@ -12,6 +12,7 @@ import Button from '../ui/Button';
 import SearchInput from '../ui/SearchInput';
 import { Dropdown, DropdownOption } from '../ui/Dropdown';
 import { useAuthStore } from '../../stores';
+import { CardActionButton } from '../ui/CardActionButton';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
 
@@ -446,27 +447,23 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                                 
                                                 {/* Action Buttons - Desktop: Show on Hover, Mobile: Always Show */}
                                                 <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-                                                    <button
+                                                    <CardActionButton
                                                         onClick={() => handleOpenInGoogleMaps(loc)}
-                                                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg bg-blue-500/90 backdrop-blur-md text-white hover:bg-blue-600 transition-all shadow-lg"
+                                                        variant="info"
+                                                        icon={<ExternalLink />}
                                                         title="Xem trên Google Maps"
-                                                    >
-                                                        <ExternalLink size={12} className="md:w-3.5 md:h-3.5" />
-                                                    </button>
-                                                    <button
+                                                    />
+                                                    <CardActionButton
                                                         onClick={() => handleOpenEdit(loc)}
-                                                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg bg-primary/90 backdrop-blur-md text-white hover:bg-primary transition-all shadow-lg"
-                                                        title="Sửa"
-                                                    >
-                                                        <Edit2 size={12} className="md:w-3.5 md:h-3.5" />
-                                                    </button>
-                                                    <button
+                                                        icon={<Edit2 />}
+                                                        title="Sửa địa điểm"
+                                                    />
+                                                    <CardActionButton
                                                         onClick={() => handleDelete(loc.id)}
-                                                        className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-lg bg-red-500/90 backdrop-blur-md text-white hover:bg-red-500 transition-all shadow-lg"
-                                                        title="Xóa"
-                                                    >
-                                                        <Trash2 size={12} className="md:w-3.5 md:h-3.5" />
-                                                    </button>
+                                                        variant="danger"
+                                                        icon={<Trash2 />}
+                                                        title="Xóa địa điểm"
+                                                    />
                                                 </div>
                                             </div>
                                             

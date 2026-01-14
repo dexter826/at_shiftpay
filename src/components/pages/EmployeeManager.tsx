@@ -16,6 +16,7 @@ import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { areValuesEqual } from '../../utils/compare';
 import { ImageCropperModal } from '../modals/ImageCropperModal';
 import { useAuthStore } from '../../stores';
+import { CardActionButton } from '../ui/CardActionButton';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -455,18 +456,17 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
 
                     {/* Thao tác nhanh */}
                     <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col gap-2 z-10">
-                      <button
+                      <CardActionButton
                         onClick={(e) => { e.stopPropagation(); openEditModal(emp); }}
-                        className="p-2 rounded-full bg-white/40 dark:bg-black/50 text-white shadow-sm hover:bg-primary hover:text-white transition-all duration-200"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
+                        icon={<Edit2 />}
+                        title="Sửa thông tin"
+                      />
+                      <CardActionButton
                         onClick={(e) => { e.stopPropagation(); handleDelete(emp.id); }}
-                        className="p-2 rounded-full bg-white/40 dark:bg-black/50 text-white shadow-sm hover:bg-red-500 hover:text-white transition-all duration-200"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                        variant="danger"
+                        icon={<Trash2 />}
+                        title="Xóa nhân viên"
+                      />
                     </div>
 
                     {/* Badge ngân hàng */}
