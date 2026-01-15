@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Plus, ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
+import PlusIcon from '../../ui/icons/plus-icon';
 import Button from '../../ui/Button';
 import SearchInput from '../../ui/SearchInput';
 import { Dropdown } from '../../ui/Dropdown';
@@ -47,7 +48,7 @@ const EmployeeToolbar: React.FC<EmployeeToolbarProps> = ({
           onClick={onAdd}
           disabled={loading}
           className=""
-          icon={<Plus size={16} />}
+          icon={<PlusIcon size={18} />}
         >
           <span className="hidden sm:inline">Thêm mới</span>
         </Button>
