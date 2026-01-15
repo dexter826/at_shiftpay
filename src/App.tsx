@@ -36,16 +36,18 @@ function App() {
 
   // Cập nhật tiêu đề trang theo Tab
   useEffect(() => {
-    const tabNames: Record<Tab, string> = {
-      dashboard: 'Tổng quan',
-      calendar: 'Lịch tiệc',
-      employees: 'Nhân sự',
-      payroll: 'Thanh toán',
-      locations: 'Địa điểm',
-      settings: 'Cài đặt'
-    };
-    document.title = `${tabNames[activeTab]} - ShiftPay`;
-  }, [activeTab]);
+    if (user && user.emailVerified) {
+      const tabNames: Record<Tab, string> = {
+        dashboard: 'Tổng quan',
+        calendar: 'Lịch tiệc',
+        employees: 'Nhân sự',
+        payroll: 'Thanh toán',
+        locations: 'Địa điểm',
+        settings: 'Cài đặt'
+      };
+      document.title = `${tabNames[activeTab]} - ShiftPay`;
+    }
+  }, [activeTab, user]);
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

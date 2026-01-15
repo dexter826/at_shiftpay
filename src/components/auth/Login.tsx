@@ -69,6 +69,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   }, [savedUser]);
 
+
   const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -361,20 +362,28 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const isUnverified = currentUser && !currentUser.emailVerified;
 
+  // Cập nhật tiêu đề trang
+  useEffect(() => {
+    if (isUnverified) {
+      document.title = 'Xác thực Email - ShiftPay';
+    } else if (savedUser && showQuickLogin && !isSignUp) {
+      document.title = 'Đăng nhập nhanh - ShiftPay';
+    } else if (isSignUp) {
+      document.title = 'Đăng ký - ShiftPay';
+    } else {
+      document.title = 'Đăng nhập - ShiftPay';
+    }
+  }, [isUnverified, isSignUp, savedUser, showQuickLogin]);
+
   return (
     <div className={`min-h-screen ${bgClass} flex items-center justify-center p-4 md:p-6 relative overflow-hidden bg-slate-50 dark:bg-slate-950`}>
       {/* Background Tiles */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-80">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
         <Tiles />
       </div>
-      
-      {/* Lớp gradient overlay để transition background vẫn hoạt động */}
-      <div className={`absolute inset-0 opacity-40 pointer-events-none z-[1] ${isDark ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900/50 to-slate-950' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/50 to-slate-100'}`} />
 
       <div className={`w-full max-w-5xl ${cardBgClass} rounded-3xl shadow-2xl overflow-hidden flex flex-col relative my-auto`}>
         {/* Họa tiết trang trí */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         {/* Logo tiêu đề */}
         <div className="w-full pt-6 pb-0 flex justify-center z-10 relative">
