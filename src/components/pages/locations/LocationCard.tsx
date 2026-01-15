@@ -88,17 +88,23 @@ const LocationCard: React.FC<LocationCardProps> = ({
                         variant="info"
                         icon={<ExternalLinkIcon />}
                         title="Xem trên Google Maps"
+                        className="!w-9 !h-9"
+                        iconSize={16}
                     />
                     <CardActionButton
                         onClick={() => onEdit(location)}
                         icon={<PenIcon />}
                         title="Sửa địa điểm"
+                        className="!w-9 !h-9"
+                        iconSize={16}
                     />
                     <CardActionButton
                         onClick={() => onDelete(location.id)}
                         variant="danger"
                         icon={<TrashIcon />}
                         title="Xóa địa điểm"
+                        className="!w-9 !h-9"
+                        iconSize={16}
                     />
                 </div>
             </div>

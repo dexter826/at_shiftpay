@@ -9,6 +9,7 @@ interface CardActionButtonProps {
     onClick: (e: React.MouseEvent) => void;
     variant?: ActionButtonVariant;
     title?: string;
+    label?: string;
     className?: string;
     iconSize?: number;
     iconStrokeWidth?: number;
@@ -19,19 +20,20 @@ export const CardActionButton: React.FC<CardActionButtonProps> = ({
     onClick,
     variant = 'primary',
     title,
+    label,
     className = '',
-    iconSize = 16,
-    iconStrokeWidth = 2.5
+    iconSize = 14,
+    iconStrokeWidth = 2
 }) => {
     const { theme } = useThemeStyles();
     const iconRef = useRef<AnimatedIconHandle>(null);
 
     const variants = {
-        primary: 'bg-primary/20 text-primary hover:bg-primary hover:text-white',
-        danger: 'bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white',
-        info: 'bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white',
-        success: 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white',
-        warning: 'bg-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white'
+        primary: 'bg-primary/80 text-white hover:bg-primary',
+        danger: 'bg-red-500/80 text-white hover:bg-red-500',
+        info: 'bg-blue-500/80 text-white hover:bg-blue-500',
+        success: 'bg-green-500/80 text-white hover:bg-green-500',
+        warning: 'bg-orange-500/80 text-white hover:bg-orange-500'
     };
 
     const handleMouseEnter = () => iconRef.current?.startAnimation();
@@ -43,15 +45,17 @@ export const CardActionButton: React.FC<CardActionButtonProps> = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             title={title}
-            className={`w-8 h-8 flex items-center justify-center rounded-lg backdrop-blur-xl border border-white/10 dark:border-white/5 transition-all duration-300 shadow-sm active:scale-95 ${variants[variant]} ${className}`}
+            className={`h-[28px] flex-shrink-0 flex items-center justify-center gap-1.5 transition-all duration-300 rounded-xl backdrop-blur-md border border-white/10 dark:border-white/5 shadow-sm active:scale-95 text-[10px] font-bold ${variants[variant]} ${className} ${label ? 'px-3' : 'w-[28px]'}`}
         >
             {React.isValidElement(icon) 
                 ? React.cloneElement(icon as React.ReactElement, { 
                     ref: iconRef,
                     size: iconSize, 
-                    strokeWidth: iconStrokeWidth 
+                    strokeWidth: iconStrokeWidth,
+                    className: `shrink-0 ${(icon as any).props?.className || ''}`
                   } as any)
                 : icon}
+            {label && <span>{label}</span>}
         </button>
     );
 };

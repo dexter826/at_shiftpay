@@ -1,6 +1,6 @@
 import React, { memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, ThumbsUp, ThumbsDown, MapPin } from 'lucide-react';
+import { Calendar, ThumbsUp, ThumbsDown, MapPin, Pencil, Trash2 } from 'lucide-react';
 import PlusIcon from '../../ui/icons/plus-icon';
 import PenIcon from '../../ui/icons/pen-icon';
 import TrashIcon from '../../ui/icons/trash-icon';
@@ -123,21 +123,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                                                             {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
                                                         </div>
                                                     </div>
-                                                    <div className="flex gap-1.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                                        <CardActionButton
+                                                    <div className="flex gap-2.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                                        <Pencil 
+                                                            size={15} 
                                                             onClick={() => onEditEvent(evt)}
-                                                            icon={<PenIcon />}
-                                                            title="Sửa sự kiện"
-                                                            className="!w-6 !h-6"
-                                                            iconSize={13}
+                                                            className="text-primary hover:text-primary/70 transition-colors cursor-pointer"
                                                         />
-                                                        <CardActionButton
+                                                        <Trash2 
+                                                            size={15} 
                                                             onClick={() => onDeleteEvent(evt.id)}
-                                                            variant="danger"
-                                                            icon={<TrashIcon />}
-                                                            title="Xóa sự kiện"
-                                                            className="!w-6 !h-6"
-                                                            iconSize={13}
+                                                            className="text-red-500 hover:text-red-500/70 transition-colors cursor-pointer"
                                                         />
                                                     </div>
                                                 </div>
