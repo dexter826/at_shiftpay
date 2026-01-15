@@ -89,7 +89,6 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [assignments, setAssignments] = useState<Record<string, boolean>>({});
   const [review, setReview] = useState<"high" | "low" | undefined>(undefined);
   const [reviewNote, setReviewNote] = useState("");
-  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -191,7 +190,6 @@ export const EventModal: React.FC<EventModalProps> = ({
         setReview(undefined);
         setReviewNote("");
       }
-      setError("");
 
       loadEmployeeShiftCounts();
 
@@ -391,12 +389,21 @@ export const EventModal: React.FC<EventModalProps> = ({
     // Tên mặc định là "Tiệc"
     const finalTitle = title.trim() || "Tiệc";
     if (!selectedSession) {
-      setError("Chọn một ca làm việc");
+      showToast("Chọn một ca làm việc", "error");
       return;
     }
     if (getSelectedCount() === 0) {
-      setError("Chọn ít nhất 1 nhân viên");
+      showToast("Chọn ít nhất 1 nhân viên", "error");
       return;
+    }
+
+    // Kiểm tra người nhận phụ phí
+    if (surcharge > 0 && surchargeDistributionType === "selected") {
+      const selectedSurchargeCount = Object.values(surchargeSelectedEmployees).filter(Boolean).length;
+      if (selectedSurchargeCount === 0) {
+        showToast("Chọn ít nhất 1 người nhận phụ phí", "error");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -564,12 +571,6 @@ export const EventModal: React.FC<EventModalProps> = ({
       }
     >
       <div className="space-y-4">
-        {error && (
-          <div className="flex items-center gap-2 p-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs">
-            <AlertCircle size={14} />
-            <span>{error}</span>
-          </div>
-        )}
 
         {/* Tên & Thời gian */}
         <div className="grid grid-cols-2 gap-4">
@@ -918,16 +919,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                   checked={surchargeDistributionType === "selected"}
                   onChange={() => {
                     setSurchargeDistributionType("selected");
-                    // Tự động chọn tất cả nhân viên
-                    if (Object.keys(surchargeSelectedEmployees).length === 0) {
-                      const allSelected: Record<string, boolean> = {};
-                      Object.entries(assignments).forEach(
-                        ([empId, isAssigned]) => {
-                          if (isAssigned) allSelected[empId] = true;
-                        }
-                      );
-                      setSurchargeSelectedEmployees(allSelected);
-                    }
                   }}
                   className="accent-primary"
                 />

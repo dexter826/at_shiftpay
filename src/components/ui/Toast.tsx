@@ -79,7 +79,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
-            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[90%] max-w-sm">
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-[90%] max-w-sm">
                 <AnimatePresence mode="popLayout">
                     {toasts.map(toast => (
                         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
