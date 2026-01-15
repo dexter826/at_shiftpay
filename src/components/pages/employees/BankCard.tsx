@@ -41,8 +41,8 @@ const BankCard: React.FC<BankCardProps> = ({
                                     {bankName}
                                 </h3>
                             </div>
-                            <div className="w-10 h-8 rounded-md bg-gradient-to-br from-yellow-100 via-yellow-400 to-yellow-600 relative overflow-hidden border border-yellow-700/30 flex-shrink-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)]">
-                                <svg viewBox="0 0 40 32" className="w-full h-full opacity-60" fill="none" stroke="currentColor" strokeWidth="1.2">
+                            <div className="w-10 h-8 rounded-md bg-gradient-to-br from-yellow-100 via-yellow-400 to-yellow-600 relative overflow-hidden border border-yellow-700/30 flex-shrink-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] text-yellow-900/80">
+                                <svg viewBox="0 0 40 32" className="w-full h-full opacity-60 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="1.2">
                                     <rect x="14" y="8" width="12" height="16" rx="4" />
                                     <path d="M14 12 C 10 12 7 12 7 6" />
                                     <path d="M14 20 C 10 20 7 20 7 26" />
@@ -51,7 +51,7 @@ const BankCard: React.FC<BankCardProps> = ({
                                     <path d="M14 16 H 4" />
                                     <path d="M26 16 H 36" />
                                 </svg>
-                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none" />
                             </div>
                         </div>
 
