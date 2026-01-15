@@ -2,10 +2,11 @@ import React, { memo } from 'react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import { Employee } from '../../../types';
-import { Phone, CreditCard, Calendar } from 'lucide-react';
+import { Phone, Calendar, CreditCard } from 'lucide-react';
 import PenIcon from '../../ui/icons/pen-icon';
 import { AnimatedIconHandle } from '../../ui/icons/types';
 import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import BankCard from './BankCard';
 
 interface EmployeeDetailModalProps {
     isOpen: boolean;
@@ -59,93 +60,69 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                 </Button>
             }
         >
-            <div className="space-y-4">
-                {/* Header với Avatar và Tên */}
-                <div className="flex flex-col items-center">
-                    <div className="relative mb-3">
+            <div className="space-y-6">
+                <div className="flex flex-col items-center pt-2">
+                    <div className="relative mb-4">
                         {employee.imageUrl ? (
                             <img
                                 src={employee.imageUrl}
                                 alt={employee.name}
-                                className={`w-24 h-24 rounded-2xl object-cover border-4 ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} shadow-lg`}
+                                className={`w-28 h-28 rounded-3xl object-cover border-4 ${theme === 'dark' ? 'border-slate-800' : 'border-white'} shadow-2xl`}
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=random&color=fff&size=256`;
                                 }}
                             />
                         ) : (
-                            <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-4 ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} shadow-lg`}>
+                            <div className={`w-28 h-28 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-4xl font-black text-primary border-4 ${theme === 'dark' ? 'border-slate-800' : 'border-white'} shadow-2xl`}>
                                 {employee.name.charAt(0).toUpperCase()}
                             </div>
                         )}
                     </div>
                     
-                    <div className="text-center">
-                        <h3 className={`text-xl font-bold ${textPrimaryClass} mb-2`}>{employee.name}</h3>
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
-                            <Calendar size={12} />
-                            <span>Tham gia từ {joinedDate}</span>
+                    <div className="text-center space-y-3">
+                        <h3 className={`text-2xl font-black tracking-tight ${textPrimaryClass}`}>{employee.name}</h3>
+                        
+                        <div className="flex flex-wrap justify-center gap-2">
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
+                                <Calendar size={14} className="text-primary" />
+                                <span>Tham gia {joinedDate}</span>
+                            </div>
+                            
+                            {employee.phone && (
+                                <a 
+                                    href={`tel:${employee.phone}`}
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${theme === 'dark' ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}
+                                >
+                                    <Phone size={14} />
+                                    <span>{employee.phone}</span>
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* Thông tin liên hệ */}
-                <div className="space-y-3">
-                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${textMutedClass}`}>Thông tin liên hệ</h4>
-                    
-                    {/* Số điện thoại */}
-                    <div className={`${cardBgClass} border ${borderClass} rounded-xl p-3.5`}>
-                        <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                <Phone size={18} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className={`text-xs font-medium ${textMutedClass} mb-1.5`}>Số điện thoại</p>
-                                {employee.phone ? (
-                                    <a 
-                                        href={`tel:${employee.phone}`}
-                                        className={`text-base font-semibold ${textPrimaryClass} hover:text-primary transition-colors`}
-                                    >
-                                        {employee.phone}
-                                    </a>
-                                ) : (
-                                    <p className={`text-sm italic ${textMutedClass}`}>Chưa cập nhật</p>
-                                )}
-                            </div>
-                        </div>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 px-1">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${textMutedClass}`}>Thông tin thanh toán</h4>
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
                     </div>
-                </div>
-
-                {/* Thông tin ngân hàng */}
-                <div className="space-y-3">
-                    <h4 className={`text-xs font-semibold uppercase tracking-wide ${textMutedClass}`}>Thông tin thanh toán</h4>
                     
-                    {/* Tài khoản ngân hàng */}
-                    <div className={`${cardBgClass} border ${borderClass} rounded-xl p-3.5`}>
-                        <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                <CreditCard size={18} />
+                    <div className="flex flex-col items-center">
+                        {employee.bankAccount ? (
+                            <BankCard 
+                                bankName={employee.bankAccount.bankName}
+                                accountNumber={employee.bankAccount.accountNumber}
+                                accountName={employee.bankAccount.accountName}
+                            />
+                        ) : (
+                            <div className={`w-full max-w-[320px] aspect-[1.586/1] rounded-2xl border-2 border-dashed ${borderClass} flex flex-col items-center justify-center p-6 text-center space-y-2 opacity-60`}>
+                                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                    <CreditCard size={24} /> 
+                                </div>
+                                <p className={`text-sm font-medium ${textMutedClass}`}>Chưa cập nhật thông tin ngân hàng</p>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className={`text-xs font-medium ${textMutedClass} mb-1.5`}>Tài khoản ngân hàng</p>
-                                {employee.bankAccount ? (
-                                    <div className="space-y-2">
-                                        <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold ${theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-primary/10 text-primary'}`}>
-                                            {employee.bankAccount.bankName}
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className={`font-mono text-base font-semibold ${textPrimaryClass} tracking-wider`}>
-                                                {employee.bankAccount.accountNumber}
-                                            </p>
-                                            <p className={`text-sm ${textSecondaryClass}`}>
-                                                {employee.bankAccount.accountName}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className={`text-sm italic ${textMutedClass}`}>Chưa cập nhật</p>
-                                )}
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
