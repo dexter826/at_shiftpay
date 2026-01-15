@@ -34,6 +34,8 @@
   - Hoạt động Offline (mất kết nối mạng vẫn thao tác được).
   - Pull-to-refresh để cập nhật dữ liệu
   - Responsive design cho mobile và desktop
+  - Cắt và chỉnh sửa hình ảnh avatar nhân viên
+  - Màn hình splash khi khởi động ứng dụng
 - **Bảo mật**: Xác thực tài khoản, hỗ trợ đổi mật khẩu, quên mật khẩu.
 
 <img src="docs/images/mockup.jpg" alt="Mockup ứng dụng" width="100%">
@@ -50,9 +52,6 @@
   - `recharts`: Biểu đồ thống kê
   - `lucide-react`: Icon hệ thống
   - `lottie-react`: Hiệu ứng Splash Screen
-  - `zod`: Runtime validation cho Firestore data
-  - `zustand`: State management hiện đại và nhẹ
-  - `styled-components`: Giải pháp CSS-in-JS cho các component phức tạp
   - `clsx` & `tailwind-merge`: Tiện ích tối ưu hóa và quản lý Class CSS
   - `react-easy-crop`: Công cụ cắt và canh chỉnh hình ảnh
   - `@ncdai/react-wheel-picker`: Bộ chọn vòng xoay (TimePicker) phong cách iOS
@@ -75,12 +74,14 @@ npm install
 3. Tạo file `.env` và cấu hình Firebase:
 
 ```env
+# Firebase configuration
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
 VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
+# For image uploads
 VITE_IMGBB_API_KEY=your_imgbb_api_key
 ```
 
@@ -90,7 +91,7 @@ VITE_IMGBB_API_KEY=your_imgbb_api_key
 npm run dev
 ```
 
-Ứng dụng sẽ chạy tại `http://localhost:3000` (hoặc port khác tùy cấu hình).
+Ứng dụng sẽ chạy tại `http://localhost:5173` (hoặc port khác tùy cấu hình).
 
 ## Build production
 
