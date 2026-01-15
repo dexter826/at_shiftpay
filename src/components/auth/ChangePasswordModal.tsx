@@ -146,6 +146,15 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        {/* Username ẩn hỗ trợ password manager */}
+        <input 
+          type="text" 
+          name="username" 
+          value={auth.currentUser?.email || ''} 
+          readOnly 
+          className="hidden" 
+          autoComplete="username" 
+        />
         {error && (
           <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg">
             <AlertCircle size={16} />

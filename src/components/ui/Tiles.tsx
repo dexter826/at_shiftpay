@@ -18,13 +18,13 @@ const tileSizes = {
   lg: "w-12 h-12 md:w-16 md:h-16",
 }
 
-export function Tiles({
+export const Tiles = React.memo(({
   className,
-  rows = 100,
-  cols = 60,
+  rows = 40,
+  cols = 30,
   tileClassName,
   tileSize = "md",
-}: TilesProps) {
+}: TilesProps) => {
   const rowsArray = new Array(rows).fill(1)
   const colsArray = new Array(cols).fill(1)
 
@@ -36,7 +36,7 @@ export function Tiles({
       )}
     >
       {rowsArray.map((_, i) => (
-        <motion.div
+        <div
           key={`row-${i}`}
           className={cn(
             tileSizes[tileSize],
@@ -61,8 +61,10 @@ export function Tiles({
               )}
             />
           ))}
-        </motion.div>
+        </div>
       ))}
     </div>
   )
-}
+});
+
+Tiles.displayName = "Tiles";

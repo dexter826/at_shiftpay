@@ -547,6 +547,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     </div>
 
                      <form onSubmit={handleSubmit} className="w-full space-y-2">
+                      {/* Username ẩn hỗ trợ password manager */}
+                      <input 
+                        type="text" 
+                        name="username" 
+                        value={savedUser.email} 
+                        readOnly 
+                        className="hidden" 
+                        autoComplete="username" 
+                      />
                       <div className="space-y-2 text-left">
                         <div className="relative group">
                           <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${textMutedClass} group-focus-within:text-primary`}>
