@@ -6,6 +6,8 @@ import LogoutIcon from '../ui/icons/logout-icon';
 import { AnimatedIconHandle } from '../ui/icons/types';
 import AccountSection from './settings/AccountSection';
 import WorkConfigSection from './settings/WorkConfigSection';
+import MoonIcon from '../ui/icons/moon-icon';
+import BrightnessDownIcon from '../ui/icons/brightness-down-icon';
 
 interface SettingsViewProps {
     user: any;
@@ -15,27 +17,19 @@ interface SettingsViewProps {
 
 const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
     const {
+        theme,
         bgClass,
         textPrimaryClass,
         borderClass,
         cardBgClass,
-        hoverBgClass
+        hoverBgClass,
+        textMutedClass
     } = useThemeStyles();
 
     const logoutIconRef = React.useRef<AnimatedIconHandle>(null);
 
     return (
         <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
-            {/* Header Section */}
-            <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
-                <div className="flex items-center justify-between">
-                    <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>Cài đặt</h1>
-                    <div className="flex items-center gap-3">
-                        <Switch />
-                    </div>
-                </div>
-            </div>
-
             {/* Content Section */}
             <div className={`px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6 space-y-5`}>
                 <div className="space-y-5">
@@ -47,7 +41,29 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
                          <WorkConfigSection userUid={user.uid} settings={settings} />
                     )}
 
-                    {/* Danger Zone */}
+                    {/* Theme Section */}
+                    <section>
+                        <div className={`${cardBgClass} rounded-xl border ${borderClass} overflow-hidden`}>
+                            <div className="p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${theme === 'dark' ? 'bg-amber-400/10 text-amber-400' : 'bg-slate-100 text-slate-600'}`}>
+                                        {theme === 'dark' ? (
+                                            <BrightnessDownIcon size={24} strokeWidth={2.2} />
+                                        ) : (
+                                            <MoonIcon size={24} strokeWidth={2.2} />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className={`font-medium ${textPrimaryClass}`}>Giao diện</p>
+                                        <p className={`text-xs ${textMutedClass}`}>
+                                            {theme === 'dark' ? 'Chế độ tối hiện đang bật' : 'Chế độ sáng hiện đang bật'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Switch />
+                            </div>
+                        </div>
+                    </section>
                     <section>
                         <div className={`${cardBgClass} rounded-xl border border-red-500/20 overflow-hidden`}>
                             <button

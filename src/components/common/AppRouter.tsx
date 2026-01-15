@@ -127,14 +127,14 @@ export function AppRouter({
 
   return (
     <div className="relative">
-      {tabs.filter(tab => activeTab === tab.id).map((tab) => (
+      {tabs.map((tab) => (
         <div
           key={tab.id}
-          className="block"
+          className={activeTab === tab.id ? "block" : "hidden"}
         >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={false}
+            animate={{ opacity: activeTab === tab.id ? 1 : 0 }}
             transition={{ duration: 0.15 }}
           >
             {tab.component}
