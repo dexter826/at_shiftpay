@@ -3,7 +3,8 @@ export const createImage = (url: string): Promise<HTMLImageElement> =>
         const image = new Image()
         image.addEventListener('load', () => resolve(image))
         image.addEventListener('error', (error) => reject(error))
-        image.setAttribute('crossOrigin', 'anonymous') // Tránh lỗi CORS
+        image.setAttribute('crossOrigin', 'anonymous') // Xử lý lỗi CORS
+
         image.src = url
     })
 
@@ -12,7 +13,8 @@ export function getRadianAngle(degreeValue: number) {
 }
 
 /**
- * Tính toán kích thước và vị trí ảnh sau khi quay
+ * Kích thước ảnh sau khi quay
+
  */
 export function rotateSize(width: number, height: number, rotation: number) {
     const rotRad = getRadianAngle(rotation)
@@ -26,7 +28,8 @@ export function rotateSize(width: number, height: number, rotation: number) {
 }
 
 /**
- * Trả về ảnh đã được cắt dưới dạng Blob
+ * Cắt ảnh thành Blob
+
  */
 export async function getCroppedImg(
     imageSrc: string,
@@ -44,7 +47,7 @@ export async function getCroppedImg(
 
     const rotRad = getRadianAngle(rotation)
 
-    // Tính toán kích thước canvas cần thiết
+
     const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
         image.width,
         image.height,
@@ -54,16 +57,16 @@ export async function getCroppedImg(
     canvas.width = bBoxWidth
     canvas.height = bBoxHeight
 
-    // Cấu hình vẽ
+
     ctx.translate(bBoxWidth / 2, bBoxHeight / 2)
     ctx.rotate(rotRad)
     ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1)
     ctx.translate(-image.width / 2, -image.height / 2)
 
-    // Vẽ ảnh
+
     ctx.drawImage(image, 0, 0)
 
-    // Lấy dữ liệu vùng cắt
+
     const data = ctx.getImageData(
         pixelCrop.x,
         pixelCrop.y,
@@ -71,17 +74,46 @@ export async function getCroppedImg(
         pixelCrop.height
     )
 
-    // Reset canvas sang kích thước vùng cắt
+
     canvas.width = pixelCrop.width
     canvas.height = pixelCrop.height
 
-    // Vẽ lại dữ liệu đã cắt
+
     ctx.putImageData(data, 0, 0)
 
-    // Trả về dạng File/Blob
+
     return new Promise((resolve) => {
-        canvas.toBlob((file) => {
-            resolve(file)
-        }, 'image/jpeg')
+        const MAX_SIZE = 512;
+
+        let targetWidth = pixelCrop.width;
+        let targetHeight = pixelCrop.height;
+
+        if (targetWidth > MAX_SIZE || targetHeight > MAX_SIZE) {
+            if (targetWidth > targetHeight) {
+                targetHeight = (MAX_SIZE / targetWidth) * targetHeight;
+                targetWidth = MAX_SIZE;
+            } else {
+                targetWidth = (MAX_SIZE / targetHeight) * targetWidth;
+                targetHeight = MAX_SIZE;
+            }
+        }
+
+        const resizeCanvas = document.createElement('canvas');
+        resizeCanvas.width = targetWidth;
+        resizeCanvas.height = targetHeight;
+        const resizeCtx = resizeCanvas.getContext('2d');
+        
+        if (resizeCtx) {
+            resizeCtx.drawImage(canvas, 0, 0, pixelCrop.width, pixelCrop.height, 0, 0, targetWidth, targetHeight);
+            resizeCanvas.toBlob((file) => {
+                resolve(file);
+            }, 'image/jpeg', 0.8);
+
+        } else {
+            canvas.toBlob((file) => {
+                resolve(file);
+            }, 'image/jpeg', 0.8);
+        }
     })
 }
+
