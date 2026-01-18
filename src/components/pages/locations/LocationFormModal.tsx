@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 
@@ -246,20 +246,30 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                     <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Đánh giá chất lượng</label>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => setReview(review === 'high' ? undefined : 'high')}
+                            onClick={() => setReview('high')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'high'
                                 ? 'bg-green-500/10 border-green-500 text-green-600'
-                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-primary/50`
                                 }`}
                         >
                             <ThumbsUp size={18} />
                             <span className="font-medium">Tốt</span>
                         </button>
                         <button
-                            onClick={() => setReview(review === 'low' ? undefined : 'low')}
+                            onClick={() => setReview(undefined)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === undefined
+                                ? 'bg-primary/10 border-primary text-primary'
+                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                                }`}
+                        >
+                            <Minus size={18} />
+                            <span className="font-medium">Thường</span>
+                        </button>
+                        <button
+                            onClick={() => setReview('low')}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'low'
                                 ? 'bg-red-500/10 border-red-500 text-red-600'
-                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass}`
+                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-red-500/50`
                                 }`}
                         >
                             <ThumbsDown size={18} />

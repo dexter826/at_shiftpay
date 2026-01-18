@@ -674,12 +674,14 @@ export const EventModal: React.FC<EventModalProps> = ({
                   )}
 
                   {/* Warning/Success History */}
-                  {exactMatch && exactMatch.review && (
+                  {exactMatch && (exactMatch.review || exactMatch.reviewNote) && (
                     <div
                       className={`p-3 rounded-lg border flex items-start gap-3 ${
                         exactMatch.review === "low"
                           ? "bg-red-500/10 border-red-500/20 text-red-600"
-                          : "bg-green-500/10 border-green-500/20 text-green-600"
+                          : exactMatch.review === "high"
+                          ? "bg-green-500/10 border-green-500/20 text-green-600"
+                          : `bg-slate-500/10 border-slate-500/20 ${textSecondaryClass}`
                       }`}
                     >
                       <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
@@ -687,7 +689,11 @@ export const EventModal: React.FC<EventModalProps> = ({
                         <p>
                           Địa điểm này từng được đánh giá{" "}
                           <strong>
-                            {exactMatch.review === "low" ? "Kém" : "Tốt"}
+                            {exactMatch.review === "low"
+                              ? "Kém"
+                              : exactMatch.review === "high"
+                              ? "Tốt"
+                              : "Thường"}
                           </strong>
                           .
                         </p>
@@ -772,29 +778,29 @@ export const EventModal: React.FC<EventModalProps> = ({
         </div>
 
         {/* Lý do đánh giá */}
-        {review && review !== undefined && (
-          <div className="space-y-1.5 pt-1">
-            <label className={`block text-xs font-semibold ${textMutedClass}`}>
-              Lý do đánh giá ({review === "high" ? "Tốt" : "Kém"})
-            </label>
-            <div className="relative">
-              <FileText
-                className={`absolute left-3 top-3 ${textMutedClass}`}
-                size={18}
-              />
-              <textarea
-                placeholder="Nhập lý do hoặc nhận xét cụ thể..."
-                value={reviewNote}
-                onChange={(e) => setReviewNote(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${
-                  review === "high"
-                    ? "focus:border-green-500/50"
-                    : "focus:border-red-500/50"
-                }`}
-              />
-            </div>
+        <div className="space-y-1.5 pt-1">
+          <label className={`block text-xs font-semibold ${textMutedClass}`}>
+            Lý do đánh giá ({review === "high" ? "Tốt" : review === "low" ? "Kém" : "Thường"})
+          </label>
+          <div className="relative">
+            <FileText
+              className={`absolute left-3 top-3 ${textMutedClass}`}
+              size={18}
+            />
+            <textarea
+              placeholder="Nhập lý do hoặc nhận xét cụ thể..."
+              value={reviewNote}
+              onChange={(e) => setReviewNote(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${
+                review === "high"
+                  ? "focus:border-green-500/50"
+                  : review === "low"
+                  ? "focus:border-red-500/50"
+                  : "focus:border-primary"
+              }`}
+            />
           </div>
-        )}
+        </div>
 
         {/* Chọn ca */}
         <div>

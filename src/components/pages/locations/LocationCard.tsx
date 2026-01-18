@@ -150,8 +150,8 @@ const LocationCard: React.FC<LocationCardProps> = ({
                                     {location.review === 'high' ? 'Tốt' : 'Kém'}
                                 </span>
                             ) : (
-                                <span className={`text-sm font-bold ${textMutedClass} opacity-50`}>
-                                    Trống
+                                <span className={`text-sm font-bold ${textMutedClass}`}>
+                                    Thường
                                 </span>
                             )}
                         </div>

@@ -30,7 +30,6 @@ export const locationService = {
 
   async addLocation(data: { name: string; address?: string; latitude?: number; longitude?: number; review?: 'high' | 'low'; reviewNote?: string }, userId: string): Promise<string> {
     try {
-      // Lọc bỏ field undefined
       const cleanData = Object.fromEntries(
         Object.entries(data).filter(([_, v]) => v !== undefined)
       );
@@ -50,11 +49,10 @@ export const locationService = {
   async updateLocation(id: string, data: Partial<Location>): Promise<void> {
     try {
       const docRef = doc(db, 'locations', id);
-      // Lọc bỏ field undefined
-      const cleanData = Object.fromEntries(
-        Object.entries(data).filter(([_, v]) => v !== undefined)
+      const updateData = Object.fromEntries(
+        Object.entries(data).map(([k, v]) => [k, v === undefined ? deleteField() : v])
       );
-      await updateDoc(docRef, cleanData);
+      await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('updateLocation error:', error);
       throw new Error(`Không thể cập nhật địa điểm: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`);
@@ -84,8 +82,8 @@ export const locationService = {
         const locationDoc = querySnapshot.docs[0];
         const locationId = locationDoc.id;
 
-        // Cập nhật review nếu có
-        if (reviewData && (reviewData.review || reviewData.reviewNote)) {
+        // Cập nhật review nếu có dữ liệu đánh giá
+        if (reviewData) {
           await this.updateLocation(locationId, reviewData);
         }
 
