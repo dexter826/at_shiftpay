@@ -483,8 +483,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
       });
 
-      // Đóng nhanh
-      onSuccess();
+
 
       const surchargeDistribution: any =
         surcharge > 0
@@ -532,6 +531,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         isEditing ? "Đã cập nhật sự kiện" : "Đã tạo sự kiện mới",
         "success"
       );
+      onSuccess();
     } catch (err) {
       showToast("Có lỗi xảy ra. Vui lòng thử lại.", "error");
       console.error(err);
