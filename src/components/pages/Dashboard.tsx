@@ -12,6 +12,7 @@ import DashboardHeader from './dashboard/DashboardHeader';
 import DashboardStats from './dashboard/DashboardStats';
 import ActivityChart from './dashboard/ActivityChart';
 import PaymentChart from './dashboard/PaymentChart';
+import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 interface DashboardProps {
     user: any;
@@ -291,6 +292,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </motion.div>
                 )}
             </AnimatePresence>
+            <ScrollToTopButton />
         </div>
     );
 };

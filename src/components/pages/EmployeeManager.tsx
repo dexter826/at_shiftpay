@@ -12,6 +12,7 @@ import EmployeeToolbar from './employees/EmployeeToolbar';
 import EmployeeList from './employees/EmployeeList';
 import EmployeeFormModal from './employees/EmployeeFormModal';
 import EmployeeDetailModal from './employees/EmployeeDetailModal';
+import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -217,6 +218,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         employee={selectedEmployee}
         onEditClick={(emp) => openEditModal(emp)}
       />
+      <ScrollToTopButton />
     </div>
   );
 };

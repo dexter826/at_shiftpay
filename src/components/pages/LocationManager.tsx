@@ -18,6 +18,7 @@ import LocationToolbar from './locations/LocationToolbar';
 import LocationList from './locations/LocationList';
 import LocationFormModal from './locations/LocationFormModal';
 import LocationDetailModal from './locations/LocationDetailModal';
+import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
 
@@ -279,6 +280,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 events={allEvents}
                 onEditClick={handleOpenEdit}
             />
+            <ScrollToTopButton />
         </div>
     );
 };

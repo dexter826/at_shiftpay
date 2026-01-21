@@ -19,6 +19,7 @@ import TransactionDetailModal from './payroll/TransactionDetailModal';
 import ConfirmPaymentModal from './payroll/ConfirmPaymentModal';
 import MonthPickerModal from './payroll/MonthPickerModal';
 import { usePayrollData } from './payroll/hooks/usePayrollData';
+import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 interface PayrollViewProps {
   shifts: Shift[];
@@ -412,6 +413,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         />
       )}
 
+      <ScrollToTopButton />
     </div>
   );
 };
