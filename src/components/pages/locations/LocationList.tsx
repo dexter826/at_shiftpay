@@ -15,6 +15,7 @@ interface LocationListProps {
     workCounts: Record<string, number>;
     onEdit: (loc: Location) => void;
     onDelete: (id: string) => void;
+    onViewDetail: (loc: Location) => void;
     theme: string;
 }
 
@@ -26,6 +27,7 @@ const LocationList: React.FC<LocationListProps> = ({
     workCounts,
     onEdit,
     onDelete,
+    onViewDetail,
     theme
 }) => {
     const { cardBgClass, borderClass, textMutedClass } = useThemeStyles();
@@ -78,6 +80,7 @@ const LocationList: React.FC<LocationListProps> = ({
                                 stats={{ workCount: workCounts[loc.id] || 0 }}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                onViewDetail={onViewDetail}
                                 index={idx}
                                 theme={theme}
                             />

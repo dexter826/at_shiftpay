@@ -17,6 +17,7 @@ interface LocationCardProps {
     };
     onEdit: (loc: Location) => void;
     onDelete: (id: string) => void;
+    onViewDetail: (loc: Location) => void;
     index: number;
     theme: string;
 }
@@ -26,6 +27,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
     stats,
     onEdit,
     onDelete,
+    onViewDetail,
     index,
     theme
 }) => {
@@ -62,7 +64,8 @@ const LocationCard: React.FC<LocationCardProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.05 }}
-            className={`group relative flex flex-col rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
+            onClick={() => onViewDetail(location)}
+            className={`group relative flex flex-col rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
         >
             {/* Phần hình ảnh */}
             <div className="h-[200px] overflow-hidden relative">
@@ -84,7 +87,10 @@ const LocationCard: React.FC<LocationCardProps> = ({
                 {/* Action Buttons - Desktop: Show on Hover, Mobile: Always Show */}
                 <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
                     <CardActionButton
-                        onClick={handleOpenInGoogleMaps}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenInGoogleMaps();
+                        }}
                         variant="info"
                         icon={<ExternalLinkIcon />}
                         title="Xem trên Google Maps"
@@ -92,14 +98,20 @@ const LocationCard: React.FC<LocationCardProps> = ({
                         iconSize={16}
                     />
                     <CardActionButton
-                        onClick={() => onEdit(location)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(location);
+                        }}
                         icon={<PenIcon />}
                         title="Sửa địa điểm"
                         className="!w-9 !h-9"
                         iconSize={16}
                     />
                     <CardActionButton
-                        onClick={() => onDelete(location.id)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(location.id);
+                        }}
                         variant="danger"
                         icon={<TrashIcon />}
                         title="Xóa địa điểm"

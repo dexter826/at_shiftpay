@@ -17,6 +17,7 @@ import LocationStats from './locations/LocationStats';
 import LocationToolbar from './locations/LocationToolbar';
 import LocationList from './locations/LocationList';
 import LocationFormModal from './locations/LocationFormModal';
+import LocationDetailModal from './locations/LocationDetailModal';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
 
@@ -58,6 +59,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+    const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
     // Fetch Events for work count
@@ -143,6 +146,11 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const handleOpenEdit = (loc: Location) => {
         setEditingLocation(loc);
         setIsModalOpen(true);
+    };
+
+    const handleViewDetail = (loc: Location) => {
+        setViewingLocation(loc);
+        setIsDetailModalOpen(true);
     };
 
     const handleFormSubmit = async (data: any) => {
@@ -235,6 +243,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     workCounts={workCounts}
                     onEdit={handleOpenEdit}
                     onDelete={handleDelete}
+                    onViewDetail={handleViewDetail}
                     theme={useThemeStyles().theme}
                 />
             </div>
@@ -260,6 +269,15 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 onClose={() => setIsModalOpen(false)}
                 editingLocation={editingLocation}
                 onSubmit={handleFormSubmit}
+            />
+
+            {/* Detail Modal */}
+            <LocationDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                location={viewingLocation}
+                events={allEvents}
+                onEditClick={handleOpenEdit}
             />
         </div>
     );
