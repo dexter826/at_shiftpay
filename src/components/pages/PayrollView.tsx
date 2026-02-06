@@ -36,7 +36,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const [lastVisible, setLastVisible] = useState<any>(null);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  
+
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,23 +51,23 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
   const userId = user?.uid || '';
 
   const {
-      summary,
-      filteredAndSortedSummary,
-      stats,
-      searchTerm: payrollSearchTerm,
-      setSearchTerm: setPayrollSearchTerm,
-      sortBy: payrollSortBy,
-      setSortBy: setPayrollSortBy
+    summary,
+    filteredAndSortedSummary,
+    stats,
+    searchTerm: payrollSearchTerm,
+    setSearchTerm: setPayrollSearchTerm,
+    sortBy: payrollSortBy,
+    setSortBy: setPayrollSortBy
   } = usePayrollData({ shifts, employees, events });
 
   const {
-      totalDebt,
-      totalAdvanced,
-      totalEarned,
-      totalShifts,
-      totalUnpaidShifts,
-      totalAdvancedShifts,
-      totalFees
+    totalDebt,
+    totalAdvanced,
+    totalEarned,
+    totalShifts,
+    totalUnpaidShifts,
+    totalAdvancedShifts,
+    totalFees
   } = stats;
 
   // Reset phan trang khi doi tim kiem hoac tab
@@ -263,7 +263,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             null
           )}
         </div>
-        <PayrollStats 
+        <PayrollStats
           loading={loading}
           totalEarned={totalEarned}
           totalDebt={totalDebt}
@@ -292,7 +292,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       </div>
 
       {/* Bộ lọc */}
-      <PayrollFilters 
+      <PayrollFilters
         activeTab={activeTab}
         payrollSearchTerm={payrollSearchTerm}
         setPayrollSearchTerm={setPayrollSearchTerm}
@@ -309,7 +309,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       {/* Danh sách */}
       <div className="px-4 md:px-6 pt-2 pb-4 md:pb-6 space-y-2">
         {activeTab === 'payroll' ? (
-          <PayrollList 
+          <PayrollList
             loading={loading}
             items={filteredAndSortedSummary}
             employees={employees}
@@ -323,7 +323,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
             searchTerm={payrollSearchTerm}
           />
         ) : (
-          <HistoryList 
+          <HistoryList
             loading={loading}
             items={filteredHistory}
             hasMore={hasMore}
@@ -335,7 +335,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       </div>
 
       {/* Modal chi tiết nhân viên */}
-      <EmployeeDetailModal 
+      <EmployeeDetailModal
         isOpen={!!selectedEmpId}
         onClose={() => setSelectedEmpId(null)}
         selectedEmployeeSummary={selectedEmployeeSummary}
@@ -346,10 +346,12 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           setShowPaymentModal(true);
         }}
         onSettlement={() => setShowSettlementModal(true)}
+        events={events}
+        locations={locations}
       />
 
       {/* Chi tiết giao dịch */}
-      <TransactionDetailModal 
+      <TransactionDetailModal
         isOpen={!!selectedTransactionId}
         onClose={() => setSelectedTransactionId(null)}
         selectedTransaction={selectedTransaction}
@@ -359,7 +361,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       />
 
       {/* Xác nhận thanh toán */}
-      <ConfirmPaymentModal 
+      <ConfirmPaymentModal
         isOpen={payConfirm}
         onClose={() => setPayConfirm(false)}
         onConfirm={confirmPay}
@@ -369,7 +371,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       />
 
       {/* Chọn tháng */}
-      <MonthPickerModal 
+      <MonthPickerModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterDate={filterDate}
