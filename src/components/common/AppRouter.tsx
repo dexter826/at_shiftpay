@@ -108,6 +108,7 @@ export function AppRouter({
       component: (
         <LocationManager
           locations={locations}
+          events={events}
           loading={loading}
           onBack={() => setActiveTab('calendar')}
         />

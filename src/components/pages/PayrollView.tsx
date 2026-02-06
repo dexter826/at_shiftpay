@@ -33,9 +33,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
 
   const [activeTab, setActiveTab] = useState<'payroll' | 'history'>('payroll');
   const [paymentHistory, setPaymentHistory] = useState<PaymentTransaction[]>([]);
-  const [lastVisible, setLastVisible] = useState<any>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
@@ -77,43 +74,15 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
     }
   }, [activeTab, payrollSearchTerm, payrollSortBy]);
 
-  const loadMorePayments = useCallback(async (isInitial = false) => {
-    if (isFetchingMore || (!hasMore && !isInitial)) return;
-
-    setIsFetchingMore(true);
-    try {
-      const { payments, lastVisible: nextLastVisible } = await dbService.getPaymentsPaginated(
-        userId,
-        20,
-        isInitial ? undefined : lastVisible
-      );
-
-      if (isInitial) {
-        setPaymentHistory(payments);
-      } else {
-        setPaymentHistory(prev => {
-          const existingIds = new Set(prev.map(p => p.id));
-          const newPayments = payments.filter(p => !existingIds.has(p.id));
-          return [...prev, ...newPayments];
-        });
-      }
-
-      setLastVisible(nextLastVisible);
-      setHasMore(payments.length === 20);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-    } finally {
-      setIsFetchingMore(false);
-    }
-  }, [isFetchingMore, hasMore, lastVisible]);
-
-
-  // Tải thêm dữ liệu lịch sử
   useEffect(() => {
-    if (activeTab === 'history' && paymentHistory.length === 0) {
-      loadMorePayments(true);
-    }
-  }, [activeTab, paymentHistory.length, loadMorePayments]);
+    if (!userId) return;
+
+    const unsubscribe = dbService.subscribePayments(userId, (payments) => {
+      setPaymentHistory(payments);
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
 
   // Hook style đồng bộ theme
   const {
@@ -193,8 +162,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
       setSelectedEmpId(null);
       setPayConfirm(false);
       setSelectedShiftIds([]);
-      // Làm mới dữ liệu
-      loadMorePayments(true);
     } catch (error) {
       console.error('Error:', error);
       showToast('Có lỗi xảy ra', 'error');
@@ -326,9 +293,6 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           <HistoryList
             loading={loading}
             items={filteredHistory}
-            hasMore={hasMore}
-            isFetchingMore={isFetchingMore}
-            loadMorePayments={loadMorePayments}
             onSelectTransaction={setSelectedTransactionId}
           />
         )}
@@ -397,7 +361,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
         events={events}
         employees={employees}
         locations={locations}
-        onSuccess={() => loadMorePayments(true)}
+        onSuccess={() => { }}
       />
 
       {/* Modal quyết toán */}
@@ -411,7 +375,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ shifts, employees, events, lo
           paymentHistory={paymentHistory}
           events={events}
           locations={locations}
-          onSuccess={() => loadMorePayments(true)}
+          onSuccess={() => { }}
         />
       )}
 

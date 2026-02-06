@@ -24,12 +24,14 @@ const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_
 
 interface LocationManagerProps {
     locations: Location[];
+    events: Event[];
     loading?: boolean;
     onBack?: () => void;
 }
 
 const LocationManager: React.FC<LocationManagerProps> = ({
     locations,
+    events,
     loading = false,
     onBack
 }) => {
@@ -40,11 +42,11 @@ const LocationManager: React.FC<LocationManagerProps> = ({
         textMutedClass,
         hoverBgClass
     } = useThemeStyles();
-    
+
     const { user } = useAuthStore();
     const userId = user?.uid || '';
     const { showToast } = useToast();
-    
+
     const backIconRef = useRef<AnimatedIconHandle>(null);
 
     // Filter/Sort State
@@ -53,32 +55,12 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     const [sortBy, setSortBy] = useState<'name' | 'count' | 'newest'>('newest');
     const [visibleCount, setVisibleCount] = useState(12);
 
-    // Data State
-    const [allEvents, setAllEvents] = useState<Event[]>([]);
-    const [loadingEvents, setLoadingEvents] = useState(true);
-
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
     const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
-    // Fetch Events for work count
-    useEffect(() => {
-        const fetchAllEvents = async () => {
-            setLoadingEvents(true);
-            try {
-                const data = await dbService.getAllEvents(userId);
-                setAllEvents(data);
-            } catch (error) {
-                console.error("Error fetching all events:", error);
-            } finally {
-                setLoadingEvents(false);
-            }
-        };
-        fetchAllEvents();
-    }, [userId]);
 
     // Reset pagination on filter change
     useEffect(() => {
@@ -102,22 +84,22 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     // Derived State
     const workCounts = useMemo(() => {
         const counts: Record<string, number> = {};
-        allEvents.forEach(e => {
+        events.forEach(e => {
             if (e.locationId) {
                 counts[e.locationId] = (counts[e.locationId] || 0) + 1;
             }
         });
         return counts;
-    }, [allEvents]);
+    }, [events]);
 
     const filteredLocations = useMemo(() => {
         return locations.filter(loc => {
             const searchLower = searchTerm.toLowerCase();
-            const matchSearch = 
+            const matchSearch =
                 loc.name.toLowerCase().includes(searchLower) ||
                 (loc.address || '').toLowerCase().includes(searchLower) ||
                 (loc.reviewNote || '').toLowerCase().includes(searchLower);
-            
+
             const matchFilter = filterType === 'all' || loc.review === filterType;
             return matchSearch && matchFilter;
         }).sort((a, b) => {
@@ -237,7 +219,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 
                 {/* List */}
                 <LocationList
-                    loading={loading || loadingEvents}
+                    loading={loading}
                     locations={filteredLocations}
                     visibleCount={visibleCount}
                     onLoadMore={() => setVisibleCount(prev => Math.min(prev + 12, filteredLocations.length))}
@@ -277,7 +259,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 location={viewingLocation}
-                events={allEvents}
+                events={events}
                 onEditClick={handleOpenEdit}
             />
             <ScrollToTopButton />
