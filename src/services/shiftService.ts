@@ -48,6 +48,16 @@ export const shiftService = {
     return createRealtimeSubscription<Shift>(q, callback, 'subscribeUnpaidShifts', ShiftSchema);
   },
 
+  async getUnpaidShifts(userId: string): Promise<Shift[]> {
+    const q = query(
+      collection(db, 'shifts'),
+      where('userId', '==', userId),
+      where('status', '==', 'unpaid'),
+      orderBy('date', 'asc')
+    );
+    return executeBatchQuery<Shift>(q, ShiftSchema);
+  },
+
   async addShift(data: Omit<Shift, 'id'>): Promise<void> {
     try {
       await addDoc(collection(db, 'shifts'), data);

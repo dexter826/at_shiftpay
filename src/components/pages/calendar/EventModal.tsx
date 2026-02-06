@@ -228,21 +228,11 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   const loadEmployeeShiftCounts = async () => {
     try {
-      const currentDate = new Date(date);
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
-
-      const shifts = await dbService.getShiftsByMonth(
-        userId,
-        currentMonth + 1,
-        currentYear
-      );
+      const shifts = await dbService.getUnpaidShifts(userId);
       const counts: Record<string, number> = {};
 
       shifts.forEach((shift) => {
-        if (shift.status === 'unpaid') {
-          counts[shift.employeeId] = (counts[shift.employeeId] || 0) + 1;
-        }
+        counts[shift.employeeId] = (counts[shift.employeeId] || 0) + 1;
       });
 
       setEmployeeShiftCounts(counts);
@@ -341,14 +331,14 @@ export const EventModal: React.FC<EventModalProps> = ({
     const currentSurchargeDistribution =
       surcharge > 0
         ? {
-            type: surchargeDistributionType,
-            selectedEmployeeIds:
-              surchargeDistributionType === "selected"
-                ? Object.entries(surchargeSelectedEmployees)
-                    .filter(([_, selected]) => selected)
-                    .map(([id]) => id)
-                : undefined,
-          }
+          type: surchargeDistributionType,
+          selectedEmployeeIds:
+            surchargeDistributionType === "selected"
+              ? Object.entries(surchargeSelectedEmployees)
+                .filter(([_, selected]) => selected)
+                .map(([id]) => id)
+              : undefined,
+        }
         : undefined;
 
     const currentState = {
@@ -488,8 +478,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       const surchargeDistribution: any =
         surcharge > 0
           ? {
-              type: surchargeDistributionType,
-            }
+            type: surchargeDistributionType,
+          }
           : undefined;
 
       if (surchargeDistribution && surchargeDistributionType === "selected") {
@@ -594,11 +584,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                   if (titleError) validateTitle(e.target.value);
                 }}
                 onBlur={() => validateTitle(title)}
-                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${
-                  titleError
-                    ? "border-red-500 focus:border-red-500"
-                    : `${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`
-                }`}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none ${titleError
+                  ? "border-red-500 focus:border-red-500"
+                  : `${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 focus:border-primary`
+                  }`}
               />
             </div>
             {titleError && (
@@ -676,13 +665,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                   {/* Warning/Success History */}
                   {exactMatch && (exactMatch.review || exactMatch.reviewNote) && (
                     <div
-                      className={`p-3 rounded-lg border flex items-start gap-3 ${
-                        exactMatch.review === "low"
-                          ? "bg-red-500/10 border-red-500/20 text-red-600"
-                          : exactMatch.review === "high"
+                      className={`p-3 rounded-lg border flex items-start gap-3 ${exactMatch.review === "low"
+                        ? "bg-red-500/10 border-red-500/20 text-red-600"
+                        : exactMatch.review === "high"
                           ? "bg-green-500/10 border-green-500/20 text-green-600"
                           : `bg-slate-500/10 border-slate-500/20 ${textSecondaryClass}`
-                      }`}
+                        }`}
                     >
                       <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
                       <div className="text-xs">
@@ -692,8 +680,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                             {exactMatch.review === "low"
                               ? "Kém"
                               : exactMatch.review === "high"
-                              ? "Tốt"
-                              : "Thường"}
+                                ? "Tốt"
+                                : "Thường"}
                           </strong>
                           .
                         </p>
@@ -741,11 +729,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             <button
               type="button"
               onClick={() => setReview("high")}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                review === "high"
-                  ? "border-green-500/50 bg-green-500/10 text-green-500"
-                  : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
-              }`}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === "high"
+                ? "border-green-500/50 bg-green-500/10 text-green-500"
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                }`}
             >
               <ThumbsUp size={16} />
               Tốt
@@ -753,11 +740,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             <button
               type="button"
               onClick={() => setReview(undefined)}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                review === undefined
-                  ? "border-primary/50 bg-primary/10 text-primary"
-                  : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
-              }`}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === undefined
+                ? "border-primary/50 bg-primary/10 text-primary"
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                }`}
             >
               <Minus size={16} />
               Thường
@@ -765,11 +751,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             <button
               type="button"
               onClick={() => setReview("low")}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                review === "low"
-                  ? "border-red-500/50 bg-red-500/10 text-red-500"
-                  : `${inputBorderClass} ${textMutedClass} hover:border-red-500/50`
-              }`}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${review === "low"
+                ? "border-red-500/50 bg-red-500/10 text-red-500"
+                : `${inputBorderClass} ${textMutedClass} hover:border-red-500/50`
+                }`}
             >
               <ThumbsDown size={16} />
               Kém
@@ -791,13 +776,12 @@ export const EventModal: React.FC<EventModalProps> = ({
               placeholder="Nhập lý do hoặc nhận xét cụ thể..."
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${
-                review === "high"
-                  ? "focus:border-green-500/50"
-                  : review === "low"
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none h-20 resize-none ${inputBorderClass} ${inputBgClass} ${textPrimaryClass} placeholder-slate-500 ${review === "high"
+                ? "focus:border-green-500/50"
+                : review === "low"
                   ? "focus:border-red-500/50"
                   : "focus:border-primary"
-              }`}
+                }`}
             />
           </div>
         </div>
@@ -813,11 +797,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             <button
               type="button"
               onClick={() => selectSession("morning")}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                selectedSession === "morning"
-                  ? "border-orange-500/50 bg-orange-500/10 text-orange-500"
-                  : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
-              }`}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === "morning"
+                ? "border-orange-500/50 bg-orange-500/10 text-orange-500"
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                }`}
             >
               <Sun size={16} />
               Tiệc Sáng
@@ -825,11 +808,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             <button
               type="button"
               onClick={() => selectSession("afternoon")}
-              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
-                selectedSession === "afternoon"
-                  ? "border-primary/50 bg-primary/10 text-primary"
-                  : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
-              }`}
+              className={`p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${selectedSession === "afternoon"
+                ? "border-primary/50 bg-primary/10 text-primary"
+                : `${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                }`}
             >
               <Moon size={16} />
               Tiệc Chiều
@@ -894,9 +876,8 @@ export const EventModal: React.FC<EventModalProps> = ({
         {selectedSession && surcharge > 0 && (
           <div>
             <label
-              className={`block text-xs mb-1.5 ${
-                theme === "dark" ? "text-slate-400" : "text-slate-500"
-              }`}
+              className={`block text-xs mb-1.5 ${theme === "dark" ? "text-slate-400" : "text-slate-500"
+                }`}
             >
               Phân phối phụ phí
             </label>
@@ -952,23 +933,20 @@ export const EventModal: React.FC<EventModalProps> = ({
                       <div
                         key={empId}
                         onClick={() => toggleSurchargeEmployee(empId)}
-                        className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${
-                          isSelected ? "bg-primary/10" : ""
-                        }`}
+                        className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${isSelected ? "bg-primary/10" : ""
+                          }`}
                       >
                         <span
-                          className={`text-sm ${textSecondaryClass} ${
-                            isSelected ? "font-medium" : ""
-                          }`}
+                          className={`text-sm ${textSecondaryClass} ${isSelected ? "font-medium" : ""
+                            }`}
                         >
                           {emp.name}
                         </span>
                         <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                            isSelected
-                              ? "bg-primary border-primary"
-                              : inputBorderClass
-                          }`}
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
+                            ? "bg-primary border-primary"
+                            : inputBorderClass
+                            }`}
                         >
                           {isSelected && (
                             <Check size={12} className="text-white" />
@@ -1031,15 +1009,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <div
                       key={emp.id}
                       onClick={() => toggleAssignment(emp.id)}
-                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${
-                        isSelected ? "bg-primary/10" : ""
-                      }`}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors hover:bg-primary/5 ${isSelected ? "bg-primary/10" : ""
+                        }`}
                     >
                       <div className="flex items-center gap-2 flex-1">
                         <span
-                          className={`text-sm truncate ${textSecondaryClass} ${
-                            isSelected ? "font-medium" : ""
-                          }`}
+                          className={`text-sm truncate ${textSecondaryClass} ${isSelected ? "font-medium" : ""
+                            }`}
                         >
                           {emp.name}
                         </span>
@@ -1052,11 +1028,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                         )}
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          isSelected
-                            ? "bg-primary border-primary"
-                            : inputBorderClass
-                        }`}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected
+                          ? "bg-primary border-primary"
+                          : inputBorderClass
+                          }`}
                       >
                         {isSelected && (
                           <Check size={12} className="text-white" />
