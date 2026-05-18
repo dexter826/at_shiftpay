@@ -79,6 +79,10 @@ mindmap
 - **📊 Báo cáo & Thống kê:** Biểu đồ trực quan theo dõi dòng tiền (`recharts`) và hỗ trợ trích xuất dữ liệu công lương ra tệp CSV.
 - **🎨 Trải nghiệm UI/UX:** Giao diện tương thích đa thiết bị, hỗ trợ chế độ Tối/Sáng và thao tác Pull-to-refresh trên thiết bị di động.
 
+<br>
+
+<img src="docs/images/mockup.jpg" alt="Mockup ứng dụng" width="100%">
+
 ---
 
 ## 3. 🏗️ Kiến trúc tổng quan
@@ -254,14 +258,14 @@ gitGraph
 5. **Push:** `git push origin feature/ten-tinh-nang`
 6. **Tạo Pull Request (PR):** Hướng đến nhánh `main` của kho lưu trữ gốc.
 
+---
+
 ## 9. 📄 Giấy phép
 
-ShiftPay được phát triển nhằm mục đích phục vụ vận hành quản lý nhân sự và tính lương nội bộ.
-
-```text
-Bản quyền (c) 2025 ShiftPay Project. Không áp dụng cho sao chép thương mại.
-```
-
 <div align="center">
-  <p>Được thiết kế và phát triển với 💙 bởi <b><a href="https://github.com/dexter826">MOB (dexter826)</a></b> & Cộng sự.</p>
+  <i>Ứng dụng được làm ra với mục đích phục vụ nội bộ và không nhằm mục đích thương mại.</i>
 </div>
+
+<br>
+
+<div align="center">Made with ❤️ by <a href="https://github.com/dexter826">MOB</a></div>
