@@ -37,6 +37,7 @@
 > **Sứ mệnh:** Số hóa quy trình chấm công, tự động hóa bảng lương và tích hợp thanh toán nhanh qua VietQR, giúp giảm 80% thời gian vận hành và loại bỏ sai sót tài chính.
 
 ### Điểm nổi bật
+
 - **⚡ Hiệu suất cao:** Xây dựng trên nền tảng React 19 và Vite mới nhất.
 - **🌐 Offline-first:** Bộ nhớ đệm cục bộ thông minh, thao tác mượt mà khi mất kết nối mạng và đồng bộ ngầm khi có Internet.
 - **💳 Chạm thanh toán:** Tự động tạo mã QR chuyển khoản chính xác đến từng đồng qua hệ thống VietQR.
@@ -190,16 +191,16 @@ VITE_LOCATIONIQ_API_KEY=your_locationiq_api_key_here
 
 ### Bảng Mô tả Biến Môi trường
 
-| Biến môi trường | Trạng thái | Mô tả chi tiết |
-| :--- | :---: | :--- |
-| `VITE_FIREBASE_API_KEY` | Bắt buộc | Mã khóa API giao tiếp với các dịch vụ Firebase. |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Bắt buộc | Tên miền xác thực (Authentication Domain) của Firebase. |
-| `VITE_FIREBASE_PROJECT_ID` | Bắt buộc | Định danh duy nhất của dự án Firebase. |
-| `VITE_FIREBASE_STORAGE_...`| Bắt buộc | Địa chỉ đám mây (Storage Bucket) lưu trữ tệp tin. |
-| `VITE_FIREBASE_MESSAGING...`| Bắt buộc | Mã định danh người gửi tin nhắn hệ thống. |
-| `VITE_FIREBASE_APP_ID` | Bắt buộc | Mã định danh ứng dụng web tạo trong Firebase Console. |
-| `VITE_IMGBB_API_KEY` | Tùy chọn | Khóa truy cập API lưu trữ ảnh đại diện trực tiếp lên ImgBB. |
-| `VITE_LOCATIONIQ_API_KEY` | Tùy chọn | Khóa truy cập API hỗ trợ tính năng định vị tọa độ và bản đồ. |
+| Biến môi trường              | Trạng thái | Mô tả chi tiết                                               |
+| :--------------------------- | :--------: | :----------------------------------------------------------- |
+| `VITE_FIREBASE_API_KEY`      |  Bắt buộc  | Mã khóa API giao tiếp với các dịch vụ Firebase.              |
+| `VITE_FIREBASE_AUTH_DOMAIN`  |  Bắt buộc  | Tên miền xác thực (Authentication Domain) của Firebase.      |
+| `VITE_FIREBASE_PROJECT_ID`   |  Bắt buộc  | Định danh duy nhất của dự án Firebase.                       |
+| `VITE_FIREBASE_STORAGE_...`  |  Bắt buộc  | Địa chỉ đám mây (Storage Bucket) lưu trữ tệp tin.            |
+| `VITE_FIREBASE_MESSAGING...` |  Bắt buộc  | Mã định danh người gửi tin nhắn hệ thống.                    |
+| `VITE_FIREBASE_APP_ID`       |  Bắt buộc  | Mã định danh ứng dụng web tạo trong Firebase Console.        |
+| `VITE_IMGBB_API_KEY`         |  Tùy chọn  | Khóa truy cập API lưu trữ ảnh đại diện trực tiếp lên ImgBB.  |
+| `VITE_LOCATIONIQ_API_KEY`    |  Tùy chọn  | Khóa truy cập API hỗ trợ tính năng định vị tọa độ và bản đồ. |
 
 ---
 
@@ -253,35 +254,12 @@ gitGraph
 5. **Push:** `git push origin feature/ten-tinh-nang`
 6. **Tạo Pull Request (PR):** Hướng đến nhánh `main` của kho lưu trữ gốc.
 
----
-
-### 📜 Quy chuẩn Chú thích (Minimalist Commenting Rule)
-
-> [!CAUTION]
-> Áp dụng nghiêm ngặt nguyên tắc **Tối giản (Minimalist)** cho mọi chú thích trong mã nguồn:
-
-- **Tập trung vào WHY:** Chỉ giải thích mục đích hoặc lưu ý đặc biệt, không giải thích cú pháp hiển nhiên (WHAT).
-- **Độ dài:** Tối đa 1 dòng (10 - 12 từ).
-- **Vị trí:** Chỉ đặt ở đầu hàm hoặc khối logic chính, không viết chú thích trong các bước lồng nhau của hàm.
-- **Không dùng tiền tố:** Tuyệt đối không dùng các từ *"Fix:", "Update:", "Giải thích:"*.
-
-#### Ví dụ chuẩn mực:
-
-| Trường hợp | Cách viết rườm rà (Nghiêm cấm) | Cách viết Chuẩn Tối giản (Bắt buộc) |
-| :--- | :--- | :--- |
-| **Xử lý danh sách** | `// Lặp qua mảng để tìm giá trị lớn nhất.` | `// Tìm giá trị lớn nhất trong danh sách.` |
-| **Bảo vệ logic** | `// Sửa lỗi logic khi nhập số âm vào ô tìm kiếm.` | `// Chặn giá trị âm từ ô tìm kiếm.` |
-| **Gọi API** | `// Thực hiện gọi API lấy thông tin người dùng.` | `// Lấy thông tin người dùng từ server.` |
-| **Kiểm tra đầu vào**| `// Kiểm tra user tồn tại trước khi xử lý.` | `// Đảm bảo user hợp lệ trước khi chạy.` |
-
----
-
 ## 9. 📄 Giấy phép
 
 ShiftPay được phát triển nhằm mục đích phục vụ vận hành quản lý nhân sự và tính lương nội bộ.
 
 ```text
-Bản quyền (c) 2026 ShiftPay Project. Không áp dụng cho sao chép thương mại.
+Bản quyền (c) 2025 ShiftPay Project. Không áp dụng cho sao chép thương mại.
 ```
 
 <div align="center">
