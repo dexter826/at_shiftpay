@@ -1,4 +1,4 @@
-import React, { useMemo, useState, memo } from 'react';
+import React, { useMemo, useState, memo, useEffect } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { PAYMENT_COLORS } from '../../constants/colors';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,7 @@ import ExportIcon from '../ui/icons/export-icon';
 import { useThemeStyles } from '../../hooks/useThemeStyles';
 import Button from '../ui/Button';
 import { Skeleton } from '../ui/Skeleton';
+import { useAppDataStore } from '../../stores';
 
 // Imported Components
 import DashboardHeader from './dashboard/DashboardHeader';
@@ -13,6 +14,7 @@ import DashboardStats from './dashboard/DashboardStats';
 import ActivityChart from './dashboard/ActivityChart';
 import PaymentChart from './dashboard/PaymentChart';
 import ScrollToTopButton from '../ui/ScrollToTopButton';
+import { MonthPickerModal } from '../modals/MonthPickerModal';
 
 interface DashboardProps {
     user: any;
@@ -35,8 +37,16 @@ const Dashboard: React.FC<DashboardProps> = ({
     onOpenExport 
 }) => {
     const { bgClass, borderClass, cardBgClass } = useThemeStyles();
+    const viewDate = useAppDataStore(state => state.viewDate);
+    const setViewDate = useAppDataStore(state => state.setViewDate);
     
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(viewDate);
+    const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
+
+    useEffect(() => {
+        setSelectedDate(viewDate);
+    }, [viewDate]);
+
     const currentMonth = selectedDate.getMonth();
     const currentYear = selectedDate.getFullYear();
 
@@ -73,15 +83,15 @@ const Dashboard: React.FC<DashboardProps> = ({
     }, [currentMonth, currentYear, initialEvents, initialShifts]);
 
     const handlePrevMonth = () => {
-        setSelectedDate(new Date(currentYear, currentMonth - 1, 1));
+        setViewDate(new Date(currentYear, currentMonth - 1, 1));
     };
 
     const handleNextMonth = () => {
-        setSelectedDate(new Date(currentYear, currentMonth + 1, 1));
+        setViewDate(new Date(currentYear, currentMonth + 1, 1));
     };
 
     const handleGoToToday = () => {
-        setSelectedDate(new Date());
+        setViewDate(new Date());
     };
 
     const stats = useMemo(() => {
@@ -283,6 +293,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         onPrevMonth={handlePrevMonth}
                                         onNextMonth={handleNextMonth}
                                         onGoToToday={handleGoToToday}
+                                        onMonthClick={() => setIsMonthPickerOpen(true)}
                                     />
                                     
                                     <PaymentChart data={paymentData} />
@@ -293,6 +304,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                 )}
             </AnimatePresence>
             <ScrollToTopButton />
+
+            <MonthPickerModal 
+                isOpen={isMonthPickerOpen} 
+                onClose={() => setIsMonthPickerOpen(false)} 
+                selectedDate={selectedDate} 
+                onChange={setViewDate} 
+            />
         </div>
     );
 };

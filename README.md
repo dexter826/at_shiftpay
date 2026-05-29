@@ -25,16 +25,12 @@
 6. [Env configuration](#-env-configuration)
 7. [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
 8. [Hướng dẫn đóng góp](#-hướng-dẫn-đóng-góp)
-9. [Giấy phép](#-giấy-phép)
 
 ---
 
 ## 1. 🌟 Giới thiệu
 
 **ShiftPay** là giải pháp phần mềm tự động hóa quản lý nhân sự, phân ca làm việc, chấm công và tính lương. Ứng dụng chuyên phục vụ các mô hình kinh doanh F&B, nhà hàng, sự kiện và tiệc lưu động.
-
-> [!IMPORTANT]
-> **Sứ mệnh:** Số hóa quy trình chấm công, tự động hóa bảng lương và tích hợp thanh toán nhanh qua VietQR, giúp giảm 80% thời gian vận hành và loại bỏ sai sót tài chính.
 
 ### Điểm nổi bật
 
@@ -51,7 +47,6 @@ mindmap
   root((ShiftPay))
     Quản lý Nhân sự
       Hồ sơ & Tài khoản
-      Cắt ảnh đại diện
       Lọc & Tìm kiếm
     Quản lý Địa điểm
       Lưu trữ địa chỉ
@@ -71,13 +66,13 @@ mindmap
       Xuất dữ liệu CSV
 ```
 
-- **👥 Nhân sự & Hồ sơ:** Quản lý thông tin cá nhân, tài khoản ngân hàng, tích hợp công cụ cắt ảnh và tìm kiếm thông minh.
+- **👥 Nhân sự & Hồ sơ:** Quản lý thông tin cá nhân, tài khoản ngân hàng và tìm kiếm nhân viên.
 - **📍 Địa điểm làm việc:** Quản lý danh sách điểm tổ chức, đánh giá chất lượng và ghi chú đặc thù.
 - **📅 Lịch & Sự kiện:** Giao diện trực quan theo dõi tiến độ sự kiện, liên kết địa điểm và dự toán chi phí.
 - **⏰ Phân ca & Chấm công:** Gán ca làm linh hoạt (Sáng/Chiều/Tối), tự động áp dụng hệ số giờ làm để tính thu nhập.
 - **💳 Tài chính & Quyết toán:** Tổng hợp công nợ, quản lý tạm ứng, tạo mã QR thanh toán nhanh qua VietQR và lưu trữ lịch sử minh bạch.
-- **📊 Báo cáo & Thống kê:** Biểu đồ trực quan theo dõi dòng tiền (`recharts`) và hỗ trợ trích xuất dữ liệu công lương ra tệp CSV.
-- **🎨 Trải nghiệm UI/UX:** Giao diện tương thích đa thiết bị, hỗ trợ chế độ Tối/Sáng và thao tác Pull-to-refresh trên thiết bị di động.
+- **📊 Báo cáo & Thống kê:** Biểu đồ trực quan theo dõi dòng tiền và hỗ trợ trích xuất dữ liệu công lương ra tệp CSV.
+- **🎨 Trải nghiệm UI/UX:** Giao diện tương thích đa thiết bị, hỗ trợ chế độ Tối/Sáng và PWA.
 
 <br>
 
@@ -260,12 +255,7 @@ gitGraph
 
 ---
 
-## 9. 📄 Giấy phép
-
 <div align="center">
   <i>Ứng dụng được làm ra với mục đích phục vụ nội bộ và không nhằm mục đích thương mại.</i>
 </div>
-
-<br>
-
 <div align="center">Made with ❤️ by <a href="https://github.com/dexter826">MOB</a></div>

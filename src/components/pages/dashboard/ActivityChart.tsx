@@ -1,9 +1,6 @@
-import React, { memo, useRef } from 'react';
+import React, { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { CalendarRange, TrendingUp, TrendingDown } from 'lucide-react';
-import ChevronLeftIcon from '../../ui/icons/chevron-left-icon';
-import ChevronRightIcon from '../../ui/icons/chevron-right-icon';
-import { AnimatedIconHandle } from '../../ui/icons/types';
+import { CalendarRange, TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { PAYMENT_COLORS } from '../../../constants/colors';
 import ChartTooltip from './ChartTooltip';
@@ -20,6 +17,7 @@ interface ActivityChartProps {
     onPrevMonth: () => void;
     onNextMonth: () => void;
     onGoToToday: () => void;
+    onMonthClick: () => void;
 }
 
 const TrendIndicator = ({ value, count, label }: { value: number, count: number, label: string }) => {
@@ -36,13 +34,17 @@ const TrendIndicator = ({ value, count, label }: { value: number, count: number,
     );
 };
 
+/**
+ * Biểu đồ hiển thị hoạt động tháng
+ */
 const ActivityChart: React.FC<ActivityChartProps> = ({
     data,
     growthStats,
     monthName,
     onPrevMonth,
     onNextMonth,
-    onGoToToday
+    onGoToToday,
+    onMonthClick
 }) => {
     const {
         theme,
@@ -56,16 +58,13 @@ const ActivityChart: React.FC<ActivityChartProps> = ({
         hoverBgClass
     } = useThemeStyles();
 
-    const prevMonthRef = useRef<AnimatedIconHandle>(null);
-    const nextMonthRef = useRef<AnimatedIconHandle>(null);
-
     return (
         <div className={`relative p-5 md:p-6 ${cardBgClass} border ${borderClass} rounded-2xl shadow-sm min-h-[380px] flex flex-col`}>
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                         <h3 className={`text-base font-bold ${textPrimaryClass} mb-1`}>
-                            Hoạt động tháng
+                             Hoạt động tháng
                         </h3>
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                             <TrendIndicator value={growthStats.eventGrowth} count={growthStats.eventCount} label="Sự kiện" />
@@ -84,22 +83,22 @@ const ActivityChart: React.FC<ActivityChartProps> = ({
                         <div className="flex items-center gap-0.5">
                             <button
                                 onClick={onPrevMonth}
-                                onMouseEnter={() => prevMonthRef.current?.startAnimation()}
-                                onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
-                                className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}
+                                className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass} transition-colors`}
                             >
-                                <ChevronLeftIcon ref={prevMonthRef} size={16} />
+                                <ChevronLeft size={16} />
                             </button>
-                            <span className={`text-xs font-bold ${textPrimaryClass} min-w-[90px] text-center capitalize`}>
+                            <button
+                                onClick={onMonthClick}
+                                className={`text-xs font-bold ${textPrimaryClass} min-w-[90px] text-center capitalize px-2 py-1 rounded-lg hover:${hoverBgClass} transition-colors cursor-pointer`}
+                                title="Chọn tháng hiển thị"
+                            >
                                 {monthName}
-                            </span>
+                            </button>
                             <button
                                 onClick={onNextMonth}
-                                onMouseEnter={() => nextMonthRef.current?.startAnimation()}
-                                onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
-                                className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass}`}
+                                className={`p-1.5 rounded-lg ${hoverBgClass} ${textSecondaryClass} transition-colors`}
                             >
-                                <ChevronRightIcon ref={nextMonthRef} size={16} />
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     </div>
