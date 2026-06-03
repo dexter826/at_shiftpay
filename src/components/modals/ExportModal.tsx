@@ -10,8 +10,10 @@ interface ExportModalProps {
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExport }) => {
-    const [selectedYear, setSelectedYear] = useState(0);
-    const [selectedMonth, setSelectedMonth] = useState(0);
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [onlyDebt, setOnlyDebt] = useState(true);
 
     const handleExport = () => {
@@ -49,16 +51,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                 <p className={`text-sm text-[var(--text-secondary)]`}>Chọn thời gian để xuất báo cáo lương và lịch tiệc.</p>
 
                 {/* Chọn năm */}
-                <div className={`flex justify-between items-center px-2 py-2 ${isAllSelected ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex justify-between items-center px-2 py-2">
                     <button
-                        onClick={() => setSelectedYear(prev => prev - 1)}
+                        onClick={() => setSelectedYear(prev => prev === 0 ? currentYear : prev - 1)}
                         className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
                     >
                         <ChevronLeft size={20} className="text-[var(--text-secondary)]" />
                     </button>
                     <span className={`text-lg font-bold text-[var(--text-primary)]`}>{selectedYear === 0 ? 'Tất cả các năm' : `Năm ${selectedYear}`}</span>
                     <button
-                        onClick={() => setSelectedYear(prev => prev + 1)}
+                        onClick={() => setSelectedYear(prev => prev === 0 ? currentYear : prev + 1)}
                         className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
                     >
                         <ChevronRight size={20} className="text-[var(--text-secondary)]" />
@@ -102,7 +104,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                 {/* Lưới chọn tháng */}
                 <div className="grid grid-cols-3 gap-3">
                     <button
-                        onClick={() => setSelectedMonth(0)}
+                        onClick={() => {
+                            if (selectedMonth === 0) {
+                                setSelectedYear(0);
+                            } else {
+                                setSelectedMonth(0);
+                            }
+                        }}
                         className={`
                            col-span-3 py-3 rounded-lg text-sm font-medium transition-colors border
                            ${isAllSelected
@@ -114,7 +122,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                             }
                         `}
                     >
-                        Tất cả thời gian
+                        {selectedYear === 0 ? 'Tất cả thời gian' : `Cả năm ${selectedYear}`}
                     </button>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(month => {
                         const isSelected = selectedMonth === month;
@@ -123,10 +131,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                         return (
                             <button
                                 key={month}
-                                onClick={() => setSelectedMonth(month)}
+                                onClick={() => {
+                                    setSelectedMonth(month);
+                                    if (selectedYear === 0) {
+                                        setSelectedYear(currentYear);
+                                    }
+                                }}
                                 className={`
-                           py-3 rounded-lg text-sm font-medium transition-colors border
-                           ${isSelected
+                            py-3 rounded-lg text-sm font-medium transition-colors border
+                            ${isSelected
                                         ? 'bg-primary text-white border-primary'
                                         : `
                                   bg-[var(--bg-secondary)] hover:bg-[var(--border-color)]

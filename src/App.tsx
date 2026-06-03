@@ -85,12 +85,11 @@ function App() {
   const handleExportReport = async (month: number, year: number, onlyDebt: boolean) => {
     try {
       setIsExporting(true);
-      const queryYear = month === 0 ? 0 : year;
       const [fetchedEvents, fetchedShifts] = await Promise.all([
-        dbService.getEventsByMonth(user.uid, month, queryYear),
-        dbService.getShiftsByMonth(user.uid, month, queryYear)
+        dbService.getEventsByMonth(user.uid, month, year),
+        dbService.getShiftsByMonth(user.uid, month, year)
       ]);
-      await exportDetailedReport(month, queryYear, fetchedEvents, fetchedShifts, employees, locations, settings, onlyDebt);
+      await exportDetailedReport(month, year, fetchedEvents, fetchedShifts, employees, locations, settings, onlyDebt);
       setIsExportModalOpen(false);
     } catch (error) {
       console.error("Export failed:", error);
