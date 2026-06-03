@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { ArrowUpDown, CalendarDays } from 'lucide-react';
 import SearchInput from '../../ui/SearchInput';
 import { Dropdown, DropdownOption } from '../../ui/Dropdown';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+
 
 interface PayrollFiltersProps {
   activeTab: 'payroll' | 'history';
@@ -30,12 +30,7 @@ const PayrollFilters: React.FC<PayrollFiltersProps> = ({
   onOpenFilterModal,
   setViewYear,
 }) => {
-  const {
-    cardBgClass,
-    borderClass,
-    textPrimaryClass,
-    textMutedClass,
-  } = useThemeStyles();
+  
 
   const payrollSortOptions: DropdownOption[] = [
     { value: 'amount', label: 'Số tiền cao' },
@@ -51,7 +46,6 @@ const PayrollFilters: React.FC<PayrollFiltersProps> = ({
           value={payrollSearchTerm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPayrollSearchTerm(e.target.value)}
           onClear={() => setPayrollSearchTerm('')}
-          className="h-[42px]"
           containerClassName="flex-1"
         />
 
@@ -60,7 +54,7 @@ const PayrollFilters: React.FC<PayrollFiltersProps> = ({
           value={payrollSortBy}
           onChange={(value) => setPayrollSortBy(value as 'amount' | 'shifts' | 'name')}
           icon={<ArrowUpDown size={16} />}
-          className="h-[42px]"
+          className="h-10"
         />
       </div>
     );
@@ -74,7 +68,6 @@ const PayrollFilters: React.FC<PayrollFiltersProps> = ({
         value={searchTerm}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
         onClear={() => setSearchTerm('')}
-        className="!h-[42px]"
         containerClassName="flex-1"
       />
       <button
@@ -82,10 +75,10 @@ const PayrollFilters: React.FC<PayrollFiltersProps> = ({
           setViewYear(filterDate ? parseInt(filterDate.split('-')[0]) : new Date().getFullYear());
           onOpenFilterModal();
         }}
-        className={`flex items-center gap-2 px-3 h-[42px] border ${borderClass} rounded-xl ${cardBgClass} text-sm ${textPrimaryClass}`}
+        className="flex items-center gap-2 px-3 h-10 border border-[var(--border-color)] rounded-lg bg-[var(--bg-card)] text-sm text-[var(--text-primary)]"
       >
-        <CalendarDays size={16} className={filterDate ? 'text-primary' : textMutedClass} />
-        <span className={filterDate ? 'text-primary font-medium' : textMutedClass}>
+        <CalendarDays size={16} className={filterDate ? 'text-primary' : 'text-[var(--text-muted)]'} />
+        <span className={filterDate ? 'text-primary font-medium' : 'text-[var(--text-muted)]'}>
           {filterDate ? `Tháng ${filterDate.split('-')[1]}/${filterDate.split('-')[0]}` : 'Tất cả thời gian'}
         </span>
       </button>

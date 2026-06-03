@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { FileDown, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -11,13 +10,6 @@ interface ExportModalProps {
 }
 
 export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExport }) => {
-    const {
-        theme,
-        textPrimaryClass,
-        textSecondaryClass,
-        borderClass,
-        hoverBgClass
-    } = useThemeStyles();
     const [selectedYear, setSelectedYear] = useState(0);
     const [selectedMonth, setSelectedMonth] = useState(0);
     const [onlyDebt, setOnlyDebt] = useState(true);
@@ -54,22 +46,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
             }
         >
             <div className="space-y-4">
-                <p className={`text-sm ${textSecondaryClass}`}>Chọn thời gian để xuất báo cáo lương và lịch tiệc.</p>
+                <p className={`text-sm text-[var(--text-secondary)]`}>Chọn thời gian để xuất báo cáo lương và lịch tiệc.</p>
 
                 {/* Chọn năm */}
                 <div className={`flex justify-between items-center px-2 py-2 ${isAllSelected ? 'opacity-50 pointer-events-none' : ''}`}>
                     <button
                         onClick={() => setSelectedYear(prev => prev - 1)}
-                        className={`p-1 rounded-full ${hoverBgClass}`}
+                        className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
                     >
-                        <ChevronLeft size={20} className={textSecondaryClass} />
+                        <ChevronLeft size={20} className="text-[var(--text-secondary)]" />
                     </button>
-                    <span className={`text-lg font-bold ${textPrimaryClass}`}>{selectedYear === 0 ? 'Tất cả các năm' : `Năm ${selectedYear}`}</span>
+                    <span className={`text-lg font-bold text-[var(--text-primary)]`}>{selectedYear === 0 ? 'Tất cả các năm' : `Năm ${selectedYear}`}</span>
                     <button
                         onClick={() => setSelectedYear(prev => prev + 1)}
-                        className={`p-1 rounded-full ${hoverBgClass}`}
+                        className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
                     >
-                        <ChevronRight size={20} className={textSecondaryClass} />
+                        <ChevronRight size={20} className="text-[var(--text-secondary)]" />
                     </button>
                 </div>
 
@@ -77,10 +69,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                 <div
                     onClick={() => setOnlyDebt(!onlyDebt)}
                     className={`
-                        flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all
+                        flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all
                         ${onlyDebt
                             ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                            : `${borderClass} ${theme === 'dark' ? 'bg-slate-800/30' : 'bg-slate-50'}`
+                            : `border-[var(--border-color)] bg-[var(--bg-secondary)]`
                         }
                     `}
                 >
@@ -89,13 +81,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                             p-2 rounded-lg border transition-colors
                             ${onlyDebt
                                 ? 'bg-primary/10 border-primary/30 text-primary'
-                                : `${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} text-slate-400`
+                                : 'bg-[var(--bg-card)] border-[var(--border-color)] text-slate-400'
                             }
                         `}>
                             <CalendarDays size={18} />
                         </div>
                         <div>
-                            <p className={`text-sm font-bold ${onlyDebt ? 'text-primary' : textPrimaryClass}`}>Chỉ xuất sự kiện còn nợ</p>
+                            <p className={`text-sm font-bold ${onlyDebt ? 'text-primary' : 'text-[var(--text-primary)]'}`}>Chỉ xuất sự kiện còn nợ</p>
                             <p className="text-xs text-slate-500">Lọc các sự kiện chưa thanh toán hết</p>
                         </div>
                     </div>
@@ -115,10 +107,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                            col-span-3 py-3 rounded-lg text-sm font-medium transition-colors border
                            ${isAllSelected
                                 ? 'bg-primary text-white border-primary'
-                                : `
-                                 ${theme === 'dark' ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-slate-50 hover:bg-slate-100'}
-                                 ${borderClass} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}
-                              `
+                                 : `
+                                  bg-[var(--bg-secondary)] hover:bg-[var(--border-color)]
+                                  border-[var(--border-color)] text-[var(--text-secondary)]
+                               `
                             }
                         `}
                     >
@@ -137,10 +129,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onExp
                            ${isSelected
                                         ? 'bg-primary text-white border-primary'
                                         : `
-                                 ${theme === 'dark' ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-slate-50 hover:bg-slate-100'}
-                                 ${borderClass} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}
-                                 ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}
-                              `
+                                  bg-[var(--bg-secondary)] hover:bg-[var(--border-color)]
+                                  border-[var(--border-color)] text-[var(--text-secondary)]
+                                  ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}
+                               `
                                     }
                         `}
                             >

@@ -5,8 +5,9 @@ import React from 'react';
  */
 const LoginHeader: React.FC = () => {
   return (
-    <div className="w-full pt-6 pb-0 flex justify-center z-10 relative">
+    <div className="w-full pb-0 flex flex-col items-center z-10 relative gap-2">
       <img src="/logo_text.png" alt="ShiftPay" className="h-8 object-contain" />
+      <p className="text-xs text-[var(--text-muted)]">Quản lý ca làm &amp; tính công</p>
     </div>
   );
 };

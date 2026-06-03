@@ -4,7 +4,6 @@ import { ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { Location } from '../../../types';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
@@ -31,17 +30,6 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
     editingLocation,
     onSubmit
 }) => {
-    const {
-        cardBgClass,
-        borderClass,
-        textPrimaryClass,
-        textSecondaryClass,
-        textMutedClass,
-        hoverBgClass,
-        inputBgClass,
-        inputBorderClass
-    } = useThemeStyles();
-
     const [name, setName] = useState('');
     const [address, setAddress] = useState('');
     const [lat, setLat] = useState('');
@@ -172,18 +160,18 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
         >
             <div className="space-y-4">
                 <div>
-                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-1.5`}>Tên địa điểm</label>
+                    <label className={`block text-sm font-medium text-[var(--text-secondary)] mb-1.5`}>Tên địa điểm</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Nhập tên địa điểm"
-                        className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                        className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]`}
                     />
                 </div>
 
                 <div>
-                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-1.5`}>Địa chỉ & Tọa độ</label>
+                    <label className={`block text-sm font-medium text-[var(--text-secondary)] mb-1.5`}>Địa chỉ & Tọa độ</label>
                     <div className="space-y-3">
                         <div className="relative" ref={suggestionRef}>
                             <input
@@ -192,7 +180,7 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                                 onChange={(e) => handleAddressChange(e.target.value)}
                                 onFocus={() => address.length >= 3 && setShowSuggestions(true)}
                                 placeholder="Nhập địa chỉ (Ví dụ: 2739 Phạm Thế Hiển)"
-                                className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]`}
                             />
                             <AnimatePresence>
                                 {showSuggestions && suggestions.length > 0 && (
@@ -200,16 +188,16 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className={`absolute z-50 w-full mt-1 border rounded-xl shadow-xl overflow-hidden ${cardBgClass} ${borderClass}`}
+                                        className={`absolute z-50 w-full mt-1 border rounded-lg shadow-xl overflow-hidden bg-[var(--bg-card)] border-[var(--border-color)]`}
                                     >
                                         {suggestions.map((s, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => handleSelectSuggestion(s)}
-                                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors border-b last:border-0 ${borderClass} ${hoverBgClass} ${textPrimaryClass}`}
+                                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors border-b last:border-0 border-[var(--border-color)] hover:bg-[var(--border-color)] text-[var(--text-primary)]`}
                                             >
                                                 <div className="font-medium line-clamp-1">{s.display_name.split(',')[0]}</div>
-                                                <div className={`text-[10px] ${textSecondaryClass} line-clamp-1`}>{s.display_name}</div>
+                                                <div className={`text-[10px] text-[var(--text-secondary)] line-clamp-1`}>{s.display_name}</div>
                                             </button>
                                         ))}
                                     </motion.div>
@@ -223,7 +211,7 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                                     value={lat}
                                     onChange={(e) => setLat(e.target.value)}
                                     placeholder="Vĩ độ (Latitude)"
-                                    className={`w-full px-3 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-xs lg:text-sm overflow-hidden text-ellipsis ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                                    className={`w-full px-3 py-2.5 rounded-lg border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-xs lg:text-sm overflow-hidden text-ellipsis bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]`}
                                 />
                             </div>
                             <div className="relative flex-1">
@@ -232,7 +220,7 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                                     value={lng}
                                     onChange={(e) => setLng(e.target.value)}
                                     placeholder="Kinh độ (Longitude)"
-                                    className={`w-full px-3 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-xs lg:text-sm overflow-hidden text-ellipsis ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                                    className={`w-full px-3 py-2.5 rounded-lg border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-xs lg:text-sm overflow-hidden text-ellipsis bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]`}
                                 />
                             </div>
                         </div>
@@ -243,13 +231,13 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                 </div>
 
                 <div>
-                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Đánh giá chất lượng</label>
+                    <label className={`block text-sm font-medium text-[var(--text-secondary)] mb-2`}>Đánh giá chất lượng</label>
                     <div className="flex gap-3">
                         <button
                             onClick={() => setReview('high')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'high'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-all ${review === 'high'
                                 ? 'bg-green-500/10 border-green-500 text-green-600'
-                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                                : `bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-primary/50`
                                 }`}
                         >
                             <ThumbsUp size={18} />
@@ -257,9 +245,9 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                         </button>
                         <button
                             onClick={() => setReview(undefined)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === undefined
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-all ${review === undefined
                                 ? 'bg-primary/10 border-primary text-primary'
-                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-primary/50`
+                                : `bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-primary/50`
                                 }`}
                         >
                             <Minus size={18} />
@@ -267,9 +255,9 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                         </button>
                         <button
                             onClick={() => setReview('low')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${review === 'low'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-all ${review === 'low'
                                 ? 'bg-red-500/10 border-red-500 text-red-600'
-                                : `${inputBgClass} ${inputBorderClass} ${textMutedClass} hover:border-red-500/50`
+                                : `bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-red-500/50`
                                 }`}
                         >
                             <ThumbsDown size={18} />
@@ -279,13 +267,13 @@ const LocationFormModal: React.FC<LocationFormModalProps> = ({
                 </div>
 
                 <div>
-                    <label className={`block text-sm font-medium ${textSecondaryClass} mb-1.5`}>Ghi chú đánh giá</label>
+                    <label className={`block text-sm font-medium text-[var(--text-secondary)] mb-1.5`}>Ghi chú đánh giá</label>
                     <textarea
                         value={reviewNote}
                         onChange={(e) => setReviewNote(e.target.value)}
                         placeholder="Lưu ý về địa điểm này..."
                         rows={3}
-                        className={`w-full px-4 py-2.5 rounded-xl border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none ${inputBgClass} ${inputBorderClass} ${textPrimaryClass}`}
+                        className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]`}
                     />
                 </div>
             </div>

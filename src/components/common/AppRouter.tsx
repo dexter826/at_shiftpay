@@ -127,7 +127,7 @@ export function AppRouter({
   ];
 
   return (
-    <div className="relative">
+    <div className="relative min-h-dynamic">
       {tabs.map((tab) => (
         <div
           key={tab.id}

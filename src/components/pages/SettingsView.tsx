@@ -1,13 +1,10 @@
 import React from 'react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { UserSettings } from '../../types';
 import Switch from '../ui/Switch';
-import LogoutIcon from '../ui/icons/logout-icon';
-import { AnimatedIconHandle } from '../ui/icons/types';
+import { LogOut, Sun, Moon } from 'lucide-react';
+import { useThemeStore } from '../../stores';
 import AccountSection from './settings/AccountSection';
 import WorkConfigSection from './settings/WorkConfigSection';
-import MoonIcon from '../ui/icons/moon-icon';
-import BrightnessDownIcon from '../ui/icons/brightness-down-icon';
 
 interface SettingsViewProps {
     user: any;
@@ -16,74 +13,42 @@ interface SettingsViewProps {
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout }) => {
-    const {
-        theme,
-        bgClass,
-        textPrimaryClass,
-        borderClass,
-        cardBgClass,
-        hoverBgClass,
-        textMutedClass
-    } = useThemeStyles();
-
-    const logoutIconRef = React.useRef<AnimatedIconHandle>(null);
+    const { theme } = useThemeStore();
 
     return (
-        <div className={`pb-24 md:pb-0 ${bgClass} min-h-screen`}>
-            {/* Content Section */}
-            <div className={`px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6 space-y-5`}>
-                <div className="space-y-5">
-                    {/* Account Section */}
-                    <AccountSection user={user} />
+        <div className="pb-28 md:pb-0 bg-[var(--bg-primary)] min-h-dynamic">
+            <div className="p-4 md:p-6 space-y-4">
+                <AccountSection user={user} />
 
-                    {/* Work Config Section */}
-                    {user?.uid && (
-                         <WorkConfigSection userUid={user.uid} settings={settings} />
-                    )}
+                {user?.uid && <WorkConfigSection userUid={user.uid} settings={settings} />}
 
-                    {/* Theme Section */}
-                    <section>
-                        <div className={`${cardBgClass} rounded-xl border ${borderClass} overflow-hidden`}>
-                            <div className="p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${theme === 'dark' ? 'bg-amber-400/10 text-amber-400' : 'bg-slate-100 text-slate-600'}`}>
-                                        {theme === 'dark' ? (
-                                            <BrightnessDownIcon size={24} strokeWidth={2.2} />
-                                        ) : (
-                                            <MoonIcon size={24} strokeWidth={2.2} />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className={`font-medium ${textPrimaryClass}`}>Giao diện</p>
-                                        <p className={`text-xs ${textMutedClass}`}>
-                                            {theme === 'dark' ? 'Chế độ tối hiện đang bật' : 'Chế độ sáng hiện đang bật'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Switch />
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-hidden">
+                    <div className="flex items-center justify-between p-3.5">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 flex items-center justify-center rounded-md bg-[var(--border-color)] text-[var(--text-secondary)]">
+                                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-[var(--text-primary)]">Giao diện</p>
+                                <p className="text-[11px] text-[var(--text-muted)]">
+                                    {theme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng'}
+                                </p>
                             </div>
                         </div>
-                    </section>
-                    <section>
-                        <div className={`${cardBgClass} rounded-xl border border-red-500/20 overflow-hidden`}>
-                            <button
-                                onClick={onLogout}
-                                onMouseEnter={() => logoutIconRef.current?.startAnimation()}
-                                onMouseLeave={() => logoutIconRef.current?.stopAnimation()}
-                                className="w-full flex items-center justify-between p-4 hover:bg-red-500/5 transition-colors text-left group"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 group-hover:text-red-600">
-                                        <LogoutIcon ref={logoutIconRef} size={24} strokeWidth={2.2} />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-red-500 group-hover:text-red-600">Đăng xuất</p>
-                                        <p className="text-xs text-red-400/70">Kết thúc phiên làm việc hiện tại</p>
-                                    </div>
-                                </div>
-                            </button>
+                        <Switch />
+                    </div>
+                </div>
+
+                <div className="bg-[var(--bg-card)] border border-red-500/20 rounded-lg overflow-hidden">
+                    <button onClick={onLogout} className="w-full flex items-center gap-3 p-3.5 hover:bg-red-500/5 transition-colors text-left">
+                        <div className="w-8 h-8 flex items-center justify-center rounded-md bg-red-500/10 text-red-500">
+                            <LogOut size={16} />
                         </div>
-                    </section>
+                        <div>
+                            <p className="text-sm font-medium text-red-500">Đăng xuất</p>
+                            <p className="text-[11px] text-red-400/70">Kết thúc phiên làm việc</p>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -91,4 +56,3 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user, settings, onLogout })
 };
 
 export default SettingsView;
-

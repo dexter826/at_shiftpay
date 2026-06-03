@@ -4,7 +4,6 @@ import { dbService } from '../../services';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import Button from '../ui/Button';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { useAuthStore } from '../../stores';
 
 // Import extracted components
@@ -12,7 +11,6 @@ import EmployeeToolbar from './employees/EmployeeToolbar';
 import EmployeeList from './employees/EmployeeList';
 import EmployeeFormModal from './employees/EmployeeFormModal';
 import EmployeeDetailModal from './employees/EmployeeDetailModal';
-import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 interface EmployeeManagerProps {
   employees: Employee[];
@@ -23,7 +21,6 @@ interface EmployeeManagerProps {
 
 const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, events = [], loading = false }) => {
   const { showToast } = useToast();
-  const { bgClass, textSecondaryClass } = useThemeStyles();
   const { user } = useAuthStore();
   const userId = user?.uid || '';
 
@@ -131,7 +128,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
   }, [employees, searchTerm, sortBy, shiftCountByEmployee]);
 
   return (
-    <div className={`pb-28 md:pb-0 ${bgClass} min-h-screen`}>
+    <div className={`pb-28 md:pb-0 bg-[var(--bg-primary)] min-h-screen`}>
       <EmployeeToolbar
         employeeCount={employees.length}
         loading={loading}
@@ -187,7 +184,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
           </div>
         }
       >
-        <p className={`text-sm ${textSecondaryClass}`}>Bạn có chắc muốn xóa nhân viên này?</p>
+        <p className={`text-sm text-[var(--text-secondary)]`}>Bạn có chắc muốn xóa nhân viên này?</p>
       </Modal>
 
       {/* Lỗi xóa */}
@@ -205,7 +202,7 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
           </Button>
         }
       >
-        <p className={`text-sm ${textSecondaryClass}`}>{deleteError}</p>
+        <p className={`text-sm text-[var(--text-secondary)]`}>{deleteError}</p>
       </Modal>
 
       {/* Chi tiết nhân viên */}
@@ -218,7 +215,6 @@ const EmployeeManager: React.FC<EmployeeManagerProps> = ({ employees, shifts, ev
         employee={selectedEmployee}
         onEditClick={(emp) => openEditModal(emp)}
       />
-      <ScrollToTopButton />
     </div>
   );
 };

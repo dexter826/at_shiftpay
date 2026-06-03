@@ -1,25 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { WifiOff, Wifi } from 'lucide-react';
-import WifiIcon from '../ui/icons/wifi-icon';
-import PlugConnectedIcon from '../ui/icons/plug-connected-icon';
+import { Wifi, WifiOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 export const OfflineIndicator: React.FC = () => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
-    const [showNotification, setShowNotification] = useState(false);
-    const { highlightBgClass, textSecondaryClass, borderClass } = useThemeStyles();
+    const [showOnline, setShowOnline] = useState(false);
 
     useEffect(() => {
         const handleOnline = () => {
             setIsOnline(true);
-            setShowNotification(true);
-            setTimeout(() => setShowNotification(false), 3000);
+            setShowOnline(true);
+            setTimeout(() => setShowOnline(false), 3000);
         };
 
         const handleOffline = () => {
             setIsOnline(false);
-            setShowNotification(true);
+            setShowOnline(true);
         };
 
         window.addEventListener('online', handleOnline);
@@ -31,30 +27,33 @@ export const OfflineIndicator: React.FC = () => {
         };
     }, []);
 
+    const show = !isOnline || showOnline;
+
     return (
         <AnimatePresence>
-            {(showNotification || !isOnline) && (
+            {show && (
                 <motion.div
-                    className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium ${isOnline
-                            ? 'bg-primary text-white'
-                            : `${highlightBgClass} ${textSecondaryClass} border ${borderClass}`
-                        }`}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.2 }}
+                    className={`fixed top-0 left-0 right-0 z-50 pt-safe ${
+                        isOnline ? 'bg-emerald-600' : 'bg-red-600'
+                    }`}
+                    initial={{ y: -40 }}
+                    animate={{ y: 0 }}
+                    exit={{ y: -40 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 >
-                    {isOnline ? (
-                        <>
-                            <WifiIcon size={16} />
-                            <span>Đã kết nối internet</span>
-                        </>
-                    ) : (
-                        <>
-                            <PlugConnectedIcon size={16} />
-                            <span>Không có kết nối - Chế độ offline</span>
-                        </>
-                    )}
+                    <div className="flex items-center justify-center gap-2 px-4 py-1.5 text-white text-xs font-medium">
+                        {isOnline ? (
+                            <>
+                                <Wifi size={14} />
+                                <span>Đã kết nối lại</span>
+                            </>
+                        ) : (
+                            <>
+                                <WifiOff size={14} />
+                                <span>Đang ngoại tuyến — dữ liệu có thể chưa được cập nhật</span>
+                            </>
+                        )}
+                    </div>
                 </motion.div>
             )}
         </AnimatePresence>

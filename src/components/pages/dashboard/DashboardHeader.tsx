@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import Button from '../../ui/Button';
 import ExportIcon from '../../ui/icons/export-icon';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 
 interface DashboardHeaderProps {
     user: any;
@@ -9,10 +8,8 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user, onOpenExport }) => {
-    const { textPrimaryClass, textSecondaryClass, borderClass } = useThemeStyles();
-
     return (
-        <div className={`hidden md:block py-4 px-6 border-b ${borderClass}`}>
+        <div className={`hidden md:block py-4 px-6 border-b border-[var(--border-color)]`}>
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     <img
@@ -24,8 +21,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user, onOpenExport })
                         }}
                     />
                     <div>
-                        <p className={`text-sm ${textSecondaryClass}`}>Xin chào,</p>
-                        <h2 className={`text-lg font-semibold ${textPrimaryClass}`}>
+                        <p className={`text-sm text-[var(--text-secondary)]`}>Xin chào,</p>
+                        <h2 className={`text-lg font-semibold text-[var(--text-primary)]`}>
                             {user?.displayName || user?.email?.split('@')[0] || 'Người dùng'}
                         </h2>
                     </div>

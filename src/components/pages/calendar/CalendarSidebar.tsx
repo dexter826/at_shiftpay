@@ -2,15 +2,12 @@ import React, { memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ThumbsUp, ThumbsDown, MapPin, Pencil, Trash2 } from 'lucide-react';
 import PlusIcon from '../../ui/icons/plus-icon';
-import PenIcon from '../../ui/icons/pen-icon';
-import TrashIcon from '../../ui/icons/trash-icon';
 import MapPinIcon from '../../ui/icons/map-pin-icon';
 import { AnimatedIconHandle } from '../../ui/icons/types';
-import { CardActionButton } from '../../ui/CardActionButton';
 import { Skeleton } from '../../ui/Skeleton';
 import { Event, Shift, Location } from '../../../types';
 import { formatDate } from '../../../utils/format';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { useThemeStore } from '../../../stores';
 
 interface CalendarSidebarProps {
     selectedDate: string | null;
@@ -35,25 +32,19 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     onDeleteEvent,
     onViewEvent
 }) => {
-    const {
-        theme,
-        borderClass,
-        cardBgClass,
-        textPrimaryClass,
-        textMutedClass
-    } = useThemeStyles();
+    const theme = useThemeStore(state => state.theme);
 
     const headerAddRef = useRef<AnimatedIconHandle>(null);
     const emptyAddRef = useRef<AnimatedIconHandle>(null);
 
     return (
-        <div className={`${cardBgClass} border ${borderClass} rounded-lg lg:h-full flex flex-col`}>
+        <div className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg lg:h-full flex flex-col`}>
             {selectedDate ? (
                 <div className="flex flex-col h-full">
-                    <div className={`px-4 py-3 border-b ${borderClass} flex justify-between items-center`}>
+                    <div className={`px-4 py-3 border-b border-[var(--border-color)] flex justify-between items-center`}>
                         <div>
-                            <p className={`text-[11px] ${textMutedClass} uppercase tracking-wide`}>Ngày chọn</p>
-                            <h3 className={`text-sm font-medium ${textPrimaryClass} mt-0.5`}>{formatDate(selectedDate)}</h3>
+                            <p className={`text-[11px] text-[var(--text-muted)] uppercase tracking-wide`}>Ngày chọn</p>
+                            <h3 className={`text-sm font-medium text-[var(--text-primary)] mt-0.5`}>{formatDate(selectedDate)}</h3>
                         </div>
                         <button
                             onClick={onAddEvent}
@@ -70,7 +61,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                             {loading ? (
                                 <motion.div key="loading-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-2">
                                     {Array.from({ length: 3 }).map((_, i) => (
-                                        <div key={i} className={`p-3 border ${borderClass} rounded-lg ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                                        <div key={i} className={`p-3 border border-[var(--border-color)] rounded-lg ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
                                             <div className="flex justify-between items-start gap-2 mb-2">
                                                 <Skeleton variant="circular" width={14} height={14} />
                                                 <div className="flex-1">
@@ -83,7 +74,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                                     ))}
                                 </motion.div>
                             ) : events.length === 0 ? (
-                                <motion.div key="empty-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className={`flex flex-col items-center justify-center py-12 ${textMutedClass} text-sm`}>
+                                <motion.div key="empty-sidebar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className={`flex flex-col items-center justify-center py-12 text-[var(--text-muted)] text-sm`}>
                                     <p>Chưa có sự kiện</p>
                                     <button
                                         onClick={onAddEvent}
@@ -103,14 +94,14 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                                             <div
                                                 key={evt.id}
                                                 onClick={() => onViewEvent(evt)}
-                                                className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
+                                                className={`group p-3 ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-slate-50'} border border-[var(--border-color)] rounded-lg hover:border-primary/50 transition-colors cursor-pointer`}
                                             >
                                                 <div className="flex justify-between items-start gap-2">
                                                     <div className="flex items-start gap-2 flex-1 min-w-0">
                                                         <Calendar size={14} className="text-primary mt-0.5 flex-shrink-0" />
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-1.5 min-w-0">
-                                                                <h4 className={`text-sm font-medium ${textPrimaryClass} truncate`}>{evt.title}</h4>
+                                                                <h4 className={`text-sm font-medium text-[var(--text-primary)] truncate`}>{evt.title}</h4>
                                                                 {loc?.review === 'high' && <ThumbsUp size={12} className="text-green-500 flex-shrink-0" />}
                                                                 {loc?.review === 'low' && <ThumbsDown size={12} className="text-red-500 flex-shrink-0" />}
                                                             </div>
@@ -120,20 +111,16 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                                                                     <span className="truncate">{loc.name}</span>
                                                                 </p>
                                                             )}
-                                                            {evt.note && <p className={`text-xs ${textMutedClass} mt-1 line-clamp-2`}>{evt.note}</p>}
+                                                            {evt.note && <p className={`text-xs text-[var(--text-muted)] mt-1 line-clamp-2`}>{evt.note}</p>}
                                                         </div>
                                                     </div>
-                                                    <div className="flex gap-2.5 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                                        <Pencil 
-                                                            size={15} 
-                                                            onClick={() => onEditEvent(evt)}
-                                                            className="text-primary hover:text-primary/70 transition-colors cursor-pointer"
-                                                        />
-                                                        <Trash2 
-                                                            size={15} 
-                                                            onClick={() => onDeleteEvent(evt.id)}
-                                                            className="text-red-500 hover:text-red-500/70 transition-colors cursor-pointer"
-                                                        />
+                                                    <div className="flex gap-1 flex-shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                                                        <button onClick={() => onEditEvent(evt)} className="p-2 rounded-lg text-[var(--text-muted)] hover:text-primary hover:bg-primary/5 transition-colors" title="Sửa">
+                                                            <Pencil size={14} />
+                                                        </button>
+                                                        <button onClick={() => onDeleteEvent(evt.id)} className="p-2 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/5 transition-colors" title="Xóa">
+                                                            <Trash2 size={14} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-2 mt-2 ml-5">
@@ -156,7 +143,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                     </div>
                 </div>
             ) : (
-                <div className={`flex flex-col items-center justify-center h-64 ${textMutedClass} text-sm`}>
+                <div className={`flex flex-col items-center justify-center h-64 text-[var(--text-muted)] text-sm`}>
                     <p>Chọn ngày để xem</p>
                 </div>
             )}

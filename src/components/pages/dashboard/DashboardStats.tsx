@@ -1,8 +1,5 @@
-import React, { memo, useRef } from 'react';
-import { CalendarIcon as LucideCalendar, TrendingUp, Users, Wallet2 } from 'lucide-react';
-import CalendarIcon from '../../ui/icons/calendar-icon'; // Custom animated icon
-import { AnimatedIconHandle } from '../../ui/icons/types';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import React, { memo } from 'react';
+import { Calendar, TrendingUp, Users, Wallet } from 'lucide-react';
 
 interface DashboardStatsProps {
     stats: {
@@ -20,119 +17,84 @@ interface DashboardStatsProps {
     };
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
-    const {
-        theme,
-        borderClass,
-        textPrimaryClass,
-        textSecondaryClass
-    } = useThemeStyles();
+const cards = [
+  {
+    label: 'Sự kiện',
+    value: 'totalEvents',
+    icon: Calendar,
+    rows: [
+      { label: 'Hôm nay', key: 'todayEvents' },
+      { label: 'Tuần này', key: 'weekEvents' },
+    ],
+  },
+  {
+    label: 'Công',
+    value: 'totalShifts',
+    icon: TrendingUp,
+    rows: [
+      { label: 'Sáng', key: 'morningShifts' },
+      { label: 'Chiều', key: 'afternoonShifts' },
+    ],
+  },
+  {
+    label: 'Nhân viên',
+    value: 'totalEmployees',
+    icon: Users,
+    rows: [
+      { label: 'Đã làm', key: 'activeEmployees' },
+      { label: 'Chưa làm', key: null, subtract: true },
+    ],
+  },
+  {
+    label: 'Lương',
+    value: 'totalEarned',
+    icon: Wallet,
+    isCurrency: true,
+    rows: [
+      { label: 'Đã ứng', key: 'advancedAmount', currency: true },
+      { label: 'Cần trả', key: 'unpaidAmount', currency: true },
+    ],
+  },
+];
 
-    const calendarRef = useRef<AnimatedIconHandle>(null);
-
-    return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 min-h-[260px] md:min-h-[130px]">
-            {/* Tổng sự kiện */}
-            <div
-                className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-blue-50 to-white'} border ${borderClass} rounded-2xl group/cal`}
-                onMouseEnter={() => calendarRef.current?.startAnimation()}
-                onMouseLeave={() => calendarRef.current?.stopAnimation()}
-            >
-                <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                        <CalendarIcon ref={calendarRef} size={16} />
-                    </div>
-                    <span className="text-xs font-medium uppercase tracking-wider">Tổng sự kiện</span>
-                </div>
-                <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalEvents || 0}</p>
-                <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Hôm nay</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{stats?.todayEvents || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Tuần này</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{stats?.weekEvents || 0}</span>
-                    </div>
-                </div>
+const DashboardStats: React.FC<DashboardStatsProps> = memo(({ stats }) => (
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    {cards.map((card) => {
+      const Icon = card.icon;
+      const mainValue = stats[card.value as keyof typeof stats] as number;
+      return (
+        <div key={card.label} className="p-3.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg">
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+              <Icon size={14} />
             </div>
-
-            {/* Tổng công */}
-            <div
-                className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-emerald-50 to-white'} border ${borderClass} rounded-2xl`}
-            >
-                <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                    <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
-                        <TrendingUp size={16} />
-                    </div>
-                    <span className="text-xs font-medium uppercase tracking-wider">Tổng công</span>
+            <span className="text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wider">{card.label}</span>
+          </div>
+          <p className={`text-xl font-bold text-[var(--text-primary)] tabular-nums mb-2.5 ${card.isCurrency ? 'text-primary' : ''}`}>
+            {card.isCurrency ? `${(mainValue).toLocaleString('vi-VN')}đ` : mainValue}
+          </p>
+          <div className="pt-2 border-t border-[var(--border-color)] space-y-1">
+            {card.rows.map((row) => {
+              let val: number;
+              if (row.subtract) {
+                val = (stats['totalEmployees' as keyof typeof stats] as number) - (stats['activeEmployees' as keyof typeof stats] as number);
+              } else {
+                val = stats[row.key as keyof typeof stats] as number;
+              }
+              return (
+                <div key={row.label} className="flex justify-between text-[11px]">
+                  <span className="text-[var(--text-secondary)]">{row.label}</span>
+                  <span className={`font-semibold tabular-nums ${row.color || 'text-[var(--text-primary)]'}`}>
+                    {row.currency ? `${val.toLocaleString('vi-VN')}đ` : val}
+                  </span>
                 </div>
-                <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalShifts || 0}</p>
-                <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Sáng</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{stats?.morningShifts || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Chiều</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{stats?.afternoonShifts || 0}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Tổng nhân viên */}
-            <div
-                className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-orange-50 to-white'} border ${borderClass} rounded-2xl`}
-            >
-                <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                    <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
-                        <Users size={16} />
-                    </div>
-                    <span className="text-xs font-medium uppercase tracking-wider">Tổng nhân viên</span>
-                </div>
-                <p className={`text-2xl font-bold ${textPrimaryClass} mb-3 truncate`}>{stats?.totalEmployees || 0}</p>
-                <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Đã làm</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{stats?.activeEmployees || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Chưa làm</span>
-                        <span className={`font-semibold ${textPrimaryClass}`}>{(stats?.totalEmployees || 0) - (stats?.activeEmployees || 0)}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Tổng lương */}
-            <div
-                className={`p-4 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-800 to-slate-900' : 'bg-gradient-to-br from-amber-50 to-white'} border ${borderClass} rounded-2xl`}
-            >
-                <div className={`flex items-center gap-2 ${textSecondaryClass} mb-2`}>
-                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                        <Wallet2 size={16} />
-                    </div>
-                    <span className="text-xs font-medium uppercase tracking-wider">Tổng lương</span>
-                </div>
-                <p className="text-2xl font-bold text-primary mb-3 truncate">
-                    {(stats?.totalEarned || 0).toLocaleString('vi-VN')}đ
-                </p>
-                <div className={`pt-3 border-t ${borderClass} space-y-1 text-xs`}>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Đã ứng</span>
-                        <span className="font-semibold text-orange-500">
-                            {(stats?.advancedAmount || 0).toLocaleString('vi-VN')}đ
-                        </span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className={textSecondaryClass}>Cần trả</span>
-                        <span className="font-semibold text-blue-500">
-                            {(stats?.unpaidAmount || 0).toLocaleString('vi-VN')}đ
-                        </span>
-                    </div>
-                </div>
-            </div>
+              );
+            })}
+          </div>
         </div>
-    );
-};
+      );
+    })}
+  </div>
+));
 
-export default memo(DashboardStats);
+export default DashboardStats;

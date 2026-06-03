@@ -3,7 +3,6 @@ import Cropper from 'react-easy-crop';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { getCroppedImg } from '../../utils/cropImage';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface ImageCropperModalProps {
     isOpen: boolean;
@@ -18,7 +17,6 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     image,
     onCropComplete
 }) => {
-    const { textMutedClass, skeletonBgClass } = useThemeStyles();
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
@@ -65,7 +63,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
             }
         >
             <div className="space-y-4">
-                <div className={`relative w-full h-64 ${skeletonBgClass} rounded-lg overflow-hidden`}>
+                <div className={`relative w-full h-64 bg-[var(--border-color)] rounded-lg overflow-hidden`}>
                     <Cropper
                         image={image}
                         crop={crop}
@@ -81,8 +79,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-medium">
-                        <span className={textMutedClass}>Phóng to</span>
-                        <span className={textMutedClass}>{Math.round(zoom * 100)}%</span>
+                        <span className="text-[var(--text-muted)]">Phóng to</span>
+                        <span className="text-[var(--text-muted)]">{Math.round(zoom * 100)}%</span>
                     </div>
                     <input
                         type="range"
@@ -92,11 +90,11 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                         step={0.1}
                         aria-label="Phóng to"
                         onChange={(e) => setZoom(Number(e.target.value))}
-                        className={`w-full h-2 ${skeletonBgClass} rounded-lg appearance-none cursor-pointer accent-primary`}
+                        className={`w-full h-2 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer accent-primary`}
                     />
                 </div>
 
-                <p className={`text-xs ${textMutedClass} text-center`}>
+                <p className={`text-xs text-[var(--text-muted)] text-center`}>
                     Kéo hình ảnh để canh chỉnh vùng hiển thị
                 </p>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { useThemeStore } from '../../stores';
 
 interface SkeletonProps {
     className?: string;
@@ -15,13 +15,15 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     width,
     height
 }) => {
-    const { skeletonBgClass, shimmerClass } = useThemeStyles();
+    const theme = useThemeStore(state => state.theme);
 
     // Nền cơ bản
-    const baseClasses = `relative overflow-hidden ${skeletonBgClass}`;
+    const baseClasses = `relative overflow-hidden bg-[var(--border-color)]`;
 
     // Hiệu ứng shimmer theo theme
-    const shimmerGradient = shimmerClass;
+    const shimmerGradient = theme === 'dark'
+        ? 'from-transparent via-white/[0.04] to-transparent'
+        : 'from-transparent via-black/[0.04] to-transparent';
 
     const variantClasses = {
         text: 'rounded',

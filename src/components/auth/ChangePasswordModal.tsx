@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Lock, AlertCircle, Check } from 'lucide-react';
 import EyeIcon from '../ui/icons/eye-icon';
 import EyeOffIcon from '../ui/icons/eye-off-icon';
@@ -36,9 +35,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { theme, inputBorderClass, textMutedClass, textPrimaryClass } = useThemeStyles();
-
-  const inputStyle = `flex-1 ml-3 bg-transparent ${textPrimaryClass} focus:outline-none text-sm`;
+  const inputStyle = `flex-1 ml-3 bg-transparent text-[var(--text-primary)] focus:outline-none text-sm`;
 
   const resetForm = () => {
     setCurrentPassword('');
@@ -171,9 +168,9 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
 
         {/* Mật khẩu hiện tại */}
         <div>
-          <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Mật khẩu hiện tại</label>
-          <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-primary`}>
-            <Lock size={18} className={textMutedClass} />
+          <label className={`block text-xs font-medium text-[var(--text-muted)] mb-1.5`}>Mật khẩu hiện tại</label>
+          <div className={`flex items-center border-b-2 border-[var(--border-color)] pb-2 transition-colors focus-within:border-primary`}>
+            <Lock size={18} className="text-[var(--text-muted)]" />
             <input
               type={showCurrentPassword ? 'text' : 'password'}
               value={currentPassword}
@@ -193,7 +190,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
                   if (showCurrentPassword) currentEyeOffRef.current?.stopAnimation();
                   else currentEyeRef.current?.stopAnimation();
               }}
-              className={`${textMutedClass} hover:text-primary transition-colors`}
+              className={`text-[var(--text-muted)] hover:text-primary transition-colors`}
             >
               {showCurrentPassword ? <EyeOffIcon ref={currentEyeOffRef} size={18} /> : <EyeIcon ref={currentEyeRef} size={18} />}
             </button>
@@ -202,9 +199,9 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
 
         {/* Mật khẩu mới */}
         <div>
-          <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Mật khẩu mới</label>
-          <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-primary`}>
-            <Lock size={18} className={textMutedClass} />
+          <label className={`block text-xs font-medium text-[var(--text-muted)] mb-1.5`}>Mật khẩu mới</label>
+          <div className={`flex items-center border-b-2 border-[var(--border-color)] pb-2 transition-colors focus-within:border-primary`}>
+            <Lock size={18} className="text-[var(--text-muted)]" />
             <input
               type={showNewPassword ? 'text' : 'password'}
               value={newPassword}
@@ -224,7 +221,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
                   if (showNewPassword) newEyeOffRef.current?.stopAnimation();
                   else newEyeRef.current?.stopAnimation();
               }}
-              className={`${textMutedClass} hover:text-primary transition-colors`}
+              className={`text-[var(--text-muted)] hover:text-primary transition-colors`}
             >
               {showNewPassword ? <EyeOffIcon ref={newEyeOffRef} size={18} /> : <EyeIcon ref={newEyeRef} size={18} />}
             </button>
@@ -233,9 +230,9 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
 
         {/* Xác nhận mật khẩu mới */}
         <div>
-          <label className={`block text-xs font-medium ${textMutedClass} mb-1.5`}>Xác nhận mật khẩu mới</label>
-          <div className={`flex items-center border-b-2 ${inputBorderClass} pb-2 transition-colors focus-within:border-primary`}>
-            <Lock size={18} className={textMutedClass} />
+          <label className={`block text-xs font-medium text-[var(--text-muted)] mb-1.5`}>Xác nhận mật khẩu mới</label>
+          <div className={`flex items-center border-b-2 border-[var(--border-color)] pb-2 transition-colors focus-within:border-primary`}>
+            <Lock size={18} className="text-[var(--text-muted)]" />
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
@@ -255,7 +252,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen
                   if (showConfirmPassword) confirmEyeOffRef.current?.stopAnimation();
                   else confirmEyeRef.current?.stopAnimation();
               }}
-              className={`${textMutedClass} hover:text-primary transition-colors`}
+              className={`text-[var(--text-muted)] hover:text-primary transition-colors`}
             >
               {showConfirmPassword ? <EyeOffIcon ref={confirmEyeOffRef} size={18} /> : <EyeIcon ref={confirmEyeRef} size={18} />}
             </button>

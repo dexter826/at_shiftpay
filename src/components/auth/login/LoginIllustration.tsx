@@ -1,69 +1,34 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 
-interface LoginIllustrationProps {
-  textSecondaryClass: string;
-  textMutedClass: string;
-  borderClass: string;
-  hoverBgClass: string;
-  isSignUp: boolean;
-  onSwitchMode: () => void;
-  showSwitchMode: boolean;
-}
+const LoginIllustration: React.FC = () => (
+  <div className="hidden md:flex md:w-[45%] min-h-dynamic bg-[var(--bg-card)] border-r border-[var(--border-color)] items-center justify-center p-8 relative overflow-hidden">
+    {/* Decorative blobs */}
+    <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/[0.04] pointer-events-none" />
+    <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary/[0.03] pointer-events-none" />
 
-/**
- * Phần minh họa bên trái của trang login
- */
-const LoginIllustration: React.FC<LoginIllustrationProps> = ({
-  textSecondaryClass,
-  textMutedClass,
-  borderClass,
-  hoverBgClass,
-  isSignUp,
-  onSwitchMode,
-  showSwitchMode
-}) => {
-  return (
-    <div className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="w-full relative z-10 text-center flex flex-col items-center justify-center">
-        <img
-          src="/background.png"
-          alt="Illustration"
-          className="max-w-[180px] mx-auto mb-4 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-          }}
-        />
-        <p className={`text-sm font-medium ${textSecondaryClass} mt-2 max-w-xs leading-relaxed`}>
+    <div className="relative z-10 flex flex-col items-center text-center gap-6">
+      <img src="/logo_text.png" alt="ShiftPay" className="h-10 object-contain" />
+
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Quản lý ca làm & tính công</h1>
+        <p className="text-sm text-[var(--text-secondary)] max-w-xs leading-relaxed">
           Ứng dụng quản lý nhân sự và tính công lương theo ca làm việc
         </p>
       </div>
 
-      <div className="relative z-10 w-full pt-8">
-        <div className="flex flex-col items-center">
-          <p className={`text-xs ${textMutedClass} mt-1 flex items-center justify-center gap-1.5`}>
-            Made with <Heart size={12} className="text-red-500 fill-red-500 animate-pulse" /> by
-            <a
-              href="https://github.com/dexter826/dexter826"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-primary hover:text-[#f0c654] transition-colors"
-            >
-              MOB
-            </a>
-          </p>
-          {showSwitchMode && (
-            <button
-              onClick={onSwitchMode}
-              className={`mt-4 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${borderClass} ${hoverBgClass} ${textSecondaryClass}`}
-            >
-              {isSignUp ? 'Đã có tài khoản? Đăng nhập' : 'Tạo tài khoản mới'}
-            </button>
-          )}
-        </div>
+      {/* Decorative dots */}
+      <div className="flex gap-2 mt-2">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary/20" />
+        ))}
       </div>
+
+      <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5 absolute bottom-8">
+        Made with <Heart size={11} className="text-red-500 fill-red-500" /> by MOB
+      </p>
     </div>
-  );
-};
+  </div>
+);
 
 export default LoginIllustration;

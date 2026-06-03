@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { History, Clock, ChevronRightIcon } from 'lucide-react';
 import { formatCurrency } from '../../../utils/format';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { PaymentTransaction } from '../../../types';
 
 interface HistoryListProps {
@@ -16,13 +15,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
   items,
   onSelectTransaction,
 }) => {
-  const {
-    cardBgClass,
-    borderClass,
-    textSecondaryClass,
-    textMutedClass,
-    hoverBgClass,
-  } = useThemeStyles();
+  
 
   return (
     <AnimatePresence mode="wait">
@@ -47,7 +40,7 @@ const HistoryList: React.FC<HistoryListProps> = ({
           className="space-y-2"
         >
           {items.length === 0 ? (
-            <div className={`text-center py-10 ${textMutedClass}`}>
+            <div className={`text-center py-10 text-[var(--text-muted)]`}>
               <History size={48} className="mx-auto mb-2 opacity-20" />
               <p>Không tìm thấy giao dịch nào</p>
             </div>
@@ -57,29 +50,29 @@ const HistoryList: React.FC<HistoryListProps> = ({
                 <button
                   key={item.id}
                   onClick={() => onSelectTransaction(item.id)}
-                  className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                  className={`w-full p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${hoverBgClass} ${textMutedClass}`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium hover:bg-[var(--border-color)] text-[var(--text-muted)]`}>
                       <History size={16} />
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2">
-                        <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                        <p className={`text-sm font-medium text-[var(--text-secondary)]`}>{item.employeeName}</p>
                         {item.type === 'advance' && (
-                          <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 rounded-full">
+                          <span className="px-2 py-0.5 text-xs bg-transparent border border-orange-500 text-orange-500 rounded-full">
                             Ứng tiền
                           </span>
                         )}
                         {item.type === 'settlement' && (
-                          <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-full">
+                          <span className="px-2 py-0.5 text-xs bg-transparent border border-blue-500 text-blue-500 rounded-full">
                             Quyết toán
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock size={12} className={textMutedClass} />
-                        <p className={`text-xs ${textMutedClass}`}>
+                        <Clock size={12} className="text-[var(--text-muted)]" />
+                        <p className={`text-xs text-[var(--text-muted)]`}>
                           {new Date(item.date).toLocaleDateString('vi-VN')} {new Date(item.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -87,16 +80,16 @@ const HistoryList: React.FC<HistoryListProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-medium ${textSecondaryClass}`}>
+                    <span className={`text-sm font-medium text-[var(--text-secondary)]`}>
                       {formatCurrency(item.amount)}
                     </span>
-                    <ChevronRightIcon size={16} className={textMutedClass} />
+                    <ChevronRightIcon size={16} className="text-[var(--text-muted)]" />
                   </div>
                 </button>
               ))}
 
               {items.length > 0 && (
-                <p className={`text-center text-[11px] ${textMutedClass} tracking-wide uppercase font-medium mt-6`}>
+                <p className={`text-center text-[11px] text-[var(--text-muted)] tracking-wide uppercase font-medium mt-6`}>
                   Đã hiển thị toàn bộ {items.length} giao dịch
                 </p>
               )}

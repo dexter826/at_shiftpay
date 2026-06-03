@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void> | void;
@@ -14,8 +13,6 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
   const startYRef = React.useRef(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const controls = useAnimation();
-  const { inputBgClass, borderClass } = useThemeStyles();
-
   const PULL_THRESHOLD = 80;
 
   useEffect(() => {
@@ -101,7 +98,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
           opacity: pullDistance / PULL_THRESHOLD
         }}
       >
-        <div className={`${inputBgClass} p-2 rounded-full shadow-lg border ${borderClass}`}>
+        <div className={`bg-[var(--bg-secondary)] p-2 rounded-full shadow-lg border border-[var(--border-color)]`}>
           <RefreshCw
             size={20}
             className={`text-primary ${isRefreshing ? 'animate-spin' : ''}`}

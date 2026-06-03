@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect, memo } from 'react';
 import ArrowNarrowLeftIcon from '../ui/icons/arrow-narrow-left-icon';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 import { Location, Event } from '../../types';
 import { dbService } from '../../services';
 import { useToast } from '../ui/Toast';
-import { useAuthStore } from '../../stores';
+import { useAuthStore, useThemeStore } from '../../stores';
 import Button from '../ui/Button';
 import PlusIcon from '../ui/icons/plus-icon';
 import TrashIcon from '../ui/icons/trash-icon';
@@ -18,7 +17,6 @@ import LocationToolbar from './locations/LocationToolbar';
 import LocationList from './locations/LocationList';
 import LocationFormModal from './locations/LocationFormModal';
 import LocationDetailModal from './locations/LocationDetailModal';
-import ScrollToTopButton from '../ui/ScrollToTopButton';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
 
@@ -35,13 +33,6 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     loading = false,
     onBack
 }) => {
-    const {
-        bgClass,
-        textPrimaryClass,
-        textSecondaryClass,
-        textMutedClass,
-        hoverBgClass
-    } = useThemeStyles();
 
     const { user } = useAuthStore();
     const userId = user?.uid || '';
@@ -169,7 +160,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
     };
 
     return (
-        <div className={`pb-28 ${bgClass} min-h-screen px-4 pt-5 md:px-6 md:pt-6 md:pb-8`}>
+        <div className={`pb-28 bg-[var(--bg-primary)] min-h-screen px-4 pt-5 md:px-6 md:pt-6 md:pb-8`}>
             <div className="w-full space-y-6">
                 {/* Header & Stats */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -179,15 +170,15 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                                 onClick={onBack}
                                 onMouseEnter={() => backIconRef.current?.startAnimation()}
                                 onMouseLeave={() => backIconRef.current?.stopAnimation()}
-                                className={`p-2 rounded-full transition-colors ${hoverBgClass} flex items-center justify-center`}
+                                className={`p-2 rounded-full transition-colors hover:bg-[var(--border-color)] flex items-center justify-center`}
                                 title="Quay lại"
                             >
-                                <ArrowNarrowLeftIcon ref={backIconRef} size={20} className={textPrimaryClass} />
+                                <ArrowNarrowLeftIcon ref={backIconRef} size={20} className="text-[var(--text-primary)]" />
                             </button>
                         )}
                         <div>
-                            <h2 className={`text-xl font-semibold ${textPrimaryClass}`}>Quản lý địa điểm</h2>
-                            <p className={`text-sm ${textSecondaryClass} mt-0.5`}>Danh sách các địa điểm và đánh giá chất lượng.</p>
+                            <h2 className={`text-xl font-semibold text-[var(--text-primary)]`}>Quản lý địa điểm</h2>
+                            <p className={`text-sm text-[var(--text-secondary)] mt-0.5`}>Danh sách các địa điểm và đánh giá chất lượng.</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
@@ -227,7 +218,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     onEdit={handleOpenEdit}
                     onDelete={handleDelete}
                     onViewDetail={handleViewDetail}
-                    theme={useThemeStyles().theme}
+                    theme={useThemeStore(state => state.theme)}
                 />
             </div>
 
@@ -243,7 +234,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                     </div>
                 }
             >
-                <p className={`text-sm ${textSecondaryClass}`}>Bạn có chắc chắn muốn xóa địa điểm này? Hành động này không thể hoàn tác.</p>
+                <p className={`text-sm text-[var(--text-secondary)]`}>Bạn có chắc chắn muốn xóa địa điểm này? Hành động này không thể hoàn tác.</p>
             </Modal>
 
             {/* Modal Form */}
@@ -262,7 +253,6 @@ const LocationManager: React.FC<LocationManagerProps> = ({
                 events={events}
                 onEditClick={handleOpenEdit}
             />
-            <ScrollToTopButton />
         </div>
     );
 };

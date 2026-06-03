@@ -1,11 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, MessageSquare } from 'lucide-react';
-import ExternalLinkIcon from '../../ui/icons/external-link-icon';
-import PenIcon from '../../ui/icons/pen-icon';
-import TrashIcon from '../../ui/icons/trash-icon';
-import { CardActionButton } from '../../ui/CardActionButton';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { MapPin, MessageSquare, ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import { Location } from '../../../types';
 
 const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'free_key_placeholder';
@@ -31,13 +26,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
     index,
     theme
 }) => {
-    const {
-        cardBgClass,
-        borderClass,
-        textPrimaryClass,
-        textSecondaryClass,
-        textMutedClass
-    } = useThemeStyles();
+    
 
     const hasCoords = location.latitude && location.longitude;
     const mapUrl = hasCoords
@@ -65,7 +54,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.05 }}
             onClick={() => onViewDetail(location)}
-            className={`group relative flex flex-col rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
+            className={`group relative flex flex-col rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-[var(--bg-card)] border border-[var(--border-color)]`}
         >
             {/* Phần hình ảnh */}
             <div className="h-[200px] overflow-hidden relative">
@@ -77,8 +66,8 @@ const LocationCard: React.FC<LocationCardProps> = ({
                 />
 
                 {!hasCoords && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/20">
-                        <span className={`${cardBgClass} bg-opacity-90 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold ${textPrimaryClass} shadow-sm border ${borderClass}`}>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                        <span className={`bg-[var(--bg-card)] bg-opacity-90 px-4 py-2 rounded-lg text-xs font-bold text-[var(--text-primary)] shadow-sm border border-[var(--border-color)]`}>
                             Chưa có địa chỉ chính xác
                         </span>
                     </div>
@@ -86,50 +75,27 @@ const LocationCard: React.FC<LocationCardProps> = ({
 
                 {/* Action Buttons - Desktop: Show on Hover, Mobile: Always Show */}
                 <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-                    <CardActionButton
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenInGoogleMaps();
-                        }}
-                        variant="info"
-                        icon={<ExternalLinkIcon />}
-                        title="Xem trên Google Maps"
-                        className="!w-9 !h-9"
-                        iconSize={16}
-                    />
-                    <CardActionButton
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(location);
-                        }}
-                        icon={<PenIcon />}
-                        title="Sửa địa điểm"
-                        className="!w-9 !h-9"
-                        iconSize={16}
-                    />
-                    <CardActionButton
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(location.id);
-                        }}
-                        variant="danger"
-                        icon={<TrashIcon />}
-                        title="Xóa địa điểm"
-                        className="!w-9 !h-9"
-                        iconSize={16}
-                    />
+                    <button onClick={(e) => { e.stopPropagation(); handleOpenInGoogleMaps(); }} className="w-9 h-9 rounded-lg bg-black/40 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 transition-colors" title="Xem trên Google Maps">
+                        <ExternalLink size={14} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(location); }} className="w-9 h-9 rounded-lg bg-black/40 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 transition-colors" title="Sửa địa điểm">
+                        <Pencil size={14} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(location.id); }} className="w-9 h-9 rounded-lg bg-black/40 flex items-center justify-center text-white/80 hover:text-red-400 hover:bg-black/60 transition-colors" title="Xóa địa điểm">
+                        <Trash2 size={14} />
+                    </button>
                 </div>
             </div>
 
             {/* Phần thông tin */}
             <div className="flex-1 p-5">
                 <div className="space-y-1.5">
-                    <h3 className={`text-lg font-bold ${textPrimaryClass} leading-tight line-clamp-1`}>
+                    <h3 className={`text-lg font-bold text-[var(--text-primary)] leading-tight line-clamp-1`}>
                         {location.name}
                     </h3>
                     <div className="flex items-center gap-1.5">
                         <MapPin size={14} className="text-blue-500 shrink-0" />
-                        <span className={`text-xs ${textSecondaryClass} line-clamp-1`}>
+                        <span className={`text-xs text-[var(--text-secondary)] line-clamp-1`}>
                             {location.address || "Địa chỉ chưa xác định"}
                         </span>
                     </div>
@@ -137,32 +103,32 @@ const LocationCard: React.FC<LocationCardProps> = ({
                     {location.reviewNote ? (
                         <div className="flex items-start gap-1.5 mt-2">
                             <MessageSquare size={14} className="text-gray-400 shrink-0 mt-0.5" />
-                            <p className={`text-xs ${textMutedClass} line-clamp-2 italic`}>
+                            <p className={`text-xs text-[var(--text-muted)] line-clamp-2 italic`}>
                                 "{location.reviewNote}"
                             </p>
                         </div>
                     ) : (
                         <div className="flex items-start gap-1.5 mt-2 opacity-50">
                             <MessageSquare size={14} className="text-gray-300 shrink-0 mt-0.5" />
-                            <p className={`text-xs ${textMutedClass} italic`}>
+                            <p className={`text-xs text-[var(--text-muted)] italic`}>
                                 Chưa có ghi chú
                             </p>
                         </div>
                     )}
 
-                    <div className={`flex items-center gap-4 pt-3 mt-auto border-t ${borderClass}`}>
+                    <div className={`flex items-center gap-4 pt-3 mt-auto border-t border-[var(--border-color)]`}>
                         <div className="flex flex-col">
-                            <span className={`text-[10px] uppercase ${textMutedClass} font-semibold`}>Lịch sử</span>
-                            <span className={`text-sm font-bold ${textPrimaryClass}`}>{stats.workCount} ca làm</span>
+                            <span className={`text-[10px] uppercase text-[var(--text-muted)] font-semibold`}>Lịch sử</span>
+                            <span className={`text-sm font-bold text-[var(--text-primary)]`}>{stats.workCount} ca làm</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className={`text-[10px] uppercase ${textMutedClass} font-semibold`}>Đánh giá</span>
+                            <span className={`text-[10px] uppercase text-[var(--text-muted)] font-semibold`}>Đánh giá</span>
                             {location.review ? (
                                 <span className={`text-sm font-bold ${location.review === 'high' ? 'text-green-500' : 'text-red-500'}`}>
                                     {location.review === 'high' ? 'Tốt' : 'Kém'}
                                 </span>
                             ) : (
-                                <span className={`text-sm font-bold ${textMutedClass}`}>
+                                <span className={`text-sm font-bold text-[var(--text-muted)]`}>
                                     Thường
                                 </span>
                             )}

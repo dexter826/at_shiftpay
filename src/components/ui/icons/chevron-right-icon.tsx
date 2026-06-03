@@ -1,46 +1,15 @@
-import { forwardRef, useImperativeHandle, useCallback } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { ChevronRight } from "lucide-react";
 
 const ChevronRightIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
-    const [scope, animate] = useAnimate();
-
-    const start = useCallback(async () => {
-      animate(scope.current, { x: 2 }, { duration: 0.2, ease: "easeOut" });
-    }, [animate, scope]);
-
-    const stop = useCallback(async () => {
-      animate(scope.current, { x: 0 }, { duration: 0.2, ease: "easeInOut" });
-    }, [animate, scope]);
-
+  ({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }, ref) => {
     useImperativeHandle(ref, () => ({
-      startAnimation: start,
-      stopAnimation: stop,
+      startAnimation: () => {},
+      stopAnimation: () => {},
     }));
 
-    return (
-      <motion.svg
-        ref={scope}
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`cursor-pointer ${className}`}
-        onHoverStart={start}
-        onHoverEnd={stop}
-      >
-        <path d="m9 18 6-6-6-6" />
-      </motion.svg>
-    );
+    return <ChevronRight size={size} color={color} strokeWidth={strokeWidth} className={className} />;
   },
 );
 

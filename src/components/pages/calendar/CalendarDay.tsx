@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Event, Location } from '../../../types';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { useThemeStore } from '../../../stores';
 
 interface CalendarDayProps {
     date: Date;
@@ -23,7 +23,7 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
     isCurrentMonth,
     onClick
 }) => {
-    const { theme, textPrimaryClass, textMutedClass, hoverBgClass } = useThemeStyles();
+    const theme = useThemeStore(state => state.theme);
     // Using dateStr for key prop happens in parent
     
     return (
@@ -31,11 +31,11 @@ const CalendarDay: React.FC<CalendarDayProps> = ({
             onClick={() => onClick(date)}
             whileHover={{ zIndex: 10 }}
             whileTap={{ scale: 0.95 }}
-            className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative overflow-hidden ${isSelected
+            className={`aspect-square lg:aspect-auto flex flex-col items-center justify-center rounded-lg text-sm transition-all duration-200 relative overflow-hidden ${isSelected
                 ? 'bg-primary text-white shadow-lg shadow-primary/30'
                 : isToday
-                    ? `${theme === 'dark' ? 'bg-slate-800' : 'bg-primary/10'} text-primary font-bold ring-2 ring-primary/20`
-                    : `${isCurrentMonth ? textPrimaryClass : textMutedClass + ' opacity-40'} ${hoverBgClass}`
+                    ? 'bg-primary/10 text-primary font-bold ring-2 ring-primary/20'
+                    : `${isCurrentMonth ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] opacity-40'} hover:bg-[var(--border-color)]`
                 }`}
         >
             <span className="relative z-10">{date.getDate()}</span>

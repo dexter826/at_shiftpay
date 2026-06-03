@@ -1,24 +1,33 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
-const ScrollToTopButton: React.FC = () => {
+interface ScrollToTopButtonProps {
+    activeTab: string;
+}
+
+const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ activeTab }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const { cardBgClass, borderClass, textPrimaryClass } = useThemeStyles();
+    const enabledTabs = ['dashboard', 'employees', 'payroll', 'locations'];
 
     useEffect(() => {
         const toggleVisibility = () => {
-            if (window.pageYOffset > 400) {
+            if (window.scrollY > 400 && enabledTabs.includes(activeTab)) {
                 setIsVisible(true);
             } else {
                 setIsVisible(false);
             }
         };
 
+        if (!enabledTabs.includes(activeTab)) {
+            setIsVisible(false);
+        } else {
+            toggleVisibility();
+        }
+
         window.addEventListener('scroll', toggleVisibility);
         return () => window.removeEventListener('scroll', toggleVisibility);
-    }, []);
+    }, [activeTab]);
 
     const scrollToTop = () => {
         window.scrollTo({

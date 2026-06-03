@@ -2,18 +2,15 @@ import React, { useMemo, useState, memo, useEffect } from 'react';
 import { Employee, Event, Shift, UserSettings } from '../../types';
 import { PAYMENT_COLORS } from '../../constants/colors';
 import { motion, AnimatePresence } from 'framer-motion';
-import ExportIcon from '../ui/icons/export-icon';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { Download } from 'lucide-react';
 import Button from '../ui/Button';
 import { Skeleton } from '../ui/Skeleton';
 import { useAppDataStore } from '../../stores';
 
-// Imported Components
 import DashboardHeader from './dashboard/DashboardHeader';
 import DashboardStats from './dashboard/DashboardStats';
 import ActivityChart from './dashboard/ActivityChart';
 import PaymentChart from './dashboard/PaymentChart';
-import ScrollToTopButton from '../ui/ScrollToTopButton';
 import { MonthPickerModal } from '../modals/MonthPickerModal';
 
 interface DashboardProps {
@@ -36,7 +33,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     loading = false, 
     onOpenExport 
 }) => {
-    const { bgClass, borderClass, cardBgClass } = useThemeStyles();
     const viewDate = useAppDataStore(state => state.viewDate);
     const setViewDate = useAppDataStore(state => state.setViewDate);
     
@@ -213,104 +209,59 @@ const Dashboard: React.FC<DashboardProps> = ({
     const monthName = new Intl.DateTimeFormat('vi-VN', { month: 'long', year: 'numeric' }).format(selectedDate);
 
     return (
-        <div className={`pb-28 md:pb-0 ${bgClass} min-h-screen`}>
+        <div className="pb-28 md:pb-0 bg-[var(--bg-primary)] min-h-dynamic">
             <AnimatePresence mode="wait">
                 {loading ? (
-                    <motion.div
-                        key="skeleton"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <div className={`hidden md:block py-4 px-6 border-b ${borderClass}`}>
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                    <Skeleton variant="circular" width={40} height={40} />
-                                    <div>
-                                        <Skeleton variant="text" width={60} height={16} className="mb-1" />
-                                        <Skeleton variant="text" width={120} height={20} />
-                                    </div>
-                                </div>
+                    <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <div className="hidden md:block py-4 px-6 border-b border-[var(--border-color)]">
+                            <div className="flex items-center gap-3">
+                                <Skeleton variant="circular" width={40} height={40} />
+                                <div><Skeleton variant="text" width={120} height={20} /></div>
                             </div>
                         </div>
-                        <div className="px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-6">
+                        <div className="p-4 md:p-6 space-y-4">
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                                 {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className={`p-4 ${cardBgClass} border ${borderClass} rounded-lg h-28`}>
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <Skeleton variant="circular" width={18} height={18} />
-                                            <Skeleton variant="text" width="60%" height={12} />
-                                        </div>
-                                        <Skeleton variant="text" width="40%" height={32} />
+                                    <div key={i} className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg h-28">
+                                        <Skeleton variant="text" width="60%" height={12} className="mb-3" />
+                                        <Skeleton variant="text" width="40%" height={28} />
                                     </div>
                                 ))}
                             </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className={`p-4 md:p-6 ${cardBgClass} border ${borderClass} rounded-xl h-[320px]`}>
-                                    <Skeleton variant="text" width="40%" height={24} className="mb-6" />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg h-[300px]">
+                                    <Skeleton variant="text" width="40%" height={20} className="mb-4" />
                                     <Skeleton variant="rectangular" width="100%" height={200} className="rounded-lg" />
                                 </div>
-                                <div className={`p-4 md:p-6 ${cardBgClass} border ${borderClass} rounded-xl h-[320px]`}>
-                                    <Skeleton variant="text" width="40%" height={24} className="mb-6" />
+                                <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg h-[300px]">
+                                    <Skeleton variant="text" width="40%" height={20} className="mb-4" />
                                     <Skeleton variant="rectangular" width="100%" height={200} className="rounded-lg" />
                                 </div>
                             </div>
                         </div>
                     </motion.div>
                 ) : (
-                    <motion.div
-                        key="content"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
+                    <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <DashboardHeader user={user} onOpenExport={onOpenExport} />
 
-                        <div className="relative min-h-[calc(100vh-120px)]">
-                            <div className={`px-4 pt-5 pb-4 md:px-6 md:pt-0 md:pb-6 space-y-4 md:space-y-6 transition-all duration-300`}>
-                                {/* Xuất báo cáo (Mobile) */}
-                                <div className="md:hidden">
-                                    <Button
-                                        onClick={onOpenExport}
-                                        variant="primary"
-                                        fullWidth={true}
-                                        className="flex items-center justify-center gap-2"
-                                        icon={<ExportIcon size={18} />}
-                                    >
-                                        <span>Xuất báo cáo</span>
-                                    </Button>
-                                </div>
+                        <div className="p-4 md:p-6 space-y-4">
+                            <div className="md:hidden">
+                                <Button onClick={onOpenExport} variant="primary" fullWidth className="flex items-center justify-center gap-2 h-10 text-sm">
+                                    <Download size={16} /> Xuất báo cáo
+                                </Button>
+                            </div>
 
-                                {stats && <DashboardStats stats={stats} />}
+                            {stats && <DashboardStats stats={stats} />}
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    <ActivityChart 
-                                        data={chartData} 
-                                        growthStats={growthStats} 
-                                        monthName={monthName}
-                                        onPrevMonth={handlePrevMonth}
-                                        onNextMonth={handleNextMonth}
-                                        onGoToToday={handleGoToToday}
-                                        onMonthClick={() => setIsMonthPickerOpen(true)}
-                                    />
-                                    
-                                    <PaymentChart data={paymentData} />
-                                </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <ActivityChart data={chartData} growthStats={growthStats} monthName={monthName} onPrevMonth={handlePrevMonth} onNextMonth={handleNextMonth} onGoToToday={handleGoToToday} onMonthClick={() => setIsMonthPickerOpen(true)} />
+                                <PaymentChart data={paymentData} />
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-            <ScrollToTopButton />
-
-            <MonthPickerModal 
-                isOpen={isMonthPickerOpen} 
-                onClose={() => setIsMonthPickerOpen(false)} 
-                selectedDate={selectedDate} 
-                onChange={setViewDate} 
-            />
+            <MonthPickerModal isOpen={isMonthPickerOpen} onClose={() => setIsMonthPickerOpen(false)} selectedDate={selectedDate} onChange={setViewDate} />
         </div>
     );
 };

@@ -1,98 +1,60 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, RefreshCw, CheckCircle2, LogOut } from 'lucide-react';
+import { Mail, RefreshCw, LogOut } from 'lucide-react';
 import Button from '../../ui/Button';
 
 interface VerificationViewProps {
   currentUser: any;
-  textSecondaryClass: string;
-  textMutedClass: string;
-  isDark: boolean;
-  borderClass: string;
   loading: boolean;
   onCheckVerification: () => Promise<void>;
   onResendEmail: () => Promise<void>;
   onLogout: () => void;
 }
 
-/**
- * Giao diện thông báo xác thực email
- */
 const VerificationView: React.FC<VerificationViewProps> = ({
-  currentUser,
-  textSecondaryClass,
-  textMutedClass,
-  isDark,
-  borderClass,
-  loading,
-  onCheckVerification,
-  onResendEmail,
-  onLogout
-}) => {
-  return (
-    <motion.div
-      key="unverified-view"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="flex flex-col items-center text-center space-y-6"
-    >
-      <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary relative">
-        <Mail size={40} />
-        <div className="absolute -top-1 -right-1 bg-amber-500 w-6 h-6 rounded-full border-4 border-slate-900 flex items-center justify-center">
-          <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-        </div>
-      </div>
+  currentUser, loading, onCheckVerification, onResendEmail, onLogout,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.95 }}
+    className="flex flex-col items-center text-center space-y-5"
+  >
+    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+      <Mail size={32} />
+    </div>
 
-      <div>
-        <h2 className="text-2xl font-bold font-retro text-primary mb-2">Xác thực Email</h2>
-        <p className={`text-sm ${textSecondaryClass} max-w-xs mx-auto`}>
-          Chúng tôi đã gửi email xác thực đến:
-          <span className="block font-bold text-primary mt-1">{currentUser?.email}</span>
-        </p>
-      </div>
+    <div>
+      <h2 className="text-xl font-bold text-primary mb-1">Xác thực Email</h2>
+      <p className="text-sm text-[var(--text-secondary)]">Email xác thực đã gửi đến:</p>
+      <p className="text-sm font-bold text-primary mt-0.5">{currentUser?.email}</p>
+    </div>
 
-      <div className={`p-4 ${isDark ? 'bg-slate-800/50' : 'bg-slate-50'} rounded-2xl border ${borderClass} w-full space-y-3`}>
-        <div className="flex items-start gap-3 text-left">
-          <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
-          <p className={`text-xs ${textMutedClass}`}>Kiểm tra hộp thư đến (hoặc thư rác).</p>
-        </div>
-        <div className="flex items-start gap-3 text-left">
-          <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
-          <p className={`text-xs ${textMutedClass}`}>Nhấn vào đường link trong email để xác nhận.</p>
-        </div>
-      </div>
+    <div className="p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg w-full space-y-2 text-left">
+      <p className="text-xs text-[var(--text-muted)] flex items-start gap-2">
+        <span className="text-primary mt-0.5">•</span> Kiểm tra hộp thư đến (hoặc thư rác)
+      </p>
+      <p className="text-xs text-[var(--text-muted)] flex items-start gap-2">
+        <span className="text-primary mt-0.5">•</span> Nhấn vào đường link trong email để xác nhận
+      </p>
+    </div>
 
-      <div className="w-full space-y-3">
-        <Button
-          onClick={onCheckVerification}
-          fullWidth
-          disabled={loading}
-          className="h-12 flex items-center justify-center gap-2 mt-4"
-        >
-          {loading ? <RefreshCw className="animate-spin" size={18} /> : null}
-          Tôi đã xác thực
-        </Button>
+    <div className="w-full space-y-2">
+      <Button onClick={onCheckVerification} fullWidth disabled={loading} className="h-11 text-sm">
+        {loading ? <RefreshCw className="animate-spin" size={16} /> : null}
+        Tôi đã xác thực
+      </Button>
 
-        <button
-          onClick={onResendEmail}
-          disabled={loading}
-          className={`w-full py-2.5 text-sm font-medium ${textSecondaryClass} hover:text-primary transition-colors flex items-center justify-center gap-2`}
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Gửi lại email xác thực
-        </button>
+      <button onClick={onResendEmail} disabled={loading} className="w-full py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-primary transition-colors flex items-center justify-center gap-1">
+        <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+        Gửi lại email
+      </button>
 
-        <button
-          onClick={onLogout}
-          className={`w-full py-2.5 text-sm font-medium text-red-500 hover:text-red-400 transition-colors flex items-center justify-center gap-2 border-t ${borderClass} mt-2 pt-4`}
-        >
-          <LogOut size={14} />
-          Quay lại đăng nhập
-        </button>
-      </div>
-    </motion.div>
-  );
-};
+      <button onClick={onLogout} className="w-full py-2 text-xs font-medium text-red-500 hover:text-red-400 transition-colors flex items-center justify-center gap-1 border-t border-[var(--border-color)] mt-2 pt-3">
+        <LogOut size={12} /> Quay lại đăng nhập
+      </button>
+    </div>
+  </motion.div>
+);
 
 export default VerificationView;

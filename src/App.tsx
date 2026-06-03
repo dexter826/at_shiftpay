@@ -7,6 +7,7 @@ import { ExportModal } from './components/modals';
 import { Modal } from './components/ui/Modal';
 import Button from './components/ui/Button';
 import { ToastProvider } from './components/ui/Toast';
+import ScrollToTopButton from './components/ui/ScrollToTopButton';
 import { useThemeStore, useAuthStore, useAppDataStore } from './stores';
 import { dbService } from './services';
 import { exportDetailedReport } from './services/exportService';
@@ -34,7 +35,7 @@ function App() {
     refreshData
   } = useAppDataStore();
 
-  // Cập nhật tiêu đề trang theo Tab
+  // Cập nhật tiêu đề trang theo Tab và cuộn lên đầu trang
   useEffect(() => {
     if (user && user.emailVerified) {
       const tabNames: Record<Tab, string> = {
@@ -46,6 +47,7 @@ function App() {
         settings: 'Cài đặt'
       };
       document.title = `${tabNames[activeTab]} - ShiftPay`;
+      window.scrollTo(0, 0);
     }
   }, [activeTab, user]);
 
@@ -110,7 +112,7 @@ function App() {
     <ToastProvider>
       <OfflineIndicator />
       {authLoading ? (
-        <div className={`flex items-center justify-center h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
           <Loader />
         </div>
       ) : (!user || !user.emailVerified) ? (
@@ -192,10 +194,8 @@ function AppContent({
   onCloseLogoutConfirm: () => void;
   onConfirmLogout: () => void;
 }) {
-  const theme = useThemeStore(state => state.theme);
-
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+    <div className="min-h-dynamic bg-[var(--bg-primary)]">
       <Navbar
         currentTab={activeTab}
         setTab={(t) => setActiveTab(t as Tab)}
@@ -222,6 +222,8 @@ function AppContent({
           />
         </PullToRefresh>
       </main>
+
+      <ScrollToTopButton activeTab={activeTab} />
 
       <ExportModal
         isOpen={isExportModalOpen}
@@ -252,7 +254,7 @@ function AppContent({
           </div>
         }
       >
-        <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+        <p className="text-sm text-[var(--text-secondary)]">
           Bạn có chắc muốn đăng xuất khỏi ứng dụng?
         </p>
       </Modal>

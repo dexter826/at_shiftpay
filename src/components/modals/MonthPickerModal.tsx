@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { useThemeStore } from '../../stores';
 
 interface MonthPickerModalProps {
     isOpen: boolean;
@@ -20,13 +20,7 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
     selectedDate,
     onChange
 }) => {
-    const {
-        theme,
-        textPrimaryClass,
-        textSecondaryClass,
-        borderClass,
-        hoverBgClass
-    } = useThemeStyles();
+    const theme = useThemeStore(state => state.theme);
 
     const [tempYear, setTempYear] = useState<number>(selectedDate.getFullYear());
 
@@ -80,19 +74,19 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
         >
             <div className="space-y-6 py-2">
                 {/* Chọn năm */}
-                <div className="flex justify-between items-center px-4 py-2 bg-slate-500/5 rounded-xl border border-dashed border-slate-500/10">
+                <div className="flex justify-between items-center px-4 py-2 bg-slate-500/5 rounded-lg border border-dashed border-slate-500/10">
                     <button
                         onClick={() => setTempYear(prev => prev - 1)}
-                        className={`p-2 rounded-lg ${hoverBgClass} transition-colors`}
+                        className={`p-2 rounded-lg hover:bg-[var(--border-color)] transition-colors`}
                     >
-                        <ChevronLeft size={18} className={textSecondaryClass} />
+                        <ChevronLeft size={18} className="text-[var(--text-secondary)]" />
                     </button>
-                    <span className={`text-base font-bold ${textPrimaryClass}`}>Năm {tempYear}</span>
+                    <span className={`text-base font-bold text-[var(--text-primary)]`}>Năm {tempYear}</span>
                     <button
                         onClick={() => setTempYear(prev => prev + 1)}
-                        className={`p-2 rounded-lg ${hoverBgClass} transition-colors`}
+                        className={`p-2 rounded-lg hover:bg-[var(--border-color)] transition-colors`}
                     >
-                        <ChevronRight size={18} className={textSecondaryClass} />
+                        <ChevronRight size={18} className="text-[var(--text-secondary)]" />
                     </button>
                 </div>
 
@@ -107,7 +101,7 @@ export const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
                                 key={index}
                                 onClick={() => handleSelectMonth(index)}
                                 className={`
-                                    py-3 rounded-xl text-xs font-semibold transition-all border
+                                    py-3 rounded-lg text-xs font-semibold transition-all border
                                     ${isSelected
                                         ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20 scale-[0.98]'
                                         : `

@@ -3,7 +3,6 @@ import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import SimpleCheckedIcon from '../../ui/icons/simple-checked-icon';
 import { formatCurrency } from '../../../utils/format';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { AnimatedIconHandle } from '../../ui/icons/types';
 import { PayrollSummary } from '../../../types';
 
@@ -24,12 +23,6 @@ const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = ({
   selectedEmployeeSummary,
   selectedCount,
 }) => {
-  const {
-    textSecondaryClass,
-    textMutedClass,
-    hoverBgClass,
-  } = useThemeStyles();
-  
   const confirmPayRef = useRef<AnimatedIconHandle>(null);
 
   return (
@@ -59,12 +52,12 @@ const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = ({
       }
     >
       <div className="space-y-3">
-        <p className={`text-sm ${textSecondaryClass}`}>
+        <p className={`text-sm text-[var(--text-secondary)]`}>
           Thanh toán {formatCurrency(selectedShiftsTotal)} cho {selectedEmployeeSummary?.employeeName}?
         </p>
-        <div className={`p-3 ${hoverBgClass} rounded-lg`}>
-          <p className={`text-xs ${textMutedClass} mb-1`}>Chi tiết:</p>
-          <p className={`text-sm ${textSecondaryClass}`}>
+        <div className={`p-3 hover:bg-[var(--border-color)] rounded-lg`}>
+          <p className={`text-xs text-[var(--text-muted)] mb-1`}>Chi tiết:</p>
+          <p className={`text-sm text-[var(--text-secondary)]`}>
             {selectedCount} ca làm việc được chọn
           </p>
         </div>

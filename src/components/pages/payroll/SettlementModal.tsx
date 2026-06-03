@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import { useToast } from '../../ui/Toast';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { useThemeStore } from '../../../stores';
 import { Shift, PaymentTransaction, AdvanceBalance, Event, Location } from '../../../types';
 import { formatCurrency, formatDate } from '../../../utils/format';
 import { dbService } from '../../../services';
@@ -34,13 +34,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
 }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const { showToast } = useToast();
-    const {
-        theme,
-        cardBgClass,
-        borderClass,
-        textPrimaryClass,
-        textSecondaryClass
-    } = useThemeStyles();
+
     const { user } = useAuthStore();
     const userId = user?.uid || '';
 
@@ -144,11 +138,11 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
             onClose={onClose}
         >
             <div className="space-y-6">
-                <div className={`p-6 ${cardBgClass} border ${borderClass} rounded-2xl flex flex-col items-center text-center`}>
+                <div className={`p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl flex flex-col items-center text-center`}>
                     {isLoadingAdvances ? (
                         <div className="py-4 space-y-3">
                             <Loader2 size={32} className="animate-spin text-primary mx-auto" />
-                            <p className={`text-sm ${textSecondaryClass}`}>Đang kiểm tra dữ liệu...</p>
+                            <p className={`text-sm text-[var(--text-secondary)]`}>Đang kiểm tra dữ liệu...</p>
                         </div>
                     ) : (
                         <>
@@ -156,12 +150,12 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                 <Calculator size={32} className="text-primary" />
                             </div>
 
-                            <h3 className={`text-lg font-medium ${textPrimaryClass} mb-2`}>
+                            <h3 className={`text-lg font-medium text-[var(--text-primary)] mb-2`}>
                                 Quyết toán cho {employeeName}?
                             </h3>
 
                             <div className="my-4">
-                                <p className={`text-sm ${textSecondaryClass} mb-1 uppercase tracking-wide font-medium`}>
+                                <p className={`text-sm text-[var(--text-secondary)] mb-1 uppercase tracking-wide font-medium`}>
                                     Số tiền cần trả thêm
                                 </p>
                                 <p className={`text-3xl font-bold ${advanceBalance.balance >= 0 ? 'text-primary' : 'text-orange-500'}`}>
@@ -169,7 +163,7 @@ export const SettlementModal: React.FC<SettlementModalProps> = ({
                                 </p>
                             </div>
 
-                            <p className={`text-sm ${textSecondaryClass} max-w-xs mx-auto`}>
+                            <p className={`text-sm text-[var(--text-secondary)] max-w-xs mx-auto`}>
                                 Hành động này sẽ gạch nợ tất cả các khoản ứng và xác nhận thanh toán các ca làm việc hiện tại.
                             </p>
                         </>

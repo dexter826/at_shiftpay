@@ -1,7 +1,6 @@
 import React, { useEffect, useState, createContext, useContext, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -24,8 +23,6 @@ export const useToast = () => {
 };
 
 const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({ toast, onRemove }) => {
-    const { theme, textPrimaryClass, textMutedClass, cardBgClass } = useThemeStyles();
-
     useEffect(() => {
         const timer = setTimeout(() => onRemove(toast.id), 3000);
         return () => clearTimeout(timer);
@@ -45,7 +42,7 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
 
     return (
         <motion.div 
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} backdrop-blur-md shadow-lg ${cardBgClass}/90`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${bgColors[toast.type]} shadow-lg bg-[var(--bg-card)]/90`}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -53,10 +50,10 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: number) => void }> = ({
             layout
         >
             {icons[toast.type]}
-            <span className={`text-sm ${textPrimaryClass} flex-1`}>{toast.message}</span>
+            <span className={`text-sm text-[var(--text-primary)] flex-1`}>{toast.message}</span>
             <button 
                 onClick={() => onRemove(toast.id)} 
-                className={`${textMutedClass} hover:text-primary transition-colors`}
+                className={`text-[var(--text-muted)] hover:text-primary transition-colors`}
             >
                 <X size={16} />
             </button>

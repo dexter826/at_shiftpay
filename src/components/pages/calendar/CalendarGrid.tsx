@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../../ui/Skeleton';
 import { Event, Location } from '../../../types';
 import CalendarDay from './CalendarDay';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 
 interface CalendarGridProps {
     daysInMonth: Date[];
@@ -24,16 +23,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
     loading = false,
     onDateClick
 }) => {
-    const { borderClass, textMutedClass } = useThemeStyles();
+    
     
     // Key for animation based on month/year
     const monthKey = `${displayDate.getMonth()}-${displayDate.getFullYear()}`;
 
     return (
         <>
-            <div className={`grid grid-cols-7 border-b ${borderClass}`}>
+            <div className={`grid grid-cols-7 border-b border-[var(--border-color)]`}>
                 {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map(d => (
-                    <div key={d} className={`py-2 text-center text-[11px] font-medium ${textMutedClass}`}>{d}</div>
+                    <div key={d} className={`py-2 text-center text-[11px] font-medium text-[var(--text-muted)]`}>{d}</div>
                 ))}
             </div>
 

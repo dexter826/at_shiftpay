@@ -4,7 +4,6 @@ import { MapPin } from 'lucide-react';
 import { Skeleton } from '../../ui/Skeleton';
 import { LoadMore } from '../../ui/LoadMore';
 import LocationCard from './LocationCard';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { Location } from '../../../types';
 
 interface LocationListProps {
@@ -30,7 +29,7 @@ const LocationList: React.FC<LocationListProps> = ({
     onViewDetail,
     theme
 }) => {
-    const { cardBgClass, borderClass, textMutedClass } = useThemeStyles();
+    
 
     const hasMore = locations.length > visibleCount;
 
@@ -40,7 +39,7 @@ const LocationList: React.FC<LocationListProps> = ({
                 {loading ? (
                     <div className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className={`${cardBgClass} border ${borderClass} rounded-2xl overflow-hidden flex flex-col shadow-sm`}>
+                            <div key={i} className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden flex flex-col shadow-sm`}>
                                 <Skeleton width="100%" height={200} />
                                 <div className="p-5 space-y-4 flex-1">
                                     <div className="space-y-2">
@@ -66,7 +65,7 @@ const LocationList: React.FC<LocationListProps> = ({
                         key="empty"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className={`col-span-full text-center py-20 ${textMutedClass} ${cardBgClass} border ${borderClass} rounded-lg border-dashed`}
+                        className={`col-span-full text-center py-20 text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg border-dashed`}
                     >
                         <MapPin size={48} className="mx-auto mb-4 opacity-20" />
                         <p className="text-lg">Không tìm thấy địa điểm nào</p>

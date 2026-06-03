@@ -3,7 +3,7 @@ import { Modal } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import { Event, Shift, UserSettings, Location } from '../../../types';
 import { formatDate, formatCurrency } from '../../../utils/format';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+import { useThemeStore } from '../../../stores';
 import {
     MapPin, Clock, Calendar,
     ThumbsUp, ThumbsDown, StickyNote
@@ -33,15 +33,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     onDelete,
     settings
 }) => {
-    const {
-        theme,
-        borderClass,
-        textPrimaryClass,
-        textSecondaryClass,
-        textMutedClass,
-        highlightBgClass,
-        cardBgClass
-    } = useThemeStyles();
+    const theme = useThemeStore(state => state.theme);
 
     const editIconRef = React.useRef<AnimatedIconHandle>(null);
     const deleteIconRef = React.useRef<AnimatedIconHandle>(null);
@@ -96,30 +88,30 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         >
             <div className="space-y-4">
                 {/* 1. Thời gian & Địa điểm */}
-                <div className={`p-3 rounded-xl border ${borderClass} ${highlightBgClass} space-y-3`}>
+                <div className={`p-3 rounded-lg border border-[var(--border-color)] bg-[var(--border-color)] space-y-3`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Calendar size={15} className="text-primary" />
-                            <span className={`text-sm font-medium ${textPrimaryClass}`}>{formatDate(event.date)}</span>
+                            <span className={`text-sm font-medium text-[var(--text-primary)]`}>{formatDate(event.date)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock size={15} className="text-primary" />
-                            <span className={`text-sm font-medium ${textPrimaryClass}`}>{event.time || '--:--'}</span>
+                            <span className={`text-sm font-medium text-[var(--text-primary)]`}>{event.time || '--:--'}</span>
                         </div>
                     </div>
 
                     {locationInfo && (
-                        <div className={`flex items-start gap-2 pt-2 border-t border-dashed ${borderClass}`}>
+                        <div className={`flex items-start gap-2 pt-2 border-t border-dashed border-[var(--border-color)]`}>
                             <MapPin size={15} className="text-primary mt-0.5 flex-shrink-0" />
-                            <span className={`text-sm font-medium ${textSecondaryClass} leading-tight`}>{locationInfo.name}</span>
+                            <span className={`text-sm font-medium text-[var(--text-secondary)] leading-tight`}>{locationInfo.name}</span>
                         </div>
                     )}
                 </div>
 
                 {/* 2. Tài chính */}
-                <div className={`p-3.5 ${highlightBgClass} border ${borderClass} rounded-xl flex items-center justify-between`}>
+                <div className={`p-3.5 bg-[var(--border-color)] border border-[var(--border-color)] rounded-lg flex items-center justify-between`}>
                     <div>
-                        <p className={`text-[11px] ${textMutedClass} font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
+                        <p className={`text-[11px] text-[var(--text-muted)] font-semibold uppercase tracking-wider mb-1`}>Tổng tiền sự kiện</p>
                         <p className={`text-2xl font-black text-primary`}>
                             {formatCurrency(
                                 eventShifts.reduce((sum, shift) => sum + shift.amount, 0)
@@ -128,8 +120,8 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     </div>
                     <div className="text-right space-y-1">
                         <div className="flex items-center justify-end gap-1.5">
-                            <span className={`text-[11px] ${textMutedClass}`}>Lương:</span>
-                            <span className={`text-xs font-bold ${textPrimaryClass}`}>
+                            <span className={`text-[11px] text-[var(--text-muted)]`}>Lương:</span>
+                            <span className={`text-xs font-bold text-[var(--text-primary)]`}>
                                 {formatCurrency((event.amount || settings.shiftRate) * eventShifts.length)}
                             </span>
                         </div>
@@ -140,7 +132,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                             </div>
                         )}
                         {event.surchargeDistribution && event.surcharge > 0 && (
-                            <p className={`text-[10px] ${textMutedClass} italic`}>
+                            <p className={`text-[10px] text-[var(--text-muted)] italic`}>
                                 ({event.surchargeDistribution.type === 'equal'
                                     ? 'Chia đều'
                                     : `Chia cho ${event.surchargeDistribution.selectedEmployeeIds?.length || 0} người`})
@@ -153,7 +145,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 {(locationInfo?.review || event.note) && (
                     <div className="space-y-3">
                         {locationInfo?.review && (
-                            <div className={`p-4 rounded-xl border ${locationInfo.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                            <div className={`p-4 rounded-lg border ${locationInfo.review === 'high' ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
                                 <div className="flex items-center gap-2 mb-2.5">
                                     {locationInfo.review === 'high' ? (
                                         <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
@@ -176,12 +168,12 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                         )}
 
                         {event.note && (
-                            <div className={`p-3 rounded-xl border ${borderClass} bg-slate-500/5`}>
-                                <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5`}>
+                            <div className={`p-3 rounded-lg border border-[var(--border-color)] bg-slate-500/5`}>
+                                <p className={`text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5`}>
                                     <StickyNote size={12} />
                                     Ghi chú sự kiện
                                 </p>
-                                <p className={`text-sm ${textSecondaryClass} leading-relaxed`}>{event.note}</p>
+                                <p className={`text-sm text-[var(--text-secondary)] leading-relaxed`}>{event.note}</p>
                             </div>
                         )}
                     </div>
@@ -191,15 +183,15 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 {eventShifts.length > 0 && (
                     <div className="space-y-2">
                         <div className="flex justify-between items-center px-1">
-                            <p className={`text-[11px] ${textMutedClass} font-bold uppercase tracking-wider`}>Nhân viên ({eventShifts.length})</p>
+                            <p className={`text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider`}>Nhân viên ({eventShifts.length})</p>
                         </div>
                         <div className={`grid grid-cols-2 gap-2 max-h-[180px] overflow-y-auto pr-1 custom-scrollbar`}>
                             {eventShifts.map(shift => (
                                 <div key={shift.id} className={`flex flex-col gap-0.5 p-2 ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white border-slate-100'} border rounded-lg shadow-sm`}>
-                                    <span className={`text-xs font-semibold ${textPrimaryClass} truncate`}>{shift.employeeName}</span>
+                                    <span className={`text-xs font-semibold text-[var(--text-primary)] truncate`}>{shift.employeeName}</span>
                                     <div className="flex items-center gap-1.5">
                                         <span className={`w-1.5 h-1.5 rounded-full ${shift.session === 'morning' ? 'bg-orange-400' : 'bg-primary'}`}></span>
-                                        <span className={`text-[9px] font-medium ${textMutedClass}`}>
+                                        <span className={`text-[9px] font-medium text-[var(--text-muted)]`}>
                                             {shift.session === 'morning' ? 'Sáng' : 'Chiều'}
                                         </span>
                                     </div>

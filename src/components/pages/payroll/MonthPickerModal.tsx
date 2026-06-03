@@ -2,7 +2,6 @@ import React, { memo, useRef } from 'react';
 import { Modal } from '../../ui/Modal';
 import ChevronLeftIcon from '../../ui/icons/chevron-left-icon';
 import ChevronRightIcon from '../../ui/icons/chevron-right-icon';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { AnimatedIconHandle } from '../../ui/icons/types';
 
 interface MonthPickerModalProps {
@@ -22,13 +21,6 @@ const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
   viewYear,
   setViewYear,
 }) => {
-  const {
-    borderClass,
-    textSecondaryClass,
-    textPrimaryClass,
-    hoverBgClass,
-  } = useThemeStyles();
-
   const prevMonthRef = useRef<AnimatedIconHandle>(null);
   const nextMonthRef = useRef<AnimatedIconHandle>(null);
 
@@ -43,7 +35,7 @@ const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
             setFilterDate('');
             onClose();
           }}
-          className={`w-full py-2.5 rounded-lg text-sm font-medium border ${borderClass} ${textSecondaryClass} hover:${hoverBgClass} transition-colors`}
+          className={`w-full py-2.5 rounded-lg text-sm font-medium border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--border-color)] transition-colors`}
         >
           Xem tất cả lịch sử
         </button>
@@ -55,18 +47,18 @@ const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
             onClick={() => setViewYear(prev => prev - 1)}
             onMouseEnter={() => prevMonthRef.current?.startAnimation()}
             onMouseLeave={() => prevMonthRef.current?.stopAnimation()}
-            className={`p-1 rounded-full ${hoverBgClass}`}
+            className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
           >
-            <ChevronLeftIcon ref={prevMonthRef} size={20} className={textSecondaryClass} />
+            <ChevronLeftIcon ref={prevMonthRef} size={20} className="text-[var(--text-secondary)]" />
           </button>
-          <span className={`text-lg font-bold ${textPrimaryClass}`}>{viewYear}</span>
+          <span className={`text-lg font-bold text-[var(--text-primary)]`}>{viewYear}</span>
           <button
             onClick={() => setViewYear(prev => prev + 1)}
             onMouseEnter={() => nextMonthRef.current?.startAnimation()}
             onMouseLeave={() => nextMonthRef.current?.stopAnimation()}
-            className={`p-1 rounded-full ${hoverBgClass}`}
+            className={`p-1 rounded-full hover:bg-[var(--border-color)]`}
           >
-            <ChevronRightIcon ref={nextMonthRef} size={20} className={textSecondaryClass} />
+            <ChevronRightIcon ref={nextMonthRef} size={20} className="text-[var(--text-secondary)]" />
           </button>
         </div>
 
@@ -88,11 +80,9 @@ const MonthPickerModal: React.FC<MonthPickerModalProps> = ({
                          py-3 rounded-lg text-sm font-medium transition-colors border
                          ${isSelected
                     ? 'bg-primary text-white border-primary'
-                    : `
-                               ${hoverBgClass}
-                               ${borderClass} ${textSecondaryClass}
-                               ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}
-                            `
+                    : `hover:bg-[var(--border-color)]
+                               border-[var(--border-color)] text-[var(--text-secondary)]
+                               ${isCurrentMonth ? 'border-primary/50 text-primary' : ''}`
                   }
                       `}
               >

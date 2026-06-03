@@ -5,7 +5,7 @@ import Button from '../../ui/Button';
 import SearchInput from '../../ui/SearchInput';
 import { Dropdown } from '../../ui/Dropdown';
 import { Skeleton } from '../../ui/Skeleton';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+
 
 interface EmployeeToolbarProps {
   employeeCount: number;
@@ -28,7 +28,7 @@ const EmployeeToolbar: React.FC<EmployeeToolbarProps> = ({
   sortBy,
   onSortChange,
 }) => {
-  const { borderClass, textPrimaryClass } = useThemeStyles();
+  
 
   const sortOptions = [
     { value: 'name', label: 'Tên A-Z' },
@@ -37,10 +37,10 @@ const EmployeeToolbar: React.FC<EmployeeToolbarProps> = ({
   ];
 
   return (
-    <div className={`py-4 px-4 md:px-6 border-b ${borderClass}`}>
+    <div className={`py-4 px-4 md:px-6 border-b border-[var(--border-color)]`}>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className={`text-lg font-semibold ${textPrimaryClass}`}>
+          <h1 className={`text-lg font-semibold text-[var(--text-primary)]`}>
             {loading ? <Skeleton width={120} height={24} /> : `${employeeCount} nhân viên`}
           </h1>
         </div>
@@ -70,7 +70,7 @@ const EmployeeToolbar: React.FC<EmployeeToolbarProps> = ({
           onChange={(value) => onSortChange(value as any)}
           icon={<ArrowUpDown size={16} />}
           disabled={loading}
-          className="h-[42px]"
+          className="h-10"
         />
       </div>
     </div>

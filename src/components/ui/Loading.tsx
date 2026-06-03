@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useThemeStyles } from '../../hooks/useThemeStyles';
+import { useThemeStore } from '../../stores';
 
 const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
-  const { theme } = useThemeStyles();
+  const theme = useThemeStore(state => state.theme);
 
   return (
     <StyledWrapper $fullScreen={fullScreen} $theme={theme}>
@@ -77,7 +77,7 @@ const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
                   <text
                     x={66.5}
                     y={47.5}
-                    fontFamily="'Coiny', 'Comic Sans MS', 'Segoe UI', 'Arial', sans-serif"
+                    fontFamily="'Be Vietnam Pro', 'Segoe UI', 'Arial', sans-serif"
                     fontSize={20}
                     fill="#DC2626"
                     fontWeight="bold"
@@ -169,7 +169,7 @@ const Loader = ({ fullScreen = true }: { fullScreen?: boolean }) => {
                   <rect strokeWidth={2} stroke="#282828" fill="#282828" rx={1} height={11} width={4} y={81} x={193} />
                   <rect strokeWidth={3} stroke="#282828" fill="#DFDFDF" rx={2.5} height={90} width={121} y={1.5} x={6.5} />
                   <rect fill="#FBBF24" rx={1} height={24} width={115} y={34.5} x={9} />
-                  <text x={66.5} y={47.5} fontFamily="'Coiny', 'Comic Sans MS', 'Segoe UI', 'Arial', sans-serif" fontSize={20} fill="#DC2626" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fontStyle="italic">
+                  <text x={66.5} y={47.5} fontFamily="'Be Vietnam Pro', 'Segoe UI', 'Arial', sans-serif" fontSize={20} fill="#DC2626" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fontStyle="italic">
                     Anh Thư
                   </text>
                   <rect strokeWidth={2} stroke="#282828" fill="#DFDFDF" rx={2} height={4} width={6} y={84} x={1} />

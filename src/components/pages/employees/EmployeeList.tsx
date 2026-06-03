@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users } from 'lucide-react';
 import { Skeleton } from '../../ui/Skeleton';
 import { LoadMore } from '../../ui/LoadMore';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { Employee } from '../../../types';
 import EmployeeCard from './EmployeeCard';
 
@@ -20,79 +19,42 @@ interface EmployeeListProps {
 }
 
 const EmployeeList: React.FC<EmployeeListProps> = ({
-  employees,
-  loading,
-  visibleCount,
-  onLoadMore,
-  shiftCounts,
-  onEdit,
-  onDelete,
-  onDetail,
-  searchTerm,
+  employees, loading, visibleCount, onLoadMore, shiftCounts, onEdit, onDelete, onDetail, searchTerm,
 }) => {
-  const { cardBgClass, borderClass, textMutedClass } = useThemeStyles();
-
   return (
-    <div className="px-4 pt-5 pb-4 md:px-6 md:pt-6 md:pb-6">
+    <div className="px-4 md:px-6 pt-2 pb-4">
       <AnimatePresence mode="wait">
         {loading ? (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-              <div key={i} className={`flex flex-col ${cardBgClass} border ${borderClass} rounded-xl overflow-hidden relative aspect-square`}>
-                <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-2">
-                  <Skeleton variant="circular" width={64} height={64} />
-                  <Skeleton width={80} height={16} />
-                  <Skeleton width={60} height={12} />
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                <div key={i} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg aspect-square p-3 flex flex-col items-center justify-center gap-2">
+                  <Skeleton variant="circular" width={48} height={48} />
+                  <Skeleton variant="text" width="60%" height={14} />
+                  <Skeleton variant="text" width="40%" height={11} />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </motion.div>
         ) : (
-          <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
-          >
-            {employees.slice(0, visibleCount).map((emp) => (
-              <EmployeeCard
-                key={emp.id}
-                employee={emp}
-                shiftCount={shiftCounts[emp.id] || 0}
-                onClick={onDetail}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
-            ))}
+          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {employees.slice(0, visibleCount).map((emp) => (
+                <EmployeeCard key={emp.id} employee={emp} shiftCount={shiftCounts[emp.id] || 0} onClick={onDetail} onEdit={onEdit} onDelete={onDelete} />
+              ))}
+            </div>
 
-            <LoadMore
-              currentCount={visibleCount}
-              totalCount={employees.length}
-              onLoadMore={onLoadMore}
-              unit="nhân viên"
-              className="pt-2 pb-4 col-span-full"
-            />
+            {employees.length === 0 && !loading && (
+              <div className="text-center py-12 text-[var(--text-muted)]">
+                <Users size={24} className="mx-auto mb-2 opacity-50" />
+                <p className="text-sm">{searchTerm ? 'Không tìm thấy nhân viên nào' : 'Chưa có nhân viên nào'}</p>
+              </div>
+            )}
+
+            <LoadMore currentCount={visibleCount} totalCount={employees.length} onLoadMore={onLoadMore} unit="nhân viên" className="mt-3 col-span-full" />
           </motion.div>
         )}
       </AnimatePresence>
-
-      {!loading && employees.length === 0 && (
-        <div className={`text-center py-12 ${textMutedClass}`}>
-          <Users size={24} className="mx-auto mb-2 opacity-50" />
-          <p className="text-sm">
-            {searchTerm ? 'Không tìm thấy nhân viên nào' : 'Chưa có nhân viên nào'}
-          </p>
-        </div>
-      )}
     </div>
   );
 };

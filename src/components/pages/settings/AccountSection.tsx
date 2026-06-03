@@ -4,7 +4,6 @@ import { auth } from '../../../firebase';
 import { updateProfile } from 'firebase/auth';
 import { dbService } from '../../../services';
 import { useAuthStore } from '../../../stores/authStore';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { useToast } from '../../ui/Toast';
 import { ImageCropperModal } from '../../modals/ImageCropperModal';
 import { ChangePasswordModal } from '../../auth/ChangePasswordModal';
@@ -18,13 +17,7 @@ interface AccountSectionProps {
 }
 
 const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
-    const {
-        cardBgClass,
-        textPrimaryClass,
-        textMutedClass,
-        borderClass,
-        hoverBgClass
-    } = useThemeStyles();
+    const itemHover = 'hover:bg-[var(--border-color)]';
     const { showToast } = useToast();
     const saveUserInfo = useAuthStore(state => state.saveUserInfo);
 
@@ -106,17 +99,17 @@ const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
         }
     };
 
-    const itemHover = hoverBgClass;
+
 
     return (
         <section>
-            <div className={`flex items-center gap-2 mb-4 px-1 ${textMutedClass} text-sm font-medium uppercase tracking-wider`}>
+            <div className={`flex items-center gap-2 mb-4 px-1 text-[var(--text-muted)] text-sm font-medium uppercase tracking-wider`}>
                 <User size={16} />
                 <span>Tài khoản</span>
             </div>
             
-            <div className={`${cardBgClass} rounded-xl border ${borderClass} overflow-hidden`}>
-                <div className={`p-4 flex items-center gap-4 border-b ${borderClass}`}>
+            <div className={`bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden`}>
+                <div className={`p-4 flex items-center gap-4 border-b border-[var(--border-color)]`}>
                     <div
                         onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
                         className={`relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary flex-shrink-0 cursor-pointer group`}
@@ -153,7 +146,7 @@ const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
                                     type="text"
                                     value={editedName}
                                     onChange={(e) => setEditedName(e.target.value)}
-                                    className={`flex-1 min-w-0 px-3 py-2 rounded-lg border ${borderClass} bg-transparent ${textPrimaryClass} focus:outline-none focus:border-primary text-sm`}
+                                    className={`flex-1 min-w-0 px-3 py-2 rounded-lg border border-[var(--border-color)] bg-transparent text-[var(--text-primary)] focus:outline-none focus:border-primary text-sm`}
                                     placeholder="Nhập tên hiển thị"
                                     autoFocus
                                 />
@@ -174,18 +167,18 @@ const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <h3 className={`font-semibold ${textPrimaryClass}`}>
+                                <h3 className={`font-semibold text-[var(--text-primary)]`}>
                                     {user?.displayName || 'Người dùng'}
                                 </h3>
                                 <button
                                     onClick={() => setIsEditingName(true)}
-                                    className={`p-1 rounded ${hoverBgClass} ${textMutedClass} transition-colors`}
+                                    className={`p-1 rounded hover:bg-[var(--border-color)] text-[var(--text-muted)] transition-colors`}
                                 >
                                     <Edit2 size={14} />
                                 </button>
                             </div>
                         )}
-                        <p className={`text-sm ${textMutedClass}`}>{user?.email}</p>
+                        <p className={`text-sm text-[var(--text-muted)]`}>{user?.email}</p>
                     </div>
                 </div>
 
@@ -193,18 +186,18 @@ const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
                     onClick={() => setShowPasswordModal(true)}
                     onMouseEnter={() => passwordIconRef.current?.startAnimation()}
                     onMouseLeave={() => passwordIconRef.current?.stopAnimation()}
-                    className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left border-b ${borderClass}`}
+                    className={`w-full flex items-center justify-between p-4 ${itemHover} transition-colors text-left border-b border-[var(--border-color)]`}
                 >
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-primary/10 text-primary">
                             <KeyIcon ref={passwordIconRef} size={20} />
                         </div>
                         <div>
-                            <p className={`font-medium ${textPrimaryClass}`}>Đổi mật khẩu</p>
-                            <p className={`text-xs ${textMutedClass}`}>Cập nhật mật khẩu đăng nhập</p>
+                            <p className={`font-medium text-[var(--text-primary)]`}>Đổi mật khẩu</p>
+                            <p className={`text-xs text-[var(--text-muted)]`}>Cập nhật mật khẩu đăng nhập</p>
                         </div>
                     </div>
-                    <ChevronRight size={18} className={textMutedClass} />
+                    <ChevronRight size={18} className="text-[var(--text-muted)]" />
                 </button>
 
                 <button
@@ -218,11 +211,11 @@ const AccountSection: React.FC<AccountSectionProps> = ({ user }) => {
                             <TrashIcon ref={deleteIconRef} size={20} />
                         </div>
                         <div>
-                            <p className={`font-medium ${textPrimaryClass} group-hover:text-red-600`}>Xóa tài khoản</p>
-                            <p className={`text-xs ${textMutedClass}`}>Xóa vĩnh viễn toàn bộ dữ liệu của bạn</p>
+                            <p className={`font-medium text-[var(--text-primary)] group-hover:text-red-600`}>Xóa tài khoản</p>
+                            <p className={`text-xs text-[var(--text-muted)]`}>Xóa vĩnh viễn toàn bộ dữ liệu của bạn</p>
                         </div>
                     </div>
-                    <ChevronRight size={18} className={textMutedClass} />
+                    <ChevronRight size={18} className="text-[var(--text-muted)]" />
                 </button>
             </div>
 

@@ -4,7 +4,6 @@ import { CheckCircle2, ChevronRightIcon } from 'lucide-react';
 import { Skeleton } from '../../ui/Skeleton';
 import { LoadMore } from '../../ui/LoadMore';
 import { formatCurrency } from '../../../utils/format';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { PayrollSummary } from '../../../types';
 
 interface PayrollListProps {
@@ -28,13 +27,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
   onPaymentClick,
   searchTerm,
 }) => {
-  const {
-    cardBgClass,
-    borderClass,
-    textSecondaryClass,
-    textMutedClass,
-    hoverBgClass,
-  } = useThemeStyles();
+  
 
   return (
     <AnimatePresence mode="wait">
@@ -48,7 +41,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
           className="space-y-2"
         >
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg flex justify-between items-center`}>
+            <div key={i} className={`w-full p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg flex justify-between items-center`}>
               <div className="flex items-center gap-3 w-full">
                 <Skeleton variant="circular" width={36} height={36} />
                 <div className="flex-1 space-y-2">
@@ -70,7 +63,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
           className="space-y-2"
         >
           {items.length === 0 ? (
-            <div className={`text-center py-10 ${textMutedClass}`}>
+            <div className={`text-center py-10 text-[var(--text-muted)]`}>
               <CheckCircle2 size={48} className="mx-auto mb-2 opacity-20" />
               <p>{searchTerm ? 'Không tìm thấy nhân viên nào' : 'Không có khoản nợ nào'}</p>
             </div>
@@ -97,7 +90,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
                         onPaymentClick(item.employeeId);
                       }
                     }}
-                    className={`w-full p-3 ${cardBgClass} border ${borderClass} rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
+                    className={`w-full p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg hover:border-primary/50 transition-colors flex justify-between items-center group`}
                   >
                     <div className="flex items-center gap-3">
                       {employeeImage ? (
@@ -105,17 +98,17 @@ const PayrollList: React.FC<PayrollListProps> = ({
                           src={employeeImage}
                           alt={item.employeeName}
                           decoding="async"
-                          className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : borderClass}`}
+                          className={`w-9 h-9 rounded-full object-cover border-2 ${item.totalUnpaid > 0 ? 'border-primary' : 'border-[var(--border-color)]'}`}
                         />
                       ) : (
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : `${hoverBgClass} ${textMutedClass}`
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${item.totalUnpaid > 0 ? 'bg-primary/10 text-primary' : 'hover:bg-[var(--border-color)] text-[var(--text-muted)]'
                           }`}>
                           {item.employeeName.charAt(0)}
                         </div>
                       )}
                       <div className="text-left">
                         <div className="flex items-center gap-2">
-                          <p className={`text-sm font-medium ${textSecondaryClass}`}>{item.employeeName}</p>
+                          <p className={`text-sm font-medium text-[var(--text-secondary)]`}>{item.employeeName}</p>
                           {itemWithFees.totalFees && itemWithFees.totalFees > 0 && (
                             <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/30 rounded">
                               Có phụ phí
@@ -134,7 +127,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
                             </span>
                           )}
                           {item.unpaidCount === 0 && item.advancedCount === 0 && (
-                            <span className={textMutedClass}>Không có công nợ</span>
+                            <span className="text-[var(--text-muted)]">Không có công nợ</span>
                           )}
                         </div>
                       </div>
@@ -142,7 +135,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
 
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <span className={`text-sm font-medium ${item.totalUnpaid > 0 ? 'text-primary' : textMutedClass}`}>
+                        <span className={`text-sm font-medium tabular-nums ${item.totalUnpaid > 0 ? 'text-primary' : 'text-[var(--text-muted)]'}`}>
                           {formatCurrency(item.totalUnpaid)}
                         </span>
                         {item.totalAdvanced > 0 && (
@@ -151,7 +144,7 @@ const PayrollList: React.FC<PayrollListProps> = ({
                           </p>
                         )}
                       </div>
-                      <ChevronRightIcon size={16} className={textMutedClass} />
+                      <ChevronRightIcon size={16} className="text-[var(--text-muted)]" />
                     </div>
                   </button>
                 );

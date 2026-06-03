@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '../../ui/Skeleton';
 import { formatCurrency } from '../../../utils/format';
 import { Wallet2 } from 'lucide-react';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
+
 
 interface PayrollStatsProps {
   loading: boolean;
@@ -26,10 +26,7 @@ const PayrollStats: React.FC<PayrollStatsProps> = ({
   totalUnpaidShifts,
   totalAdvancedShifts,
 }) => {
-  const {
-    textPrimaryClass,
-    textMutedClass,
-  } = useThemeStyles();
+  
 
   return (
     <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
@@ -59,7 +56,7 @@ const PayrollStats: React.FC<PayrollStatsProps> = ({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-3xl font-bold text-blue-500"
+                className="text-3xl font-bold text-blue-500 tabular-nums"
               >
                 {formatCurrency(totalEarned)}
               </motion.p>
@@ -93,7 +90,7 @@ const PayrollStats: React.FC<PayrollStatsProps> = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-lg font-bold text-primary mt-1"
+                  className="text-lg font-bold text-primary mt-1 tabular-nums"
                 >
                   {formatCurrency(totalDebt)}
                 </motion.p>
@@ -123,13 +120,13 @@ const PayrollStats: React.FC<PayrollStatsProps> = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className={`text-lg font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
+                  className={`text-lg font-bold mt-1 tabular-nums ${totalAdvanced > 0 ? 'text-orange-500' : 'text-[var(--text-muted)]'}`}
                 >
                   {formatCurrency(totalAdvanced)}
                 </motion.p>
               )}
             </AnimatePresence>
-            <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
+            <p className={`text-xs ${totalAdvanced > 0 ? 'text-orange-500' : 'text-[var(--text-muted)]'}`}>
               {totalAdvancedShifts} công
             </p>
           </div>
@@ -193,13 +190,13 @@ const PayrollStats: React.FC<PayrollStatsProps> = ({
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}
+                    className={`text-2xl font-bold mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-[var(--text-muted)]'}`}
                   >
                     {formatCurrency(totalAdvanced)}
                   </motion.p>
                 )}
               </AnimatePresence>
-              <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : textMutedClass}`}>
+              <p className={`text-xs mt-1 ${totalAdvanced > 0 ? 'text-orange-500' : 'text-[var(--text-muted)]'}`}>
                 {totalAdvancedShifts} công
               </p>
             </div>

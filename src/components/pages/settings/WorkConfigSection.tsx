@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, Save, Loader2 } from 'lucide-react';
 import { UserSettings } from '../../../types';
 import { dbService } from '../../../services';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { useToast } from '../../ui/Toast';
 import Button from '../../ui/Button';
 import { TimePicker } from '../../ui/TimePicker';
@@ -14,13 +13,7 @@ interface WorkConfigSectionProps {
 }
 
 const WorkConfigSection: React.FC<WorkConfigSectionProps> = ({ userUid, settings }) => {
-    const {
-        cardBgClass,
-        textPrimaryClass,
-        textMutedClass,
-        borderClass,
-        highlightBgClass
-    } = useThemeStyles();
+    
     const { showToast } = useToast();
 
     const [editSettings, setEditSettings] = useState<UserSettings>(settings);
@@ -54,31 +47,31 @@ const WorkConfigSection: React.FC<WorkConfigSectionProps> = ({ userUid, settings
 
     return (
         <section>
-            <div className={`flex items-center gap-2 mb-4 px-1 ${textMutedClass} text-sm font-medium uppercase tracking-wider`}>
+            <div className={`flex items-center gap-2 mb-4 px-1 text-[var(--text-muted)] text-sm font-medium uppercase tracking-wider`}>
                 <Briefcase size={16} />
                 <span>Cấu hình công việc</span>
             </div>
             
-            <div className={`${cardBgClass} rounded-xl border ${borderClass}`}>
+            <div className={`bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)]`}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {/* Mức lương */}
-                    <div className={`p-4 border-b sm:border-r lg:border-b-0 ${borderClass}`}>
+                    <div className={`p-4 border-b sm:border-r lg:border-b-0 border-[var(--border-color)]`}>
                         <div className="flex items-center justify-between mb-2">
-                            <label className={`font-medium ${textPrimaryClass}`}>Mức lương / ca</label>
-                            <span className={`text-xs ${textMutedClass} px-2 py-1 rounded ${highlightBgClass}`}>VNĐ</span>
+                            <label className={`font-medium text-[var(--text-primary)]`}>Mức lương / ca</label>
+                            <span className={`text-xs text-[var(--text-muted)] px-2 py-1 rounded bg-[var(--border-color)]`}>VNĐ</span>
                         </div>
                         <input
                             type="number"
                             value={editSettings.shiftRate}
                             onChange={(e) => handleChange('shiftRate', Number(e.target.value))}
-                            className={`w-full p-3 rounded-lg border ${borderClass} bg-transparent ${textPrimaryClass} focus:outline-none focus:border-primary transition-colors`}
+                            className={`w-full p-3 rounded-lg border border-[var(--border-color)] bg-transparent text-[var(--text-primary)] focus:outline-none focus:border-primary transition-colors`}
                         />
-                        <p className={`text-xs ${textMutedClass} mt-2`}>Áp dụng cho các ca làm việc mới</p>
+                        <p className={`text-xs text-[var(--text-muted)] mt-2`}>Áp dụng cho các ca làm việc mới</p>
                     </div>
 
                     {/* Giờ trực - Sáng */}
-                    <div className={`p-4 border-b lg:border-r lg:border-b-0 ${borderClass}`}>
-                        <label className={`block font-medium ${textPrimaryClass} mb-3`}>Giờ bắt đầu ca sáng</label>
+                    <div className={`p-4 border-b lg:border-r lg:border-b-0 border-[var(--border-color)]`}>
+                        <label className={`block font-medium text-[var(--text-primary)] mb-3`}>Giờ bắt đầu ca sáng</label>
                         <TimePicker
                             value={editSettings.morningTime}
                             onChange={(v) => handleChange('morningTime', v)}
@@ -87,7 +80,7 @@ const WorkConfigSection: React.FC<WorkConfigSectionProps> = ({ userUid, settings
 
                     {/* Giờ trực - Chiều */}
                     <div className="p-4">
-                        <label className={`block font-medium ${textPrimaryClass} mb-3`}>Giờ bắt đầu ca chiều</label>
+                        <label className={`block font-medium text-[var(--text-primary)] mb-3`}>Giờ bắt đầu ca chiều</label>
                         <TimePicker
                             value={editSettings.afternoonTime}
                             onChange={(v) => handleChange('afternoonTime', v)}
@@ -104,7 +97,7 @@ const WorkConfigSection: React.FC<WorkConfigSectionProps> = ({ userUid, settings
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className={`p-4 border-t ${borderClass} flex items-center justify-end gap-3`}>
+                            <div className={`p-4 border-t border-[var(--border-color)] flex items-center justify-end gap-3`}>
                                 <Button
                                     onClick={handleCancelSettings}
                                     disabled={saving}

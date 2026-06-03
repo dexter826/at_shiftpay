@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Trash2, Loader2 } from 'lucide-react';
-import { useThemeStyles } from '../../../hooks/useThemeStyles';
 import { dbService } from '../../../services';
 import { auth } from '../../../firebase';
 import { deleteUser } from 'firebase/auth';
@@ -15,7 +14,6 @@ interface DeleteAccountModalProps {
 }
 
 export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, onClose }) => {
-    const { textPrimaryClass: textMain, textMutedClass: textSub, borderClass: border } = useThemeStyles();
     const { showToast } = useToast();
     const clearSavedUserInfo = useAuthStore(state => state.clearSavedUserInfo);
     const [confirmText, setConfirmText] = useState('');
@@ -80,19 +78,19 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
             }
         >
             <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 text-red-500 mb-2">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 text-red-500 mb-2">
                     <AlertTriangle size={24} className="flex-shrink-0" />
                     <p className="text-sm font-medium">
                         Hành động này <span className="font-bold uppercase underline">không thể hoàn tác</span>!
                     </p>
                 </div>
 
-                <p className={`text-sm ${textSub} leading-relaxed`}>
+                <p className={`text-sm text-[var(--text-muted)] leading-relaxed`}>
                     Toàn bộ dữ liệu về nhân viên, ca làm, sự kiện và lịch sử thanh toán của bạn sẽ bị xóa vĩnh viễn khỏi hệ thống.
                 </p>
 
                 <div className="pt-2">
-                    <label className={`block text-sm font-medium ${textMain} mb-2`}>
+                    <label className={`block text-sm font-medium text-[var(--text-primary)] mb-2`}>
                         Nhập <span className="font-bold text-red-500">"{REQUIRED_CONFIRM_TEXT}"</span> để xác nhận:
                     </label>
                     <input
@@ -100,7 +98,7 @@ export const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ isOpen, 
                         value={confirmText}
                         onChange={(e) => setConfirmText(e.target.value)}
                         placeholder={REQUIRED_CONFIRM_TEXT}
-                        className={`w-full px-4 py-3 rounded-xl border ${border} bg-transparent ${textMain} focus:outline-none focus:border-red-500 transition-colors text-sm`}
+                        className={`w-full px-4 py-3 rounded-lg border border-[var(--border-color)] bg-transparent text-[var(--text-primary)] focus:outline-none focus:border-red-500 transition-colors text-sm`}
                         autoFocus
                     />
                 </div>
